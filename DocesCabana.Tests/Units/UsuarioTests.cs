@@ -7,7 +7,6 @@ public class UsuarioTests
     [Fact]
     public void Inserir_Usuario_Valido_Retorna_Usuario()
     {
-        // Arrange & Act
         var usuario = new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
@@ -17,14 +16,12 @@ public class UsuarioTests
             cpf: "548.394.270-11"
         );
 
-        // Assert
         Assert.NotNull(usuario);
     }
 
     [Fact]
     public void Inserir_Nome_Nulo_Lanca_ArgumentNullException()
     {
-        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => new Usuario(
             nome: "",
             email: "joao.silva@example.com",
@@ -38,7 +35,6 @@ public class UsuarioTests
     [Fact]
     public void Inserir_Email_Nulo_Lanca_ArgumentNullException()
     {
-        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => new Usuario(
             nome: "João Silva",
             email: "",
@@ -52,7 +48,6 @@ public class UsuarioTests
     [Fact]
     public void Inserir_Email_Invalido_Lanca_ArgumentException()
     {
-        // Arrange & Act & Assert
         Assert.Throws<ArgumentException>(() => new Usuario(
             nome: "João Silva",
             email: "email_invalido",
@@ -66,7 +61,6 @@ public class UsuarioTests
     [Fact]
     public void Inserir_Senha_Nula_Lanca_ArgumentNullException()
     {
-        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
@@ -80,7 +74,6 @@ public class UsuarioTests
     [Fact]
     public void Inserir_Senha_Invalida_Lanca_ArgumentException()
     {
-        // Arrange & Act & Assert
         Assert.Throws<ArgumentException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
@@ -94,7 +87,6 @@ public class UsuarioTests
     [Fact]
     public void Inserir_Celular_Nulo_Lanca_ArgumentNullException()
     {
-        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
@@ -108,7 +100,6 @@ public class UsuarioTests
     [Fact]
     public void Inserir_Celular_Invalido_Lanca_ArgumentException()
     {
-        // Arrange & Act & Assert
         Assert.Throws<ArgumentException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
@@ -122,7 +113,6 @@ public class UsuarioTests
     [Fact]
     public void Inserir_CPF_Nulo_Lanca_ArgumentNullException()
     {
-        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
@@ -136,7 +126,6 @@ public class UsuarioTests
     [Fact]
     public void Inserir_CPF_Invalido_Lanca_ArgumentException()
     {
-        // Arrange & Act & Assert
         Assert.Throws<ArgumentException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
