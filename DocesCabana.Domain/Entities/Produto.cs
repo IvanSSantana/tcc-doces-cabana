@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace DocesCabana.Domain.Entities;
 
 public class Produto
