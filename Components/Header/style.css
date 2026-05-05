@@ -1,0 +1,220 @@
+/* ============================================================
+   RESET & BASE
+============================================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --green-dark:    #004d33;
+    --green-main:    #005438;
+    --green-hover:   #006644;
+    --white:         #ffffff;
+    --white-80:      rgba(255, 255, 255, 0.80);
+    --white-20:      rgba(255, 255, 255, 0.20);
+    --red-fav:       #c0392b;
+    --red-fav-hover: #a93226;
+    --border-nav:    rgba(255, 255, 255, 0.18);
+
+    --font-body:  'Inter', sans-serif;
+    --font-fav:   'Nothing You Could Do', cursive;
+}
+
+body {
+    font-family: var(--font-body);
+    background: #f5f0e8;
+}
+
+/* ============================================================
+   HEADER
+============================================================ */
+.header {
+    width: 100%;
+    background-color: var(--green-main);
+    padding: 0 8% 0 8%;
+}
+
+/* Top bar — logo + search + actions */
+.header__top {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 14px 40px;                    /* ← margens laterais aumentadas */
+}
+
+/* Logo */
+.header__logo-link {
+    display: flex;
+    flex-shrink: 0;
+}
+
+.header__logo {
+    width: 90px;                           /* ← logo ligeiramente menor */
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.25));
+}
+
+/* Barra de pesquisa — mais fiel à imagem */
+.header__search {
+    flex: 1;
+    max-width: 520px;
+    display: flex;
+    align-items: center;
+    background: var(--white);
+    border-radius: 22px;                   /* ← proporcional à nova altura */
+    overflow: hidden;
+    padding: 0 6px 0 18px;
+    height: 44px;                          /* ← aumentada (era 40px) */
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); /* leve sombra para profundidade */
+    margin-left: 7%;
+}
+
+.search__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: var(--font-body);
+    font-size: 15px;                       /* ← texto ligeiramente maior */
+    color: #333;
+    background: transparent;
+}
+
+.search__input::placeholder {
+    color: #aaa;
+}
+
+.search__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: var(--green-main);
+    color: var(--white);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.search__btn:hover {
+    background: var(--green-hover);
+}
+
+/* Ações (Entrar, Carrinho) */
+.header__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 15px;                       /* ← texto maior */
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.action-btn:hover {
+    background: var(--white-20);
+}
+
+.action-btn svg {
+    flex-shrink: 0;
+    opacity: 0.9;
+}
+
+/* ============================================================
+   NAVEGAÇÃO
+============================================================ */
+.header__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;                       /* ← margens laterais consistentes */
+    border-top: 1px solid var(--border-nav);
+}
+
+.nav__list {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.nav__link {
+    display: flex;
+    align-items: center;                   /* ← garante centralização vertical */
+    gap: 5px;
+    background: transparent;
+    border: none;
+    color: var(--white-80);
+    font-family: var(--font-body);
+    font-size: 15px;                       /* ← texto maior */
+    font-weight: 600;
+    padding: 12px 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+}
+
+.nav__link:hover {
+    background: var(--white-20);
+    color: var(--white);
+}
+
+/* Seta centralizada verticalmente */
+.nav__arrow {
+    font-size: inherit;                    /* ← mesmo tamanho do texto */
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    opacity: 0.7;
+    transform: translateY(1px);            /* ← ajuste fino opcional */
+}
+
+/* Botão Favoritos — fonte "Nothing You Could Do" */
+.nav__favoritos {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--red-fav);
+    border: none;
+    color: var(--white);
+    font-family: var(--font-fav);          /* ← Nothing You Could Do */
+    font-size: 16px;                       /* ← levemente maior para caligrafia */
+    padding: 7px 20px;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    white-space: nowrap;
+    margin: 6px 0;
+}
+
+.nav__favoritos:hover {
+    background: var(--red-fav-hover);
+    transform: translateY(-1px);
+}
+
+.nav__favoritos svg {
+    flex-shrink: 0;
+}
