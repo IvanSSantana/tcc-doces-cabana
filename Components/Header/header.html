@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doce Cabana — Header Variante 1</title>
+
+    <!-- Fontes: Inter (corpo) + Nothing You Could Do (Favoritos) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Nothing+You+Could+Do&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header__top">
+            <a href="#" class="header__logo-link">
+                <img
+                    src="https://images.squarespace-cdn.com/content/v1/682f45db7481367eb4ac9803/e90a234b-bab5-4839-b072-59ca8ae7aff2/Logo+Aprova%C3%A7%C3%A3o+Final+Doce+Cabana+rgb.png?format=1500w"
+                    alt="Doce Cabana"
+                    class="header__logo"
+                >
+            </a>
+
+            <div class="header__search">
+                <input type="text" placeholder="Buscar produto..." class="search__input" aria-label="Buscar produto">
+                <button class="search__btn" aria-label="Pesquisar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+            </div>
+
+            <div class="header__actions">
+                <button class="action-btn" aria-label="Entrar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Entrar</span>
+                </button>
+                <button class="action-btn" aria-label="Meu carrinho">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span>Meu carrinho</span>
+                </button>
+            </div>
+        </div>
+
+        <nav class="header__nav" aria-label="Categorias">
+            <ul class="nav__list">
+                <li class="nav__item">
+                    <button class="nav__link">Doce <span class="nav__arrow">&#8964;</span></button>
+                </li>
+                <li class="nav__item">
+                    <button class="nav__link">Salgado <span class="nav__arrow">&#8964;</span></button>
+                </li>
+                <li class="nav__item">
+                    <button class="nav__link">Adega <span class="nav__arrow">&#8964;</span></button>
+                </li>
+                <li class="nav__item">
+                    <button class="nav__link">Outros <span class="nav__arrow">&#8964;</span></button>
+                </li>
+            </ul>
+            <button class="nav__favoritos" aria-label="Favoritos">
+                Favoritos
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+        </nav>
+    </header>
+
+</body>
+</html>
