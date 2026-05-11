@@ -12,6 +12,8 @@ public class Usuario
     public DateTime DataNascimento { get; set; }
     public string CPF { get; private set; }
 
+    protected Usuario() { }
+
     public Usuario(string nome, string email, string senha, string celular, DateTime dataNascimento, string cpf, Guid id = default)
     {
         if (id == default)
@@ -55,7 +57,6 @@ public class Usuario
         if (string.IsNullOrWhiteSpace(senha))
             throw new ArgumentNullException("Senha é obrigatória!");
 
-        // Aceita CPFs já formatadas e somente números
         Regex validacao_regex = new(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$");
 
         if (!validacao_regex.IsMatch(senha))

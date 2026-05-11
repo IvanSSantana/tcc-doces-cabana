@@ -1,15 +1,21 @@
-﻿using DocesCabana.Domain.Entities;
+using System.Reflection;
+using DocesCabana.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Infrastructure.DatabaseContext;
 
-// A revisar
 public class DocesCabanaDbContext : DbContext    
 {   
     public DocesCabanaDbContext(DbContextOptions<DocesCabanaDbContext> options) : base(options)
     {
     }
 
-    public DbSet<Produto> Produtos => Set<Produto>();
-    public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<Produto> Produtos { get; set; }
+    public DbSet<Usuario> Usuarios { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        base.OnModelCreating(modelBuilder);
+    }
 }
