@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card-MaisVendidos</title>
+    <link rel="stylesheet" href="card.css">
+</head>
+<body>
+
+    
+  <div class="mv-section">
+    <h2 class="mv-title">Mais Vendidos</h2>
+ 
+    <div class="mv-grid">
+ 
+      <div class="mv-card">
+        <div class="mv-img-placeholder" style="background:#fdf6f6;"><img src="" alt="raspatacho"></div>
+        <div class="mv-name">Raspa Tacho</div>
+        <div class="mv-price">R$ 19,99</div>
+        <div class="mv-bottom">
+          <div class="mv-controls">
+            <button class="mv-qty-btn" onclick="change(this,-1)">−</button>
+            <span class="mv-qty">1</span>
+            <button class="mv-qty-btn" onclick="change(this,1)">+</button>
+          </div>
+          <button class="mv-add-btn">Adicionar</button>
+        </div>
+      </div>
+ 
+      <div class="mv-card">
+        <div class="mv-img-placeholder" style="background:#fdf6f6;"><img src="" alt="doce de leite com nozes"></div>
+        <div class="mv-name">Doce de Leite com Nozes</div>
+        <div class="mv-price">R$ 19,99</div>
+        <div class="mv-bottom">
+          <div class="mv-controls">
+            <button class="mv-qty-btn" onclick="change(this,-1)">−</button>
+            <span class="mv-qty">1</span>
+            <button class="mv-qty-btn" onclick="change(this,1)">+</button>
+          </div>
+          <button class="mv-add-btn">Adicionar</button>
+        </div>
+      </div>
+ 
+      <div class="mv-card">
+        <div class="mv-img-placeholder" style="background:#fdf6f6;"><img src="" alt="goiabada"></div>
+        <div class="mv-name">Goiabada Na Palha</div>
+        <div class="mv-price">R$ 25,99</div>
+        <div class="mv-bottom">
+          <div class="mv-controls">
+            <button class="mv-qty-btn" onclick="change(this,-1)">−</button>
+            <span class="mv-qty">1</span>
+            <button class="mv-qty-btn" onclick="change(this,1)">+</button>
+          </div>
+          <button class="mv-add-btn">Adicionar</button>
+        </div>
+      </div>
+ 
+      <div class="mv-card">
+        <div class="mv-img-placeholder" style="background:#fdf6f6;"><img src="" alt="bananada"></div>
+        <div class="mv-name">Bananada Na Palha</div>
+        <div class="mv-price">R$ 25,99</div>
+        <div class="mv-bottom">
+          <div class="mv-controls">
+            <button class="mv-qty-btn" onclick="change(this,-1)">−</button>
+            <span class="mv-qty">1</span>
+            <button class="mv-qty-btn" onclick="change(this,1)">+</button>
+          </div>
+          <button class="mv-add-btn">Adicionar</button>
+        </div>
+      </div>
+ 
+    </div>
+ 
+    <div class="mv-nav">
+      <div class="mv-arrow">&#8592;</div>
+      <div class="mv-dots">
+        <div class="mv-dot active"></div>
+        <div class="mv-dot"></div>
+        <div class="mv-dot"></div>
+        <div class="mv-dot"></div>
+      </div>
+      <div class="mv-arrow">&#8594;</div>
+    </div>
+  </div>
+ 
+  <script>
+    function change(btn, delta) {
+      const ctrl = btn.closest('.mv-controls');
+      const span = ctrl.querySelector('.mv-qty');
+      let v = parseInt(span.textContent) + delta;
+      if (v < 1) v = 1;
+      span.textContent = v;
+    }
+  </script>
+    
+</body>
+</html>
