@@ -1,35 +1,32 @@
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Identity;
 
 namespace DocesCabana.Domain.Entities;
 
-public class Usuario
+public class Usuario : IdentityUser<Guid>
 {
-    public Guid UsuarioId { get; set; }
     public string Nome { get; private set; }
-    public string Email { get; private set; }
-    public string Senha { get; private set; }
-    public string Celular { get; private set; }
     public DateTime DataNascimento { get; set; }
     public string CPF { get; private set; }
 
     protected Usuario() { }
 
-    public Usuario(string nome, string email, string senha, string celular, DateTime dataNascimento, string cpf, Guid id = default)
+    public Usuario(string nome, string email, string celular, DateTime dataNascimento, string cpf, Guid id = default)
     {
         if (id == default)
             id = Guid.NewGuid();
 
-        UsuarioId = id;
+        Id = id;
+        UserName = email;
+        Email = email;
+        PhoneNumber = celular;
+
         ValidarNome(nome);
         ValidarEmail(email);
-        ValidarSenha(senha);
         ValidarCelular(celular);
         ValidarCPF(cpf);
 
         Nome = nome;
-        Email = email;
-        Senha = senha;
-        Celular = celular;
         DataNascimento = dataNascimento;
         CPF = cpf;
     }
@@ -50,19 +47,6 @@ public class Usuario
 
         if (!validacao_regex.IsMatch(email))
             throw new ArgumentException("Email inválido!");
-    }
-
-    private void ValidarSenha(string senha)
-    {
-        if (string.IsNullOrWhiteSpace(senha))
-            throw new ArgumentNullException("Senha é obrigatória!");
-
-        Regex validacao_regex = new(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$");
-
-        if (!validacao_regex.IsMatch(senha))
-            throw new ArgumentException(
-                "Senha deve ter no mínimo 6 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial."
-            );
     }
 
     private void ValidarCelular(string celular)

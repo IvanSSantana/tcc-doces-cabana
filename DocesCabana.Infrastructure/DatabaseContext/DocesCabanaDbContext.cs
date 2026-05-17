@@ -1,21 +1,28 @@
 using System.Reflection;
 using DocesCabana.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Infrastructure.DatabaseContext;
 
-public class DocesCabanaDbContext : DbContext    
+public class DocesCabanaDbContext : IdentityDbContext<Usuario, IdentityRole<Guid>, Guid>    
 {   
     public DocesCabanaDbContext(DbContextOptions<DocesCabanaDbContext> options) : base(options)
     {
     }
 
     public DbSet<Produto> Produtos { get; set; }
-    public DbSet<Usuario> Usuarios { get; set; }
+    // DbSet<Usuario> is already provided by IdentityDbContext (as Users) but we can still expose it or override it if needed.
+    // However, IdentityDbContext exposes it as Users. So we can just use Users or map it.
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        // Opcional: Alterar os nomes das tabelas do Identity para algo mais limpo
+        // modelBuilder.Entity<Usuario>(entity => { entity.ToTable(name: "Usuarios"); });
+        // modelBuilder.Entity<IdentityRole<Guid>>(entity => { entity.ToTable(name: "Roles"); });
     }
 }
