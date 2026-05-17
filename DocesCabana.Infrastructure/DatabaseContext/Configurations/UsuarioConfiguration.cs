@@ -10,7 +10,8 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
     {
         builder.ToTable("Usuario");
 
-        builder.HasKey(u => u.UsuarioId);
+        // IdentityUser already configures Id as key
+        // builder.HasKey(u => u.Id);
 
         builder.Property(u => u.Nome)
             .HasColumnName("NomeCompleto")
@@ -19,7 +20,7 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
         builder.Property(u => u.Email)
             .HasMaxLength(255);
 
-        builder.Property(u => u.Celular)
+        builder.Property(u => u.PhoneNumber)
             .HasMaxLength(20);
 
         builder.Property(u => u.DataNascimento)
@@ -27,9 +28,6 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
 
         builder.Property(u => u.CPF)
             .HasMaxLength(11);
-
-        builder.Property(u => u.Senha)
-            .HasMaxLength(255);
             
         builder.HasIndex(u => u.Email).IsUnique();
         builder.HasIndex(u => u.CPF).IsUnique();

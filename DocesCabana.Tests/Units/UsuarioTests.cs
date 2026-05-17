@@ -1,4 +1,4 @@
-﻿using DocesCabana.Domain.Entities;
+using DocesCabana.Domain.Entities;
 
 namespace DocesCabana.Units.Tests;
 
@@ -10,7 +10,6 @@ public class UsuarioTests
         var usuario = new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
-            senha: "SenhaSegura123#",
             celular: "11987654321",
             dataNascimento: new DateTime(1990, 1, 1),
             cpf: "548.394.270-11"
@@ -25,7 +24,6 @@ public class UsuarioTests
         Assert.Throws<ArgumentNullException>(() => new Usuario(
             nome: "",
             email: "joao.silva@example.com",
-            senha: "SenhaSegura123#",
             celular: "11987654321",
             dataNascimento: new DateTime(1990, 1, 1),
             cpf: "548.394.270-11"
@@ -38,7 +36,6 @@ public class UsuarioTests
         Assert.Throws<ArgumentNullException>(() => new Usuario(
             nome: "João Silva",
             email: "",
-            senha: "SenhaSegura123#",
             celular: "11987654321",
             dataNascimento: new DateTime(1990, 1, 1),
             cpf: "548.394.270-11"
@@ -51,33 +48,6 @@ public class UsuarioTests
         Assert.Throws<ArgumentException>(() => new Usuario(
             nome: "João Silva",
             email: "email_invalido",
-            senha: "SenhaSegura123#",
-            celular: "11987654321",
-            dataNascimento: new DateTime(1990, 1, 1),
-            cpf: "548.394.270-11"
-        ));
-    }
-
-    [Fact]
-    public void Inserir_Senha_Nula_Lanca_ArgumentNullException()
-    {
-        Assert.Throws<ArgumentNullException>(() => new Usuario(
-            nome: "João Silva",
-            email: "joao.silva@example.com",
-            senha: "",
-            celular: "11987654321",
-            dataNascimento: new DateTime(1990, 1, 1),
-            cpf: "548.394.270-11"
-        ));
-    }
-
-    [Fact]
-    public void Inserir_Senha_Invalida_Lanca_ArgumentException()
-    {
-        Assert.Throws<ArgumentException>(() => new Usuario(
-            nome: "João Silva",
-            email: "joao.silva@example.com",
-            senha: "senhainvalida",
             celular: "11987654321",
             dataNascimento: new DateTime(1990, 1, 1),
             cpf: "548.394.270-11"
@@ -90,7 +60,6 @@ public class UsuarioTests
         Assert.Throws<ArgumentNullException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
-            senha: "SenhaSegura123#",
             celular: "",
             dataNascimento: new DateTime(1990, 1, 1),
             cpf: "548.394.270-11"
@@ -103,7 +72,6 @@ public class UsuarioTests
         Assert.Throws<ArgumentException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
-            senha: "SenhaSegura123#",
             celular: "2322315342",
             dataNascimento: new DateTime(1990, 1, 1),
             cpf: "548.394.270-11"
@@ -116,7 +84,6 @@ public class UsuarioTests
         Assert.Throws<ArgumentNullException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
-            senha: "SenhaSegura123#",
             celular: "11987654321",
             dataNascimento: new DateTime(1990, 1, 1),
             cpf: ""
@@ -129,7 +96,6 @@ public class UsuarioTests
         Assert.Throws<ArgumentException>(() => new Usuario(
             nome: "João Silva",
             email: "joao.silva@example.com",
-            senha: "SenhaSegura123#",
             celular: "11987654321",
             dataNascimento: new DateTime(1990, 1, 1),
             cpf: "123.456.789-00"
