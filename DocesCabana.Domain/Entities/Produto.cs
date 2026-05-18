@@ -24,13 +24,6 @@ public class Produto
 
     public string ImagemUrl { get; private set; } = default!;
 
-    // Propriedades auxiliares para deixar o código mais legível
-    public bool EstaAtivo => Status == ProdutoStatus.Ativo;
-
-    public bool EstaInativo => Status == ProdutoStatus.Inativo;
-
-    public bool EstaForaDeEstoque => Status == ProdutoStatus.ForaDeEstoque;
-
     // Construtor protegido para o Entity Framework
     protected Produto() { }
 
@@ -91,23 +84,7 @@ public class Produto
     // CONTROLE DE STATUS
     // =========================
 
-    // Ativa o produto
-    public void Ativar()
-    {
-        Status = ProdutoStatus.Ativo;
-    }
-
-    // Inativa o produto
-    public void Inativar()
-    {
-        Status = ProdutoStatus.Inativo;
-    }
-
-    // Define produto sem estoque
-    public void DefinirForaDeEstoque()
-    {
-        Status = ProdutoStatus.ForaDeEstoque;
-    }
+    public void AlterarStatus(ProdutoStatus novoStatus) => Status = novoStatus;
 
     // =========================
     // PROMOÇÃO
@@ -120,11 +97,11 @@ public class Produto
             throw new ArgumentException("Promoção inválida.", nameof(promocaoId));
 
         // Produto inativo não pode entrar em promoção
-        if (EstaInativo)
+        if (ProdutoStatus.Inativo.Equals(Status))
             throw new InvalidOperationException("Produto inativo não pode entrar em promoção.");
 
         // Produto sem estoque também não entra em promoção
-        if (EstaForaDeEstoque)
+        if (ProdutoStatus.ForaDeEstoque.Equals(Status))
             throw new InvalidOperationException("Produto fora de estoque não pode entrar em promoção.");
 
         PromocaoId = promocaoId;
