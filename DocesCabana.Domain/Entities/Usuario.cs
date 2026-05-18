@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using BC = BCrypt.Net.BCrypt; // Apelido para BCrypt.Net.BCrypt para simplificar as chamadas
 
 namespace DocesCabana.Domain.Entities;
 
@@ -30,7 +29,7 @@ public class Usuario
 
         Nome = nome;
         Email = email;
-        Senha = BC.HashPassword(senha); // Armazena o hash da senha, nunca a senha em texto puro
+        Senha = senha;
         Celular = celular;
         DataNascimento = dataNascimento;
         CPF = cpf;
@@ -70,12 +69,6 @@ public class Usuario
                 "Senha deve ter no mínimo 6 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.",
                 nameof(senha)
             );
-    }
-
-    // Método para verificar a senha no login — compara a senha digitada com o hash armazenado
-    public bool VerificarSenha(string senhaDigitada)
-    {
-        return BC.Verify(senhaDigitada, Senha);
     }
 
     private void ValidarCelular(string celular)
