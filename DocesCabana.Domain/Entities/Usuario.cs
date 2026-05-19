@@ -5,9 +5,9 @@ namespace DocesCabana.Domain.Entities;
 
 public class Usuario : IdentityUser<Guid>
 {
-    public string Nome { get; private set; }
+    public string Nome { get; private set; } = default!;
     public DateTime DataNascimento { get; set; }
-    public string CPF { get; private set; }
+    public string CPF { get; private set; } = default!;
 
     protected Usuario() { }
 
@@ -22,10 +22,9 @@ public class Usuario : IdentityUser<Guid>
         PhoneNumber = celular;
 
         ValidarNome(nome);
-        ValidarEmail(email);    
-        ValidarSenha(senha);
+        ValidarEmail(email);
         ValidarCelular(celular);
-        ValidarDataNascimento(dataNascimento); // Valida se a data de nascimento é válida
+        ValidarDataNascimento(dataNascimento);
         ValidarCPF(cpf);
 
         Nome = nome;
@@ -54,6 +53,7 @@ public class Usuario : IdentityUser<Guid>
             throw new ArgumentException("Email inválido!", nameof(email));
     }
 
+    // Mover para Identity
     private void ValidarSenha(string senha)
     {
         if (string.IsNullOrWhiteSpace(senha))
