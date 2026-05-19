@@ -11,21 +11,21 @@
 <body>
   <div class="card">
     <div class="img-placeholder" style="background:#fdf6f6;"><img src="" alt="raspatacho"></div>
-    <div class="name">Raspa Tacho</div>
-    <div class="price">R$ 19,99</div>
-    <div class="bottom">
+    <div class="nome">Raspa Tacho</div>
+    <div class="preco">R$ 19,99</div>
+    <div class="botoes">
       <div class="controls">
-        <button class="qty-btn" onclick="change(this,-1)">−</button>
-        <span class="qty">1</span>
-        <button class="qty-btn" onclick="change(this,1)">+</button>
+        <button class="quantidade-btn" onclick="change(this,-1)">−</button>
+        <span class="quantidade">1</span>
+        <button class="quantidade-btn" onclick="change(this,1)">+</button>
       </div>
-      <button class="add-btn">Adicionar</button>
+      <button class="adicionar-btn">Adicionar</button>
     </div>
   </div>
   <script>
     function change(btn, delta) {
       const ctrl = btn.closest('.controls');
-      const span = ctrl.querySelector('.qty');
+      const span = ctrl.querySelector('.quantidade');
       let v = parseInt(span.textContent) + delta;
       if (v < 1) v = 1;
       span.textContent = v;
