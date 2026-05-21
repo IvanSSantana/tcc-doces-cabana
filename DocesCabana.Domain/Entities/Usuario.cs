@@ -36,17 +36,18 @@ public class Usuario : IdentityUser<Guid>
     {
         if (string.IsNullOrWhiteSpace(nome))
             // ArgumentException indica que o argumento é inválido, nameof(nome) informa qual parâmetro causou o erro
-            throw new ArgumentException("Nome é obrigatório!", nameof(nome));
+            throw new ArgumentNullException("Nome é obrigatório!", nameof(nome));
     }
 
     private void ValidarEmail(string email)
     {  
         if (string.IsNullOrWhiteSpace(email))
             // ArgumentException indica que o argumento é inválido, nameof(email) informa qual parâmetro causou o erro
-            throw new ArgumentException("Email é obrigatório!", nameof(email));
+            throw new ArgumentNullException("Email é obrigatório!", nameof(email));
 
         // Regex oficial do HTML5 que segue RFC 5322
         Regex validacao_regex = new(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$");
+
 
         if (!validacao_regex.IsMatch(email))
             // ArgumentException indica que o argumento é inválido, nameof(email) informa qual parâmetro causou o erro
@@ -58,7 +59,7 @@ public class Usuario : IdentityUser<Guid>
     {
         if (string.IsNullOrWhiteSpace(senha))
             // ArgumentException indica que o argumento é inválido, nameof(senha) informa qual parâmetro causou o erro
-            throw new ArgumentException("Senha é obrigatória!", nameof(senha));
+            throw new ArgumentNullException("Senha é obrigatória!", nameof(senha));
 
         Regex validacao_regex = new(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$");
 
@@ -73,7 +74,7 @@ public class Usuario : IdentityUser<Guid>
     {
         if (string.IsNullOrWhiteSpace(celular))
             // ArgumentException indica que o argumento é inválido, nameof(celular) informa qual parâmetro causou o erro
-            throw new ArgumentException("Celular é obrigatório!", nameof(celular));
+            throw new ArgumentNullException("Celular é obrigatório!", nameof(celular));
 
         // Aceita números com ou sem formatação
         Regex validacao_regex = new(@"^(?:[14689][1-9]|2[12478]|3[1-5]|3[7-8]|5[1345]|7[134579])9\d{8}$");
@@ -99,7 +100,7 @@ public class Usuario : IdentityUser<Guid>
     {
         if (string.IsNullOrWhiteSpace(cpf))
             // ArgumentException indica que o argumento é inválido, nameof(cpf) informa qual parâmetro causou o erro
-            throw new ArgumentException("CPF é obrigatório!", nameof(cpf));
+            throw new ArgumentNullException("CPF é obrigatório!", nameof(cpf));
 
         cpf = new string(cpf.Where(char.IsDigit).ToArray());
 

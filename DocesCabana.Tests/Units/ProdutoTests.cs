@@ -1,4 +1,5 @@
 using DocesCabana.Domain.Entities;
+using DocesCabana.Domain.Enums;
 
 namespace DocesCabana.Units.Tests;
 
@@ -15,7 +16,6 @@ public class ProdutoTests
         var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida);
 
         Assert.NotNull(produto);
-        Assert.Equal(1, produto.Status);
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class ProdutoTests
         var produto = CriarProduto();
         var novaSubcategoria = Guid.NewGuid();
 
-        produto.AlterarSubcategoria(novaSubcategoria);
+        produto.AlterarSubcategoriaId(novaSubcategoria);
 
         Assert.Equal(novaSubcategoria, produto.SubcategoriaId);
     }
@@ -102,25 +102,18 @@ public class ProdutoTests
         Assert.Equal(novaUrl, produto.ImagemUrl);
     }
 
-    [Fact]
-    public void Inativar_Produto_Altera_Status_Para_Zero()
+    [Theory]
+    [InlineData(ProdutoStatus.Ativo)]
+    [InlineData(ProdutoStatus.Inativo)]
+    [InlineData(ProdutoStatus.ForaDeEstoque)]
+    public void Alterar_Status_Produto_Valido(
+        ProdutoStatus novoStatus)
     {
         var produto = CriarProduto();
 
-        produto.Inativar();
+        produto.AlterarStatus(novoStatus);
 
-        Assert.Equal(0, produto.Status);
-    }
-
-    [Fact]
-    public void Ativar_Produto_Altera_Status_Para_Um()
-    {
-        var produto = CriarProduto();
-        produto.Inativar();
-
-        produto.Ativar();
-
-        Assert.Equal(1, produto.Status);
+        Assert.Equal(novoStatus, produto.Status);
     }
 
     [Fact]
@@ -147,7 +140,7 @@ public class ProdutoTests
     public void Aplicar_Promocao_Produto_Inativo_Lanca_InvalidOperationException()
     {
         var produto = CriarProduto();
-        produto.Inativar();
+        produto.AlterarStatus(ProdutoStatus.Inativo);
 
         Assert.Throws<InvalidOperationException>(() =>
             produto.AplicarPromocao(Guid.NewGuid()));
