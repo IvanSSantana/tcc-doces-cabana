@@ -2,13 +2,13 @@ namespace DocesCabana.Domain.Contracts;
 
 public interface IRepository<T> where T : class
 {
-    Task<T?> GetByIdAsync(Guid id);
+    Task<T?> BuscarPorIdAsync(Guid id);
 
-    Task<IEnumerable<T>> GetAllAsync();
+    Task<IEnumerable<T>> BuscarTodosAsync();
 
-    Task AddAsync(T entity);
+    Task AdicionarAsync(T entity);
 
-    void Update(T entity);
+    void Atualizar(T entity);
 
-    void Remove(T entity);
+    void Remover(T entity);
 }

@@ -14,31 +14,31 @@ public class Repository<T> : IRepository<T>
         _context = context;
     }
 
-    public async Task<T?> GetByIdAsync(Guid id)
+    public async Task<T?> BuscarPorIdAsync(Guid id)
     {
         return await _context.Set<T>().FindAsync(id);
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public async Task<IEnumerable<T>> BuscarTodosAsync()
     {
         return await _context.Set<T>().ToListAsync();
     }
 
-    public async Task AddAsync(T entity)
+    public async Task AdicionarAsync(T entity)
     {
         await _context.Set<T>().AddAsync(entity);
 
         await _context.SaveChangesAsync();
     }
 
-    public void Update(T entity)
+    public void Atualizar(T entity)
     {
         _context.Set<T>().Update(entity);
 
         _context.SaveChanges();
     }
 
-    public void Remove(T entity)
+    public void Remover(T entity)
     {
         _context.Set<T>().Remove(entity);
 
