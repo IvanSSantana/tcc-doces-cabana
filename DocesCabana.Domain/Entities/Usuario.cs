@@ -54,22 +54,6 @@ public class Usuario : IdentityUser<Guid>
             throw new ArgumentException("Email inválido!", nameof(email));
     }
 
-    // Mover para Identity
-    private void ValidarSenha(string senha)
-    {
-        if (string.IsNullOrWhiteSpace(senha))
-            // ArgumentException indica que o argumento é inválido, nameof(senha) informa qual parâmetro causou o erro
-            throw new ArgumentNullException("Senha é obrigatória!", nameof(senha));
-
-        Regex validacao_regex = new(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$");
-
-        if (!validacao_regex.IsMatch(senha))
-            throw new ArgumentException(
-                "Senha deve ter no mínimo 6 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.",
-                nameof(senha)
-            );
-    }
-
     private void ValidarCelular(string celular)
     {
         if (string.IsNullOrWhiteSpace(celular))
