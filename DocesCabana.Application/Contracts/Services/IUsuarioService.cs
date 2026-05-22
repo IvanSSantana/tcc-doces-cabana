@@ -1,7 +1,7 @@
 using DocesCabana.Application.DTOs.Auth;
 using DocesCabana.Domain.Entities;
 
-namespace DocesCabana.Application.Contracts;
+namespace DocesCabana.Application.Contracts.Services;
 
 public interface IUsuarioServices
 {

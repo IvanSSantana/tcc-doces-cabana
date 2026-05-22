@@ -1,26 +1,14 @@
-using DocesCabana.Infrastructure;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using DocesCabana.Application.Validators;
-using Microsoft.AspNetCore.Identity;
-using DocesCabana.Domain.Entities;
-using DocesCabana.Infrastructure.DatabaseContext;
+using DocesCabana.Application.DependencyInjections;
+using DocesCabana.Infrastructure.DependencyInjections;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
-
-// Configuração do Identity
-builder.Services.AddIdentity<Usuario, IdentityRole<Guid>>()
-    .AddEntityFrameworkStores<DocesCabanaDbContext>()
-    .AddDefaultTokenProviders();
-
-// Configuração do FluentValidation
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<CadastroDTOValidator>();
+builder.Services.AddIdentityConfiguration();
+builder.Services.AddApplicationServicesAndRepositories();
+builder.Services.AddFluentValidationConfiguration();
 
 var app = builder.Build();
 
