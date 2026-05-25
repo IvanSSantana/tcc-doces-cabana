@@ -12,6 +12,5 @@ public interface IUsuarioServices
     Task<SignInResult> RealizarLogin(string email, string senha, bool lembrarMe);
     Task RealizarLogout();
     Task<bool> SolicitarRedefinicaoSenha(string email);
-    Task<string> GerarTokenRedefinicaoSenha(string email);
     Task<bool> ConfirmarRedefinicaoSenha(string email, string token, string novaSenha);
 }
