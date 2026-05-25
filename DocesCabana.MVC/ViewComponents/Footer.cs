@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace DocesCabana.MVC.ViewComponents;
 
 public class FooterViewComponent : ViewComponent

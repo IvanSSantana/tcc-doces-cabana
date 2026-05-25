@@ -1,4 +1,4 @@
-using DocesCabana.Domain.Entities;
+using DocesCabana.Infrastructure.Identity;
 
 namespace DocesCabana.Units.Tests;
 
