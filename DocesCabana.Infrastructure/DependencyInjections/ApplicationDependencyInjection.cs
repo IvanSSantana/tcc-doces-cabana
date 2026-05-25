@@ -4,6 +4,7 @@ using DocesCabana.Application.Services;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Infrastructure.Identity.Services;
 using DocesCabana.Infrastructure.Repositories;
+using DocesCabana.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DocesCabana.Infrastructure.DependencyInjections;
@@ -16,6 +17,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
         services.AddScoped<IUsuarioServices, UsuarioServices>();
         services.AddScoped<IProdutoServices, ProdutoServices>();
+        services.AddScoped<IEmailService, EmailService>();
 
         return services;
     }
