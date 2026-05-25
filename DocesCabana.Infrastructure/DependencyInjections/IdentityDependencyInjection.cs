@@ -1,4 +1,4 @@
-using DocesCabana.Domain.Entities;
+using DocesCabana.Infrastructure.Identity;
 using DocesCabana.Infrastructure.DatabaseContext;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;

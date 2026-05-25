@@ -1,7 +1,6 @@
 using DocesCabana.Application.DTOs.Auth;
-using DocesCabana.Domain.Entities;
 
-namespace DocesCabana.Application.Mappings;
+namespace DocesCabana.Infrastructure.Identity.Mappings;
 
 public static class UsuarioMapper
 {

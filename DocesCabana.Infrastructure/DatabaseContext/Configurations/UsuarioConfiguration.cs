@@ -1,4 +1,4 @@
-using DocesCabana.Domain.Entities;
+using DocesCabana.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
