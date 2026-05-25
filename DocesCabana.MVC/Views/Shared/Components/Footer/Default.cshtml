@@ -1,27 +1,42 @@
-<head>
-    <script src="https://kit.fontawesome.com/84cef182a4.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="~/css/components/footer.css">
-</head>
+<link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+<script src="https://kit.fontawesome.com/84cef182a4.js" crossorigin="anonymous"></script>
 
-<footer>
-    <div class="linha-separacao-footer"></div>
+<footer class="site-footer">
+    <div class="linha-separacao-footer" aria-hidden="true"></div>
 
-    <!-- Analisar se será texto ou imagem -->
-    <img src="" alt="Doce Cabana"> ™ 
+    <div class="content-footer">
+        <a href="/" class="logo-footer">
+            <span class="logo-footer-container">
 
-    <section class="content-footer">
-        <nav class="redes-sociais">
-            <a href="https://www.threads.com/@edocecabana"><i class="fa-brands fa-threads"></i></a>
-            <a href="https://www.instagram.com/edocecabana"><i class="fa-brands fa-instagram"></i></a>
-            <a href=""><i class="fa-brands fa-whatsapp"></i></a>
+                <img src="~/images/logo_texto_footer.png"
+                     alt="Doce Cabana"
+                     class="logo-footer-img"
+                     asp-append-version="true">
+                <sup class="logo-footer-tm">TM</sup>
+
+            </span>
+        </a>
+
+        <nav class="redes-sociais" aria-label="Redes sociais">
+            <a href="https://www.threads.com/@@edocecabana" target="_blank" rel="noopener noreferrer" aria-label="Threads">
+                <i class="fa-brands fa-threads" aria-hidden="true"></i>
+            </a>
+            <a href="https://www.instagram.com/edocecabana" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+            </a>
+            <a href="#" aria-label="WhatsApp">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+            </a>
         </nav>
 
-        <nav class="outras-paginas">
+        <nav class="outras-paginas" aria-label="Links do rodapé">
+            <a href="#">Quem Somos</a>
+            <span class="separador-link" aria-hidden="true">|</span>
             <a href="#">Política de Privacidade</a>
-            <a href="#">Termos de Uso</a>
-            <a href="#">Contato</a>
+            <span class="separador-link" aria-hidden="true">|</span>
+            <a href="#">Nosso Endereço</a>
         </nav>
 
-        <p>Copyright © 2024 Doces Cabana. Todos os direitos reservados.</p>
-    </section>
+        <p class="copyright">© 2026 Doces Cabana. Todos os direitos reservados.</p>
+    </div>
 </footer>

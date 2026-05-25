@@ -1,5 +1,6 @@
 using System.Reflection;
 using DocesCabana.Domain.Entities;
+using DocesCabana.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
