@@ -1,13 +1,17 @@
 using DocesCabana.Application.DependencyInjections;
 using DocesCabana.Infrastructure.DependencyInjections;
+using DocesCabana.MVC.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<FilterException>();
+});
+
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
 builder.Services.AddIdentityConfiguration();
-builder.Services.AddApplicationServicesAndRepositories();
+builder.Services.AddApplicationServicesAndRepositories(builder.Configuration);
 builder.Services.AddFluentValidationConfiguration();
 
 var app = builder.Build();

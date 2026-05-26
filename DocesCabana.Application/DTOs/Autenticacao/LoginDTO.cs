@@ -2,7 +2,7 @@ namespace DocesCabana.Application.DTOs.Autenticacao;
 
 public class LoginDTO
 {
-    public string Login { get; set; } = string.Empty; // Pode ser e-mail ou telefone
+    public string Login { get; set; } = string.Empty; // Pode ser e-mail ou CPF
 
     public string Senha { get; set; } = string.Empty;
     

@@ -3,21 +3,24 @@ using DocesCabana.Application.DTOs.Autenticacao;
 using DocesCabana.Infrastructure.Identity.Mappings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DocesCabana.Infrastructure.Identity.Services;
 
-public class UsuarioServices : IUsuarioServices
+public class UsuarioService : IUsuarioService
 {
     private readonly UserManager<Usuario> _userManager;
     private readonly SignInManager<Usuario> _signInManager;
     private readonly IEmailService _emailService;
-    private readonly ILogger<UsuarioServices> _logger;
+    private readonly ILogger<UsuarioService> _logger;
 
-    public UsuarioServices(
+    public UsuarioService(
         UserManager<Usuario> userManager,
         SignInManager<Usuario> signInManager,
         IEmailService emailService,
-        ILogger<UsuarioServices> logger)
+        ILogger<UsuarioService> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -73,9 +76,13 @@ public class UsuarioServices : IUsuarioServices
         return usuario;
     }
 
-    public async Task<SignInResult> RealizarLogin(string email, string senha, bool lembrarMe)
+    public async Task<SignInResult> RealizarLogin(string login, string senha, bool lembrarMe)
     {
-        var resultado = await _signInManager.PasswordSignInAsync(email, senha, lembrarMe, lockoutOnFailure: false);
+        var usuario = await BuscarPorLogin(login);
+        if (usuario is null)
+            return SignInResult.Failed;
+
+        var resultado = await _signInManager.PasswordSignInAsync(usuario.Email!, senha, lembrarMe, lockoutOnFailure: false);
         return resultado;
     }
 
@@ -131,10 +138,9 @@ public class UsuarioServices : IUsuarioServices
     </div>
 </div>";
 
-        await _emailService.EnviarEmailAsync(email, assunto, corpo);
+        await _emailService.EnviarEmail(email, assunto, corpo);
         return true;
     }
-
 
     public async Task<bool> ConfirmarRedefinicaoSenha(string email, string token, string novaSenha)
     {
@@ -144,6 +150,12 @@ public class UsuarioServices : IUsuarioServices
 
         var resultado = await _userManager.ResetPasswordAsync(usuario, token, novaSenha);
         return resultado.Succeeded;
+    }
+
+    public async Task<bool> EmailJaCadastrado(string email)
+    {
+        var usuario = await _userManager.FindByEmailAsync(email);
+        return usuario is not null;
     }
 
     private static string ObterMensagensErro(IdentityResult resultado) =>
