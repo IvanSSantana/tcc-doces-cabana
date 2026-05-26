@@ -1,5 +1,5 @@
 using DocesCabana.Application.Contracts.Services;
-using DocesCabana.Application.DTOs.Auth;
+using DocesCabana.Application.DTOs.Autenticacao;
 using DocesCabana.Infrastructure.Identity.Mappings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -45,6 +45,14 @@ public class UsuarioServices : IUsuarioServices
             throw new KeyNotFoundException($"Usuário com ID {usuarioId} não encontrado.");
 
         return usuario;
+    }
+
+    public async Task<Usuario?> BuscarPorLogin(string login)
+    {
+        var buscarUsuarioPorEmail = await _userManager.FindByEmailAsync(login);
+        var buscarUsuarioPorCPF = _userManager.Users.FirstOrDefault(user => user.CPF == login);
+        
+        return buscarUsuarioPorEmail ?? buscarUsuarioPorCPF;
     }
 
     public async Task<bool> RedefinirSenhaUsuario(Usuario usuario, string novaSenha)

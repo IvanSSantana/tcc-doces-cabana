@@ -1,4 +1,4 @@
-namespace DocesCabana.Application.DTOs.Auth;
+namespace DocesCabana.Application.DTOs.Autenticacao;
 
 public class CadastroDTO
 {
