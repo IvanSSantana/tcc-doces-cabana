@@ -7,12 +7,12 @@ namespace DocesCabana.MVC.Controllers;
 public class AutenticacaoController : Controller
 {
     private readonly ILogger<AutenticacaoController> _logger;
-    private readonly IUsuarioServices _usuarioServices;
+    private readonly IUsuarioService _usuarioService;
 
-    public AutenticacaoController(ILogger<AutenticacaoController> logger, IUsuarioServices usuarioServices)
+    public AutenticacaoController(ILogger<AutenticacaoController> logger, IUsuarioService usuarioService)
     {
         _logger = logger;
-        _usuarioServices = usuarioServices;
+        _usuarioService = usuarioService;
     }
 
     [HttpGet]
@@ -28,23 +28,13 @@ public class AutenticacaoController : Controller
         if (!ModelState.IsValid)
             return View(dto);
 
-        var usuario = await _usuarioServices.BuscarPorLogin(dto.Login);
-
-        if (usuario is null)
-        {
-            ModelState.AddModelError(string.Empty, "E-mail ou senha inválidos.");
-            // Pesquisar como consumir esse erro no frontend para exibir o log
-            return View(dto);
-        }
-
-        var resultado = await _usuarioServices.RealizarLogin(usuario.Email!, dto.Senha, dto.LembrarMe);
+        var resultado = await _usuarioService.RealizarLogin(dto.Login, dto.Senha, dto.LembrarMe);
 
         if (resultado.Succeeded)
             return RedirectToAction("Index", "Home");
 
         if (resultado.IsLockedOut)
             ModelState.AddModelError(string.Empty, "Conta bloqueada. Tente novamente mais tarde.");
-
         else
             ModelState.AddModelError(string.Empty, "E-mail ou senha inválidos.");
 
@@ -64,25 +54,15 @@ public class AutenticacaoController : Controller
         if (!ModelState.IsValid)
             return View(dto);
 
-        try
-        {
-            await _usuarioServices.CadastrarUsuario(dto);
-            return RedirectToAction("Login");
-        }
-        // Substituir por um middleware de tratamento global de exceções para evitar repetição de código
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Erro ao cadastrar usuário");
-            ModelState.AddModelError(string.Empty, "Erro ao realizar cadastro. Tente novamente.");
-            return View(dto);
-        }
+        await _usuarioService.CadastrarUsuario(dto);
+        return RedirectToAction("Login");
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _usuarioServices.RealizarLogout();
+        await _usuarioService.RealizarLogout();
         return RedirectToAction("Login");
     }
 
