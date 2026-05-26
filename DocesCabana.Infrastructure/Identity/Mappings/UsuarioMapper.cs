@@ -1,4 +1,4 @@
-using DocesCabana.Application.DTOs.Auth;
+using DocesCabana.Application.DTOs.Autenticacao;
 
 namespace DocesCabana.Infrastructure.Identity.Mappings;
 
