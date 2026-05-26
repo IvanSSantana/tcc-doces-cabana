@@ -1,5 +1,6 @@
-using FluentValidation;
 using DocesCabana.Application.DTOs.Autenticacao;
+using DocesCabana.Application.Helpers;
+using FluentValidation;
 
 namespace DocesCabana.Application.Validators;
 
@@ -19,7 +20,7 @@ public class CadastroDTOValidator : AbstractValidator<CadastroDTO>
         RuleFor(x => x.Telefone)
             .NotEmpty().WithMessage("O número de telefone é obrigatório!")
             .MaximumLength(20).WithMessage("O número de telefone deve ter no máximo 20 caracteres.")
-            .Matches(@"^(?:[14689][1-9]|2[12478]|3[1-5]|3[7-8]|5[1345]|7[134579])9\d{8}$")
+            .Must(TelefoneHelper.CelularValido)
             .WithMessage("Número de telefone inválido.");
 
         RuleFor(x => x.DataNascimento)
@@ -27,8 +28,9 @@ public class CadastroDTOValidator : AbstractValidator<CadastroDTO>
 
         RuleFor(x => x.CPF)
             .NotEmpty().WithMessage("O CPF é obrigatório!")
-            .MaximumLength(14).WithMessage("O CPF deve ter no máximo 14 caracteres.");
-            
+            .MaximumLength(14).WithMessage("O CPF deve ter no máximo 14 caracteres.")
+            .Must(CpfHelper.FormatoValido).WithMessage("O CPF deve conter 11 dígitos.");
+
         RuleFor(x => x.Senha)
             .NotEmpty().WithMessage("A senha é obrigatória!")
             .MinimumLength(6).WithMessage("A senha deve ter no mínimo 6 caracteres.")
@@ -38,7 +40,7 @@ public class CadastroDTOValidator : AbstractValidator<CadastroDTO>
 
         RuleFor(x => x.ConfirmacaoSenha)
             .NotEmpty().WithMessage("A confirmação da senha é obrigatória!")
-            .Equal(x => x.Senha).WithMessage("As senhas não coincidem!")
+            .Equal(x => x.Senha).WithMessage("As senhas não coincidem.")
             .MaximumLength(50).WithMessage("A confirmação da senha deve ter no máximo 50 caracteres.");
     }
 }
