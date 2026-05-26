@@ -89,11 +89,11 @@ public class Produto
             throw new ArgumentException("Promoção inválida.", nameof(promocaoId));
 
         // Produto inativo não pode entrar em promoção
-        if (ProdutoStatus.Inativo.Equals(Status))
+        if (Status == ProdutoStatus.Inativo)
             throw new InvalidOperationException("Produto inativo não pode entrar em promoção.");
 
         // Produto sem estoque também não entra em promoção
-        if (ProdutoStatus.ForaDeEstoque.Equals(Status))
+        if (Status == ProdutoStatus.ForaDeEstoque)
             throw new InvalidOperationException("Produto fora de estoque não pode entrar em promoção.");
 
         PromocaoId = promocaoId;

@@ -1,4 +1,5 @@
 using DocesCabana.Application.DTOs.Autenticacao;
+using DocesCabana.Application.Helpers;
 
 namespace DocesCabana.Infrastructure.Identity.Mappings;
 
@@ -8,7 +9,7 @@ public static class UsuarioMapper
         new(
             dto.Nome,
             dto.Email,
-            dto.Telefone,
+            TelefoneHelper.ApenasDigitos(dto.Telefone),
             dto.DataNascimento,
-            dto.CPF);
+            CpfHelper.ApenasDigitos(dto.CPF));
 }

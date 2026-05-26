@@ -1,40 +1,37 @@
 using System.Net;
 using System.Net.Mail;
 using DocesCabana.Application.Contracts.Services;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 
 namespace DocesCabana.Infrastructure.Services;
 
 public class EmailService : IEmailService
 {
-    private readonly IConfiguration _configuration;
+    private readonly EmailSettings _settings;
     private readonly ILogger<EmailService> _logger;
 
-    public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+    public EmailService(IOptions<EmailSettings> options, ILogger<EmailService> logger)
     {
-        _configuration = configuration;
+        _settings = options.Value;
         _logger = logger;
     }
 
-    public async Task EnviarEmailAsync(string email, string assunto, string corpo)
+    public async Task EnviarEmail(string email, string assunto, string corpo)
     {
-        var smtpHost = _configuration["EmailSettings:SmtpHost"];
-        var smtpPortStr = _configuration["EmailSettings:SmtpPort"];
-        var smtpUser = _configuration["EmailSettings:SmtpUsername"];
-        var smtpPass = _configuration["EmailSettings:SmtpPassword"];
-        var senderEmail = _configuration["EmailSettings:SenderEmail"] ?? "no-reply@docescabana.com.br";
-        var senderName = _configuration["EmailSettings:SenderName"] ?? "Doces Cabana";
-        var enableSslStr = _configuration["EmailSettings:EnableSsl"] ?? "true";
+        var smtpHost = _settings.SmtpHost;
+        var smtpPort = _settings.SmtpPort;
+        var smtpUser = _settings.SmtpUsername;
+        var smtpPass = _settings.SmtpPassword;
+        var senderEmail = _settings.SenderEmail;
+        var senderName = _settings.SenderName;
+        var enableSsl = _settings.EnableSsl;
 
         if (string.IsNullOrWhiteSpace(smtpHost) || string.IsNullOrWhiteSpace(smtpUser) || string.IsNullOrWhiteSpace(smtpPass))
         {
             _logger.LogWarning($"Configurações de SMTP incompletas. O e-mail para '{email}' não foi enviado.");
             return;
         }
-
-        int.TryParse(smtpPortStr, out int smtpPort);
-        bool.TryParse(enableSslStr, out bool enableSsl);
 
         try
         {

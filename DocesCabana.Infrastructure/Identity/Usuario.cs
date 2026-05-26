@@ -35,30 +35,30 @@ public class Usuario : IdentityUser<Guid>
     private void ValidarNome(string nome)
     {
         if (string.IsNullOrWhiteSpace(nome))
-            throw new ArgumentNullException("Nome é obrigatório!", nameof(nome));
+            throw new ArgumentNullException(nameof(nome), "Nome é obrigatório!");
     }
 
     private void ValidarEmail(string email)
     {  
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentNullException("Email é obrigatório!", nameof(email));
+            throw new ArgumentNullException(nameof(email), "Email é obrigatório!");
 
-        Regex validacao_regex = new(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$");
+        Regex validacaoRegex = new(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$");
 
-        if (!validacao_regex.IsMatch(email))
+        if (!validacaoRegex.IsMatch(email))
             throw new ArgumentException("Email inválido.", nameof(email));
     }
 
     private void ValidarCelular(string celular)
     {
         if (string.IsNullOrWhiteSpace(celular))
-            throw new ArgumentNullException("Celular é obrigatório!", nameof(celular));
+            throw new ArgumentNullException(nameof(celular), "Celular é obrigatório!");
 
-        Regex validacao_regex = new(@"^(?:[14689][1-9]|2[12478]|3[1-5]|3[7-8]|5[1345]|7[134579])9\d{8}$");
+        Regex validacaoRegex = new(@"^(?:[14689][1-9]|2[12478]|3[1-5]|3[7-8]|5[1345]|7[134579])9\d{8}$");
         
         celular = new string(celular.Where(char.IsDigit).ToArray());
 
-        if (!validacao_regex.IsMatch(celular))
+        if (!validacaoRegex.IsMatch(celular))
             throw new ArgumentException("Número de celular inválido.", nameof(celular));
     }
 
@@ -75,7 +75,7 @@ public class Usuario : IdentityUser<Guid>
     private void ValidarCPF(string cpf)
     {
         if (string.IsNullOrWhiteSpace(cpf))
-            throw new ArgumentNullException("CPF é obrigatório!", nameof(cpf));
+            throw new ArgumentNullException(nameof(cpf), "CPF é obrigatório!");
 
         cpf = new string(cpf.Where(char.IsDigit).ToArray());
 
@@ -88,6 +88,9 @@ public class Usuario : IdentityUser<Guid>
 
     private bool CpfValido(string cpf)
     {
+        if (new string(cpf[0], 11) == cpf)
+            return false;
+
         int[] multiplicador1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
         int[] multiplicador2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
 
