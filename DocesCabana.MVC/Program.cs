@@ -16,6 +16,9 @@ builder.Services.AddFluentValidationConfiguration();
 
 var app = builder.Build();
 
+// Seeding the database
+DocesCabana.MVC.Helpers.DbInitializer.Seed(app.Services);
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
