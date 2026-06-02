@@ -1,14 +1,23 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using DocesCabana.MVC.Models;
+using DocesCabana.Application.Contracts.Services;
 
 namespace DocesCabana.MVC.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly IProdutoService _produtoService;
+
+    public HomeController(IProdutoService produtoService)
     {
-        return View();
+        _produtoService = produtoService;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var produtos = await _produtoService.BuscarTodosProdutos();
+        return View(produtos);
     }
 
     public IActionResult Privacy()

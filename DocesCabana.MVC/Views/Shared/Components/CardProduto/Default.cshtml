@@ -1,37 +1,50 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+@model DocesCabana.Application.DTOs.ProdutoDTO
+@{
+    string ObterUrlImagem(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return url;
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Card</title>
-  <link rel="stylesheet" href="card.css">
-</head>
+        if (url.Contains("drive.google.com"))
+        {
+            // Tenta obter o ID a partir do padrão /d/{id}/
+            var match = System.Text.RegularExpressions.Regex.Match(url, @"/d/([a-zA-Z0-9_-]+)");
+            if (match.Success)
+            {
+                return $"https://drive.google.com/thumbnail?id={match.Groups[1].Value}";
+            }
 
-<body>
-  <div class="card">
-    <div class="img-placeholder" style="background:#fdf6f6;"><img src="" alt="raspatacho"></div>
-    <div class="nome">Raspa Tacho</div>
-    <div class="preco">R$ 19,99</div>
-    <div class="botoes">
-      <div class="controls">
-        <button class="quantidade-btn" onclick="change(this,-1)">−</button>
-        <span class="quantidade">1</span>
-        <button class="quantidade-btn" onclick="change(this,1)">+</button>
-      </div>
-      <button class="adicionar-btn">Adicionar</button>
-    </div>
-  </div>
-  <script>
-    function change(btn, delta) {
-      const ctrl = btn.closest('.controls');
-      const span = ctrl.querySelector('.quantidade');
-      let v = parseInt(span.textContent) + delta;
-      if (v < 1) v = 1;
-      span.textContent = v;
+            // Tenta obter o ID caso venha no formato query string id={id}
+            match = System.Text.RegularExpressions.Regex.Match(url, @"id=([a-zA-Z0-9_-]+)");
+            if (match.Success)
+            {
+                return $"https://drive.google.com/thumbnail?id={match.Groups[1].Value}";
+            }
+        }
+        return url;
     }
-  </script>
+}
 
-</body>
+<div class="card-produto" data-produto-id="@Model.Id">
+    <button class="btn-favorito-card" aria-label="Favoritar" onclick="toggleFavorite(this)">
+        <i class="@(Model.IsFavorite ? "fa-solid fa-heart favorited" : "fa-regular fa-heart")"></i>
+    </button>
+    
+    <div class="container-imagem-card">
+        <img src="@ObterUrlImagem(Model.ImagemUrl)" alt="@Model.Nome" class="imagem-card" />
+    </div>
+    
+    <div class="nome-card">@Model.Nome.ToUpper()</div>
+    
+    <div class="preco-card">R$ @Model.Preco.ToString("N2")</div>
+    
+    <div class="acoes-card">
+        <div class="controles-card">
+            <button class="btn-quantidade-card menos" onclick="alterarQuantidade(this, -1)">−</button>
+            <span class="valor-quantidade-card">1</span>
+            <button class="btn-quantidade-card mais" onclick="alterarQuantidade(this, 1)">+</button>
+        </div>
+        <button class="btn-adicionar-card" onclick="adicionarAoCarrinho('@Model.Id', this)">Adicionar</button>
+    </div>
+</div>
 
-</html>
+<script src="~/js/components/card-produto.js"></script>
