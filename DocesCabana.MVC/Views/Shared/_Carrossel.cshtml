@@ -1,23 +1,26 @@
 <link rel="stylesheet" href="~/css/components/carrossel.css">
 
-<div class="carrossel-wrapper">
-    <button class="seta prev">&#10094;</button>
-    <button class="seta next">&#10095;</button>
+<div class="carrossel-moldura">
+    <button class="seta-controle seta-anterior" aria-label="Slide anterior">
+        <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    
+    <button class="seta-controle seta-proximo" aria-label="Próximo slide">
+        <i class="fa-solid fa-arrow-right"></i>
+    </button>
 
     <div class="carrossel">
-        <div class="slides">
-            <img src="~/images/carrossel_img1.png" class="slide ativo" alt="Banner 1">
-            <img src="~/images/carrossel_img2.png" class="slide" alt="Banner 2">
-            <img src="~/images/carrossel_img3.png" class="slide" alt="Banner 3">
-        </div>
-
-        <!-- indicadores DENTRO do .carrossel, sobrepondo a imagem -->
-        <div class="indicadores">
-            <span class="dot ativo"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+        <div class="carrossel-slides">
+            <img src="~/images/carrossel_img1.png" class="carrossel-item ativo" alt="Banner 1">
+            <img src="~/images/carrossel_img2.png" class="carrossel-item" alt="Banner 2">
+            <img src="~/images/carrossel_img3.png" class="carrossel-item" alt="Banner 3">
+            <img src="~/images/carrossel_img1.png" class="carrossel-item ativo" alt="Banner 4">
+            <img src="~/images/carrossel_img2.png" class="carrossel-item" alt="Banner 5">
+            <img src="~/images/carrossel_img3.png" class="carrossel-item" alt="Banner 6">
         </div>
     </div>
+
+    <div class="carrossel-indicadores"></div>
 </div>
 
 <script src="~/js/carrossel.js"></script>

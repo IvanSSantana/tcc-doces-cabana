@@ -57,3 +57,4 @@ nunit-*.xml
 .cursor/
 docescabana.db-shm
 docescabana.db-wal
+docescabana.db
