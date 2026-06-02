@@ -18,4 +18,6 @@ public class ProdutoDTO
     public Guid SubcategoriaId { get; init; }
 
     public Guid? PromocaoId { get; init; }
+
+    public bool IsFavorite { get; set; }
 }
