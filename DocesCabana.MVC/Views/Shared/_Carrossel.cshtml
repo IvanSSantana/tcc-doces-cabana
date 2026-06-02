@@ -1,20 +1,22 @@
 <link rel="stylesheet" href="~/css/components/carrossel.css">
 
-<div class="carrossel">
+<div class="carrossel-wrapper">
     <button class="seta prev">&#10094;</button>
-
-    <div class="slides">
-        <img src="~/images/carrossel_img1.png" class="slide ativo" alt="Banner 1">
-        <img src="~/images/carrossel_img2.png" class="slide" alt="Banner 2">
-        <img src="~/images/carrossel_img3.png" class="slide" alt="Banner 3">
-    </div>
-
     <button class="seta next">&#10095;</button>
 
-    <div class="indicadores">
-        <span class="dot ativo"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
+    <div class="carrossel">
+        <div class="slides">
+            <img src="~/images/carrossel_img1.png" class="slide ativo" alt="Banner 1">
+            <img src="~/images/carrossel_img2.png" class="slide" alt="Banner 2">
+            <img src="~/images/carrossel_img3.png" class="slide" alt="Banner 3">
+        </div>
+
+        <!-- indicadores DENTRO do .carrossel, sobrepondo a imagem -->
+        <div class="indicadores">
+            <span class="dot ativo"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
     </div>
 </div>
 
