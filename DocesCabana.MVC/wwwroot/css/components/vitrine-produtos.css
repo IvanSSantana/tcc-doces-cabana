@@ -1,0 +1,132 @@
+/* Vitrine Carrossel de Produtos */
+
+.vitrine-carrossel {
+    margin: 40px auto;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.conteudo-carrossel {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    gap: 12px;
+}
+
+/* Viewport com overflow escondido para permitir scroll interno */
+.viewport-carrossel {
+    overflow: hidden;
+    width: 100%;
+    /* Espaço para evitar cortar a sombra do card em hover */
+    padding: 16px 8px;
+    margin: -16px -8px;
+}
+
+/* Trilha de slides em Flexbox */
+.trilha-carrossel {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    gap: 20px;
+    will-change: transform;
+}
+
+/* Larguras responsivas dos Slides */
+.item-carrossel {
+    /* 4 cards no desktop (100% / 4 = 25% menos compensação de gap) */
+    flex: 0 0 calc(25% - 15px);
+    box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+    .item-carrossel {
+        /* 3 cards no tablet */
+        flex: 0 0 calc(33.333% - 13.3px);
+    }
+}
+
+@media (max-width: 768px) {
+    .item-carrossel {
+        /* 2 cards no tablet menor */
+        flex: 0 0 calc(50% - 10px);
+    }
+}
+
+@media (max-width: 480px) {
+    .item-carrossel {
+        /* 1 card em celulares */
+        flex: 0 0 100%;
+    }
+}
+
+/* Setas de navegação circulares */
+.seta-carrossel {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid #1E1E1E;
+    background-color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #1E1E1E;
+    flex-shrink: 0;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.seta-carrossel svg {
+    width: 18px;
+    height: 18px;
+}
+
+.seta-carrossel:hover {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+    transform: scale(1.08);
+}
+
+.seta-carrossel:active {
+    transform: scale(0.95);
+}
+
+/* Indicadores de página (Dots) */
+.indicadores-carrossel {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    justify-content: center;
+    align-items: center;
+}
+
+.ponto-indicador {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    background-color: #E2E0DD; /* Cinza claro inativo */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Dot ativo na cor vermelha/alaranjada do design */
+.ponto-indicador.active {
+    background-color: #D33C1A;
+    transform: scale(1.15);
+}
+
+.ponto-indicador:hover {
+    background-color: #A8A6A3;
+}
+.ponto-indicador.active:hover {
+    background-color: #D33C1A;
+}
