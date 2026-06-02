@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600');
+
+:root {
+    --cor-primaria: #055C40;
+    --cor-destaque: #D93B26;
+    --cor-texto: #FFFFFF;
+    --cor-texto-secundario: #1E1E1E;
+    --cor-botao-padrao: #E2E0DD;
+    --fonte-principal: 'Inter', sans-serif;
+}
+
+.card-produto {
+    font-family: var(--fonte-principal);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 20px;
+    border-radius: 24px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    width: 85%;
+}
+
+.card-produto:hover {
+    border-color: #1E1E1E;
+    box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.74);
+    background-color: #FFFFFF;
+}
+
+.btn-favorito-card {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    font-size: 22px;
+    color: #D33C1A;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.25s ease-in-out;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.card-produto:hover .btn-favorito-card {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.btn-favorito-card:has(.favorited) {
+    opacity: 0.6;
+    background-color: #D93B26;
+}
+
+.card-produto:hover .btn-favorito-card:has(.favorited) {
+    opacity: 1;
+}
+
+.btn-favorito-card:hover {
+    transform: scale(1.15) !important;
+}
+
+.container-imagem-card {
+    height: 180px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.imagem-card {
+    margin-top: 12.5%;
+    width: 85%;
+    height: 75%;
+    object-fit: cover;
+    object-position: center bottom;
+    border-radius: 20px;
+}
+
+.nome-card {
+    font-family: var(--fonte-principal);
+    font-size: 18px;
+    font-weight: 500;
+    color: #000000;
+    text-align: center;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+}
+
+.preco-card {
+    font-family: 'Inter';
+    font-size: 16px;
+    font-weight: 500;
+    color: #333333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.acoes-card {
+    display: flex;
+    width: 85%;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+.controles-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #535353;
+    border-radius: 8px;
+    background: #FFFFFF;
+    height: 38px;
+    width: 95px;
+    padding: 0 6px;
+    box-sizing: border-box;
+    transition: border-color 1s ease;
+}
+
+.card-produto:hover .controles-card {
+    border-color: #9c9c9c;
+}
+
+.btn-quantidade-card {
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: #444444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-weight: bold;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.btn-quantidade-card:hover {
+    color: #000000;
+}
+
+.valor-quantidade-card {
+    font-family: var(--fonte-principal);
+    font-size: 15px;
+    font-weight: 600;
+    color: #1E1E1E;
+    min-width: 16px;
+    text-align: center;
+}
+
+.btn-adicionar-card {
+    padding: 0 10px;
+    height: 38px;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--fonte-principal);
+    font-size: 15px;
+    font-weight: 600;
+    background-color: #E2E0DD;
+    color: #444444;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+}
+
+.btn-adicionar-card:hover {
+    background-color: #008B6B;
+    color: #FFFFFF;
+}

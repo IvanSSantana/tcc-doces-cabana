@@ -1,0 +1,39 @@
+@using DocesCabana.Application.DTOs
+@model IEnumerable<ProdutoDTO>
+
+<div class="vitrine-carrossel">
+    <div class="conteudo-carrossel">
+        <button class="seta-carrossel prev" aria-label="Anterior" onclick="carouselSlideLeft(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        
+        <div class="viewport-carrossel">
+            <div class="trilha-carrossel">
+                @foreach (var produto in Model)
+                {
+                    <div class="item-carrossel">
+                        @await Component.InvokeAsync("CardProduto", new { produto = produto, isFavorite = false })
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <button class="seta-carrossel next" aria-label="Próximo" onclick="carouselSlideRight(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+    </div>
+    
+    <div class="indicadores-carrossel">
+        @for (int i = 0; i < Model.Count(); i++)
+        {
+            <button class="ponto-indicador @(i == 0 ? "active" : "")" 
+                    aria-label="Ir para slide @(i + 1)" 
+                    data-slide-index="@i" 
+                    onclick="carouselGoToSlide(this, @i)"></button>
+        }
+    </div>
+</div>

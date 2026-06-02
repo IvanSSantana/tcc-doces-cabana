@@ -1,5 +1,14 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using DocesCabana.Application.DTOs
+@model IEnumerable<ProdutoDTO>
+
+@{
+    ViewData["Title"] = "Página Inicial";
 }
 
 @await Html.PartialAsync("_Carrossel")
+
+<h2 class="titulo">Mais Vendidos</h2>
+
+<section class="pagina-inicial-vitrine">
+    @await Component.InvokeAsync("VitrineProdutos", new { produtos = Model })
+</section>
