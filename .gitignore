@@ -54,10 +54,6 @@ TestResult.xml
 nunit-*.xml
 
 .vscode/
-<<<<<<< HEAD
-.cursor/
-=======
 .cursor/
 docescabana.db-shm
 docescabana.db-wal
->>>>>>> card-produto-component
