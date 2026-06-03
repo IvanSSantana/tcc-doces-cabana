@@ -1,0 +1,33 @@
+:root {
+    --cor-primaria: #055C40;
+    --cor-destaque: #D93B26;
+    --cor-texto: #FFFFFF;
+    --fonte-principal: 'Inter', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--fonte-principal);
+    background-color: #FAFAFA;
+}
+
+header {
+    margin-bottom: 4%;
+    width: 100vw;
+    background-color: var(--cor-primaria);
+    color: var(--cor-texto);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    padding: 25px 80px;
+}
+
+.logo img {
+    height: 12vh;
+    width: auto;
+    display: block;
+}
