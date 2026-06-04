@@ -1,4 +1,4 @@
-﻿@using DocesCabana.Application.DTOs
+@using DocesCabana.Application.DTOs
 @model IEnumerable<ProdutoDTO>
 
 @{
@@ -12,3 +12,7 @@
 <section class="pagina-inicial-vitrine">
     @await Component.InvokeAsync("VitrineProdutos", new { produtos = Model })
 </section>
+
+<h2 class="titulo" style="color: var(--cor-primaria);">Categorias</h2>
+
+@await Html.PartialAsync("_Categorias")

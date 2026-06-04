@@ -32,7 +32,7 @@ public class UsuarioService : IUsuarioService
     {
         var usuario = UsuarioMapper.ToEntity(dto);
 
-        var resultado = await _userManager.CreateAsync(usuario, dto.Senha);
+        var resultado = await _userManager.CreateAsync(usuario, dto.Senha!);
 
         if (!resultado.Succeeded)
             throw new InvalidOperationException(ObterMensagensErro(resultado));
@@ -152,10 +152,27 @@ public class UsuarioService : IUsuarioService
         return resultado.Succeeded;
     }
 
-    public async Task<bool> EmailJaCadastrado(string email)
+    public async Task<bool> ConfirmarEmailDoUsuario(string email, string token)
     {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+            return false;
+
         var usuario = await _userManager.FindByEmailAsync(email);
-        return usuario is not null;
+        
+        if (usuario is null)
+            return false;
+
+        var resultado = await _userManager.ConfirmEmailAsync(usuario, token);
+        
+        if (!resultado.Succeeded)
+        {
+            var erros = ObterMensagensErro(resultado);
+            _logger.LogWarning($"Falha ao confirmar e-mail do usuário {email}. Erros: {erros}");
+            return false;
+        }
+
+        _logger.LogInformation($"E-mail {email} confirmado com sucesso.");
+        return true;
     }
 
     private static string ObterMensagensErro(IdentityResult resultado) =>

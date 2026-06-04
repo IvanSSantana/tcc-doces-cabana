@@ -28,7 +28,7 @@ public class AutenticacaoController : Controller
         if (!ModelState.IsValid)
             return View(dto);
 
-        var resultado = await _usuarioService.RealizarLogin(dto.Login, dto.Senha, dto.LembrarMe);
+        var resultado = await _usuarioService.RealizarLogin(dto.Login!, dto.Senha!, dto.LembrarMe ?? false);
 
         if (resultado.Succeeded)
             return RedirectToAction("Index", "Home");

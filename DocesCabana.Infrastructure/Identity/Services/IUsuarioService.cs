@@ -16,5 +16,5 @@ public interface IUsuarioService
     Task RealizarLogout();
     Task<bool> SolicitarRedefinicaoSenha(string email);
     Task<bool> ConfirmarRedefinicaoSenha(string email, string token, string novaSenha);
-    Task<bool> EmailJaCadastrado(string email);
+    Task<bool> ConfirmarEmailDoUsuario(string email, string token);
 }

@@ -1,0 +1,163 @@
+/* Styling for Login Page */
+
+body {
+    background-color: #FAF5F5 !important;
+    font-family: 'Inter', sans-serif;
+}
+
+.login-wrapper {
+    max-width: 680px;
+    margin: 7rem auto;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.titulo-login {
+    color: #055C40;
+    font-size: 2.3rem;
+    font-weight: 600;
+    margin-bottom: 2.5rem;
+    text-align: left;
+}
+
+.formulario-login {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.campo-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.campo-input label {
+    font-family: 'Inter', sans-serif;
+    color: #055C40;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.input-login {
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    height: 54px;
+    padding: 0.75rem 1.5rem;
+    border: 1.5px solid #A2C4B9;
+    border-radius: 20px;
+    background-color: #FFFFFF;
+    color: #333333;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-login::placeholder {
+    color: #9CAFA6;
+    font-weight: 400;
+}
+
+.input-login:focus {
+    border-color: #055C40;
+    box-shadow: 0 0 0 1px rgba(5, 92, 64, 0.15);
+}
+
+/* Password wrapper and toggle button */
+.senha-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.senha-wrapper .input-login {
+    padding-right: 3.5rem;
+    /* Space for the eye icon */
+}
+
+.btn-toggle-senha {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    color: #7A8F85;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.btn-toggle-senha:hover {
+    color: #055C40;
+}
+
+.btn-toggle-senha svg {
+    display: block;
+    stroke: #7A8F85;
+    transition: stroke 0.2s ease;
+}
+
+.btn-toggle-senha:hover svg {
+    stroke: #055C40;
+}
+
+.link-recuperar-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.texto-link-login {
+    font-family: 'Inter', sans-serif;
+    color: #055C40;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+}
+
+.texto-link-login:hover {
+    text-decoration: underline !important;
+}
+
+.botao-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.botao-login {
+    font-family: 'Inter', sans-serif;
+    background-color: #055C40;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 16px;
+    width: 25vw;
+    height: 52px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: filter 0.2s ease;
+}
+
+.botao-login:hover {
+    filter: brightness(1.2);
+    /* Leve enclarecida no botão */
+}
+
+.texto-erro {
+    font-family: 'Inter', sans-serif;
+    color: #D93B26;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    padding-left: 1rem;
+}

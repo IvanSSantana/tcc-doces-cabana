@@ -17,13 +17,16 @@ body {
 }
 
 header {
-    margin-bottom: 4%;
-    width: 100vw;
     background-color: var(--cor-primaria);
     color: var(--cor-texto);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    padding: 25px 80px;
+    border-bottom: 1px solid rgba(255, 255, 255, .2);
+}
+
+header section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 25px 40px;
+    width: 100%;
 }
 
 .logo img {

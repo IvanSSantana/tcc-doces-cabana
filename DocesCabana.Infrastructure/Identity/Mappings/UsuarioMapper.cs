@@ -7,9 +7,9 @@ public static class UsuarioMapper
 {
     public static Usuario ToEntity(CadastroDTO dto) =>
         new(
-            dto.Nome,
-            dto.Email,
-            TelefoneHelper.ApenasDigitos(dto.Telefone),
-            dto.DataNascimento,
-            CpfHelper.ApenasDigitos(dto.CPF));
+            dto.Nome!,
+            dto.Email!,
+            TelefoneHelper.ApenasDigitos(dto.Telefone!),
+            dto.DataNascimento ?? new DateTime(),
+            CpfHelper.ApenasDigitos(dto.CPF!));
 }
