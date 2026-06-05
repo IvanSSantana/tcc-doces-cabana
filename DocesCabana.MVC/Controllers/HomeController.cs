@@ -2,9 +2,11 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using DocesCabana.MVC.Models;
 using DocesCabana.Application.Contracts.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DocesCabana.MVC.Controllers;
 
+[Authorize]
 public class HomeController : Controller
 {
     private readonly IProdutoService _produtoService;

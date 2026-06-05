@@ -26,7 +26,7 @@ public class LoginDTOValidator : AbstractValidator<LoginDTO>
         var validadorEmail = new EmailAddressAttribute();
 
         bool ehEmail = validadorEmail.IsValid(login);
-        bool ehCpf = CpfHelper.LoginValido(login);
+        bool ehCpf = CpfHelper.CpfValido(login);
 
         return ehCpf || ehEmail;
     }

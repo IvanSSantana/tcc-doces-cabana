@@ -7,6 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<FilterException>();
+    options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor((value, propertyName) =>
+    {
+        if (propertyName == "DataNascimento" || propertyName == "Data de Nascimento")
+        {
+            return "Data de nascimento inválida.";
+        }
+        return $"O valor '{value}' é inválido.";
+    });
 });
 
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
@@ -32,6 +40,13 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+var supportedCultures = new[] { "pt-BR" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+app.UseRequestLocalization(localizationOptions);
 
 app.MapStaticAssets();
 

@@ -1,4 +1,4 @@
-/* Styling for Login Page */
+/* Styling for Cadastro Page */
 
 body {
     background-color: #FAF5F5 !important;
@@ -7,7 +7,7 @@ body {
 
 .container-autenticacao {
     max-width: 680px;
-    margin: 7rem auto;
+    margin: 4rem auto;
     padding: 0 1.5rem;
     display: flex;
     flex-direction: column;
@@ -64,46 +64,14 @@ body {
     box-shadow: 0 0 0 1px rgba(5, 92, 64, 0.15);
 }
 
-/* Password wrapper and toggle button */
-.campo-senha-wrapper {
-    position: relative;
+.linha-dupla {
+    display: flex;
+    gap: 1.5rem;
     width: 100%;
 }
 
-.campo-senha-wrapper .campo-texto {
-    padding-right: 3.5rem;
-    /* Space for the eye icon */
-}
-
-.botao-mostrar-senha {
-    position: absolute;
-    right: 1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    padding: 0;
-    color: #7A8F85;
-    font-size: 1.25rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease;
-}
-
-.botao-mostrar-senha:hover {
-    color: #055C40;
-}
-
-.botao-mostrar-senha svg {
-    display: block;
-    stroke: #7A8F85;
-    transition: stroke 0.2s ease;
-}
-
-.botao-mostrar-senha:hover svg {
-    stroke: #055C40;
+.linha-dupla .campo-entrada {
+    flex: 1;
 }
 
 .container-link {
@@ -139,6 +107,7 @@ body {
     border: none;
     border-radius: 16px;
     width: 25vw;
+    min-width: 200px;
     height: 52px;
     font-size: 1.1rem;
     font-weight: 600;
@@ -151,7 +120,6 @@ body {
 
 .botao-acao:hover {
     filter: brightness(1.2);
-    /* Leve enclarecida no botão */
 }
 
 .mensagem-erro {

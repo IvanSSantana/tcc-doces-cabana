@@ -7,21 +7,21 @@
 
 <link rel="stylesheet" href="~/css/pages/login.css" asp-append-version="true">
 
-<main class="login-wrapper">
-    <h1 class="titulo-login">Iniciar Sessão</h1>
+<main class="container-autenticacao">
+    <h1 class="titulo-tela">Iniciar Sessão</h1>
 
-    <form asp-action="Login" method="post" class="formulario-login">
-        <div class="campo-input">
+    <form asp-action="Login" method="post" class="formulario-autenticacao">
+        <div class="campo-entrada">
             <label asp-for="Login">E-mail ou número de telefone</label>
-            <input asp-for="Login" type="text" placeholder="Digite seu login..." class="input-login" />
-            <span asp-validation-for="Login" class="texto-erro"></span>
+            <input asp-for="Login" type="text" placeholder="Digite seu login..." class="campo-texto" />
+            <span asp-validation-for="Login" class="mensagem-erro"></span>
         </div>
 
-        <div class="campo-input">
+        <div class="campo-entrada">
             <label asp-for="Senha">Senha</label>
-            <div class="senha-wrapper">
-                <input asp-for="Senha" type="password" id="input-senha" placeholder="Digite sua senha..." class="input-login" />
-                <button type="button" class="btn-toggle-senha" id="btn-toggle-senha" aria-label="Mostrar senha">
+            <div class="campo-senha-wrapper">
+                <input asp-for="Senha" type="password" id="input-senha" placeholder="Digite sua senha..." class="campo-texto" />
+                <button type="button" class="botao-mostrar-senha" id="btn-toggle-senha" aria-label="Mostrar senha">
                     <svg id="svg-olho-fechado" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icone-olho">
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                         <line x1="1" y1="1" x2="23" y2="23"></line>
@@ -32,15 +32,15 @@
                     </svg>
                 </button>
             </div>
-            <span asp-validation-for="Senha" class="texto-erro"></span>
+            <span asp-validation-for="Senha" class="mensagem-erro"></span>
         </div>
 
-        <div class="link-recuperar-container">
-            <a asp-action="Cadastro" class="texto-link-login">Não tem uma conta?</a>
+        <div class="container-link">
+            <a asp-action="Cadastro" class="link-navegacao">Não tem uma conta?</a>
         </div>
 
-        <div class="botao-container">
-            <button type="submit" class="botao-login">Entrar</button>
+        <div class="container-botao">
+            <button type="submit" class="botao-acao">Entrar</button>
         </div>
     </form>
 </main>

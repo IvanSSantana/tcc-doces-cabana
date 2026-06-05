@@ -33,6 +33,6 @@ public static class CpfHelper
         return digitos.EndsWith(digito.ToString());
     }
 
-    public static bool LoginValido(string cpf) =>
+    public static bool CpfValido(string cpf) =>
         FormatoValido(cpf) && DigitoVerificadorValido(cpf);
 }

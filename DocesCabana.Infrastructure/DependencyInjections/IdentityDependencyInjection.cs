@@ -20,6 +20,12 @@ public static class IdentityDependencyInjection
         .AddEntityFrameworkStores<DocesCabanaDbContext>()
         .AddDefaultTokenProviders();
 
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/Autenticacao/Login";
+            options.LogoutPath = "/Autenticacao/Logout";
+        });
+
         return services;
     }
 }
