@@ -12,7 +12,7 @@
 
     <form asp-action="Login" method="post" class="formulario-autenticacao">
         <div class="campo-entrada">
-            <label asp-for="Login">E-mail ou número de telefone</label>
+            <label asp-for="Login">E-mail ou CPF</label>
             <input asp-for="Login" type="text" placeholder="Digite seu login..." class="campo-texto" />
             <span asp-validation-for="Login" class="mensagem-erro"></span>
         </div>
@@ -32,7 +32,22 @@
                     </svg>
                 </button>
             </div>
+
             <span asp-validation-for="Senha" class="mensagem-erro"></span>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                var modelErrors = ViewData.ModelState[string.Empty]?.Errors;
+                if (modelErrors != null && modelErrors.Any())
+                {
+                    <div class="resumo-erros">
+                        @foreach (var erro in modelErrors)
+                        {
+                            <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+                        }
+                    </div>
+                }
+            }
         </div>
 
         <div class="container-link">
@@ -46,27 +61,6 @@
 </main>
 
 @section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const inputSenha = document.getElementById("input-senha");
-            const btnToggleSenha = document.getElementById("btn-toggle-senha");
-            const svgOlhoFechado = document.getElementById("svg-olho-fechado");
-            const svgOlhoAberto = document.getElementById("svg-olho-aberto");
-
-            if (btnToggleSenha && inputSenha) {
-                btnToggleSenha.addEventListener("click", function () {
-                    if (inputSenha.type === "password") {
-                        inputSenha.type = "text";
-                        svgOlhoFechado.classList.add("d-none");
-                        svgOlhoAberto.classList.remove("d-none");
-                    } else {
-                        inputSenha.type = "password";
-                        svgOlhoAberto.classList.add("d-none");
-                        svgOlhoFechado.classList.remove("d-none");
-                    }
-                });
-            }
-        });
-    </script>
+    <script src="~/js/autenticacao.js" asp-append-version="true"></script>
 }
 

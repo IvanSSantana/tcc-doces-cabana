@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DocesCabana.MVC.Controllers;
 
-[Authorize]
 public class HomeController : Controller
 {
     private readonly IProdutoService _produtoService;

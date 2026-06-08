@@ -25,6 +25,8 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-color: #FAFAFA !important;
+  font-family: 'Inter', sans-serif;
 }
 
 .form-floating>.form-control-plaintext::placeholder,

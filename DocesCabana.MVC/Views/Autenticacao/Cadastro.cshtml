@@ -45,19 +45,54 @@
 
         <div class="campo-entrada">
             <label asp-for="Senha">Senha</label>
-            <input asp-for="Senha" type="password" placeholder="Digite sua senha..." class="campo-texto" required />
+            <div class="campo-senha-wrapper">
+                <input asp-for="Senha" type="password" id="input-senha-cadastro" placeholder="Digite sua senha..." class="campo-texto" required />
+                <button type="button" class="botao-mostrar-senha" id="btn-toggle-senha-cadastro" aria-label="Mostrar senha">
+                    <svg id="svg-olho-fechado-cadastro" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icone-olho">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                    <svg id="svg-olho-aberto-cadastro" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icone-olho d-none">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="requisitos-senha" class="resumo-erros" style="display: none;">
+                <span class="mensagem-erro exibicao-bloco" id="req-comprimento">• Pelo menos 6 caracteres</span>
+                <span class="mensagem-erro exibicao-bloco" id="req-maiuscula">• Pelo menos uma letra maiúscula</span>
+                <span class="mensagem-erro exibicao-bloco" id="req-minuscula">• Pelo menos uma letra minúscula</span>
+                <span class="mensagem-erro exibicao-bloco" id="req-numero">• Pelo menos um número</span>
+                <span class="mensagem-erro exibicao-bloco" id="req-especial">• Pelo menos um caractere especial (ex: !, &#64;, #, $, %)</span>
+            </div>
+
             @if (ViewData.ModelState["Senha"]?.Errors.Any() == true)
             {
-                foreach (var erro in ViewData.ModelState["Senha"].Errors)
-                {
-                    <span class="mensagem-erro d-block">@erro.ErrorMessage</span>
-                }
+                <div class="resumo-erros">
+                    @foreach (var erro in ViewData.ModelState["Senha"].Errors)
+                    {
+                        <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+                    }
+                </div>
             }
         </div>
 
         <div class="campo-entrada">
             <label asp-for="ConfirmacaoSenha">Confirmar Senha</label>
-            <input asp-for="ConfirmacaoSenha" type="password" placeholder="Digite sua senha novamente..." class="campo-texto" required />
+            <div class="campo-senha-wrapper">
+                <input asp-for="ConfirmacaoSenha" type="password" id="input-confirmacao-senha" placeholder="Digite sua senha novamente..." class="campo-texto" required />
+                <button type="button" class="botao-mostrar-senha" id="btn-toggle-confirmacao-senha" aria-label="Mostrar senha">
+                    <svg id="svg-olho-fechado-confirmacao" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icone-olho">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                    <svg id="svg-olho-aberto-confirmacao" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icone-olho d-none">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
             <span asp-validation-for="ConfirmacaoSenha" class="mensagem-erro"></span>
         </div>
 
@@ -72,77 +107,5 @@
 </main>
 
 @section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const inputTelefone = document.getElementById("Telefone");
-            const inputData = document.getElementById("DataNascimento");
-            const inputCpf = document.getElementById("CPF");
-
-            function formatTelefone(value) {
-                const digits = value.replace(/\D/g, "").slice(0, 11);
-                let formatted = "";
-                if (digits.length > 0) {
-                    formatted += "(" + digits.slice(0, 2);
-                }
-                if (digits.length > 2) {
-                    formatted += ") " + digits.slice(2, 7);
-                }
-                if (digits.length > 7) {
-                    formatted += "-" + digits.slice(7, 11);
-                }
-                return formatted;
-            }
-
-            function formatDataNascimento(value) {
-                const digits = value.replace(/\D/g, "").slice(0, 8);
-                let formatted = "";
-                if (digits.length > 0) {
-                    formatted += digits.slice(0, 2);
-                }
-                if (digits.length > 2) {
-                    formatted += "/" + digits.slice(2, 4);
-                }
-                if (digits.length > 4) {
-                    formatted += "/" + digits.slice(4, 8);
-                }
-                return formatted;
-            }
-
-            function formatCPF(value) {
-                const digits = value.replace(/\D/g, "").slice(0, 11);
-                let formatted = "";
-                if (digits.length > 0) {
-                    formatted += digits.slice(0, 3);
-                }
-                if (digits.length > 3) {
-                    formatted += "." + digits.slice(3, 6);
-                }
-                if (digits.length > 6) {
-                    formatted += "." + digits.slice(6, 9);
-                }
-                if (digits.length > 9) {
-                    formatted += "-" + digits.slice(9, 11);
-                }
-                return formatted;
-            }
-
-            if (inputTelefone) {
-                inputTelefone.addEventListener("input", function (e) {
-                    e.target.value = formatTelefone(e.target.value);
-                });
-            }
-
-            if (inputData) {
-                inputData.addEventListener("input", function (e) {
-                    e.target.value = formatDataNascimento(e.target.value);
-                });
-            }
-
-            if (inputCpf) {
-                inputCpf.addEventListener("input", function (e) {
-                    e.target.value = formatCPF(e.target.value);
-                });
-            }
-        });
-    </script>
+    <script src="~/js/autenticacao.js" asp-append-version="true"></script>
 }

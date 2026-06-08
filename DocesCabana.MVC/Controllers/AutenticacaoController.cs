@@ -36,7 +36,7 @@ public class AutenticacaoController : Controller
         if (resultado.IsLockedOut)
             ModelState.AddModelError(string.Empty, "Conta bloqueada. Tente novamente mais tarde.");
         else
-            ModelState.AddModelError(string.Empty, "E-mail ou senha inválidos.");
+            ModelState.AddModelError(string.Empty, "E-mail ou senha incorreto(s).");
 
         return View(dto);
     }
