@@ -1,29 +1,22 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // --- Lógica de Mostrar/Ocultar Senha (Login e Cadastro) ---
-    function configurarToggleSenha(idInput, idBotao, idOlhoFechado, idOlhoAberto) {
-        const input = document.getElementById(idInput);
-        const botao = document.getElementById(idBotao);
-        const olhoFechado = document.getElementById(idOlhoFechado);
-        const olhoAberto = document.getElementById(idOlhoAberto);
+// --- Lógica de Mostrar/Ocultar Senha (Login e Cadastro) ---
+function toggleSenha(idInput, idOlho) {
+    const input = document.getElementById(idInput);
+    const olho = document.getElementById(idOlho);
 
-        if (botao && input) {
-            botao.addEventListener("click", function () {
-                if (input.type === "password") {
-                    input.type = "text";
-                    olhoFechado.classList.add("d-none");
-                    olhoAberto.classList.remove("d-none");
-                } else {
-                    input.type = "password";
-                    olhoAberto.classList.add("d-none");
-                    olhoFechado.classList.remove("d-none");
-                }
-            });
+    if (input) {
+        if (input.type === "password") {
+            input.type = "text";
+            if (olho) olho.classList.remove("fa-eye-slash");
+            if (olho) olho.classList.add("fa-eye");
+        } else {
+            input.type = "password";
+            if (olho) olho.classList.add("fa-eye-slash");
+            if (olho) olho.classList.remove("fa-eye");
         }
     }
+}
 
-    configurarToggleSenha("input-senha", "btn-toggle-senha", "svg-olho-fechado", "svg-olho-aberto");
-    configurarToggleSenha("input-senha-cadastro", "btn-toggle-senha-cadastro", "svg-olho-fechado-cadastro", "svg-olho-aberto-cadastro");
-    configurarToggleSenha("input-confirmacao-senha", "btn-toggle-confirmacao-senha", "svg-olho-fechado-confirmacao", "svg-olho-aberto-confirmacao");
+document.addEventListener("DOMContentLoaded", function () {
 
 
     // --- Lógica de Máscaras dos Campos (Cadastro) ---

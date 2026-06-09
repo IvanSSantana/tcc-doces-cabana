@@ -89,14 +89,14 @@
     color: #055C40;
 }
 
-.botao-mostrar-senha svg {
+.botao-mostrar-senha .icone-olho {
     display: block;
-    stroke: #7A8F85;
-    transition: stroke 0.2s ease;
+    color: #7A8F85;
+    transition: color 0.2s ease;
 }
 
-.botao-mostrar-senha:hover svg {
-    stroke: #055C40;
+.botao-mostrar-senha:hover .icone-olho {
+    color: #055C40;
 }
 
 .container-link {
