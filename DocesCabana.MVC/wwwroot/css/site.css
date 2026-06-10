@@ -49,3 +49,9 @@ body {
   text-align: center;
   width: 100%;
 }
+
+  /* Remove o icone nativo do Google Edge */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
