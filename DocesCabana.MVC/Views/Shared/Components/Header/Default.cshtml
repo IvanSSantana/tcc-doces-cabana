@@ -25,7 +25,7 @@
         </div>
 
         <div class="acoes-usuario">
-          <a asp-action="Login" asp-controller="Autenticacao" class="btn-acao">
+          <a class="btn-acao" onclick="abrirModal()">
 
             <i class="fa-solid fa-user icone-acao"></i>
 
@@ -90,6 +90,10 @@
 
     </div>
   </header>
+
+  @section Scripts {
+    <script src="~/js/modal-login.js"></script>
+  }
 </body>
 
 </html>
