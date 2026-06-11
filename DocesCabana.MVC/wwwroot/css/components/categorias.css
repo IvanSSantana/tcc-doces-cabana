@@ -1,7 +1,7 @@
 .secao-categorias {
     width: 100%;
     max-width: 1200px;
-    margin: 10% auto 40px auto;
+    margin: 5% auto 40px auto;
     padding: 0 15px;
     box-sizing: border-box;
 }
@@ -25,10 +25,11 @@
     text-decoration: none !important;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: 220px;
+    flex-shrink: 0;
 }
 
 .item-categoria:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
 }
 
 .moldura-imagem {
@@ -39,17 +40,33 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 .forma-fundo {
     position: absolute;
-    top: 10%;
-    left: 10%;
-    width: 80%;
-    height: 80%;
+    top: 15%;
+    left: 15%;
+    width: 70%;
+    height: 70%;
     z-index: 1;
     filter: drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.06));
     transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.forma-fundo.estrela {
+    top: 3%;
+    left: 3%;
+    width: 94%;
+    height: 94%;
+}
+
+.item-categoria.terceira-categoria img {
+    transform: translateY(-15px) scale(1.06);
+}
+
+.item-categoria.terceira-categoria:hover img {
+    transform: translateY(-20px) scale(1.14);
 }
 
 .item-categoria:hover .forma-fundo {
@@ -59,14 +76,14 @@
 .imagem-categoria {
     position: relative;
     z-index: 2;
-    width: 95%;
-    height: 95%;
+    width: 60%;
+    height: 60%;
     object-fit: contain;
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .item-categoria:hover .imagem-categoria {
-    transform: scale(1.12);
+    transform: scale(1.12) translateY(-4px);
 }
 
 .nome-categoria {

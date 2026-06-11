@@ -42,15 +42,15 @@ body {
 
 .titulo {
   font-family: 'Nothing You Could Do', 'Inter', sans-serif;
-  font-size: 2em;
+  font-size: 2.2em;
   font-weight: 600;
   color: #D93B26;
-  margin: 4% auto;
+  margin: 8% auto 4% auto;
   text-align: center;
   width: 100%;
 }
 
-  /* Remove o icone nativo do Google Edge */
+/* Remove o icone nativo de senhas do Google Edge */
 input::-ms-reveal,
 input::-ms-clear {
   display: none;

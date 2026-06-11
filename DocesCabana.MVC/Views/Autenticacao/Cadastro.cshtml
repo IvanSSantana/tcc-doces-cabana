@@ -63,7 +63,7 @@
             @if (ViewData.ModelState["Senha"]?.Errors.Any() == true)
             {
                 <div class="resumo-erros">
-                    @foreach (var erro in ViewData.ModelState["Senha"].Errors)
+                    @foreach (var erro in ViewData.ModelState["Senha"]!.Errors)
                     {
                         <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
                     }

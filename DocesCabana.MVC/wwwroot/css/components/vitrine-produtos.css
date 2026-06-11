@@ -79,7 +79,7 @@
     color: #1E1E1E;
     flex-shrink: 0;
     z-index: 10;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .seta-carrossel svg {
@@ -111,7 +111,8 @@
     height: 11px;
     border-radius: 50%;
     border: none;
-    background-color: #E2E0DD; /* Cinza claro inativo */
+    background-color: #E2E0DD;
+    /* Cinza claro inativo */
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
@@ -127,6 +128,7 @@
 .ponto-indicador:hover {
     background-color: #A8A6A3;
 }
+
 .ponto-indicador.active:hover {
     background-color: #D33C1A;
 }
