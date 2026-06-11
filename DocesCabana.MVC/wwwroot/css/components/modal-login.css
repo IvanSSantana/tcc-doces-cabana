@@ -1,0 +1,141 @@
+/* Estilização do Modal de Login */
+
+.modal-autenticacao {
+    border: none;
+    border-radius: 28px;
+    background-color: #FCF5F3;
+    padding: 0;
+    width: 35vw;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    overflow: visible;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+
+.modal-autenticacao::backdrop {
+    background-color: rgba(18, 18, 18, 0.85);
+    backdrop-filter: blur(2px);
+}
+
+.conteiner-modal {
+    position: relative;
+    padding: 40px 48px 48px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* Botão Fechar */
+.botao-fechar {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background-color: #E6DDD9;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #6D6460;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.botao-fechar:hover {
+    background-color: #D3C9C4;
+    transform: scale(1.05);
+}
+
+.botao-fechar svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Logo */
+.logo-modal {
+    margin: 40px 0 7rem 0;
+    display: flex;
+    justify-content: center;
+}
+
+.logo-modal img {
+    max-width: 7rem;
+    height: auto;
+    display: block;
+}
+
+/* Ações -> Botões */
+.acoes-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 15vh;
+}
+
+.botao-modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 52px;
+    border-radius: 14px;
+    font-family: var(--fonte-principal), 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    box-sizing: border-box;
+}
+
+.botao-modal:active {
+    transform: scale(0.98);
+}
+
+.botao-cadastro {
+    background-color: #033626;
+    /* Verde bem escuro como no mockup */
+    color: #FFFFFF !important;
+    border: none;
+    transition: filter 0.2s ease;
+}
+
+.botao-cadastro:hover {
+    filter: brightness(1.28);
+}
+
+.botao-entrar {
+    background-color: transparent;
+    color: #033626 !important;
+    border: 1.5px solid #033626;
+    transition: background-color 0.2s ease;
+}
+
+.botao-entrar:hover {
+    background-color: rgba(3, 54, 38, 0.05);
+}
+
+/* Rodapé -> Link de Privacidade */
+.rodape-modal {
+    width: 100%;
+    text-align: center;
+}
+
+.link-privacidade {
+    color: #1A1A1A;
+    font-family: var(--fonte-principal), 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+}
+
+.link-privacidade:hover {
+    text-decoration: underline;
+}

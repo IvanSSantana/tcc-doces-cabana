@@ -1,10 +1,23 @@
-<dialog id="modal-login">
-    <button onclick="fecharModal()">X</button>
+<dialog id="modal-login" class="modal-autenticacao">
+    <div class="conteiner-modal">
+        <button class="botao-fechar" onclick="fecharModal()" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
 
-    <img src="https://images.squarespace-cdn.com/content/v1/682f45db7481367eb4ac9803/e90a234b-bab5-4839-b072-59ca8ae7aff2/Logo+Aprova%C3%A7%C3%A3o+Final+Doce+Cabana+rgb.png?format=1500w" alt="Logo">
+        <div class="logo-modal">
+            <img src="https://images.squarespace-cdn.com/content/v1/682f45db7481367eb4ac9803/e90a234b-bab5-4839-b072-59ca8ae7aff2/Logo+Aprova%C3%A7%C3%A3o+Final+Doce+Cabana+rgb.png?format=1500w" alt="Logo Doce Cabana">
+        </div>
 
-    <a asp-action="Cadastro" asp-controller="Autenticacao" class="cadastro-botao-modal">Cadastre-se</a>
-    <a asp-action="Login" asp-controller="Autenticacao" class="login-botao-modal">Entrar</a>
+        <div class="acoes-modal">
+            <a asp-action="Cadastro" asp-controller="Autenticacao" class="botao-modal botao-cadastro">Cadastre-se</a>
+            <a asp-action="Login" asp-controller="Autenticacao" class="botao-modal botao-entrar">Entrar</a>
+        </div>
 
-    <a>Política de Privacidade</a>
+        <div class="rodape-modal">
+            <a href="#" class="link-privacidade">Política de Privacidade</a>
+        </div>
+    </div>
 </dialog>
