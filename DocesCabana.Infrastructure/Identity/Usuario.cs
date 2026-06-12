@@ -32,6 +32,17 @@ public class Usuario : IdentityUser<Guid>
         CPF = cpf;
     }
 
+    public void AtualizarDados(string nome, string celular, DateTime dataNascimento)
+    {
+        ValidarNome(nome);
+        ValidarCelular(celular);
+        ValidarDataNascimento(dataNascimento);
+
+        Nome = nome;
+        PhoneNumber = celular;
+        DataNascimento = dataNascimento;
+    }
+
     private void ValidarNome(string nome)
     {
         if (string.IsNullOrWhiteSpace(nome))
@@ -94,14 +105,15 @@ public class Usuario : IdentityUser<Guid>
         int[] multiplicador1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
         int[] multiplicador2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
 
-        var primeirosDigitosCPF = cpf.Substring(0, 9);
-        var soma = primeirosDigitosCPF.Select((t, i) => (t - '0') * multiplicador1[i]).Sum();
+        var primeirasDigitosCPF = cpf.Substring(0, 9);
+        var soma = primeirasDigitosCPF.Select((t, i) => (t - '0') * multiplicador1[i]).Sum();
 
         var resto = soma % 11;
         var digito = resto < 2 ? 0 : 11 - resto;
 
-        primeirosDigitosCPF += digito;
-        soma = primeirosDigitosCPF.Select((t, i) => (t - '0') * multiplicador2[i]).Sum();
+
+        primeirasDigitosCPF += digito;
+        soma = primeirasDigitosCPF.Select((t, i) => (t - '0') * multiplicador2[i]).Sum();
 
         resto = soma % 11;
         digito = resto < 2 ? 0 : 11 - resto;
