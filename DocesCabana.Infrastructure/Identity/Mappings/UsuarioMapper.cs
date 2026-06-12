@@ -1,5 +1,5 @@
 using DocesCabana.Application.DTOs.Autenticacao;
-using DocesCabana.Application.Helpers;
+using DocesCabana.Domain.Helpers;
 
 namespace DocesCabana.Infrastructure.Identity.Mappings;
 

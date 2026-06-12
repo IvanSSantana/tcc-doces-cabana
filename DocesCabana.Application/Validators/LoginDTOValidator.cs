@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using DocesCabana.Application.DTOs.Autenticacao;
-using DocesCabana.Application.Helpers;
+using DocesCabana.Domain.Helpers;
 using FluentValidation;
 
 namespace DocesCabana.Application.Validators;
