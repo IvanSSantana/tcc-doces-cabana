@@ -30,7 +30,7 @@
     background-color: #FFFFFF;
 }
 
-.btn-favorito-card {
+.botao-favorito-card {
     position: absolute;
     top: 20px;
     right: 20px;
@@ -50,21 +50,21 @@
     z-index: 10;
 }
 
-.card-produto:hover .btn-favorito-card {
+.card-produto:hover .botao-favorito-card {
     opacity: 1;
     transform: scale(1);
 }
 
-.btn-favorito-card:has(.favorited) {
+.botao-favorito-card:has(.favoritado) {
     opacity: 0.6;
     background-color: #D93B26;
 }
 
-.card-produto:hover .btn-favorito-card:has(.favorited) {
+.card-produto:hover .botao-favorito-card:has(.favoritado) {
     opacity: 1;
 }
 
-.btn-favorito-card:hover {
+.botao-favorito-card:hover {
     transform: scale(1.15) !important;
 }
 
@@ -134,7 +134,7 @@
     border-color: #9c9c9c;
 }
 
-.btn-quantidade-card {
+.botao-quantidade-card {
     border: none;
     background: none;
     font-size: 16px;
@@ -150,7 +150,7 @@
     transition: color 0.2s ease;
 }
 
-.btn-quantidade-card:hover {
+.botao-quantidade-card:hover {
     color: #000000;
 }
 
@@ -163,7 +163,7 @@
     text-align: center;
 }
 
-.btn-adicionar-card {
+.botao-adicionar-card {
     padding: 0 10px;
     height: 38px;
     border: none;
@@ -178,7 +178,7 @@
     box-sizing: border-box;
 }
 
-.btn-adicionar-card:hover {
+.botao-adicionar-card:hover {
     background-color: #008B6B;
     color: #FFFFFF;
 }

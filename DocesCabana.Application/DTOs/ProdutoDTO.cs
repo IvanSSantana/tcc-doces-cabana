@@ -19,5 +19,5 @@ public class ProdutoDTO
 
     public Guid? PromocaoId { get; init; }
 
-    public bool IsFavorite { get; set; }
+    public bool EstaFavorito { get; set; }
 }
