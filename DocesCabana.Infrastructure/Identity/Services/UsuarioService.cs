@@ -112,7 +112,6 @@ public class UsuarioService : IUsuarioService
         var usuario = await _userManager.FindByEmailAsync(email);
         if (usuario is null)
         {
-            _logger.LogWarning($"Usuário com e-mail {email} não encontrado.");
             return false;
         }
 
@@ -147,13 +146,7 @@ public class UsuarioService : IUsuarioService
         var resultado = await _userManager.ConfirmEmailAsync(usuario, token);
         
         if (!resultado.Succeeded)
-        {
-            var erros = ObterMensagensErro(resultado);
-            _logger.LogWarning($"Falha ao confirmar e-mail do usuário {email}. Erros: {erros}");
             return false;
-        }
-
-        _logger.LogInformation($"E-mail {email} confirmado com sucesso.");
         return true;
     }
 

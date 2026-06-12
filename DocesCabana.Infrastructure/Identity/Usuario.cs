@@ -6,23 +6,18 @@ namespace DocesCabana.Infrastructure.Identity;
 public class Usuario : IdentityUser<Guid>
 {
     public string Nome { get; private set; } = default!;
-    public DateTime DataNascimento { get; set; }
+    public DateTime DataNascimento { get; private set; }
     public string CPF { get; private set; } = default!;
 
     protected Usuario() { }
 
-    public Usuario(string nome, string email, string celular, DateTime dataNascimento, string cpf, Guid id = default)
+    public Usuario(string nome, string email, string celular, DateTime dataNascimento, string cpf)
     {
-        if (id == default)
-            id = Guid.NewGuid();
-
-        Id = id;
         UserName = email;
         Email = email;
         PhoneNumber = celular;
 
         ValidarNome(nome);
-        ValidarEmail(email);
         ValidarCelular(celular);
         ValidarDataNascimento(dataNascimento);
         ValidarCPF(cpf);
@@ -30,7 +25,7 @@ public class Usuario : IdentityUser<Guid>
         Nome = nome;
         DataNascimento = dataNascimento;
         CPF = cpf;
-    }
+}
 
     public void AtualizarDados(string nome, string celular, DateTime dataNascimento)
     {
@@ -48,18 +43,7 @@ public class Usuario : IdentityUser<Guid>
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentNullException(nameof(nome), "Nome é obrigatório!");
     }
-
-    private void ValidarEmail(string email)
-    {  
-        if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentNullException(nameof(email), "Email é obrigatório!");
-
-        Regex validacaoRegex = new(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$");
-
-        if (!validacaoRegex.IsMatch(email))
-            throw new ArgumentException("Email inválido.", nameof(email));
-    }
-
+    
     private void ValidarCelular(string celular)
     {
         if (string.IsNullOrWhiteSpace(celular))

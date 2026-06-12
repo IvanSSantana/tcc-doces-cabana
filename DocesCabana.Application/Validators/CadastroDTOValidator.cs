@@ -13,9 +13,9 @@ public class CadastroDTOValidator : AbstractValidator<CadastroDTO>
             .MaximumLength(100).WithMessage("O nome deve ter no máximo 100 caracteres.");
 
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("O E-mail é obrigatório!")
-            .EmailAddress().WithMessage("O E-mail é inválido.")
-            .MaximumLength(100).WithMessage("O E-mail deve ter no máximo 100 caracteres.");
+            .NotEmpty().WithMessage("O e-mail é obrigatório!")
+            .EmailAddress().WithMessage("O e-mail é inválido.")
+            .MaximumLength(100).WithMessage("O e-mail deve ter no máximo 100 caracteres.");
 
         RuleFor(x => x.Telefone)
             .NotEmpty().WithMessage("O número de telefone é obrigatório!")
