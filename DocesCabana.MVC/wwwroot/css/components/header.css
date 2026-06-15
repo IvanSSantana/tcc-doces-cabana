@@ -1,24 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Nothing+You+Could+Do&display=swap');
-
-:root {
-  --cor-primaria: #055C40;
-  --cor-destaque: #D93B26;
-  --cor-texto: #FFFFFF;
-  --fonte-principal: 'Inter', sans-serif;
-  --fonte-secundaria: 'Nothing You Could Do', cursive;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: var(--fonte-principal);
-  background-color: #FAFAFA;
-}
-
 section {
   max-width: 1400px;
   margin: 0 auto;

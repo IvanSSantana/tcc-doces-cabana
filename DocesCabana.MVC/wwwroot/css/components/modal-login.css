@@ -1,5 +1,3 @@
-/* Estilização do Modal de Login */
-
 .modal-autenticacao {
     border: none;
     border-radius: 28px;
@@ -20,7 +18,7 @@
     backdrop-filter: blur(2px);
 }
 
-.conteiner-modal {
+.container-modal {
     position: relative;
     padding: 40px 48px 48px 48px;
     display: flex;
@@ -29,7 +27,6 @@
     box-sizing: border-box;
 }
 
-/* Botão Fechar */
 .botao-fechar {
     position: absolute;
     top: 24px;
@@ -57,7 +54,6 @@
     height: 18px;
 }
 
-/* Logo */
 .logo-modal {
     margin: 40px 0 7rem 0;
     display: flex;
@@ -70,7 +66,6 @@
     display: block;
 }
 
-/* Ações -> Botões */
 .acoes-modal {
     display: flex;
     flex-direction: column;
@@ -100,7 +95,6 @@
 
 .botao-cadastro {
     background-color: #033626;
-    /* Verde bem escuro como no mockup */
     color: #FFFFFF !important;
     border: none;
     transition: filter 0.2s ease;
@@ -121,7 +115,6 @@
     background-color: rgba(3, 54, 38, 0.05);
 }
 
-/* Rodapé -> Link de Privacidade */
 .rodape-modal {
     width: 100%;
     text-align: center;

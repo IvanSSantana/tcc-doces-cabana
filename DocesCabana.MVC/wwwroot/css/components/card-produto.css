@@ -1,14 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600');
-
-:root {
-    --cor-primaria: #055C40;
-    --cor-destaque: #D93B26;
-    --cor-texto: #FFFFFF;
-    --cor-texto-secundario: #1E1E1E;
-    --cor-botao-padrao: #E2E0DD;
-    --fonte-principal: 'Inter', sans-serif;
-}
-
 .card-produto {
     font-family: var(--fonte-principal);
     display: flex;

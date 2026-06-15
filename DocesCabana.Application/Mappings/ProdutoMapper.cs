@@ -18,5 +18,5 @@ public static class ProdutoMapper
         };
 
     public static List<ProdutoDTO> ToDTO(IEnumerable<Produto> produtos) =>
-        produtos.Select(ToDto).ToList();
+        produtos.Select(ToDTO).ToList();
 }

@@ -2,7 +2,7 @@
 
 function pegarEstadoCarrossel(elemento) {
     const container = elemento.closest('.vitrine-carrossel');
-    const trilha = container.querySelector('.trilha-carrossel');
+    const trilha = container.querySelector('.itens-carrossel-container');
     const itens = container.querySelectorAll('.item-carrossel');
     const pontos = container.querySelectorAll('.ponto-indicador');
     
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.dataset.inicializado = 'true';
             }
             
-            const trilha = container.querySelector('.trilha-carrossel');
+            const trilha = container.querySelector('.itens-carrossel-container');
             if (trilha) {
                 const pontos = container.querySelectorAll('.ponto-indicador');
                 

@@ -5,7 +5,7 @@
     Layout = "_LayoutNaoAutenticado";
 }
 
-<link rel="stylesheet" href="~/css/pages/login.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/autenticacao.css" asp-append-version="true">
 
 <main class="container-autenticacao">
     <h1 class="titulo-tela">Iniciar Sessão</h1>
@@ -19,7 +19,7 @@
 
         <div class="campo-entrada">
             <label asp-for="Senha">Senha</label>
-            <div class="campo-senha-wrapper">
+            <div class="campo-senha-container">
                 <input asp-for="Senha" type="password" id="input-senha" placeholder="Digite sua senha..." class="campo-texto" />
                 <button type="button" class="botao-mostrar-senha" onclick="toggleSenha('input-senha', 'svg-olho')" id="botao-toggle-senha" aria-label="Mostrar senha">
                     <i class="fa-regular fa-eye-slash icone-olho" id="svg-olho"></i>

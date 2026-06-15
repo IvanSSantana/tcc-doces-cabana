@@ -2,98 +2,96 @@
   <link rel="stylesheet" href="~/css/components/header.css">
 </head>
 
-<body>
-  <header>
-    <div class="cabecalho-superior">
-      <section>
+<header>
+  <div class="cabecalho-superior">
+    <section>
 
-        <a asp-action="Index" asp-controller="Home" class="logo">
-          <img
-            src="https://images.squarespace-cdn.com/content/v1/682f45db7481367eb4ac9803/e90a234b-bab5-4839-b072-59ca8ae7aff2/Logo+Aprova%C3%A7%C3%A3o+Final+Doce+Cabana+rgb.png?format=1500w"
-            alt="Logo Doce Cabana">
+      <a asp-action="Index" asp-controller="Home" class="logo">
+        <img
+          src="https://images.squarespace-cdn.com/content/v1/682f45db7481367eb4ac9803/e90a234b-bab5-4839-b072-59ca8ae7aff2/Logo+Aprova%C3%A7%C3%A3o+Final+Doce+Cabana+rgb.png?format=1500w"
+          alt="Logo Doce Cabana">
+      </a>
+
+      <div class="barra-pesquisa">
+        <input type="text" placeholder="Buscar produto...">
+
+        <div class="separador-pesquisa"></div>
+
+        <button class="botao-pesquisar" aria-label="Buscar">
+          <i class="fa-solid fa-magnifying-glass icone-pesquisa"></i>
+        </button>
+
+      </div>
+
+      <div class="acoes-usuario">
+        <a class="botao-acao" onclick="abrirModal()">
+
+          <i class="fa-solid fa-user icone-acao"></i>
+
+          <span>Entrar</span>
         </a>
 
-        <div class="barra-pesquisa">
-          <input type="text" placeholder="Buscar produto...">
+        <a href="#" class="botao-acao">
 
-          <div class="separador-pesquisa"></div>
+          <i class="fa-solid fa-cart-shopping icone-acao"></i>
 
-          <button class="botao-pesquisar" aria-label="Buscar">
-            <i class="fa-solid fa-magnifying-glass icone-pesquisa"></i>
-          </button>
-
-        </div>
-
-        <div class="acoes-usuario">
-          <a class="botao-acao" onclick="abrirModal()">
-
-            <i class="fa-solid fa-user icone-acao"></i>
-
-            <span>Entrar</span>
-          </a>
-
-          <a href="#" class="botao-acao">
-
-            <i class="fa-solid fa-cart-shopping icone-acao"></i>
-
-            <span>Meu carrinho</span>
-          </a>
-
-        </div>
-      </section>
-
-    </div>
-
-
-    <div class="cabecalho-inferior">
-      <section>
-        <nav>
-
-          <a href="#" class="link-nav">
-            <p>Doce</p>
-
-            <i class="fa-solid fa-chevron-down icone-nav"></i>
-          </a>
-
-          <a href="#" class="link-nav">
-            <p>Salgado</p>
-
-            <i class="fa-solid fa-chevron-down icone-nav"></i>
-          </a>
-
-          <a href="#" class="link-nav">
-            <p>Adega</p>
-
-            <i class="fa-solid fa-chevron-down icone-nav"></i>
-          </a>
-
-          <a href="#" class="link-nav">
-            <p>Outros</p>
-
-            <i class="fa-solid fa-chevron-down icone-nav"></i>
-          </a>
-
-        </nav>
-
-        <a href="#" class="botao-favoritos">
-          <span>Favoritos</span>
-
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path
-              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-            </path>
-          </svg>
-
+          <span>Meu carrinho</span>
         </a>
-      </section>
 
-    </div>
-  </header>
+      </div>
+    </section>
 
-  @section Scripts {
-    <script src="~/js/modal-login.js"></script>
-  }
-</body>
+  </div>
+
+
+  <div class="cabecalho-inferior">
+    <section>
+      <nav>
+
+        <a href="#" class="link-nav">
+          <p>Doce</p>
+
+          <i class="fa-solid fa-chevron-down icone-nav"></i>
+        </a>
+
+        <a href="#" class="link-nav">
+          <p>Salgado</p>
+
+          <i class="fa-solid fa-chevron-down icone-nav"></i>
+        </a>
+
+        <a href="#" class="link-nav">
+          <p>Adega</p>
+
+          <i class="fa-solid fa-chevron-down icone-nav"></i>
+        </a>
+
+        <a href="#" class="link-nav">
+          <p>Outros</p>
+
+          <i class="fa-solid fa-chevron-down icone-nav"></i>
+        </a>
+
+      </nav>
+
+      <a href="#" class="botao-favoritos">
+        <span>Favoritos</span>
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+          </path>
+        </svg>
+
+      </a>
+    </section>
+
+  </div>
+</header>
+
+@section Scripts {
+  <script src="~/js/modal-login.js"></script>
+}
 
 </html>

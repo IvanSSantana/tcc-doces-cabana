@@ -1,3 +1,9 @@
+using DocesCabana.Infrastructure.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace DocesCabana.Infrastructure.DatabaseContext.Configurations;
+
 public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
 {
     public void Configure(EntityTypeBuilder<Usuario> builder)
