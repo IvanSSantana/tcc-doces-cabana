@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace DocesCabana.Application.Helpers;
+namespace DocesCabana.Domain.Helpers;
 
 public static class TelefoneHelper
 {

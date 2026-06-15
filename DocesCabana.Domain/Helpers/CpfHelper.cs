@@ -1,4 +1,4 @@
-namespace DocesCabana.Application.Helpers;
+namespace DocesCabana.Domain.Helpers;
 
 public static class CpfHelper
 {
