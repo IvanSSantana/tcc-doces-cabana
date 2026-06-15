@@ -26,7 +26,7 @@
     <div class="indicadores-carrossel">
         @for (int i = 0; i < Model.Count(); i++)
         {
-            <button class="ponto-indicador @(i == 0 ? "active" : "")" 
+            <button class="ponto-indicador @(i == 0 ? "ativo" : "")" 
                     aria-label="Ir para slide @(i + 1)" 
                     data-indice-item="@i" 
                     onclick="irParaItem(this, @i)"></button>

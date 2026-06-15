@@ -27,7 +27,7 @@ html {
 }
 
 .botao:focus,
-.botao:active:focus,
+.botao:ativo:focus,
 .botao-link.nav-link:focus,
 .form-control:focus,
 .form-check-input:focus {

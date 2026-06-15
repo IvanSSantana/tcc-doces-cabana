@@ -61,7 +61,7 @@
     background-color: #f3f3f3;
 }
 
-.seta-controle:active {
+.seta-controle:ativo {
     transform: translateY(-50%) scale(0.96);
 }
 
