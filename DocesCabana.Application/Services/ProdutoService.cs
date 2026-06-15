@@ -18,7 +18,7 @@ public class ProdutoService : IProdutoService
     {
         var produtos = await _produtoRepository.BuscarTodos();
 
-        return ProdutoMapper.ToDto(produtos);
+        return ProdutoMapper.ToDTO(produtos);
     }
 
     public async Task<ProdutoDTO> BuscarProdutoPorId(Guid id)
@@ -28,6 +28,6 @@ public class ProdutoService : IProdutoService
         if (produto is null)
             throw new KeyNotFoundException($"Produto com ID {id} não encontrado.");
 
-        return ProdutoMapper.ToDto(produto);
+        return ProdutoMapper.ToDTO(produto);
     }
 }

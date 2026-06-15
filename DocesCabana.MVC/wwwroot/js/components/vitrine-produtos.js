@@ -1,142 +1,127 @@
 // Script de controle interativo para a Vitrine Carrossel de Produtos
 
-function getCarouselState(element) {
-    const container = element.closest('.vitrine-carrossel');
-    const track = container.querySelector('.trilha-carrossel');
-    const slides = container.querySelectorAll('.item-carrossel');
-    const dots = container.querySelectorAll('.ponto-indicador');
+function pegarEstadoCarrossel(elemento) {
+    const container = elemento.closest('.vitrine-carrossel');
+    const trilha = container.querySelector('.itens-carrossel-container');
+    const itens = container.querySelectorAll('.item-carrossel');
+    const pontos = container.querySelectorAll('.ponto-indicador');
     
-    // Calcula as larguras e gaps reais dos slides
-    const slideWidth = slides.length > 0 ? slides[0].getBoundingClientRect().width : 0;
+    const larguraItem = itens.length > 0 ? itens[0].getBoundingClientRect().width : 0;
     
-    // Obtém o gap do flexbox (padrão 20px se não detectado)
     let gap = 20;
-    if (slides.length > 1) {
-        const rect1 = slides[0].getBoundingClientRect();
-        const rect2 = slides[1].getBoundingClientRect();
+    if (itens.length > 1) {
+        const rect1 = itens[0].getBoundingClientRect();
+        const rect2 = itens[1].getBoundingClientRect();
         gap = rect2.left - rect1.right;
     }
     
-    // Define a visibilidade responsiva
-    let visibleSlides = 4;
-    const width = window.innerWidth;
-    if (width <= 480) visibleSlides = 1;
-    else if (width <= 768) visibleSlides = 2;
-    else if (width <= 1024) visibleSlides = 3;
+    let itensVisiveis = 4;
+    const larguraTela = window.innerWidth;
+    if (larguraTela <= 480) itensVisiveis = 1;
+    else if (larguraTela <= 768) itensVisiveis = 2;
+    else if (larguraTela <= 1024) itensVisiveis = 3;
     
-    // Máximo de scroll possível
-    const maxIndex = Math.max(0, slides.length - visibleSlides);
-    let currentIndex = parseInt(container.dataset.currentIndex) || 0;
+    const indiceMaximo = Math.max(0, itens.length - itensVisiveis);
+    let indiceAtual = parseInt(container.dataset.indiceAtual) || 0;
     
-    return { container, track, slides, dots, slideWidth, gap, visibleSlides, maxIndex, currentIndex };
+    return { container, trilha, itens, pontos, larguraItem, gap, itensVisiveis, indiceMaximo, indiceAtual };
 }
 
-function updateCarouselPosition(state) {
-    const { container, track, dots, slideWidth, gap, currentIndex, maxIndex } = state;
+function atualizarPosicaoCarrossel(estado) {
+    const { container, trilha, pontos, larguraItem, gap, indiceAtual, indiceMaximo } = estado;
     
-    // Limita o índice entre 0 e o máximo de scroll
-    let idx = Math.min(Math.max(0, currentIndex), maxIndex);
-    container.dataset.currentIndex = idx;
+    let idx = Math.min(Math.max(0, indiceAtual), indiceMaximo);
+    container.dataset.indiceAtual = idx;
     
-    // Calcula o deslocamento
-    const amountToMove = idx * (slideWidth + gap);
-    track.style.transform = `translateX(-${amountToMove}px)`;
+    const quantidadeMover = idx * (larguraItem + gap);
+    trilha.style.transform = `translateX(-${quantidadeMover}px)`;
     
-    // Habilita/Desabilita setas conforme limites de scroll
-    const prevBtn = container.querySelector('.seta-carrossel.prev');
-    const nextBtn = container.querySelector('.seta-carrossel.next');
+    const botaoAnterior = container.querySelector('.seta-carrossel.prev');
+    const botaoProximo = container.querySelector('.seta-carrossel.next');
     
-    if (prevBtn) {
+    if (botaoAnterior) {
         if (idx === 0) {
-            prevBtn.style.opacity = '0.4';
-            prevBtn.style.cursor = 'default';
+            botaoAnterior.style.opacity = '0.4';
+            botaoAnterior.style.cursor = 'default';
         } else {
-            prevBtn.style.opacity = '1';
-            prevBtn.style.cursor = 'pointer';
+            botaoAnterior.style.opacity = '1';
+            botaoAnterior.style.cursor = 'pointer';
         }
     }
     
-    if (nextBtn) {
-        if (idx === maxIndex) {
-            nextBtn.style.opacity = '0.4';
-            nextBtn.style.cursor = 'default';
+    if (botaoProximo) {
+        if (idx === indiceMaximo) {
+            botaoProximo.style.opacity = '0.4';
+            botaoProximo.style.cursor = 'default';
         } else {
-            nextBtn.style.opacity = '1';
-            nextBtn.style.cursor = 'pointer';
+            botaoProximo.style.opacity = '1';
+            botaoProximo.style.cursor = 'pointer';
         }
     }
     
-    // Atualiza a classe ativa nos dots
-    dots.forEach((dot, dIdx) => {
-        if (dIdx === idx) {
-            dot.classList.add('active');
+    pontos.forEach((ponto, indicePonto) => {
+        if (indicePonto === idx) {
+            ponto.classList.add('active');
         } else {
-            dot.classList.remove('active');
+            ponto.classList.remove('active');
         }
     });
 }
 
-function carouselSlideLeft(btn) {
-    const state = getCarouselState(btn);
-    if (state.currentIndex > 0) {
-        state.currentIndex--;
-        updateCarouselPosition(state);
+function irItemAnterior(botao) {
+    const estado = pegarEstadoCarrossel(botao);
+    if (estado.indiceAtual > 0) {
+        estado.indiceAtual--;
+        atualizarPosicaoCarrossel(estado);
     }
 }
 
-function carouselSlideRight(btn) {
-    const state = getCarouselState(btn);
-    if (state.currentIndex < state.maxIndex) {
-        state.currentIndex++;
-        updateCarouselPosition(state);
+function irProximoItem(botao) {
+    const estado = pegarEstadoCarrossel(botao);
+    if (estado.indiceAtual < estado.indiceMaximo) {
+        estado.indiceAtual++;
+        atualizarPosicaoCarrossel(estado);
     }
 }
 
-function carouselGoToSlide(dot, index) {
-    const state = getCarouselState(dot);
-    state.currentIndex = index;
-    updateCarouselPosition(state);
+function irParaItem(ponto, indice) {
+    const estado = pegarEstadoCarrossel(ponto);
+    estado.indiceAtual = indice;
+    atualizarPosicaoCarrossel(estado);
 }
 
-// Inicialização e gerenciamento de redimensionamento
 document.addEventListener('DOMContentLoaded', () => {
-    function initCarousels() {
+    function inicializarCarrosseis() {
         document.querySelectorAll('.vitrine-carrossel').forEach(container => {
-            if (!container.dataset.initialized) {
-                container.dataset.currentIndex = 0;
-                container.dataset.initialized = 'true';
+            if (!container.dataset.inicializado) {
+                container.dataset.indiceAtual = 0;
+                container.dataset.inicializado = 'true';
             }
             
-            const track = container.querySelector('.trilha-carrossel');
-            if (track) {
-                const dots = container.querySelectorAll('.ponto-indicador');
+            const trilha = container.querySelector('.itens-carrossel-container');
+            if (trilha) {
+                const pontos = container.querySelectorAll('.ponto-indicador');
                 
-                function adjustDots() {
-                    const state = getCarouselState(track);
+                function ajustarPontos() {
+                    const estado = pegarEstadoCarrossel(trilha);
                     
-                    // Oculta dots redundantes (que estariam fora de limites por falta de slides)
-                    dots.forEach((dot, idx) => {
-                        if (idx > state.maxIndex) {
-                            dot.style.display = 'none';
+                    pontos.forEach((ponto, indicePonto) => {
+                        if (indicePonto > estado.indiceMaximo) {
+                            ponto.style.display = 'none';
                         } else {
-                            dot.style.display = '';
+                            ponto.style.display = '';
                         }
                     });
                     
-                    updateCarouselPosition(state);
+                    atualizarPosicaoCarrossel(estado);
                 }
                 
-                // Trata redimensionamento para recalcular widths e visibilidade
-                window.addEventListener('resize', adjustDots);
-                
-                // Pequeno atraso para aguardar o render completo do browser e calcular larguras certas
-                setTimeout(adjustDots, 150);
+                window.addEventListener('resize', ajustarPontos);
+                setTimeout(ajustarPontos, 150);
             }
         });
     }
 
-    initCarousels();
-    
-    // Registra re-inicialização caso novos elementos HTML surjam via AJAX
-    window.initVitrineCarousels = initCarousels;
+    inicializarCarrosseis();
+    window.inicializarVitrineCarrosseis = inicializarCarrosseis;
 });

@@ -3,22 +3,22 @@
 
 <div class="vitrine-carrossel">
     <div class="conteudo-carrossel">
-        <button class="seta-carrossel prev" aria-label="Anterior" onclick="carouselSlideLeft(this)">
+        <button class="seta-carrossel prev" aria-label="Anterior" onclick="irItemAnterior(this)">
             <i class="fa-solid fa-arrow-left"></i>
         </button>
         
-        <div class="viewport-carrossel">
-            <div class="trilha-carrossel">
+        <div class="area-carrossel">
+            <div class="itens-carrossel-container">
                 @foreach (var produto in Model)
                 {
                     <div class="item-carrossel">
-                        @await Component.InvokeAsync("CardProduto", new { produto = produto, isFavorite = false })
+                        @await Component.InvokeAsync("CardProduto", new { produto = produto, estaFavorito = false })
                     </div>
                 }
             </div>
         </div>
         
-        <button class="seta-carrossel next" aria-label="Próximo" onclick="carouselSlideRight(this)">
+        <button class="seta-carrossel next" aria-label="Próximo" onclick="irProximoItem(this)">
             <i class="fa-solid fa-arrow-right"></i>
         </button>
     </div>
@@ -28,8 +28,8 @@
         {
             <button class="ponto-indicador @(i == 0 ? "active" : "")" 
                     aria-label="Ir para slide @(i + 1)" 
-                    data-slide-index="@i" 
-                    onclick="carouselGoToSlide(this, @i)"></button>
+                    data-indice-item="@i" 
+                    onclick="irParaItem(this, @i)"></button>
         }
     </div>
 </div>

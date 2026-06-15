@@ -5,7 +5,7 @@ namespace DocesCabana.Application.Mappings;
 
 public static class ProdutoMapper
 {
-    public static ProdutoDTO ToDto(Produto produto) =>
+    public static ProdutoDTO ToDTO(Produto produto) =>
         new()
         {
             Id = produto.ProdutoId,
@@ -17,6 +17,6 @@ public static class ProdutoMapper
             PromocaoId = produto.PromocaoId
         };
 
-    public static List<ProdutoDTO> ToDto(IEnumerable<Produto> produtos) =>
-        produtos.Select(ToDto).ToList();
+    public static List<ProdutoDTO> ToDTO(IEnumerable<Produto> produtos) =>
+        produtos.Select(ToDTO).ToList();
 }

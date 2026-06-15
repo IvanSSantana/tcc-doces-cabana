@@ -5,7 +5,7 @@
     Layout = "_LayoutNaoAutenticado";
 }
 
-<link rel="stylesheet" href="~/css/pages/cadastro.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/autenticacao.css" asp-append-version="true">
 
 <main class="container-autenticacao">
     <h1 class="titulo-tela">Cadastre-se</h1>
@@ -45,9 +45,9 @@
 
         <div class="campo-entrada">
             <label asp-for="Senha">Senha</label>
-            <div class="campo-senha-wrapper">
+            <div class="campo-senha-container">
                 <input asp-for="Senha" type="password" id="input-senha-cadastro" placeholder="Digite sua senha..." class="campo-texto" required />
-                <button type="button" class="botao-mostrar-senha" onclick="toggleSenha('input-senha-cadastro', 'svg-olho-cadastro')" id="btn-toggle-senha-cadastro" aria-label="Mostrar senha">
+                <button type="button" class="botao-mostrar-senha" onclick="toggleSenha('input-senha-cadastro', 'svg-olho-cadastro')" id="botao-toggle-senha-cadastro" aria-label="Mostrar senha">
                     <i class="fa-regular fa-eye-slash icone-olho" id="svg-olho-cadastro"></i>
                 </button>
             </div>
@@ -73,9 +73,9 @@
 
         <div class="campo-entrada">
             <label asp-for="ConfirmacaoSenha">Confirmar Senha</label>
-            <div class="campo-senha-wrapper">
+            <div class="campo-senha-container">
                 <input asp-for="ConfirmacaoSenha" type="password" id="input-confirmacao-senha" placeholder="Digite sua senha novamente..." class="campo-texto" required />
-                <button type="button" class="botao-mostrar-senha" onclick="toggleSenha('input-confirmacao-senha', 'svg-olho-confirmacao')" id="btn-toggle-confirmacao-senha" aria-label="Mostrar senha">
+                <button type="button" class="botao-mostrar-senha" onclick="toggleSenha('input-confirmacao-senha', 'svg-olho-confirmacao')" id="botao-toggle-confirmacao-senha" aria-label="Mostrar senha">
                     <i class="fa-regular fa-eye-slash icone-olho" id="svg-olho-confirmacao"></i>
                 </button>
             </div>

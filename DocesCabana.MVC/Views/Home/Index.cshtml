@@ -5,7 +5,7 @@
     ViewData["Title"] = "Página Inicial";
 }
 
-@await Html.PartialAsync("_Carrossel")
+<partial name="_Carrossel" />
 
 <h2 class="titulo">Mais Vendidos</h2>
 
@@ -15,4 +15,4 @@
 
 <h2 class="titulo" style="color: var(--cor-primaria);">Categorias</h2>
 
-@await Html.PartialAsync("_Categorias")
+<partial name="_Categorias" />

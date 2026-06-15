@@ -1,5 +1,3 @@
-/* Vitrine Carrossel de Produtos */
-
 .vitrine-carrossel {
     margin: 40px auto;
     width: 100%;
@@ -20,7 +18,7 @@
 }
 
 /* Viewport com overflow escondido para permitir scroll interno */
-.viewport-carrossel {
+.area-carrossel {
     overflow: hidden;
     width: 100%;
     /* Espaço para evitar cortar a sombra do card em hover */
@@ -29,7 +27,7 @@
 }
 
 /* Trilha de slides em Flexbox */
-.trilha-carrossel {
+.itens-carrossel-container {
     display: flex;
     transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     gap: 20px;
@@ -64,7 +62,6 @@
     }
 }
 
-/* Setas de navegação circulares */
 .seta-carrossel {
     width: 44px;
     height: 44px;
@@ -97,7 +94,6 @@
     transform: scale(0.95);
 }
 
-/* Indicadores de página (Dots) */
 .indicadores-carrossel {
     display: flex;
     gap: 10px;
@@ -112,14 +108,12 @@
     border-radius: 50%;
     border: none;
     background-color: #E2E0DD;
-    /* Cinza claro inativo */
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Dot ativo na cor vermelha/alaranjada do design */
 .ponto-indicador.active {
     background-color: #D33C1A;
     transform: scale(1.15);

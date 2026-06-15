@@ -1,13 +1,13 @@
 // Carrossel - Navegação e Autoplay
 
 document.addEventListener("DOMContentLoaded", () => {
-    const conteinerIndicadores = document.querySelector('.carrossel-indicadores');
+    const containerIndicadores = document.querySelector('.carrossel-indicadores');
     const slides = document.querySelectorAll('.carrossel-item');
     const botaoAnterior = document.querySelector('.seta-anterior');
     const botaoProximo = document.querySelector('.seta-proximo');
 
     // Se o carrossel não estiver presente na página, interrompe a execução
-    if (!slides.length || !conteinerIndicadores) return;
+    if (!slides.length || !containerIndicadores) return;
 
     let indiceAtivo = 0;
     const tempoAutoplay = 5000;
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
             reiniciarAutoplay();
         });
 
-        conteinerIndicadores.appendChild(ponto);
+        containerIndicadores.appendChild(ponto);
     });
 
     const pontos = document.querySelectorAll('.ponto-indicador');

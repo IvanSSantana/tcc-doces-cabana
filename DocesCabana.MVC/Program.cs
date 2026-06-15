@@ -1,6 +1,8 @@
 using DocesCabana.Application.DependencyInjections;
 using DocesCabana.Infrastructure.DependencyInjections;
 using DocesCabana.MVC.Filters;
+using DocesCabana.MVC.Helpers;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

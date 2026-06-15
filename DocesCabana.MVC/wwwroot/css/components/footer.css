@@ -1,24 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+.footer-container {
+  --texto-rodape: #333333;
 
-.site-footer {
-  --footer-bg: #FAFAFA;
-  --footer-border: #C63114;
-  --footer-text: #333333;
-  --footer-text-muted: #777777;
-  --footer-font: 'Inter', sans-serif;
-
-  background-color: var(--footer-bg);
+  background-color: #FAFAFA;
   width: 100%;
-  font-family: var(--footer-font);
+  font-family: var(--fonte-principal);
 }
 
-.site-footer .linha-separacao-footer {
+.footer-container .linha-separacao-footer {
   height: 2px;
   width: 100%;
-  background-color: var(--footer-border);
+  background-color: #C63114;
 }
 
-.site-footer .content-footer {
+.footer-container .area-footer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,20 +24,20 @@
   gap: 0;
 }
 
-.site-footer .logo-footer {
+.footer-container .logo-footer {
   display: block;
   text-align: center;
   text-decoration: none;
   margin-bottom: 2.25rem;
 }
 
-.site-footer .logo-footer-container {
+.footer-container .logo-footer-container {
   position: relative;
   display: inline-block;
   line-height: 0;
 }
 
-.site-footer .logo-footer-img {
+.footer-container .logo-footer-img {
   display: block;
   width: min(420px, 78vw);
   height: auto;
@@ -51,11 +45,11 @@
   transform-origin: center center;
 }
 
-.site-footer .logo-footer-tm {
+.footer-container .logo-footer-tm {
   position: absolute;
   top: 0.15em;
   right: -3.0em;
-  font-family: var(--footer-font);
+  font-family: var(--fonte-principal);
   font-size: 0.625rem;
   font-weight: 600;
   font-style: normal;
@@ -65,7 +59,7 @@
   transform: none;
 }
 
-.site-footer .redes-sociais {
+.footer-container .redes-sociais {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -75,7 +69,7 @@
   padding: 0;
 }
 
-.site-footer .redes-sociais a {
+.footer-container .redes-sociais a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -89,11 +83,11 @@
   transition: opacity 0.2s ease;
 }
 
-.site-footer .redes-sociais a:hover {
+.footer-container .redes-sociais a:hover {
   opacity: 0.85;
 }
 
-.site-footer .outras-paginas {
+.footer-container .outras-paginas {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -104,79 +98,79 @@
   padding: 0;
 }
 
-.site-footer .outras-paginas a {
-  color: var(--footer-text);
+.footer-container .outras-paginas a {
+  color: var(--texto-rodape);
   text-decoration: none;
   font-size: 0.9375rem;
   font-weight: 400;
   line-height: 1.4;
 }
 
-.site-footer .outras-paginas a:hover {
+.footer-container .outras-paginas a:hover {
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
 
-.site-footer .separador-link {
-  color: var(--footer-text);
+.footer-container .separador-link {
+  color: var(--texto-rodape);
   font-size: 0.9375rem;
   line-height: 1;
   user-select: none;
 }
 
-.site-footer .copyright {
+.footer-container .copyright {
   margin: 0;
-  color: var(--footer-text-muted);
+  color: #777777;
   font-size: 0.8125rem;
   font-weight: 400;
   line-height: 1.5;
   text-decoration: none;
 }
 
-.site-footer .copyright:hover {
+.footer-container .copyright:hover {
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
 
 @media (max-width: 480px) {
-  .site-footer .content-footer {
+  .footer-container .area-footer {
     padding: 2.5rem 1rem 2.75rem;
   }
 
-  .site-footer .logo-footer {
+  .footer-container .logo-footer {
     margin-bottom: 1.75rem;
   }
 
-  .site-footer .logo-footer-img {
+  .footer-container .logo-footer-img {
     width: min(300px, 88vw);
   }
 
-  .site-footer .logo-footer-tm {
+  .footer-container .logo-footer-tm {
     right: -1.35em;
     font-size: 0.5625rem;
   }
 
-  .site-footer .redes-sociais {
+  .footer-container .redes-sociais {
     gap: 1.1rem;
     margin-bottom: 1.5rem;
   }
 
-  .site-footer .redes-sociais a {
+  .footer-container .redes-sociais a {
     width: 2.35rem;
     height: 2.35rem;
     font-size: 1.05rem;
   }
 
-  .site-footer .outras-paginas {
+  .footer-container .outras-paginas {
     gap: 0.35rem 0.5rem;
   }
 
-  .site-footer .outras-paginas a,
-  .site-footer .separador-link {
+  .footer-container .outras-paginas a,
+  .footer-container .separador-link {
     font-size: 0.875rem;
   }
 
-  .site-footer .copyright {
+  .footer-container .copyright {
     font-size: 0.75rem;
     max-width: 18rem;
   }

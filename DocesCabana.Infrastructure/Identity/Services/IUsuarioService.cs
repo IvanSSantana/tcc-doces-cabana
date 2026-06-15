@@ -1,17 +1,16 @@
+using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Threading.Tasks;
 
 namespace DocesCabana.Infrastructure.Identity.Services;
 
 public interface IUsuarioService
 {
-    Task<Usuario> CadastrarUsuario(CadastroDTO usuario);
-    Task<Usuario> BuscarUsuarioPorId(Guid usuarioId);
-    Task<Usuario?> BuscarPorLogin(string login);
-    Task<bool> RedefinirSenhaUsuario(Usuario usuario, string novaSenha);
-    Task<Usuario> AlterarDadosUsuario(Usuario usuario);
+    Task<UsuarioDTO> CadastrarUsuario(CadastroDTO usuario);
+    Task<UsuarioDTO> BuscarUsuarioPorId(Guid usuarioId);
+    Task<UsuarioDTO?> BuscarPorLogin(string login);
+    Task<bool> RedefinirSenhaUsuario(UsuarioDTO usuarioDto, string novaSenha);
+    Task<UsuarioDTO> AlterarDadosUsuario(UsuarioDTO usuarioDto);
     Task<SignInResult> RealizarLogin(string login, string senha, bool lembrarMe);
     Task RealizarLogout();
     Task<bool> SolicitarRedefinicaoSenha(string email);

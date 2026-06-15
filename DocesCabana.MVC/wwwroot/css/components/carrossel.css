@@ -1,4 +1,4 @@
-.carrossel-moldura {
+.carrossel-container {
     position: relative;
     width: 80vw;
     left: 50%;
@@ -109,7 +109,7 @@
 }
 
 @media (max-width: 1240px) {
-    .carrossel-moldura {
+    .carrossel-container {
         width: calc(100% - 3rem);
     }
 
@@ -129,7 +129,7 @@
         border-radius: 16px;
     }
 
-    .carrossel-moldura {
+    .carrossel-container {
         width: calc(100% - 2rem);
         margin: 1.5rem auto;
     }

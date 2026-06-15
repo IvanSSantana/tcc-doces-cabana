@@ -58,12 +58,12 @@
 }
 
 /* Password wrapper and toggle button */
-.campo-senha-wrapper {
+.campo-senha-container {
     position: relative;
     width: 100%;
 }
 
-.campo-senha-wrapper .campo-texto {
+.campo-senha-container .campo-texto {
     padding-right: 3.5rem;
     /* Space for the eye icon */
 }
@@ -99,6 +99,16 @@
     color: #055C40;
 }
 
+.linha-dupla {
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.linha-dupla .campo-entrada {
+    flex: 1;
+}
+
 .container-link {
     display: flex;
     justify-content: flex-end;
@@ -132,6 +142,7 @@
     border: none;
     border-radius: 16px;
     width: 25vw;
+    min-width: 200px;
     height: 52px;
     font-size: 1.1rem;
     font-weight: 600;
@@ -144,7 +155,6 @@
 
 .botao-acao:hover {
     filter: brightness(1.2);
-    /* Leve enclarecida no botão */
 }
 
 .mensagem-erro {
@@ -169,6 +179,24 @@
     font-weight: 500;
 }
 
+.resumo-erros .mensagem-sucesso {
+    padding-left: 0;
+    margin-top: 0;
+    font-weight: 500;
+}
+
+.mensagem-sucesso {
+    font-family: 'Inter', sans-serif;
+    color: #188d3d;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    padding-left: 1rem;
+}
+
 .exibicao-bloco {
     display: block;
+}
+
+.esconder {
+    display: none !important;
 }

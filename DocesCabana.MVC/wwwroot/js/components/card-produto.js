@@ -1,7 +1,7 @@
 // Funções interativas para o Card de Produto
 
-function alterarQuantidade(btn, delta) {
-    const controls = btn.closest('.controles-card');
+function alterarQuantidade(botao, delta) {
+    const controls = botao.closest('.controles-card');
     if (!controls) return;
 
     const qtySpan = controls.querySelector('.valor-quantidade-card');
@@ -15,14 +15,14 @@ function alterarQuantidade(btn, delta) {
     qtySpan.textContent = newQty;
 }
 
-function toggleFavorite(btn) {
-    const icon = btn.querySelector('svg');
+function alternarFavorito(botao) {
+    const icon = botao.querySelector('svg');
     if (!icon) {
         console.error("Erro: Ícone de favorito não encontrado.")
         return;
     }
 
-    const isFavorited = btn.querySelector('[data-prefix="fas"]') ? true : false;
+    const isFavorited = botao.querySelector('[data-prefix="fas"]') ? true : false;
     console.debug("O botão está favoritado: " + isFavorited)
 
     if (isFavorited) {
@@ -35,8 +35,8 @@ function toggleFavorite(btn) {
     }
 }
 
-function adicionarAoCarrinho(produtoId, btn) {
-    const card = btn.closest('.card-produto');
+function adicionarAoCarrinho(produtoId, botao) {
+    const card = botao.closest('.card-produto');
     if (!card) return;
 
     const qtySpan = card.querySelector('.valor-quantidade-card');
@@ -45,12 +45,12 @@ function adicionarAoCarrinho(produtoId, btn) {
     console.log(`Adicionado ao carrinho: Produto ID: ${produtoId}, Quantidade: ${quantidade}`);
 
     // Feedback visual temporário ao adicionar
-    const originalText = btn.textContent;
-    btn.textContent = 'Adicionado!';
-    btn.style.backgroundColor = '#006b52';
+    const originalText = botao.textContent;
+    botao.textContent = 'Adicionado!';
+    botao.style.backgroundColor = '#006b52';
 
     setTimeout(() => {
-        btn.textContent = originalText;
-        btn.style.backgroundColor = '';
+        botao.textContent = originalText;
+        botao.style.backgroundColor = '';
     }, 1500);
 }

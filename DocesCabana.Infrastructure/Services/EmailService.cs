@@ -52,7 +52,6 @@ public class EmailService : IEmailService
             mensagemEmail.To.Add(email);
 
             await clienteSmtp.SendMailAsync(mensagemEmail);
-            _logger.LogInformation($"E-mail enviado com sucesso para {email}.");
         }
         catch (Exception ex)
         {
