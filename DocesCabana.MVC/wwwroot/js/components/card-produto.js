@@ -18,18 +18,15 @@ function alterarQuantidade(botao, delta) {
 function alternarFavorito(botao) {
     const icon = botao.querySelector('svg');
     if (!icon) {
-        console.error("Erro: Ícone de favorito não encontrado.")
         return;
     }
 
     const isFavorited = botao.querySelector('[data-prefix="fas"]') ? true : false;
-    console.debug("O botão está favoritado: " + isFavorited)
 
     if (isFavorited) {
         icon.classList.add('fa-regular');
         icon.classList.remove('fa-solid');
     } else {
-        console.debug("Debug: Favoritando botão")
         icon.classList.add('fa-solid');
         icon.classList.remove('fa-regular');
     }
@@ -41,8 +38,6 @@ function adicionarAoCarrinho(produtoId, botao) {
 
     const qtySpan = card.querySelector('.valor-quantidade-card');
     const quantidade = qtySpan ? parseInt(qtySpan.textContent) : 1;
-
-    console.log(`Adicionado ao carrinho: Produto ID: ${produtoId}, Quantidade: ${quantidade}`);
 
     // Feedback visual temporário ao adicionar
     const originalText = botao.textContent;
