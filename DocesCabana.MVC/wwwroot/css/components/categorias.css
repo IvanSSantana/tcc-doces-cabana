@@ -69,16 +69,6 @@
     transform: translateY(-20px) scale(1.14);
 }
 
-.item-categoria.quarta-categoria img {
-    transform: translateY(-5px) scale(1.14);
-    height: 67%;
-    width: auto;
-}
-
-.item-categoria.quarta-categoria:hover img {
-    transform: translateY(-10px) scale(1.14);
-}
-
 .item-categoria:hover .forma-fundo {
     transform: scale(1.08) rotate(6deg);
 }
