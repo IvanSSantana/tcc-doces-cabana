@@ -36,8 +36,8 @@ function atualizarPosicaoCarrossel(estado) {
     const quantidadeMover = idx * (larguraItem + gap);
     trilha.style.transform = `translateX(-${quantidadeMover}px)`;
 
-    const botaoAnterior = container.querySelector('.seta-carrossel.prev');
-    const botaoProximo = container.querySelector('.seta-carrossel.next');
+    const botaoAnterior = container.querySelector('.seta-carrossel.anterior');
+    const botaoProximo = container.querySelector('.seta-carrossel.proximo');
 
     if (botaoAnterior) {
         if (idx === 0) {

@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
         containerIndicadores.appendChild(ponto);
     });
 
-    const pontos = document.querySelectorAll('.ponto-indicador');
+    const pontos = containerIndicadores.querySelectorAll('.ponto-indicador');
 
     // Função principal de transição dos slides e bolinhas
     function mostrarSlide(indice) {

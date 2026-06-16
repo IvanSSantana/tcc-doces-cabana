@@ -115,7 +115,7 @@
 }
 
 .ponto-indicador.ativo {
-    background-color: #D33C1A;
+    background-color: var(--cor-primaria);
     transform: scale(1.15);
 }
 
@@ -124,5 +124,5 @@
 }
 
 .ponto-indicador.ativo:hover {
-    background-color: #D33C1A;
+    background-color: var(--cor-primaria);
 }
