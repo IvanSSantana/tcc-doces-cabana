@@ -5,6 +5,7 @@ using DocesCabana.Domain.Helpers;
 using DocesCabana.Infrastructure.Identity.Mappings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Infrastructure.Identity.Services;
 
@@ -53,7 +54,7 @@ public class UsuarioService : IUsuarioService
         var usuario = await _userManager.FindByEmailAsync(login);
         
         if (usuario is null)
-            usuario = _userManager.Users.FirstOrDefault(user => user.CPF == login);
+          usuario= await _userManager.Users.FirstOrDefaultAsync(u => u.CPF == login);
         
         return usuario is null ? null : UsuarioMapper.ToDTO(usuario);
     }
