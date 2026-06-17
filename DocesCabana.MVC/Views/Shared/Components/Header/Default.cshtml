@@ -1,3 +1,5 @@
+@using Microsoft.AspNetCore.Identity;
+
 <head>
   <link rel="stylesheet" href="~/css/components/header.css">
 </head>
@@ -24,12 +26,22 @@
       </div>
 
       <div class="acoes-usuario">
-        <a class="botao-acao" onclick="abrirModal()">
+        @if (User.Identity!.IsAuthenticated)
+        {
+          <a class="botao-acao" asp-controller="Home" asp-action="Conta">
+            <i class="fa-solid fa-user icone-acao"></i>
 
-          <i class="fa-solid fa-user icone-acao"></i>
+            <span>Conta</span>
+          </a>
+        }
+        else 
+        {
+          <a class="botao-acao" onclick="abrirModal()">
+            <i class="fa-solid fa-user icone-acao"></i>
 
-          <span>Entrar</span>
-        </a>
+            <span>Entrar</span>
+          </a>
+        }        
 
         <a href="#" class="botao-acao">
 
