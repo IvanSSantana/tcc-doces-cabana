@@ -66,6 +66,25 @@ public class AutenticacaoController : Controller
         return RedirectToAction("Login");
     }
 
+    [HttpGet]
+    public IActionResult EsqueceuSenha()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EsqueceuSenha(string login)
+    {
+        var usuario = _usuarioService.BuscarPorLogin(login)!;
+
+        if (usuario == null)
+            ModelState.AddModelError(string.Empty, "Foi enviado um e-mail de confirmação caso a conta com esse login exista.");
+
+        await _usuarioService.SolicitarRedefinicaoSenha(usuario.Email);
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

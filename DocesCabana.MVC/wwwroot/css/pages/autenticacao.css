@@ -11,7 +11,7 @@
     font-size: 2.3rem;
     font-weight: 600;
     margin-bottom: 2.5rem;
-    text-align: left;
+    text-align: left;   
 }
 
 .formulario-autenticacao {
@@ -111,7 +111,7 @@
 
 .container-link {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between; /* era flex-end */
     margin-top: 0.25rem;
     margin-bottom: 1.5rem;
 }
@@ -127,6 +127,10 @@
 
 .link-navegacao:hover {
     text-decoration: underline !important;
+}
+
+#link-esqueceu-senha-login {
+    color: #6d6969;
 }
 
 .container-botao {
