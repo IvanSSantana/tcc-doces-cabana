@@ -1,0 +1,43 @@
+@using DocesCabana.Application.DTOs.Autenticacao;
+@model EsqueceuSenhaDTO
+@{
+    ViewData["Title"] = "Redefinir Senha";
+    Layout = "_LayoutNaoAutenticado";
+}
+
+<link rel="stylesheet" href="~/css/pages/autenticacao.css" asp-append-version="true">
+
+<main class="container-autenticacao">
+    <h1 class="titulo-tela">Redefinir Senha</h1>
+
+    <form asp-action="EsqueceuSenha" method="post" class="formulario-autenticacao">
+        <div class="campo-entrada">
+            <label asp-for="Login">E-mail ou CPF</label>
+            <input asp-for="Login" type="text" placeholder="Digite seu login..." class="campo-texto" />
+            <span asp-validation-for="Login" class="mensagem-erro"></span>
+        </div>
+
+        <div class="container-botao">
+            <button type="submit" class="botao-acao">Solicitar redefinição</button>
+        </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                var modelErrors = ViewData.ModelState[string.Empty]?.Errors;
+                if (modelErrors != null && modelErrors.Any())
+                {
+                    <div class="resumo-sucesso">
+                        @foreach (var erro in modelErrors)
+                        {
+                            <span class="mensagem-sucesso exibicao-bloco">@erro.ErrorMessage</span>
+                        }
+                    </div>
+                }
+            }
+    </form>
+</main>
+
+@section Scripts {
+    <script src="~/js/autenticacao.js" asp-append-version="true"></script>
+}
+

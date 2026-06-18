@@ -74,13 +74,16 @@ public class AutenticacaoController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EsqueceuSenha(string login)
+    public async Task<IActionResult> EsqueceuSenha(EsqueceuSenhaDTO dto)
     {
-        var usuario = await _usuarioService.BuscarPorLogin(login)!;
+        var usuario = await _usuarioService.BuscarPorLogin(dto.Login)!;
 
         if (usuario == null)
+        {
             ModelState.AddModelError(string.Empty, "Foi enviado um e-mail de confirmação caso a conta com esse login exista.");
-
+            return View();
+        }
+            
         await _usuarioService.SolicitarRedefinicaoSenha(usuario!.Email!);
         return View();
     }
