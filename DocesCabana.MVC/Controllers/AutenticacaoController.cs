@@ -1,6 +1,7 @@
 using DocesCabana.Application.DTOs.Autenticacao;
 using DocesCabana.Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 
 namespace DocesCabana.MVC.Controllers;
 
@@ -84,8 +85,39 @@ public class AutenticacaoController : Controller
             return View();
         }
             
-        await _usuarioService.SolicitarRedefinicaoSenha(usuario!.Email!);
+        var token = await _usuarioService.GerarTokenRedefinicaoSenha(usuario.Email!);
+        var link = Url.Action("RedefinirSenha", "Autenticacao", new { token, usuario.Email }, Request.Scheme)!;
+        var corpo = 
+            $@"<div>
+                Link para redefinir senha: <a href='{link}'>{link}</a>
+            </div>";
+
+        await _usuarioService.SolicitarRedefinicaoSenha(usuario!.Email!, corpo);
+        ModelState.AddModelError(string.Empty, "Foi enviado um e-mail de confirmação caso a conta com esse login exista.");
         return View();
+    }
+
+    [HttpGet]
+    public IActionResult RedefinirSenha(string token, string email)
+    {
+        var dto = new RedefinirSenhaDTO { Token = token, Email = email };
+        return View(dto);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RedefinirSenha(RedefinirSenhaDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return View(dto);
+
+        var resultado = await _usuarioService.ConfirmarRedefinicaoSenha(dto.Email!, dto.Token!, dto.Senha);
+
+        if (resultado)
+            return RedirectToAction("Login", "Autenticacao");
+        else
+            ModelState.AddModelError(string.Empty, "Erro ao redefinir senha.");
+        return View(dto);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

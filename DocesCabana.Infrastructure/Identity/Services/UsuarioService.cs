@@ -5,6 +5,7 @@ using DocesCabana.Domain.Helpers;
 using DocesCabana.Infrastructure.Identity.Mappings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Infrastructure.Identity.Services;
@@ -108,7 +109,16 @@ public class UsuarioService : IUsuarioService
         await _signInManager.SignOutAsync();
     }
 
-    public async Task<bool> SolicitarRedefinicaoSenha(string email)
+    public async Task<string> GerarTokenRedefinicaoSenha(string email)
+    {
+        var usuario = await _userManager.FindByEmailAsync(email);
+        if (usuario is null)
+            throw new KeyNotFoundException($"Usuário com e-mail {email} não encontrado.");
+
+        return await _userManager.GeneratePasswordResetTokenAsync(usuario);
+    }
+
+    public async Task<bool> SolicitarRedefinicaoSenha(string email, string corpo)
     {
         var usuario = await _userManager.FindByEmailAsync(email);
         if (usuario is null)
@@ -116,10 +126,8 @@ public class UsuarioService : IUsuarioService
             return false;
         }
 
-        var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
         var assunto = "Doces Cabana - Redefinição de Senha";
-        var corpo = $@"<div>Token: {token}</div>";
-
+        
         await _emailService.EnviarEmail(email, assunto, corpo);
         return true;
     }

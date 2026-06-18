@@ -58,3 +58,4 @@ nunit-*.xml
 docescabana.db-shm
 docescabana.db-wal
 docescabana.db
+appsettings.json

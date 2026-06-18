@@ -13,7 +13,8 @@ public interface IUsuarioService
     Task<UsuarioDTO> AlterarDadosUsuario(UsuarioDTO usuarioDto);
     Task<SignInResult> RealizarLogin(string login, string senha, bool lembrarMe);
     Task RealizarLogout();
-    Task<bool> SolicitarRedefinicaoSenha(string email);
+    Task<string> GerarTokenRedefinicaoSenha(string email);
+    Task<bool> SolicitarRedefinicaoSenha(string email, string corpo);
     Task<bool> ConfirmarRedefinicaoSenha(string email, string token, string novaSenha);
     Task<bool> ConfirmarEmailDoUsuario(string email, string token);
 }
