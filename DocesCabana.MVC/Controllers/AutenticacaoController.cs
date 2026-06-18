@@ -76,12 +76,12 @@ public class AutenticacaoController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EsqueceuSenha(string login)
     {
-        var usuario = _usuarioService.BuscarPorLogin(login)!;
+        var usuario = await _usuarioService.BuscarPorLogin(login)!;
 
         if (usuario == null)
             ModelState.AddModelError(string.Empty, "Foi enviado um e-mail de confirmação caso a conta com esse login exista.");
 
-        await _usuarioService.SolicitarRedefinicaoSenha(usuario.Email);
+        await _usuarioService.SolicitarRedefinicaoSenha(usuario!.Email!);
         return View();
     }
 
