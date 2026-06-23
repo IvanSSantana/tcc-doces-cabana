@@ -82,6 +82,20 @@
             <span asp-validation-for="ConfirmacaoSenha" class="mensagem-erro"></span>
         </div>
 
+        @if (!ViewData.ModelState.IsValid)
+            {
+                var modelErrors = ViewData.ModelState[string.Empty]?.Errors;
+                if (modelErrors != null && modelErrors.Any())
+                {
+                    <div class="resumo-erros">
+                        @foreach (var erro in modelErrors)
+                        {
+                            <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+                        }
+                    </div>
+                }
+            }
+
         <div class="container-link">
             <a asp-action="Login" class="link-navegacao">Já tem uma conta?</a>
         </div>

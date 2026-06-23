@@ -40,7 +40,18 @@ public class FilterException : IActionFilter
                 var actionName = context.RouteData.Values["action"]?.ToString();
 
                 // Adiciona a mensagem amigável da exceção ao ModelState
-                context.ModelState.AddModelError(string.Empty, "Um erro interno ocorreu, tente novamente mais tarde.");
+                if (context.Exception is InvalidOperationException ex)
+                {
+                    context.ModelState.AddModelError(
+                        string.Empty,
+                        ex.Message);
+                }
+                else
+                {
+                    context.ModelState.AddModelError(
+                        string.Empty,
+                        "Um erro interno ocorreu, tente novamente mais tarde.");
+                }
 
                 var viewData = new ViewDataDictionary(_modelMetadataProvider, context.ModelState);
 

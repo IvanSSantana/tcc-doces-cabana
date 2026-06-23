@@ -5,7 +5,6 @@ using DocesCabana.Domain.Helpers;
 using DocesCabana.Infrastructure.Identity.Mappings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Infrastructure.Identity.Services;
@@ -35,7 +34,18 @@ public class UsuarioService : IUsuarioService
         var resultado = await _userManager.CreateAsync(usuario, dto.Senha!);
 
         if (!resultado.Succeeded)
-            throw new InvalidOperationException(ObterMensagensErro(resultado));
+        {
+            var erroDuplicidade = resultado.Errors.Any(e =>
+                e.Code == "DuplicateUserName" ||
+                e.Code == "DuplicateEmail");
+
+            if (erroDuplicidade)
+                throw new InvalidOperationException(
+                    "Os dados informados já estão associados a uma conta existente.");
+
+            throw new InvalidOperationException(
+                ObterMensagensErro(resultado));
+        }
 
         return UsuarioMapper.ToDTO(usuario);
     }
@@ -55,7 +65,8 @@ public class UsuarioService : IUsuarioService
         var usuario = await _userManager.FindByEmailAsync(login);
         
         if (usuario is null)
-          usuario= await _userManager.Users.FirstOrDefaultAsync(u => u.CPF == login);
+            login = new string(login.Where(char.IsDigit).ToArray());
+            usuario = await _userManager.Users.FirstOrDefaultAsync(u => u.CPF == login);
         
         return usuario is null ? null : UsuarioMapper.ToDTO(usuario);
     }

@@ -55,6 +55,14 @@ public class AutenticacaoController : Controller
         if (!ModelState.IsValid)
             return View(dto);
 
+        var usuarioExistente = await _usuarioService.BuscarPorLogin(dto.Email!) ?? await _usuarioService.BuscarPorLogin(dto.CPF!);
+
+        if (usuarioExistente != null)
+        {
+            ModelState.AddModelError(string.Empty, "Os dados informados já estão associados a uma conta existente.");
+            return View(dto);
+        }
+
         await _usuarioService.CadastrarUsuario(dto);
         return RedirectToAction("Login");
     }
