@@ -65,9 +65,11 @@ public class UsuarioService : IUsuarioService
         var usuario = await _userManager.FindByEmailAsync(login);
         
         if (usuario is null)
+        {
             login = new string(login.Where(char.IsDigit).ToArray());
             usuario = await _userManager.Users.FirstOrDefaultAsync(u => u.CPF == login);
-        
+        }
+            
         return usuario is null ? null : UsuarioMapper.ToDTO(usuario);
     }
 
