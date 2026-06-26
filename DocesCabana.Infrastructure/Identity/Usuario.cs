@@ -15,17 +15,18 @@ public class Usuario : IdentityUser<Guid>
     public Usuario(string nome, string email, string celular, DateTime dataNascimento, string cpf)
     {
         UserName = email;
-        Email = email;
         PhoneNumber = celular;
 
         ValidarNome(nome);
+        ValidarEmail(email);
         ValidarCelular(celular);
         ValidarDataNascimento(dataNascimento);
         ValidarCPF(cpf);
 
         Nome = nome;
-        DataNascimento = dataNascimento;
+        Email = email;
         CPF = cpf;
+        DataNascimento = dataNascimento;
 }
 
     public void AtualizarDados(string nome, string celular, DateTime dataNascimento)
@@ -43,6 +44,17 @@ public class Usuario : IdentityUser<Guid>
     {
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentNullException(nameof(nome), "Nome é obrigatório!");
+    }
+
+    private void ValidarEmail(string email)
+    {  
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentNullException(nameof(email), "Email é obrigatório!");
+
+        Regex validacaoRegex = new(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$");
+
+        if (!validacaoRegex.IsMatch(email))
+            throw new ArgumentException("Email inválido.", nameof(email));
     }
     
     private void ValidarCelular(string celular)
