@@ -8,7 +8,7 @@ namespace DocesCabana.Tests.Integration.Repositories;
 public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
 {
     [Fact]
-    public async Task DadoProdutoPersistido_QuandoBuscarPorId_EntaoRetornaProduto()
+    public async Task Dado_ProdutoPersistido_QuandoBuscarPorId_Entao_DeveRetornarProduto()
     {
         var unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new ProdutoRepository(Contexto);
@@ -24,7 +24,7 @@ public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     }
 
     [Fact]
-    public async Task DadoDoisProdutos_QuandoBuscarTodos_EntaoRetornaAmbos()
+    public async Task Dado_DoisProdutos_Quando_BuscarTodos_Entao_DeveRetornarAmbos()
     {
         var unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new ProdutoRepository(Contexto);
@@ -39,7 +39,7 @@ public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     }
 
     [Fact]
-    public async Task DadoProdutoRemovidoEmTransacao_QuandoBuscar_EntaoNaoEncontra()
+    public async Task Dado_ProdutoRemovidoEmTransacao_QuandoBuscar_EntaoNaoDeveEncontrar()
     {
         IUnitOfWork unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new ProdutoRepository(Contexto);
@@ -61,7 +61,7 @@ public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     }
 
     [Fact]
-    public async Task DadoFalhaEmTransacao_QuandoReverter_EntaoProdutoNaoPersistido()
+    public async Task Dado_FalhaEmTransacao_Quando_Reverter_Entao_ProdutoNaoDevePersistir()
     {
         var unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new ProdutoRepository(Contexto);

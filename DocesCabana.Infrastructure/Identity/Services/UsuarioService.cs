@@ -72,20 +72,7 @@ public class UsuarioService : IUsuarioService
             
         return usuario is null ? null : UsuarioMapper.ToDTO(usuario);
     }
-
-    public async Task<bool> RedefinirSenhaUsuario(UsuarioDTO usuarioDto, string novaSenha)
-    {
-        var usuario = await _userManager.FindByIdAsync(usuarioDto.Id.ToString());
-        
-        if (usuario is null)
-            throw new KeyNotFoundException($"Usuário com ID {usuarioDto.Id} não encontrado.");
-
-        var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
-        var resultado = await _userManager.ResetPasswordAsync(usuario, token, novaSenha);
-
-        return resultado.Succeeded;
-    }
-
+    
     public async Task<UsuarioDTO> AlterarDadosUsuario(UsuarioDTO usuarioDto)
     {
         var usuario = await _userManager.FindByIdAsync(usuarioDto.Id.ToString());

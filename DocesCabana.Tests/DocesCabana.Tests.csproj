@@ -25,6 +25,7 @@
     <ProjectReference Include="..\DocesCabana.Application\DocesCabana.Application.csproj" />
     <ProjectReference Include="..\DocesCabana.Domain\DocesCabana.Domain.csproj" />
     <ProjectReference Include="..\DocesCabana.Infrastructure\DocesCabana.Infrastructure.csproj" />
+    <ProjectReference Include="..\DocesCabana.MVC\DocesCabana.MVC.csproj" />
   </ItemGroup>
 
 </Project>
