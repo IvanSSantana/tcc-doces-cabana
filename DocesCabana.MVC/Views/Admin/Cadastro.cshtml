@@ -1,0 +1,81 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Domain.Enums
+@model ProdutoDTO
+
+@{
+    ViewData["Title"] = "Cadastrar Produto";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/pages/cadastro_produto.css" asp-append-version="true">
+
+<form asp-action="Cadastrar" method="post" class="formulario-autenticacao">
+
+    <div class="campo-entrada">
+        <label asp-for="Nome">Nome do Produto</label>
+        <input asp-for="Nome" class="campo-texto" placeholder="Digite o nome do produto..." required />
+        
+        <span asp-validation-for="Nome" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="Preco">Preço</label>
+        <input asp-for="Preco" type="number" min="0" class="campo-texto" placeholder="Digite o preço do produto..." required />
+
+        <span asp-validation-for="Preco" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="Status">Status</label>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<ProdutoStatus>()" class="campo-texto">
+            <option value="">Selecione...</option>
+        </select>
+
+        <span asp-validation-for="Status" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="ImagemUrl">Imagem (URL)</label>
+        <input asp-for="ImagemUrl" class="campo-texto" placeholder="https://..." required />
+
+        <span asp-validation-for="ImagemUrl" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="SubcategoriaId">Subcategoria</label>
+
+        @* Irá ter um sugestor sob o input *@
+        <input asp-for="SubcategoriaId" class="campo-texto" placeholder="Digite a subcategoria do produto..." required />
+
+        <span asp-validation-for="SubcategoriaId" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="PromocaoId">Promoção</label>
+        <select asp-for="PromocaoId" asp-items="Html.GetEnumSelectList<PromocaoTipo>()" class="campo-texto">
+            <option value="">Selecione...</option>
+        </select>
+
+        <span asp-validation-for="PromocaoId" class="mensagem-erro"></span>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        var erros = ViewData.ModelState[string.Empty]?.Errors;
+
+        if (erros != null && erros.Any())
+        {
+            <div class="resumo-erros">
+                @foreach (var erro in erros)
+                {
+                    <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+                }
+            </div>
+        }
+    }
+
+    <div class="container-botao">
+        <button type="submit" class="botao-acao">Cadastrar Produto</button>
+    </div>
+
+</form>

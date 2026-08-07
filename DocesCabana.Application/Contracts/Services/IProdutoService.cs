@@ -7,4 +7,6 @@ public interface IProdutoService
     Task<List<ProdutoDTO>> BuscarTodosProdutos();
 
     Task<ProdutoDTO> BuscarProdutoPorId(Guid id);
+
+    Task<ProdutoDTO> Cadastrar(ProdutoDTO dto);
 }

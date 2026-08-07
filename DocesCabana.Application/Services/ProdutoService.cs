@@ -30,4 +30,12 @@ public class ProdutoService : IProdutoService
 
         return ProdutoMapper.ToDTO(produto);
     }
+
+    public async Task<ProdutoDTO> Cadastrar(ProdutoDTO dto)
+    {       
+        var produto = ProdutoMapper.ToEntity(dto);
+        await _produtoRepository.Adicionar(produto);
+
+        return dto;
+    }
 }
