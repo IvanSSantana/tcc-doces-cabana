@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "context-mode": {
+      "source": "mksglu/claude-context-mode",
+      "sourceType": "github",
+      "skillPath": "skills/context-mode/SKILL.md",
+      "computedHash": "1962755c8f5995762dff3e14b1d2703ae15c37e83fb10d5077ce2ddc595538e7"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "93f53fd1c0352d3d7ec17b8f73d7351bf76f4821e55d123c9d2abc2c53ba48e4"
+    },
+    "landing-page-copywriter": {
+      "source": "onewave-ai/claude-skills",
+      "sourceType": "github",
+      "skillPath": "landing-page-copywriter/SKILL.md",
+      "computedHash": "825b56844e843610f23d3e4c16aaf8af9d8dd12b47b9f87bf632b0e609dd9777"
+    }
+  }
+}
