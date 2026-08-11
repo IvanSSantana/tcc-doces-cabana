@@ -14,20 +14,19 @@ public class Usuario : IdentityUser<Guid>
 
     public Usuario(string nome, string email, string celular, DateTime dataNascimento, string cpf)
     {
-        UserName = email;
-        PhoneNumber = celular;
-
         ValidarNome(nome);
         ValidarEmail(email);
         ValidarCelular(celular);
         ValidarDataNascimento(dataNascimento);
         ValidarCPF(cpf);
 
+        UserName = email;
+        PhoneNumber = celular;
         Nome = nome;
         Email = email;
         CPF = cpf;
         DataNascimento = dataNascimento;
-}
+    }
 
     public void AtualizarDados(string nome, string celular, DateTime dataNascimento)
     {
@@ -46,23 +45,24 @@ public class Usuario : IdentityUser<Guid>
             throw new ArgumentNullException(nameof(nome), "Nome é obrigatório!");
     }
 
+    private static readonly Regex EmailRegex = new(
+        @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$",
+        RegexOptions.Compiled);
+
     private void ValidarEmail(string email)
-    {  
+    {
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentNullException(nameof(email), "Email é obrigatório!");
 
-        Regex validacaoRegex = new(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$");
-
-        if (!validacaoRegex.IsMatch(email))
+        if (!EmailRegex.IsMatch(email))
             throw new ArgumentException("Email inválido.", nameof(email));
     }
-    
+
     private void ValidarCelular(string celular)
     {
         if (string.IsNullOrWhiteSpace(celular))
             throw new ArgumentNullException(nameof(celular), "Celular é obrigatório!");
 
-        // 2. DELEGADO PARA O HELPER: Apagamos a Regex manual daqui
         if (!TelefoneHelper.CelularValido(celular))
             throw new ArgumentException("Número de celular inválido.", nameof(celular));
     }
@@ -82,7 +82,6 @@ public class Usuario : IdentityUser<Guid>
         if (string.IsNullOrWhiteSpace(cpf))
             throw new ArgumentNullException(nameof(cpf), "CPF é obrigatório!");
 
-        // 3. DELEGADO PARA O HELPER: Apagamos a validação manual de tamanho/lógica daqui
         if (!CpfHelper.CpfValido(cpf))
             throw new ArgumentException("CPF inválido.", nameof(cpf));
     }

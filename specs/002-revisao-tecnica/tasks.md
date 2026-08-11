@@ -22,8 +22,8 @@ renomear arquivo que outro bloco está editando produz conflito e diff ilegível
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Criar branch `002-revisao-tecnica` a partir de `main`.
-- [ ] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado inicial
+- [x] **T001** — Criar branch `002-revisao-tecnica` a partir de `main`.
+- [x] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado inicial
       aqui: **99 testes, 0 falhas, 6 avisos NU1903**. É a linha de base contra a
       qual T046 e T047 comparam.
 
@@ -35,49 +35,49 @@ renomear arquivo que outro bloco está editando produz conflito e diff ilegível
 
 ### Testes — devem falhar
 
-- [ ] **T003** — `DocesCabana.Tests/Units/Services/UsuarioServiceLoginTests.cs`
+- [x] **T003** — `DocesCabana.Tests/Units/Services/UsuarioServiceLoginTests.cs`
       (criar): CPF sem pontuação autentica; CPF pontuado autentica; e-mail
       continua autenticando; login inexistente devolve `Failed`;
       `PasswordSignInAsync` é chamado com `lockoutOnFailure: true`.
       **Prova CA-01, CA-02, CA-03, CA-04.**
-- [ ] **T004** `[P]` — `DocesCabana.Tests/Units/Helpers/CpfHelperTests.cs`
+- [x] **T004** `[P]` — `DocesCabana.Tests/Units/Helpers/CpfHelperTests.cs`
       (criar): dígito verificador válido e inválido, onze dígitos repetidos,
       formato com e sem pontuação, entrada vazia. **Prova RN-01.**
-- [ ] **T005** `[P]` — `DocesCabana.Tests/Units/Helpers/TelefoneHelperTests.cs`
+- [x] **T005** `[P]` — `DocesCabana.Tests/Units/Helpers/TelefoneHelperTests.cs`
       (criar): DDD válido e inválido, nono dígito presente e ausente, entrada
       com e sem pontuação.
-- [ ] **T006** `[P]` — `DocesCabana.Tests/Units/Validators/EsqueceuSenhaDTOValidatorTests.cs`
+- [x] **T006** `[P]` — `DocesCabana.Tests/Units/Validators/EsqueceuSenhaDTOValidatorTests.cs`
       (criar): login vazio, login malformado, e-mail válido, CPF válido.
       **Prova CA-09 na barreira de entrada.**
-- [ ] **T007** — `DocesCabana.Tests/Units/Controllers/AutenticacaoControllerTests.cs`:
+- [x] **T007** — `DocesCabana.Tests/Units/Controllers/AutenticacaoControllerTests.cs`:
       substituir os três testes de `EsqueceuSenha`. Login existente grava a
       confirmação em `TempData` e envia e-mail; login inexistente grava **a mesma
       string** e não envia; login malformado (`ModelState` inválido) devolve a
       view sem tocar em `IUsuarioService` — verificar com `Verify(..., Times.Never)`.
       **Prova CA-07, CA-08, CA-09.**
-- [ ] **T008** — Rodar `dotnet test` e confirmar que T003–T007 falham **pelo
+- [x] **T008** — Rodar `dotnet test` e confirmar que T003–T007 falham **pelo
       motivo certo** (asserção, não erro de compilação alheio). Registrar a
       contagem de falhas.
 
 ### Implementação
 
-- [ ] **T009** — `DocesCabana.Infrastructure/Identity/Services/UsuarioService.cs`:
+- [x] **T009** — `DocesCabana.Infrastructure/Identity/Services/UsuarioService.cs`:
       extrair `private async Task<Usuario?> ResolverUsuario(string login)` que
       tenta `FindByEmailAsync` e, na ausência, busca por CPF normalizado.
       `BuscarPorLogin` e `RealizarLogin` passam a consumi-lo. `RealizarLogin`
       autentica com `usuario.Email!` — **nunca com o `login` cru** — e passa
       `lockoutOnFailure: true`. Não mutar o parâmetro `login`.
-- [ ] **T010** — `DocesCabana.Infrastructure/DependencyInjections/IdentityDependencyInjection.cs`:
+- [x] **T010** — `DocesCabana.Infrastructure/DependencyInjections/IdentityDependencyInjection.cs`:
       `options.Lockout.MaxFailedAccessAttempts = 5`,
       `DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15)`,
       `AllowedForNewUsers = true`. **Implementa RN-02.**
-- [ ] **T011** — `DocesCabana.MVC/Controllers/AutenticacaoController.cs`: guarda
+- [x] **T011** — `DocesCabana.MVC/Controllers/AutenticacaoController.cs`: guarda
       `if (!ModelState.IsValid) return View(dto);` no POST de `EsqueceuSenha`;
       mensagem neutra em `TempData["Confirmacao"]` nos dois caminhos, com o texto
       exato da RN-05; remover o campo `ILogger` injetado e nunca lido.
-- [ ] **T012** — `DocesCabana.MVC/Views/Autenticacao/EsqueceuSenha.cshtml`:
+- [x] **T012** — `DocesCabana.MVC/Views/Autenticacao/EsqueceuSenha.cshtml`:
       exibir `TempData["Confirmacao"]` com classe de confirmação, não de erro.
-- [ ] **T013** — Rodar `dotnet test`: T003–T007 passam, e os testes que já
+- [x] **T013** — Rodar `dotnet test`: T003–T007 passam, e os testes que já
       existiam continuam passando.
 
 ---
@@ -88,51 +88,51 @@ renomear arquivo que outro bloco está editando produz conflito e diff ilegível
 
 ### Testes — devem falhar
 
-- [ ] **T014** `[P]` — `DocesCabana.Tests/Units/Entities/ProdutoTests.cs`:
+- [x] **T014** `[P]` — `DocesCabana.Tests/Units/Entities/ProdutoTests.cs`:
       acrescentar — status explícito é preservado; status omitido nasce `Ativo`;
       construtor recusado não deixa `ProdutoId` nem `Status` atribuídos.
       **Prova CA-05, CA-06, RN-03, RN-04.**
-- [ ] **T015** `[P]` — `DocesCabana.Tests/Units/Entities/UsuarioTests.cs`:
+- [x] **T015** `[P]` — `DocesCabana.Tests/Units/Entities/UsuarioTests.cs`:
       acrescentar — celular inválido recusa a criação sem ter atribuído
       `UserName` nem `PhoneNumber`. **Prova CA-10.**
-- [ ] **T016** `[P]` — `DocesCabana.Tests/Units/Mappings/ProdutoMapperTests.cs`
+- [x] **T016** `[P]` — `DocesCabana.Tests/Units/Mappings/ProdutoMapperTests.cs`
       (criar): ida e volta entidade↔DTO preservando **todos** os campos, com
       atenção ao `Status`; lista vazia; `PromocaoId` nulo.
-- [ ] **T017** `[P]` — `DocesCabana.Tests/Units/Mappings/UsuarioMapperTests.cs`
+- [x] **T017** `[P]` — `DocesCabana.Tests/Units/Mappings/UsuarioMapperTests.cs`
       (criar): `CadastroToEntity` normaliza CPF e celular para dígitos; `ToDTO`
       preserva os campos.
-- [ ] **T018** `[P]` — `DocesCabana.Tests/Units/Services/ProdutoServiceTests.cs`:
+- [x] **T018** `[P]` — `DocesCabana.Tests/Units/Services/ProdutoServiceTests.cs`:
       acrescentar — `Cadastrar` chama `Adicionar` no repositório e devolve o DTO
       **mapeado da entidade** (com o `ProdutoId` gerado e o `Status` efetivo),
       não o DTO de entrada.
-- [ ] **T019** `[P]` — `DocesCabana.Tests/Units/Validators/ProdutoDTOValidatorTests.cs`
+- [x] **T019** `[P]` — `DocesCabana.Tests/Units/Validators/ProdutoDTOValidatorTests.cs`
       (criar): um caso válido e um inválido por regra — nome vazio, nome com 2
       caracteres, preço zero, preço negativo, imagem vazia, imagem relativa,
       imagem com esquema não-http, subcategoria `Guid.Empty`.
-- [ ] **T020** `[P]` — `DocesCabana.Tests/Units/Validators/RedefinirSenhaDTOValidatorTests.cs`
+- [x] **T020** `[P]` — `DocesCabana.Tests/Units/Validators/RedefinirSenhaDTOValidatorTests.cs`
       (criar): cada `RuleFor` de senha e a igualdade da confirmação.
-- [ ] **T021** — Rodar `dotnet test` e confirmar que T014–T020 falham pelo motivo
+- [x] **T021** — Rodar `dotnet test` e confirmar que T014–T020 falham pelo motivo
       certo.
 
 ### Implementação
 
-- [ ] **T022** — `DocesCabana.Domain/Entities/Produto.cs`: acrescentar o parâmetro
+- [x] **T022** — `DocesCabana.Domain/Entities/Produto.cs`: acrescentar o parâmetro
       `ProdutoStatus status = ProdutoStatus.Ativo` **antes** de `Guid id = default`;
       mover `ProdutoId` e `Status` para depois do bloco de validação, de modo que
       nenhuma atribuição preceda uma validação.
-- [ ] **T023** — `DocesCabana.Infrastructure/Identity/Usuario.cs`: mover
+- [x] **T023** — `DocesCabana.Infrastructure/Identity/Usuario.cs`: mover
       `UserName` e `PhoneNumber` para depois do bloco de validação; promover a
       `Regex` de e-mail a `private static readonly` com `RegexOptions.Compiled`,
       como em `TelefoneHelper` (hoje é recompilada a cada construção); remover os
       comentários fósseis "2. DELEGADO PARA O HELPER" e "3. DELEGADO PARA O HELPER".
-- [ ] **T024** — `DocesCabana.Application/Mappings/ProdutoMapper.cs` e
+- [x] **T024** — `DocesCabana.Application/Mappings/ProdutoMapper.cs` e
       `Services/ProdutoService.cs`: `ToEntity` repassa `dto.Status`; `Cadastrar`
       devolve `ProdutoMapper.ToDTO(produto)`.
-- [ ] **T025** — `DocesCabana.Application/Validators/ProdutoDTOValidator.cs`
+- [x] **T025** — `DocesCabana.Application/Validators/ProdutoDTOValidator.cs`
       (criar): espelha as invariantes de `Produto` com mensagens idênticas às do
       domínio. **Resolve a dívida D-06 da baseline.** Registro no contêiner é
       automático pelo assembly scan — nenhuma alteração de DI.
-- [ ] **T026** — Rodar `dotnet test`: T014–T020 passam.
+- [x] **T026** — Rodar `dotnet test`: T014–T020 passam.
 
 ---
 

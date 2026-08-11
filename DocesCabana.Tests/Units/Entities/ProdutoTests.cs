@@ -19,6 +19,25 @@ public class ProdutoTests
     }
 
     [Fact]
+    public void Dado_StatusOmitido_Quando_CriarProduto_Entao_DeveNascerAtivo()
+    {
+        var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida);
+
+        Assert.Equal(ProdutoStatus.Ativo, produto.Status);
+    }
+
+    [Theory]
+    [InlineData(ProdutoStatus.Ativo)]
+    [InlineData(ProdutoStatus.Inativo)]
+    [InlineData(ProdutoStatus.ForaDeEstoque)]
+    public void Dado_StatusExplicito_Quando_CriarProduto_Entao_DevePreservarStatus(ProdutoStatus status)
+    {
+        var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida, status: status);
+
+        Assert.Equal(status, produto.Status);
+    }
+
+    [Fact]
     public void Dado_SubcategoriaInvalida_Quando_CriarProduto_Entao_DeveLancarArgumentException()
     {
         Assert.Throws<ArgumentException>(() =>

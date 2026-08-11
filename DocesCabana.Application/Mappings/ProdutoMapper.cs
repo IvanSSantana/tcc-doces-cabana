@@ -21,7 +21,7 @@ public static class ProdutoMapper
         produtos.Select(ToDTO).ToList();
 
     public static Produto ToEntity(ProdutoDTO dto) =>
-        new(dto.SubcategoriaId, dto.Nome, dto.Preco, dto.ImagemUrl, dto.Id);
+        new(dto.SubcategoriaId, dto.Nome, dto.Preco, dto.ImagemUrl, dto.Status, dto.Id);
 
     public static List<Produto> ToEntity(IEnumerable<ProdutoDTO> dtos) =>
         dtos.Select(ToEntity).ToList();

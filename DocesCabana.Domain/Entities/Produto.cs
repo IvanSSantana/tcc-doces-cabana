@@ -20,19 +20,24 @@ public class Produto
 
     protected Produto() { }
 
-    public Produto(Guid subcategoriaId, string nome, decimal preco, string imagemUrl, Guid id = default)
+    public Produto(
+        Guid subcategoriaId,
+        string nome,
+        decimal preco,
+        string imagemUrl,
+        ProdutoStatus status = ProdutoStatus.Ativo,
+        Guid id = default)
     {
-        ProdutoId = id == Guid.Empty
-            ? Guid.NewGuid()
-            : id;
-
-        Status = ProdutoStatus.Ativo;
-
         ValidarSubcategoria(subcategoriaId);
         ValidarNome(nome);
         ValidarPreco(preco);
         ValidarImagem(imagemUrl);
 
+        ProdutoId = id == Guid.Empty
+            ? Guid.NewGuid()
+            : id;
+
+        Status = status;
         SubcategoriaId = subcategoriaId;
         Nome = nome;
         Preco = preco;
