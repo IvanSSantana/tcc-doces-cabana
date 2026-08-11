@@ -14,7 +14,7 @@ public class UsuarioMapperTests
         {
             Nome = "João Silva",
             Email = "joao.silva@example.com",
-            Telefone = "(11) 98765-4321",
+            Celular = "(11) 98765-4321",
             DataNascimento = new DateTime(1990, 1, 1),
             CPF = "529.982.247-25",
             Senha = "SenhaForte@123"

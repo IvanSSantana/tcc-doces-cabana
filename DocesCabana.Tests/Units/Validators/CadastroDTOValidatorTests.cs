@@ -42,15 +42,15 @@ public class CadastroDTOValidatorTests
     }
 
     [Fact]
-    public void Dado_TelefoneInvalido_Quando_Validar_Entao_DeveSerInvalido()
+    public void Dado_CelularInvalido_Quando_Validar_Entao_DeveSerInvalido()
     {
         var dto = CriarCadastroValido();
-        dto.Telefone = "123456";
+        dto.Celular = "123456";
 
         var resultado = _validator.Validate(dto);
 
         Assert.False(resultado.IsValid);
-        Assert.Contains(resultado.Errors, e => e.PropertyName == "Telefone");
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "Celular");
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class CadastroDTOValidatorTests
         {
             Nome = "João Silva",
             Email = "joao.silva@example.com",
-            Telefone = "11987654321",
+            Celular = "11987654321",
             DataNascimento = new DateTime(1990, 1, 1),
             CPF = "54839427011",
             Senha = "SenhaForte@123",

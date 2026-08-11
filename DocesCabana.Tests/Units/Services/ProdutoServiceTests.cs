@@ -60,7 +60,7 @@ public class ProdutoServiceTests
         var resultado = await _produtoService.BuscarProdutoPorId(idEsperado);
 
         Assert.NotNull(resultado);
-        Assert.Equal(idEsperado, resultado.Id);
+        Assert.Equal(idEsperado, resultado.ProdutoId);
         Assert.Equal("Bolo de Chocolate", resultado.Nome);
     }
 
@@ -97,6 +97,6 @@ public class ProdutoServiceTests
         var resultado = await _produtoService.Cadastrar(dto);
 
         Assert.Equal(ProdutoStatus.Inativo, resultado.Status);
-        Assert.NotEqual(Guid.Empty, resultado.Id);
+        Assert.NotEqual(Guid.Empty, resultado.ProdutoId);
     }
 }

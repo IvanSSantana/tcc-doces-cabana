@@ -201,33 +201,33 @@ renomear arquivo que outro bloco está editando produz conflito e diff ilegível
 *RQ-03, RQ-04, RQ-05. Roda por último, sobre suíte verde. Nenhuma tarefa deste
 bloco muda comportamento — se um teste quebrar aqui, a renomeação está errada.*
 
-- [ ] **T035** — Inventário antes de renomear: buscar `\.Id\b` e `Telefone` em
+- [x] **T035** — Inventário antes de renomear: buscar `\.Id\b` e `Telefone` em
       `DocesCabana.MVC/Views/**/*.cshtml` e nos `ViewComponents`. Razor resolve
       propriedade em tempo de compilação de view, então uma referência esquecida
       pode não quebrar o `dotnet build`. Listar as ocorrências aqui antes de T036.
-- [ ] **T036** — `DocesCabana.Application/DTOs/ProdutoDTO.cs`: `Id` → `ProdutoId`
+- [x] **T036** — `DocesCabana.Application/DTOs/ProdutoDTO.cs`: `Id` → `ProdutoId`
       (espelha a entidade); `EstaFavorito` passa de `set` para `init`. Atualizar
       `ProdutoMapper`, as views inventariadas em T035 e os testes afetados.
-- [ ] **T037** — `DocesCabana.Application/DTOs/Autenticacao/CadastroDTO.cs`:
+- [x] **T037** — `DocesCabana.Application/DTOs/Autenticacao/CadastroDTO.cs`:
       `Telefone` → `Celular`, alinhando com `UsuarioDTO`, com a entidade e com o
       `.dbml`. Atualizar `CadastroDTOValidator`, `UsuarioMapper`,
       `Views/Autenticacao/Cadastro.cshtml` e `CadastroDTOValidatorTests`.
-- [ ] **T038** `[P]` — Mover `DTOs/EsqueceuSenhaDTO.cs` e `DTOs/RedefinirSenhaDTO.cs`
+- [x] **T038** `[P]` — Mover `DTOs/EsqueceuSenhaDTO.cs` e `DTOs/RedefinirSenhaDTO.cs`
       para `DTOs/Autenticacao/` — o namespace que ambos já declaram. Remover a
       propriedade `Id` de cada um; nenhuma é lida em lugar nenhum.
-- [ ] **T039** `[P]` — Renomear `Validators/EsqueceuSenhaValidator.cs` para
+- [x] **T039** `[P]` — Renomear `Validators/EsqueceuSenhaValidator.cs` para
       `EsqueceuSenhaDTOValidator.cs`, o nome do tipo que ele declara. Extrair
       `ValidarEmailOuCpf` — hoje duplicado byte a byte entre este validator e
       `LoginDTOValidator` — para um único ponto e consumir nos dois.
-- [ ] **T040** `[P]` — `DocesCabana.Infrastructure/DependencyInjections/DbContextDependencyInjection.cs`:
+- [x] **T040** `[P]` — `DocesCabana.Infrastructure/DependencyInjections/DbContextDependencyInjection.cs`:
       renomear a classe `DatabaseConfig` para `DbContextDependencyInjection`,
       alinhando com o nome do arquivo e com os outros três módulos de DI.
-- [ ] **T041** — Renomear ~40 testes para `Dado_/Quando_/Entao_` em
+- [x] **T041** — Renomear ~40 testes para `Dado_/Quando_/Entao_` em
       `Units/Controllers/AutenticacaoControllerTests.cs`,
       `Units/Controllers/HomeControllerTests.cs` e
       `Units/Services/UsuarioServiceTests.cs`. **Só o nome muda** — corpo e
       asserções ficam idênticos.
-- [ ] **T042** — Remover `using` não utilizados: `Microsoft.AspNetCore.Authorization`
+- [x] **T042** — Remover `using` não utilizados: `Microsoft.AspNetCore.Authorization`
       em `HomeController.cs`, `Microsoft.Data.Sqlite` em `DatabaseIntegrationTests.cs`,
       `System.Threading.Tasks` e `Xunit` em `InfraestruturaSqliteEmMemoria.cs`
       (ambos implícitos), e o que mais o compilador apontar.

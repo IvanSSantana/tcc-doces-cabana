@@ -3,16 +3,12 @@ using FluentValidation;
 
 namespace DocesCabana.Application.Validators;
 
-public class LoginDTOValidator : AbstractValidator<LoginDTO>
+public class EsqueceuSenhaDTOValidator : AbstractValidator<EsqueceuSenhaDTO>
 {
-    public LoginDTOValidator()
+    public EsqueceuSenhaDTOValidator()
     {
         RuleFor(x => x.Login)
             .NotEmpty().WithMessage("O login é obrigatório!")
-            .MaximumLength(100).WithMessage("O login deve ter no máximo 100 caracteres.")
             .Must(FormatoLoginValidator.ValidarEmailOuCpf).WithMessage("O formato do login deve ser um e-mail ou um CPF válido.");
-
-        RuleFor(x => x.Senha)
-            .NotEmpty().WithMessage("A senha é obrigatória!");
     }
 }

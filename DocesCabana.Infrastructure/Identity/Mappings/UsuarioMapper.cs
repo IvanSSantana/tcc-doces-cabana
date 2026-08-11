@@ -10,7 +10,7 @@ public static class UsuarioMapper
         new(
             dto.Nome!,
             dto.Email!,
-            TelefoneHelper.ApenasDigitos(dto.Telefone!),
+            TelefoneHelper.ApenasDigitos(dto.Celular!),
             dto.DataNascimento ?? new DateTime(),
             CpfHelper.ApenasDigitos(dto.CPF!));
 

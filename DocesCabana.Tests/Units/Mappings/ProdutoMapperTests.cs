@@ -16,7 +16,7 @@ public class ProdutoMapperTests
 
         var dto = ProdutoMapper.ToDTO(produto);
 
-        Assert.Equal(id, dto.Id);
+        Assert.Equal(id, dto.ProdutoId);
         Assert.Equal("Brigadeiro Gourmet", dto.Nome);
         Assert.Equal(5.50m, dto.Preco);
         Assert.Equal(ProdutoStatus.Inativo, dto.Status);

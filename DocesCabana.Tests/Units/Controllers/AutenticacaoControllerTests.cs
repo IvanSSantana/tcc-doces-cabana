@@ -27,7 +27,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public void Login_Get_DeveRetornarView()
+    public void Dado_RequisicaoValida_Quando_LoginGet_Entao_DeveRetornarView()
     {
         var resultado = _controller.Login();
 
@@ -35,7 +35,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task Login_Post_ModelStateInvalido_DeveRetornarViewComDto()
+    public async Task Dado_ModelStateInvalido_Quando_LoginPost_Entao_DeveRetornarViewComDto()
     {
         _controller.ModelState.AddModelError("Email", "Email é obrigatório");
         var dto = new LoginDTO();
@@ -47,7 +47,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task Login_Post_Sucesso_DeveRedirecionarParaHome()
+    public async Task Dado_CredenciaisValidas_Quando_LoginPost_Entao_DeveRedirecionarParaHome()
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!", LembrarMe = true };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, true))
@@ -61,7 +61,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task Login_Post_Bloqueado_DeveAdicionarErroBloqueioERetornarView()
+    public async Task Dado_ContaBloqueada_Quando_LoginPost_Entao_DeveAdicionarErroBloqueioERetornarView()
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
@@ -76,7 +76,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task Login_Post_FalhaCredenciais_DeveAdicionarErroCredenciaisERetornarView()
+    public async Task Dado_CredenciaisInvalidas_Quando_LoginPost_Entao_DeveAdicionarErroERetornarView()
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
@@ -91,7 +91,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public void Cadastro_Get_DeveRetornarView()
+    public void Dado_RequisicaoValida_Quando_CadastroGet_Entao_DeveRetornarView()
     {
         var resultado = _controller.Cadastro();
 
@@ -99,7 +99,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task Cadastro_Post_ModelStateInvalido_DeveRetornarViewComDto()
+    public async Task Dado_ModelStateInvalido_Quando_CadastroPost_Entao_DeveRetornarViewComDto()
     {
         _controller.ModelState.AddModelError("Nome", "Nome é obrigatório");
         var dto = new CadastroDTO();
@@ -111,7 +111,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task Cadastro_Post_UsuarioExistente_DeveAdicionarErroERetornarView()
+    public async Task Dado_UsuarioExistente_Quando_CadastroPost_Entao_DeveAdicionarErroERetornarView()
     {
         var dto = new CadastroDTO { Email = "existente@email.com", CPF = "54839427011" };
         var usuarioExistente = new UsuarioDTO { Email = "existente@email.com" };
@@ -128,7 +128,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task Cadastro_Post_Sucesso_DeveCadastrarERedirecionarParaLogin()
+    public async Task Dado_DadosValidos_Quando_CadastroPost_Entao_DeveCadastrarERedirecionarParaLogin()
     {
         var dto = new CadastroDTO { Email = "novo@email.com", CPF = "54839427011" };
         _usuarioServiceMock.Setup(s => s.BuscarPorLogin(dto.Email))
@@ -145,7 +145,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task Logout_Post_DeveRealizarLogoutERedirecionarParaLogin()
+    public async Task Dado_UsuarioAutenticado_Quando_LogoutPost_Entao_DeveRealizarLogoutERedirecionarParaLogin()
     {
         _usuarioServiceMock.Setup(s => s.RealizarLogout())
             .Returns(Task.CompletedTask);
@@ -158,7 +158,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public void EsqueceuSenha_Get_DeveRetornarView()
+    public void Dado_RequisicaoValida_Quando_EsqueceuSenhaGet_Entao_DeveRetornarView()
     {
         var resultado = _controller.EsqueceuSenha();
 
@@ -246,7 +246,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public void RedefinirSenha_Get_DeveRetornarViewComDtoPreenchido()
+    public void Dado_TokenEEmail_Quando_RedefinirSenhaGet_Entao_DeveRetornarViewComDtoPreenchido()
     {
         var token = "token-teste";
         var email = "teste@email.com";
@@ -260,7 +260,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task RedefinirSenha_Post_ModelStateInvalido_DeveRetornarViewComDto()
+    public async Task Dado_ModelStateInvalido_Quando_RedefinirSenhaPost_Entao_DeveRetornarViewComDto()
     {
         _controller.ModelState.AddModelError("Senha", "Senha é obrigatória");
         var dto = new RedefinirSenhaDTO();
@@ -272,7 +272,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task RedefinirSenha_Post_Sucesso_DeveConfirmarRedefinicaoERedirecionarParaLogin()
+    public async Task Dado_TokenValido_Quando_RedefinirSenhaPost_Entao_DeveConfirmarRedefinicaoERedirecionarParaLogin()
     {
         var dto = new RedefinirSenhaDTO { Email = "teste@email.com", Token = "token-teste", Senha = "NovaSenha123!" };
         _usuarioServiceMock.Setup(s => s.ConfirmarRedefinicaoSenha(dto.Email, dto.Token, dto.Senha))
@@ -286,7 +286,7 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task RedefinirSenha_Post_Falha_DeveAdicionarErroERetornarView()
+    public async Task Dado_TokenInvalido_Quando_RedefinirSenhaPost_Entao_DeveAdicionarErroERetornarView()
     {
         var dto = new RedefinirSenhaDTO { Email = "teste@email.com", Token = "token-teste", Senha = "NovaSenha123!" };
         _usuarioServiceMock.Setup(s => s.ConfirmarRedefinicaoSenha(dto.Email, dto.Token, dto.Senha))

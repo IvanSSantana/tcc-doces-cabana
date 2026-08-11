@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DocesCabana.Infrastructure.DependencyInjections;
 
-public static class DatabaseConfig
+public static class DbContextDependencyInjection
 {
     public static IServiceCollection AddDatabaseConfiguration(this IServiceCollection services, IConfiguration configuration)
     {

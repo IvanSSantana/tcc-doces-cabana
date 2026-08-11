@@ -5,7 +5,7 @@ namespace DocesCabana.Application.DTOs;
 public class ProdutoDTO
 {
     // O uso do init se dá pois o DTO é imutável e não deve ser alterado após a criação. Afinal é vindo do banco de dados.
-    public Guid Id { get; init; }
+    public Guid ProdutoId { get; init; }
 
     public string Nome { get; init; } = string.Empty;
 
@@ -19,5 +19,5 @@ public class ProdutoDTO
 
     public Guid? PromocaoId { get; init; }
 
-    public bool EstaFavorito { get; set; }
+    public bool EstaFavorito { get; init; }
 }

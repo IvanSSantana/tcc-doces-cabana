@@ -1,8 +1,6 @@
 using DocesCabana.Infrastructure.DatabaseContext;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace DocesCabana.Tests.Integration;
 

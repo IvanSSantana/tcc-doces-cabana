@@ -24,12 +24,12 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public async Task Index_DeveRetornarViewComProdutos()
+    public async Task Dado_ProdutosCadastrados_Quando_Index_Entao_DeveRetornarViewComProdutos()
     {
         var produtosEsperados = new List<ProdutoDTO>
         {
-            new() { Id = Guid.NewGuid(), Nome = "Bolo Cenoura", Preco = 10.00m },
-            new() { Id = Guid.NewGuid(), Nome = "Brigadeiro", Preco = 5.00m }
+            new() { ProdutoId = Guid.NewGuid(), Nome = "Bolo Cenoura", Preco = 10.00m },
+            new() { ProdutoId = Guid.NewGuid(), Nome = "Brigadeiro", Preco = 5.00m }
         };
 
         _produtoServiceMock.Setup(s => s.BuscarTodosProdutos())
@@ -44,7 +44,7 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public void Privacidade_DeveRetornarView()
+    public void Dado_RequisicaoValida_Quando_Privacidade_Entao_DeveRetornarView()
     {
         var resultado = _controller.Privacidade();
 
@@ -52,7 +52,7 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public void Error_DeveRetornarViewComErrorViewModel()
+    public void Dado_ErroNaRequisicao_Quando_Error_Entao_DeveRetornarViewComErrorViewModel()
     {
         var httpContext = new DefaultHttpContext();
         httpContext.TraceIdentifier = "test-trace-id";

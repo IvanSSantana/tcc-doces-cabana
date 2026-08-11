@@ -62,7 +62,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task CadastrarUsuario_Sucesso_DeveRetornarUsuarioDto()
+    public async Task Dado_DadosValidos_Quando_CadastrarUsuario_Entao_DeveRetornarUsuarioDto()
     {
         var dto = CriarCadastroDTO();
         _userManagerMock.Setup(u => u.CreateAsync(It.IsAny<Usuario>(), dto.Senha!))
@@ -76,7 +76,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task CadastrarUsuario_DadosDuplicados_DeveLancarInvalidOperationException()
+    public async Task Dado_DadosDuplicados_Quando_CadastrarUsuario_Entao_DeveLancarInvalidOperationException()
     {
         var dto = CriarCadastroDTO();
         var erro = new IdentityError { Code = "DuplicateEmail", Description = "Email duplicado" };
@@ -90,7 +90,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task CadastrarUsuario_FalhaGeral_DeveLancarInvalidOperationException()
+    public async Task Dado_FalhaGeralDoIdentity_Quando_CadastrarUsuario_Entao_DeveLancarInvalidOperationException()
     {
         var dto = CriarCadastroDTO();
         var erro = new IdentityError { Code = "GenericError", Description = "Erro genérico no cadastro" };
@@ -104,7 +104,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task BuscarUsuarioPorId_Sucesso_DeveRetornarUsuarioDto()
+    public async Task Dado_IdExistente_Quando_BuscarUsuarioPorId_Entao_DeveRetornarUsuarioDto()
     {
         var id = Guid.NewGuid();
         var usuario = CriarUsuario(id);
@@ -118,7 +118,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task BuscarUsuarioPorId_UsuarioInexistente_DeveLancarKeyNotFoundException()
+    public async Task Dado_IdInexistente_Quando_BuscarUsuarioPorId_Entao_DeveLancarKeyNotFoundException()
     {
         var id = Guid.NewGuid();
         _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString()))
@@ -129,7 +129,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task BuscarPorLogin_EmailExistente_DeveRetornarUsuarioDto()
+    public async Task Dado_EmailExistente_Quando_BuscarPorLogin_Entao_DeveRetornarUsuarioDto()
     {
         var email = "teste@exemplo.com";
         var usuario = CriarUsuario(Guid.NewGuid(), email);
@@ -143,7 +143,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task BuscarPorLogin_CpfExistente_DeveNormalizarCPFRetornarUsuarioDto()
+    public async Task Dado_CpfExistente_Quando_BuscarPorLogin_Entao_DeveNormalizarCPFRetornarUsuarioDto()
     {
         var login = "548.394.270-11";
         var cpfLimpo = "54839427011";
@@ -165,7 +165,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task BuscarPorLogin_Inexistente_DeveRetornarNull()
+    public async Task Dado_LoginInexistente_Quando_BuscarPorLogin_Entao_DeveRetornarNull()
     {
         var login = "inexistente@email.com";
         _userManagerMock.Setup(u => u.FindByEmailAsync(login))
@@ -181,7 +181,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task AlterarDadosUsuario_Sucesso_DeveRetornarUsuarioDtoAtualizado()
+    public async Task Dado_DadosValidos_Quando_AlterarDadosUsuario_Entao_DeveRetornarUsuarioDtoAtualizado()
     {
         var id = Guid.NewGuid();
         var usuario = CriarUsuario(id);
@@ -207,7 +207,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task AlterarDadosUsuario_UsuarioInexistente_DeveLancarKeyNotFoundException()
+    public async Task Dado_UsuarioInexistente_Quando_AlterarDadosUsuario_Entao_DeveLancarKeyNotFoundException()
     {
         var id = Guid.NewGuid();
         _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString()))
@@ -220,7 +220,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task AlterarDadosUsuario_FalhaIdentity_DeveLancarInvalidOperationException()
+    public async Task Dado_FalhaIdentity_Quando_AlterarDadosUsuario_Entao_DeveLancarInvalidOperationException()
     {
         var id = Guid.NewGuid();
         var usuario = CriarUsuario(id);
@@ -247,7 +247,7 @@ public class UsuarioServiceTests
     // inexistente e política de bloqueio) vivem em UsuarioServiceLoginTests.cs.
 
     [Fact]
-    public async Task RealizarLogout_DeveChamarSignOutAsync()
+    public async Task Dado_UsuarioAutenticado_Quando_RealizarLogout_Entao_DeveChamarSignOutAsync()
     {
         _signInManagerMock.Setup(s => s.SignOutAsync())
             .Returns(Task.CompletedTask);
@@ -258,7 +258,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task GerarTokenRedefinicaoSenha_Sucesso_DeveRetornarToken()
+    public async Task Dado_EmailExistente_Quando_GerarTokenRedefinicaoSenha_Entao_DeveRetornarToken()
     {
         var email = "senha@email.com";
         var usuario = CriarUsuario(Guid.NewGuid(), email);
@@ -273,7 +273,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task GerarTokenRedefinicaoSenha_UsuarioInexistente_DeveLancarKeyNotFoundException()
+    public async Task Dado_UsuarioInexistente_Quando_GerarTokenRedefinicaoSenha_Entao_DeveLancarKeyNotFoundException()
     {
         var email = "senha@email.com";
         _userManagerMock.Setup(u => u.FindByEmailAsync(email))
@@ -284,7 +284,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task SolicitarRedefinicaoSenha_UsuarioInexistente_DeveRetornarFalse()
+    public async Task Dado_UsuarioInexistente_Quando_SolicitarRedefinicaoSenha_Entao_DeveRetornarFalse()
     {
         var email = "senha@email.com";
         _userManagerMock.Setup(u => u.FindByEmailAsync(email))
@@ -296,7 +296,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task SolicitarRedefinicaoSenha_Sucesso_DeveEnviarEmailERetornarTrue()
+    public async Task Dado_UsuarioExistente_Quando_SolicitarRedefinicaoSenha_Entao_DeveEnviarEmailERetornarTrue()
     {
         var email = "senha@email.com";
         var usuario = CriarUsuario(Guid.NewGuid(), email);
@@ -312,7 +312,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task ConfirmarRedefinicaoSenha_UsuarioInexistente_DeveRetornarFalse()
+    public async Task Dado_UsuarioInexistente_Quando_ConfirmarRedefinicaoSenha_Entao_DeveRetornarFalse()
     {
         var email = "senha@email.com";
         _userManagerMock.Setup(u => u.FindByEmailAsync(email))
@@ -324,7 +324,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task ConfirmarRedefinicaoSenha_Sucesso_DeveRetornarTrue()
+    public async Task Dado_TokenValido_Quando_ConfirmarRedefinicaoSenha_Entao_DeveRetornarTrue()
     {
         var email = "senha@email.com";
         var usuario = CriarUsuario(Guid.NewGuid(), email);
@@ -339,7 +339,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task ConfirmarEmailDoUsuario_ParametrosInvalidos_DeveRetornarFalse()
+    public async Task Dado_ParametrosInvalidos_Quando_ConfirmarEmailDoUsuario_Entao_DeveRetornarFalse()
     {
         var res1 = await _usuarioService.ConfirmarEmailDoUsuario("", "token");
         var res2 = await _usuarioService.ConfirmarEmailDoUsuario("email@email.com", "");
@@ -349,7 +349,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task ConfirmarEmailDoUsuario_UsuarioInexistente_DeveRetornarFalse()
+    public async Task Dado_UsuarioInexistente_Quando_ConfirmarEmailDoUsuario_Entao_DeveRetornarFalse()
     {
         var email = "email@email.com";
         _userManagerMock.Setup(u => u.FindByEmailAsync(email))
@@ -361,7 +361,7 @@ public class UsuarioServiceTests
     }
 
     [Fact]
-    public async Task ConfirmarEmailDoUsuario_Sucesso_DeveRetornarTrue()
+    public async Task Dado_TokenValido_Quando_ConfirmarEmailDoUsuario_Entao_DeveRetornarTrue()
     {
         var email = "email@email.com";
         var usuario = CriarUsuario(Guid.NewGuid(), email);
@@ -380,7 +380,7 @@ public class UsuarioServiceTests
         {
             Nome = "Cliente Teste",
             Email = "teste@exemplo.com",
-            Telefone = "11999999999",
+            Celular = "11999999999",
             DataNascimento = new DateTime(1990, 1, 1),
             CPF = "548.394.270-11",
             Senha = "SenhaForte123!"

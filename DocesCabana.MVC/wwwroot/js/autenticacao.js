@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // --- Lógica de Máscaras dos Campos (Cadastro) ---
-    const inputTelefone = document.getElementById("Telefone");
+    const inputCelular = document.getElementById("Celular");
     const inputData = document.getElementById("DataNascimento");
     const inputCpf = document.getElementById("CPF");
 
@@ -72,8 +72,8 @@ document.addEventListener("DOMContentLoaded", function () {
         return formatado;
     }
 
-    if (inputTelefone) {
-        inputTelefone.addEventListener("input", function (e) {
+    if (inputCelular) {
+        inputCelular.addEventListener("input", function (e) {
             e.target.value = formatarTelefone(e.target.value);
         });
     }

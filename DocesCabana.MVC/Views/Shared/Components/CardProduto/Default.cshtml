@@ -25,7 +25,7 @@
     }
 }
 
-<div class="card-produto" data-produto-id="@Model.Id">
+<div class="card-produto" data-produto-id="@Model.ProdutoId">
     <button class="botao-favorito-card" aria-label="Favoritar" onclick="alternarFavorito(this)">
         <i class="@(Model.EstaFavorito ? "fa-solid fa-heart favoritado" : "fa-regular fa-heart")"></i>
     </button>
@@ -44,6 +44,6 @@
             <span class="valor-quantidade-card">1</span>
             <button class="botao-quantidade-card mais" onclick="alterarQuantidade(this, 1)">+</button>
         </div>
-        <button class="botao-adicionar-card" onclick="adicionarAoCarrinho('@Model.Id', this)">Adicionar</button>
+        <button class="botao-adicionar-card" onclick="adicionarAoCarrinho('@Model.ProdutoId', this)">Adicionar</button>
     </div>
 </div>
