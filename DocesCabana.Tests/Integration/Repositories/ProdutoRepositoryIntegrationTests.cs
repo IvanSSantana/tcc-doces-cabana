@@ -39,44 +39,19 @@ public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     }
 
     [Fact]
-    public async Task Dado_ProdutoRemovidoEmTransacao_QuandoBuscar_EntaoNaoDeveEncontrar()
+    public async Task Dado_ProdutoPersistido_Quando_RemoverESalvar_Entao_NaoDeveEncontrar()
     {
         IUnitOfWork unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new ProdutoRepository(Contexto);
         var produto = CriarProduto();
 
-        await unidadeDeTrabalho.ExecutarEmTransacao(async () =>
-        {
-            await repositorio.Adicionar(produto);
-        });
+        await repositorio.Adicionar(produto);
+        await unidadeDeTrabalho.SalvarAlteracoes();
 
-        await unidadeDeTrabalho.ExecutarEmTransacao(async () =>
-        {
-            repositorio.Remover(produto);
-        });
+        repositorio.Remover(produto);
+        await unidadeDeTrabalho.SalvarAlteracoes();
 
         var encontrado = await repositorio.BuscarPorId(produto.ProdutoId);
-
-        Assert.Null(encontrado);
-    }
-
-    [Fact]
-    public async Task Dado_FalhaEmTransacao_Quando_Reverter_Entao_ProdutoNaoDevePersistir()
-    {
-        var unidadeDeTrabalho = new UnitOfWork(Contexto);
-        var repositorio = new ProdutoRepository(Contexto);
-        var produto = CriarProduto();
-
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            unidadeDeTrabalho.ExecutarEmTransacao(async () =>
-            {
-                await repositorio.Adicionar(produto);
-                throw new InvalidOperationException("Falha simulada");
-            }));
-
-        var encontrado = await Contexto.Produtos
-            .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.ProdutoId == produto.ProdutoId);
 
         Assert.Null(encontrado);
     }

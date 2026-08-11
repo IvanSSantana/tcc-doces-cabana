@@ -140,20 +140,20 @@ renomear arquivo que outro bloco está editando produz conflito e diff ilegível
 
 *RQ-02.*
 
-- [ ] **T027** — `DocesCabana.Tests/Integration/DatabaseIntegrationTests.cs` e
+- [x] **T027** — `DocesCabana.Tests/Integration/DatabaseIntegrationTests.cs` e
       `Integration/Repositories/ProdutoRepositoryIntegrationTests.cs`: os dois
       testes de `IniciarTransacao` e os três usos de `ExecutarEmTransacao` saem.
       Entra um teste de atomicidade: duas entidades adicionadas, uma inválida
       para o banco, um `SalvarAlteracoes` que lança — nenhuma das duas persiste.
       É o comportamento que a transação explícita dava e que o
       `SaveChangesAsync` já dá sozinho.
-- [ ] **T028** — Remover `DocesCabana.Domain/Contracts/ITransaction.cs` e
+- [x] **T028** — Remover `DocesCabana.Domain/Contracts/ITransaction.cs` e
       `DocesCabana.Infrastructure/Repositories/TransactionEf.cs`. Em
       `Contracts/IUnitOfWork.cs`, deixar apenas `SalvarAlteracoes` e retirar a
       herança de `IAsyncDisposable`. Em `Repositories/UnitOfWork.cs`, remover
       `IniciarTransacao`, `ExecutarEmTransacao` e `DisposeAsync` — este último
       descartava um `DbContext` de que o `UnitOfWork` não é dono.
-- [ ] **T029** — Rodar `dotnet test`: verde, e a contagem caiu em exatamente 2
+- [x] **T029** — Rodar `dotnet test`: verde, e a contagem caiu em exatamente 2
       testes (os de transação explícita), não mais.
 
 ---

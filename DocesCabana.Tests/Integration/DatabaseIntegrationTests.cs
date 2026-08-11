@@ -1,7 +1,7 @@
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.DatabaseContext;
+using DocesCabana.Infrastructure.Identity;
 using DocesCabana.Infrastructure.Repositories;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration;
@@ -39,41 +39,25 @@ public class DatabaseIntegrationTests : InfraestruturaSqliteEmMemoria
     }
 
     [Fact]
-    public async Task Dado_UmaTransacaoAtiva_Quando_InserirERealizarRollback_Entao_NaoDeveSalvarNoBanco()
+    public async Task Dado_DuasAlteracoesUmaInvalidaParaOBanco_Quando_SalvarAlteracoes_Entao_NenhumaDevePersistir()
     {
-        var repositorio = new Repository<Produto>(Contexto);
         var uow = new UnitOfWork(Contexto);
-        var subcategoriaId = Guid.NewGuid();
-        var produto = new Produto(subcategoriaId, "Trufa de Chocolate", 4.50m, "https://imagem.com/trufa.jpg");
+        var produtoValido = new Produto(Guid.NewGuid(), "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg");
 
-        await using (var transacao = await uow.IniciarTransacao())
-        {
-            await repositorio.Adicionar(produto);
-            await uow.SalvarAlteracoes();
-            await transacao.Reverter();
-        }
+        // Dois usuários com o mesmo CPF violam o índice único da tabela — o
+        // SalvarAlteracoes falha, e nenhuma das duas alterações deve persistir,
+        // exatamente o comportamento que a transação explícita removida (RQ-02)
+        // dava e que o SaveChangesAsync já fornece por si.
+        var usuario1 = new Usuario("Cliente Um", "cliente.um@teste.com", "11987654321", new DateTime(1990, 1, 1), "52998224725");
+        var usuario2 = new Usuario("Cliente Dois", "cliente.dois@teste.com", "11987654322", new DateTime(1991, 2, 2), "52998224725");
 
-        var produtoNoBanco = await Contexto.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.ProdutoId == produto.ProdutoId);
+        await Contexto.Produtos.AddAsync(produtoValido);
+        await Contexto.Users.AddAsync(usuario1);
+        await Contexto.Users.AddAsync(usuario2);
+
+        await Assert.ThrowsAsync<DbUpdateException>(() => uow.SalvarAlteracoes());
+
+        var produtoNoBanco = await Contexto.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.ProdutoId == produtoValido.ProdutoId);
         Assert.Null(produtoNoBanco);
-    }
-
-    [Fact]
-    public async Task Dado_UmaTransacaoAtiva_Quando_InserirEConfirmarTransacao_Entao_DevePersistirNoBanco()
-    {
-        var repositorio = new Repository<Produto>(Contexto);
-        var uow = new UnitOfWork(Contexto);
-        var subcategoriaId = Guid.NewGuid();
-        var produto = new Produto(subcategoriaId, "Trufa de Chocolate", 4.50m, "https://imagem.com/trufa.jpg");
-
-        await using (var transacao = await uow.IniciarTransacao())
-        {
-            await repositorio.Adicionar(produto);
-            await uow.SalvarAlteracoes();
-            await transacao.Confirmar();
-        }
-
-        var produtoNoBanco = await Contexto.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.ProdutoId == produto.ProdutoId);
-        Assert.NotNull(produtoNoBanco);
-        Assert.Equal("Trufa de Chocolate", produtoNoBanco.Nome);
     }
 }

@@ -1,10 +1,6 @@
 namespace DocesCabana.Domain.Contracts;
 
-public interface IUnitOfWork : IAsyncDisposable
+public interface IUnitOfWork
 {
     Task<int> SalvarAlteracoes(CancellationToken cancellationToken = default);
-
-    Task<ITransaction> IniciarTransacao(CancellationToken cancellationToken = default);
-
-    Task ExecutarEmTransacao(Func<Task> operacao, CancellationToken cancellationToken = default);
 }
