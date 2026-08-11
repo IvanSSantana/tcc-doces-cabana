@@ -20,9 +20,12 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             .IsRequired()
             .HasColumnType("decimal(18,2)");
 
+        // Sem HasColumnType: ProdutoStatus é enum de byte, e o provider mapeia
+        // sozinho para o tipo inteiro nativo em qualquer banco (INTEGER no
+        // SQLite, tinyint no SQL Server). Fixar "INTEGER" aqui quebraria a
+        // troca de provider planejada para o deploy.
         builder.Property(p => p.Status)
-            .IsRequired()
-            .HasColumnType("INTEGER");
+            .IsRequired();
 
         builder.Property(p => p.ImagemUrl)
             .IsRequired()

@@ -162,11 +162,11 @@ renomear arquivo que outro bloco está editando produz conflito e diff ilegível
 
 *RQ-01, RQ-07, RQ-08, RQ-09.*
 
-- [ ] **T030** — `DocesCabana.MVC/Helpers/DbInitializer.cs` e `Program.cs`:
+- [x] **T030** — `DocesCabana.MVC/Helpers/DbInitializer.cs` e `Program.cs`:
       separar aplicar migrations de semear; semeadura só quando o ambiente não é
       produção. No `Program.cs`, usar `DbInitializer.Seed(...)` sem o namespace
       completo — o `using` já está no topo.
-- [ ] **T031** — `DocesCabana.Domain.csproj`: remover o `PackageReference` de
+- [x] **T031** — `DocesCabana.Domain.csproj`: remover o `PackageReference` de
       `Microsoft.Extensions.Identity.Stores` (o projeto não tem um único
       `using Microsoft.*`). `DocesCabana.Infrastructure.csproj`:
       `PackageReference` explícito de `SQLitePCLRaw.lib.e_sqlite3` na **menor**
@@ -175,14 +175,14 @@ renomear arquivo que outro bloco está editando produz conflito e diff ilegível
       rodar a suíte de integração, que exercita SQLite de verdade.
       *Não mexer em `FluentValidation.AspNetCore`: 11.3.1 é a última versão
       publicada, o pacote foi descontinuado.*
-- [ ] **T032** — `git rm --cached DocesCabana.MVC/appsettings.json` (o arquivo
+- [x] **T032** — `git rm --cached DocesCabana.MVC/appsettings.json` (o arquivo
       local permanece intacto com seus placeholders; o `.gitignore`, que já o
       lista, volta a valer). Criar `DocesCabana.MVC/appsettings.Example.json`
       versionado, mesma estrutura, `EmailSettings` com valores vazios. Documentar
       no `README.md`: copiar o exemplo e usar *user secrets* para credenciais
       reais. **Validar clonando o repositório numa pasta temporária e subindo a
       aplicação — prova CA-11.**
-- [ ] **T033** — `DocesCabana.Infrastructure/DatabaseContext/Configurations/ProdutoConfiguration.cs`:
+- [x] **T033** — `DocesCabana.Infrastructure/DatabaseContext/Configurations/ProdutoConfiguration.cs`:
       remover **apenas** `HasColumnType("INTEGER")` do `Status` — é o único ponto
       que quebra no SQL Server, e como `ProdutoStatus` é `enum : byte` o SQLite
       já gera `INTEGER` sozinho. **Manter** o `HasColumnType("decimal(18,2)")` do
@@ -192,7 +192,7 @@ renomear arquivo que outro bloco está editando produz conflito e diff ilegível
       DocesCabana.Infrastructure --startup-project DocesCabana.MVC`, conferir que
       `Up` e `Down` saíram vazios, e então `dotnet ef migrations remove`. Se a
       migration **não** sair vazia, parar e reavaliar antes de seguir.
-- [ ] **T034** — Rodar `dotnet test`: verde.
+- [x] **T034** — Rodar `dotnet test`: verde.
 
 ---
 

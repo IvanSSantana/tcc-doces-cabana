@@ -9,13 +9,18 @@ namespace DocesCabana.MVC.Helpers;
 
 public static class DbInitializer
 {
-    public static void Seed(IServiceProvider serviceProvider)
+    public static void Migrar(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<DocesCabanaDbContext>();
 
-        // Certifica de aplicar migrações pendentes se houver
         context.Database.Migrate();
+    }
+
+    public static void Semear(IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<DocesCabanaDbContext>();
 
         // Se já houver produtos, não faz nada
         if (context.Produtos.Any())
