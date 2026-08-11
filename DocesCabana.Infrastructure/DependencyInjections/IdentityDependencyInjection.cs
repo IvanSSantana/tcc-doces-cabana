@@ -16,6 +16,10 @@ public static class IdentityDependencyInjection
             options.Password.RequireUppercase = true;
             options.Password.RequireDigit = true;
             options.Password.RequireNonAlphanumeric = true;
+
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            options.Lockout.AllowedForNewUsers = true;
         })
         .AddEntityFrameworkStores<DocesCabanaDbContext>()
         .AddDefaultTokenProviders();

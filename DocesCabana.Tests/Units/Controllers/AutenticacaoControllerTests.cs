@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -16,15 +17,13 @@ namespace DocesCabana.Tests.Units.Controllers;
 
 public class AutenticacaoControllerTests
 {
-    private readonly Mock<ILogger<AutenticacaoController>> _loggerMock;
     private readonly Mock<IUsuarioService> _usuarioServiceMock;
     private readonly AutenticacaoController _controller;
 
     public AutenticacaoControllerTests()
     {
-        _loggerMock = new Mock<ILogger<AutenticacaoController>>();
         _usuarioServiceMock = new Mock<IUsuarioService>();
-        _controller = new AutenticacaoController(_loggerMock.Object, _usuarioServiceMock.Object);
+        _controller = new AutenticacaoController(_usuarioServiceMock.Object);
     }
 
     [Fact]
@@ -166,22 +165,11 @@ public class AutenticacaoControllerTests
         Assert.IsType<ViewResult>(resultado);
     }
 
-    [Fact]
-    public async Task EsqueceuSenha_Post_UsuarioInexistente_DeveAdicionarErroMensagemERetornarView()
-    {
-        var dto = new EsqueceuSenhaDTO { Login = "inexistente@email.com" };
-        _usuarioServiceMock.Setup(s => s.BuscarPorLogin(dto.Login))
-            .ReturnsAsync((UsuarioDTO?)null);
-
-        var resultado = await _controller.EsqueceuSenha(dto);
-
-        var viewResult = Assert.IsType<ViewResult>(resultado);
-        Assert.True(_controller.ModelState.ContainsKey(string.Empty));
-        Assert.Contains("Foi enviado um e-mail de confirmação", _controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
-    }
+    private const string MensagemConfirmacaoEsqueceuSenha =
+        "Se existir uma conta com esse login, enviamos um e-mail com o link de redefinição.";
 
     [Fact]
-    public async Task EsqueceuSenha_Post_UsuarioExistente_DeveGerarTokenEnviarEmailERetornarView()
+    public async Task Dado_LoginExistente_Quando_EsqueceuSenha_Entao_DeveGravarConfirmacaoEmTempData()
     {
         var dto = new EsqueceuSenhaDTO { Login = "existente@email.com" };
         var usuario = new UsuarioDTO { Email = "existente@email.com" };
@@ -193,6 +181,50 @@ public class AutenticacaoControllerTests
         _usuarioServiceMock.Setup(s => s.SolicitarRedefinicaoSenha(usuario.Email, It.IsAny<string>()))
             .ReturnsAsync(true);
 
+        ConfigurarUrlEHttpContextETempData();
+
+        var resultado = await _controller.EsqueceuSenha(dto);
+
+        var redirectResult = Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Equal("EsqueceuSenha", redirectResult.ActionName);
+        Assert.Equal(MensagemConfirmacaoEsqueceuSenha, _controller.TempData["Confirmacao"]);
+        _usuarioServiceMock.Verify(s => s.SolicitarRedefinicaoSenha(usuario.Email, It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_LoginInexistente_Quando_EsqueceuSenha_Entao_DeveGravarMesmaConfirmacaoENaoEnviarEmail()
+    {
+        var dto = new EsqueceuSenhaDTO { Login = "inexistente@email.com" };
+        _usuarioServiceMock.Setup(s => s.BuscarPorLogin(dto.Login))
+            .ReturnsAsync((UsuarioDTO?)null);
+
+        ConfigurarUrlEHttpContextETempData();
+
+        var resultado = await _controller.EsqueceuSenha(dto);
+
+        var redirectResult = Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Equal("EsqueceuSenha", redirectResult.ActionName);
+        Assert.Equal(MensagemConfirmacaoEsqueceuSenha, _controller.TempData["Confirmacao"]);
+        _usuarioServiceMock.Verify(
+            s => s.SolicitarRedefinicaoSenha(It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_LoginMalformado_Quando_EsqueceuSenha_Entao_DeveRetornarViewSemConsultarServico()
+    {
+        _controller.ModelState.AddModelError("Login", "O formato do login deve ser um e-mail ou um CPF válido.");
+        var dto = new EsqueceuSenhaDTO { Login = "abc" };
+
+        var resultado = await _controller.EsqueceuSenha(dto);
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(dto, viewResult.Model);
+        _usuarioServiceMock.Verify(s => s.BuscarPorLogin(It.IsAny<string>()), Times.Never);
+    }
+
+    private void ConfigurarUrlEHttpContextETempData()
+    {
         var urlHelperMock = new Mock<IUrlHelper>();
         urlHelperMock.Setup(x => x.Action(It.IsAny<UrlActionContext>()))
             .Returns("http://localhost/redefinir-senha");
@@ -207,12 +239,10 @@ public class AutenticacaoControllerTests
             HttpContext = httpContext
         };
 
-        var resultado = await _controller.EsqueceuSenha(dto);
-
-        var viewResult = Assert.IsType<ViewResult>(resultado);
-        Assert.True(_controller.ModelState.ContainsKey(string.Empty));
-        Assert.Contains("Foi enviado um e-mail de confirmação", _controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
-        _usuarioServiceMock.Verify(s => s.SolicitarRedefinicaoSenha(usuario.Email, It.IsAny<string>()), Times.Once);
+        var tempDataProviderMock = new Mock<ITempDataProvider>();
+        tempDataProviderMock.Setup(p => p.LoadTempData(It.IsAny<HttpContext>()))
+            .Returns(new Dictionary<string, object>());
+        _controller.TempData = new TempDataDictionary(httpContext, tempDataProviderMock.Object);
     }
 
     [Fact]

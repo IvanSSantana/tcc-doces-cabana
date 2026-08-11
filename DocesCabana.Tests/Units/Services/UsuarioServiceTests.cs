@@ -243,52 +243,8 @@ public class UsuarioServiceTests
         Assert.Contains("Erro ao atualizar", ex.Message);
     }
 
-    [Fact]
-    public async Task RealizarLogin_UsuarioInexistente_DeveRetornarFailed()
-    {
-        _userManagerMock.Setup(u => u.FindByEmailAsync("inexistente@email.com"))
-            .ReturnsAsync((Usuario?)null);
-        var mockQueryable = new TestAsyncEnumerable<Usuario>(new List<Usuario>());
-        _userManagerMock.Setup(u => u.Users).Returns(mockQueryable);
-
-        var resultado = await _usuarioService.RealizarLogin("inexistente@email.com", "senha123", false);
-
-        Assert.False(resultado.Succeeded);
-    }
-
-    [Fact]
-    public async Task RealizarLogin_EmailInexistenteNaBuscaPorEmail_DeveRetornarFailed()
-    {
-        var login = "54839427011";
-        var usuario = CriarUsuario(Guid.NewGuid(), cpf: login);
-
-        _userManagerMock.Setup(u => u.FindByEmailAsync(login))
-            .ReturnsAsync((Usuario?)null);
-
-        var mockQueryable = new TestAsyncEnumerable<Usuario>(new List<Usuario> { usuario });
-        _userManagerMock.Setup(u => u.Users).Returns(mockQueryable);
-
-        var resultado = await _usuarioService.RealizarLogin(login, "senha123", false);
-
-        Assert.False(resultado.Succeeded);
-    }
-
-    [Fact]
-    public async Task RealizarLogin_Sucesso_DeveRetornarSucceeded()
-    {
-        var email = "login@email.com";
-        var usuario = CriarUsuario(Guid.NewGuid(), email);
-
-        _userManagerMock.Setup(u => u.FindByEmailAsync(email))
-            .ReturnsAsync(usuario);
-
-        _signInManagerMock.Setup(s => s.PasswordSignInAsync(email, "senha123", false, false))
-            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
-
-        var resultado = await _usuarioService.RealizarLogin(email, "senha123", false);
-
-        Assert.True(resultado.Succeeded);
-    }
+    // Os testes de RealizarLogin (sucesso por e-mail, sucesso por CPF, login
+    // inexistente e política de bloqueio) vivem em UsuarioServiceLoginTests.cs.
 
     [Fact]
     public async Task RealizarLogout_DeveChamarSignOutAsync()

@@ -7,12 +7,10 @@ namespace DocesCabana.MVC.Controllers;
 
 public class AutenticacaoController : Controller
 {
-    private readonly ILogger<AutenticacaoController> _logger;
     private readonly IUsuarioService _usuarioService;
 
-    public AutenticacaoController(ILogger<AutenticacaoController> logger, IUsuarioService usuarioService)
+    public AutenticacaoController(IUsuarioService usuarioService)
     {
-        _logger = logger;
         _usuarioService = usuarioService;
     }
 
@@ -85,24 +83,25 @@ public class AutenticacaoController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EsqueceuSenha(EsqueceuSenhaDTO dto)
     {
-        var usuario = await _usuarioService.BuscarPorLogin(dto.Login)!;
+        if (!ModelState.IsValid)
+            return View(dto);
 
-        if (usuario == null)
+        var usuario = await _usuarioService.BuscarPorLogin(dto.Login);
+
+        if (usuario != null)
         {
-            ModelState.AddModelError(string.Empty, "Foi enviado um e-mail de confirmação caso a conta com esse login exista.");
-            return View();
-        }
-            
-        var token = await _usuarioService.GerarTokenRedefinicaoSenha(usuario.Email!);
-        var link = Url.Action("RedefinirSenha", "Autenticacao", new { token, usuario.Email }, Request.Scheme)!;
-        var corpo = 
-            $@"<div>
-                Link para redefinir senha: <a href='{link}'>{link}</a>
-            </div>";
+            var token = await _usuarioService.GerarTokenRedefinicaoSenha(usuario.Email!);
+            var link = Url.Action("RedefinirSenha", "Autenticacao", new { token, usuario.Email }, Request.Scheme)!;
+            var corpo =
+                $@"<div>
+                    Link para redefinir senha: <a href='{link}'>{link}</a>
+                </div>";
 
-        await _usuarioService.SolicitarRedefinicaoSenha(usuario!.Email!, corpo);
-        ModelState.AddModelError(string.Empty, "Foi enviado um e-mail de confirmação caso a conta com esse login exista.");
-        return View();
+            await _usuarioService.SolicitarRedefinicaoSenha(usuario.Email!, corpo);
+        }
+
+        TempData["Confirmacao"] = "Se existir uma conta com esse login, enviamos um e-mail com o link de redefinição.";
+        return RedirectToAction(nameof(EsqueceuSenha));
     }
 
     [HttpGet]

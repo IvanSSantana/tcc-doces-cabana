@@ -21,19 +21,12 @@
             <button type="submit" class="botao-acao">Solicitar redefinição</button>
         </div>
 
-            @if (!ViewData.ModelState.IsValid)
-            {
-                var modelErrors = ViewData.ModelState[string.Empty]?.Errors;
-                if (modelErrors != null && modelErrors.Any())
-                {
-                    <div class="resumo-sucesso">
-                        @foreach (var erro in modelErrors)
-                        {
-                            <span class="mensagem-sucesso exibicao-bloco">@erro.ErrorMessage</span>
-                        }
-                    </div>
-                }
-            }
+        @if (TempData["Confirmacao"] is string confirmacao)
+        {
+            <div class="resumo-sucesso">
+                <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
+            </div>
+        }
     </form>
 </main>
 

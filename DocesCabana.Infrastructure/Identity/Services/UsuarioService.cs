@@ -62,15 +62,20 @@ public class UsuarioService : IUsuarioService
 
     public async Task<UsuarioDTO?> BuscarPorLogin(string login)
     {
-        var usuario = await _userManager.FindByEmailAsync(login);
-        
-        if (usuario is null)
-        {
-            login = new string(login.Where(char.IsDigit).ToArray());
-            usuario = await _userManager.Users.FirstOrDefaultAsync(u => u.CPF == login);
-        }
-            
+        var usuario = await ResolverUsuario(login);
+
         return usuario is null ? null : UsuarioMapper.ToDTO(usuario);
+    }
+
+    private async Task<Usuario?> ResolverUsuario(string login)
+    {
+        var usuario = await _userManager.FindByEmailAsync(login);
+
+        if (usuario is not null)
+            return usuario;
+
+        var cpf = new string(login.Where(char.IsDigit).ToArray());
+        return await _userManager.Users.FirstOrDefaultAsync(u => u.CPF == cpf);
     }
     
     public async Task<UsuarioDTO> AlterarDadosUsuario(UsuarioDTO usuarioDto)
@@ -92,15 +97,11 @@ public class UsuarioService : IUsuarioService
 
     public async Task<SignInResult> RealizarLogin(string login, string senha, bool lembrarMe)
     {
-        var usuario = await BuscarPorLogin(login);
+        var usuario = await ResolverUsuario(login);
         if (usuario is null)
             return SignInResult.Failed;
 
-        var entity = await _userManager.FindByEmailAsync(login);
-        if (entity is null)
-            return SignInResult.Failed;
-
-        var resultado = await _signInManager.PasswordSignInAsync(entity.Email!, senha, lembrarMe, lockoutOnFailure: false);
+        var resultado = await _signInManager.PasswordSignInAsync(usuario.Email!, senha, lembrarMe, lockoutOnFailure: true);
         return resultado;
     }
 
