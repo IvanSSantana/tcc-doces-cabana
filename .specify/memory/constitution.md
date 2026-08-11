@@ -1,6 +1,6 @@
 # Constituição — Doces Cabana
 
-**Versão:** 1.0.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-08-07
+**Versão:** 1.1.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-08-11
 
 Este documento define os princípios inegociáveis do projeto. Toda `spec`, `plan` e
 `tasks` é validada contra ele antes de virar código. Quando uma decisão técnica
@@ -88,6 +88,11 @@ Mantêm-se em inglês apenas os termos impostos pelo framework (`Controller`,
 `IActionResult`, `Task`, `Repository`, `DTO`, `Id`) e o vocabulário do ASP.NET
 Identity herdado (`UserName`, `PhoneNumber`, `Email`).
 
+O nome do arquivo coincide com o nome do tipo que ele declara, e a pasta em que
+o arquivo vive coincide com o namespace declarado. `TransactionEf.cs` que
+declara `TransactionEF`, ou uma classe `EsqueceuSenhaDTOValidator` num arquivo
+`EsqueceuSenhaValidator.cs`, são o defeito que esta regra existe para evitar.
+
 A cultura da aplicação é fixada em `pt-BR` no
 [`Program.cs`](../../DocesCabana.MVC/Program.cs) — decimais usam vírgula, datas usam
 `dd/MM/yyyy`. Toda feature que formata número ou data respeita isso.
@@ -128,9 +133,12 @@ quando a feature toca persistência.
 - Acesso a dados só através de `IRepository<T>` / `I*Repository`. Nenhum
   `DbContext` fora de `Infrastructure`.
 - O `Repository<T>` **não persiste**: `Adicionar`, `Atualizar` e `Remover` apenas
-  registram a mudança no `ChangeTracker`. A gravação acontece via `IUnitOfWork`,
-  chamado pela camada de aplicação, que é quem conhece o limite da transação.
-  Um caso de uso que escreve e não chama o `IUnitOfWork` **não salvou nada**.
+  registram a mudança no `ChangeTracker`. A gravação acontece via
+  `IUnitOfWork.SalvarAlteracoes`, chamado pela camada de aplicação, que é quem
+  decide quando o lote de mudanças está pronto para ir ao banco. Um caso de uso
+  que escreve e não chama o `IUnitOfWork` **não salvou nada**. Não existe
+  transação explícita separada: `SalvarAlteracoes` já é atômico por si — um
+  lote com uma alteração inválida não persiste nenhuma das outras.
 - Mudança de esquema exige migration EF Core versionada em
   `Infrastructure/Migrations`, com nome descritivo em inglês (padrão da ferramenta:
   `InitialCreate`, `SanitizingDatabase`).
@@ -190,3 +198,4 @@ justificativa escrita na `spec`:
 | Versão | Data | Alteração |
 |---|---|---|
 | 1.0.0 | 2026-08-07 | Ratificação inicial, extraída da arquitetura e das convenções já presentes no código. |
+| 1.1.0 | 2026-08-11 | Feature `002-revisao-tecnica`. Princípio IV ganha a regra de que nome de arquivo, nome de tipo e pasta/namespace coincidem (RQ-03). Princípio VI perde a menção a transação explícita: `IUnitOfWork` fica só com `SalvarAlteracoes` — a abstração de transação manual foi removida por não ter consumidor e por duplicar a atomicidade que `SaveChangesAsync` já garante (RQ-02). |

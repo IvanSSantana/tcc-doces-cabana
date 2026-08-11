@@ -1,7 +1,7 @@
 # Especificação — Revisão técnica da base
 
 **ID:** `002-revisao-tecnica` · **Branch:** `002-revisao-tecnica`
-**Criada em:** 2026-08-11 · **Status:** Rascunho
+**Criada em:** 2026-08-11 · **Status:** Implementada
 
 ---
 

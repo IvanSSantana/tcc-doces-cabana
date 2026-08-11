@@ -62,10 +62,15 @@ absoluta `http`/`https`; produto sempre pertence a uma subcategoria.
 
 ### 4.3 Infraestrutura — **pronto**
 
-- Persistência em SQL Server via EF Core, com três migrations aplicadas.
-- Contas gerenciadas pelo ASP.NET Identity com chave `Guid`.
+- Persistência em SQLite via EF Core, com migrations aplicadas. SQL Server é o
+  banco alvo do deploy — a troca não aconteceu ainda; a spec `002-revisao-tecnica`
+  removeu a única configuração de coluna presa ao dialeto SQLite, então trocar o
+  provider passa a custar uma linha mais a regeração das migrations.
+- Contas gerenciadas pelo ASP.NET Identity com chave `Guid`. Bloqueio temporário
+  após tentativas de senha malsucedidas está ativo (5 tentativas, 15 minutos).
 - Envio de e-mail por SMTP.
-- Massa inicial de dados criada na subida da aplicação (`DbInitializer`).
+- Massa inicial de dados criada na subida da aplicação (`DbInitializer`), só
+  fora de produção.
 - Cultura fixada em `pt-BR`.
 - Erros não tratados capturados por filtro global.
 
@@ -99,15 +104,15 @@ campos ainda — são ganchos, não funcionalidade.
 Registradas aqui para não serem confundidas com comportamento intencional. Cada
 uma vira tarefa em alguma spec futura.
 
-| # | Dívida | Princípio ferido |
-|---|---|---|
-| D-01 | Nenhuma escrita chama `IUnitOfWork`; o `Repository<T>` só registra no `ChangeTracker`, então cadastros não são persistidos | VI |
-| D-02 | `AdminController` não exige autorização — a área administrativa está aberta a qualquer visitante | VII |
-| D-03 | `AdminController.Cadastro` (POST) não aguarda o serviço, não valida `ModelState` e não tem `[ValidateAntiForgeryToken]` | VII |
-| D-04 | O formulário de cadastro de produto posta para `asp-action="Cadastrar"`, ação que não existe no controller | — |
-| D-05 | O campo Promoção do formulário é preenchido com `PromocaoTipo` (um enum) onde se espera o identificador de uma promoção | — |
-| D-06 | Não há `ProdutoDTOValidator`; o produto só é validado pelo domínio, então o erro chega ao usuário como exceção | III |
-| D-07 | `Endereco` está no `.dbml` mas não existe como entidade | — |
+| # | Dívida | Princípio ferido | Status |
+|---|---|---|---|
+| D-01 | Nenhuma escrita chama `IUnitOfWork`; o `Repository<T>` só registra no `ChangeTracker`, então cadastros não são persistidos | VI | Aberta — endereçada pela spec [`001-cadastro-produto-admin`](../001-cadastro-produto-admin/spec.md) |
+| D-02 | `AdminController` não exige autorização — a área administrativa está aberta a qualquer visitante | VII | Aberta — endereçada pela spec `001` |
+| D-03 | `AdminController.Cadastro` (POST) não aguarda o serviço, não valida `ModelState` e não tem `[ValidateAntiForgeryToken]` | VII | Aberta — endereçada pela spec `001` |
+| D-04 | O formulário de cadastro de produto posta para `asp-action="Cadastrar"`, ação que não existe no controller | — | Aberta — endereçada pela spec `001` |
+| D-05 | O campo Promoção do formulário é preenchido com `PromocaoTipo` (um enum) onde se espera o identificador de uma promoção | — | Aberta — endereçada pela spec `001` |
+| D-06 | Não há `ProdutoDTOValidator`; o produto só é validado pelo domínio, então o erro chega ao usuário como exceção | III | **Resolvida** pela spec [`002-revisao-tecnica`](../002-revisao-tecnica/spec.md) |
+| D-07 | `Endereco` está no `.dbml` mas não existe como entidade | — | Aberta — sem spec própria ainda no backlog |
 
 ---
 

@@ -11,7 +11,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 |---|---|---|---|
 | [000](./000-baseline/spec.md) | Baseline do sistema | Implementada (parcial) | spec |
 | [001](./001-cadastro-produto-admin/spec.md) | Cadastro de produto pelo administrador | Rascunho — 1 pendência aberta | spec · [plan](./001-cadastro-produto-admin/plan.md) · [tasks](./001-cadastro-produto-admin/tasks.md) |
-| [002](./002-revisao-tecnica/spec.md) | Revisão técnica da base | Rascunho | spec · [plan](./002-revisao-tecnica/plan.md) · [tasks](./002-revisao-tecnica/tasks.md) |
+| [002](./002-revisao-tecnica/spec.md) | Revisão técnica da base | Implementada | spec · [plan](./002-revisao-tecnica/plan.md) · [tasks](./002-revisao-tecnica/tasks.md) · [checklist](./002-revisao-tecnica/checklist.md) |
 
 > **Ordem de execução:** a `002` vem **antes** da `001`. A `001` grava produto
 > através da unidade de trabalho que a `002` simplifica, precisa da validação de
@@ -24,15 +24,15 @@ ainda não têm comportamento. Ordem sugerida por dependência:
 
 | Próximo ID | Feature | Depende de |
 |---|---|---|
-| 002 | Listagem, edição e exclusão de produto (admin) | 001 |
-| 003 | Navegação por categoria e subcategoria | 001 |
-| 004 | Controle de estoque | 001 |
-| 005 | Lista de favoritos | 000 |
-| 006 | Endereço do usuário | 000 |
-| 007 | Carrinho e fechamento de pedido | 004, 006 |
-| 008 | Pagamento | 007 |
-| 009 | Avaliação de produto | 007 |
-| 010 | Promoções | 001 |
+| 003 | Listagem, edição e exclusão de produto (admin) | 001 |
+| 004 | Navegação por categoria e subcategoria | 001 |
+| 005 | Controle de estoque | 001 |
+| 006 | Lista de favoritos | 000 |
+| 007 | Endereço do usuário | 000 |
+| 008 | Carrinho e fechamento de pedido | 005, 007 |
+| 009 | Pagamento | 008 |
+| 010 | Avaliação de produto | 008 |
+| 011 | Promoções | 001 |
 
 ## Como criar a próxima
 

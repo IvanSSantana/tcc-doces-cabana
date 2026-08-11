@@ -236,22 +236,22 @@ bloco muda comportamento — se um teste quebrar aqui, a renomeação está erra
 
 ## Fase 7 — Documentação e fechamento
 
-- [ ] **T043** — `.specify/memory/constitution.md`: versão **1.1.0**. Princípio IV
+- [x] **T043** — `.specify/memory/constitution.md`: versão **1.1.0**. Princípio IV
       ganha "o nome do arquivo coincide com o nome do tipo que ele declara, e a
       pasta coincide com o namespace". Princípio VI perde a menção a limite de
       transação. Linha no histórico de emendas com data 2026-08-11 e motivo.
-- [ ] **T044** `[P]` — `specs/000-baseline/spec.md`: §4.3 passa a dizer SQLite,
+- [x] **T044** `[P]` — `specs/000-baseline/spec.md`: §4.3 passa a dizer SQLite,
       com nota de que SQL Server é o alvo do deploy. §6 marca D-06 como resolvida
       pela `002` e D-01 a D-05 como endereçadas pela `001`; D-07 permanece aberta.
-- [ ] **T045** `[P]` — `specs/README.md`: renumerar o backlog sugerido de 002–010
+- [x] **T045** `[P]` — `specs/README.md`: renumerar o backlog sugerido de 002–010
       para 003–011. *(A linha da `002` no índice já foi acrescentada junto com a
       criação da spec.)*
-- [ ] **T046** — `dotnet test` inteiro verde. **Conferir: contagem maior que 99**
+- [x] **T046** — `dotnet test` inteiro verde. **Conferir: contagem maior que 99**
       (T029 removeu 2, as fases 2 e 3 acrescentam bem mais) e **zero testes fora
       do padrão `Dado_/Quando_/Entao_`** — verificar buscando `public.*Task\s+\w+_`
       que não comece por `Dado_`. **Prova CA-12.**
-- [ ] **T047** — `dotnet build` sem nenhum aviso `NU1903`. **Prova CA-13.**
-- [ ] **T048** — Fumaça manual, com a aplicação rodando: criar conta; **entrar com
+- [x] **T047** — `dotnet build` sem nenhum aviso `NU1903`. **Prova CA-13.**
+- [x] **T048** — Fumaça manual, com a aplicação rodando: criar conta; **entrar com
       CPF sem pontuação** (CA-01); sair e **entrar com CPF pontuado** (CA-02);
       sair e entrar com e-mail (CA-03); errar a senha cinco vezes e confirmar o
       bloqueio na sexta (CA-04); solicitar redefinição com login existente e com
@@ -259,7 +259,7 @@ bloco muda comportamento — se um teste quebrar aqui, a renomeação está erra
       confirmação** (CA-07, CA-08); enviar `abc` no campo de login e conferir o
       erro junto ao campo (CA-09); abrir a vitrine e conferir que os cards
       renderizam depois da renomeação de `ProdutoId`.
-- [ ] **T049** — Preencher `checklist.md`; mudar o status da spec para
+- [x] **T049** — Preencher `checklist.md`; mudar o status da spec para
       *Implementada*; atualizar a linha da `002` em `specs/README.md`.
 
 ---

@@ -27,6 +27,21 @@
                 <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
             </div>
         }
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            var errosGerais = ViewData.ModelState[string.Empty]?.Errors;
+
+            if (errosGerais != null && errosGerais.Any())
+            {
+                <div class="resumo-erros">
+                    @foreach (var erro in errosGerais)
+                    {
+                        <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+                    }
+                </div>
+            }
+        }
     </form>
 </main>
 
