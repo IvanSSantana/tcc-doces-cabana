@@ -11,6 +11,11 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 |---|---|---|---|
 | [000](./000-baseline/spec.md) | Baseline do sistema | Implementada (parcial) | spec |
 | [001](./001-cadastro-produto-admin/spec.md) | Cadastro de produto pelo administrador | Rascunho — 1 pendência aberta | spec · [plan](./001-cadastro-produto-admin/plan.md) · [tasks](./001-cadastro-produto-admin/tasks.md) |
+| [002](./002-revisao-tecnica/spec.md) | Revisão técnica da base | Rascunho | spec · [plan](./002-revisao-tecnica/plan.md) · [tasks](./002-revisao-tecnica/tasks.md) |
+
+> **Ordem de execução:** a `002` vem **antes** da `001`. A `001` grava produto
+> através da unidade de trabalho que a `002` simplifica, precisa da validação de
+> entrada que a `002` cria, e depende da correção de status que a `002` faz.
 
 ## Backlog sugerido
 
