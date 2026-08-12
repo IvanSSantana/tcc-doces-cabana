@@ -116,34 +116,34 @@ puro — é aqui que a RQ-02 aparece na prática.*
 
 ### Testes — devem falhar
 
-- [ ] **T024** `[P]` — `DocesCabana.Tests/Units/Entities/EnderecoTests.cs`:
+- [x] **T024** `[P]` — `DocesCabana.Tests/Units/Entities/EnderecoTests.cs`:
       `UsuarioId` vazio; CEP com 7 e com 9 dígitos; CEP pontuado válido; estado,
       cidade, bairro e rua vazios; número 0 e negativo; complemento nulo aceito.
       **Prova RN-12 a RN-14.**
-- [ ] **T025** `[P]` — `DocesCabana.Tests/Units/Entities/FavoritoTests.cs`:
+- [x] **T025** `[P]` — `DocesCabana.Tests/Units/Entities/FavoritoTests.cs`:
       `ProdutoId` vazio, `UsuarioId` vazio, caso válido. **Prova RN-15.**
-- [ ] **T026** `[P]` — `DocesCabana.Tests/Units/Entities/AvaliacaoTests.cs`:
+- [x] **T026** `[P]` — `DocesCabana.Tests/Units/Entities/AvaliacaoTests.cs`:
       identificadores vazios; nota 0, 6, 1 e 5; comentário nulo aceito e
       comentário com 256 caracteres recusado. **Prova RN-16 a RN-18, CA-08.**
-- [ ] **T027** — Rodar `dotnet test` e confirmar o vermelho.
+- [x] **T027** — Rodar `dotnet test` e confirmar o vermelho.
 
 ### Implementação
 
-- [ ] **T028** `[P]` — `DocesCabana.Domain/Entities/Endereco.cs`, usando
+- [x] **T028** `[P]` — `DocesCabana.Domain/Entities/Endereco.cs`, usando
       `CepHelper` da T003. `UsuarioId` é `Guid` puro, **sem navegação**.
-- [ ] **T029** `[P]` — `DocesCabana.Domain/Entities/Favorito.cs`: navegação
+- [x] **T029** `[P]` — `DocesCabana.Domain/Entities/Favorito.cs`: navegação
       `Produto? Produto`; `UsuarioId` sem navegação.
-- [ ] **T030** `[P]` — `DocesCabana.Domain/Entities/Avaliacao.cs`: idem.
-- [ ] **T031** `[P]` — `.../Configurations/EnderecoConfiguration.cs`, com FK para
+- [x] **T030** `[P]` — `DocesCabana.Domain/Entities/Avaliacao.cs`: idem.
+- [x] **T031** `[P]` — `.../Configurations/EnderecoConfiguration.cs`, com FK para
       a tabela de usuário declarada por `HasOne<Usuario>().WithMany()` —
       o relacionamento existe no banco sem existir na entidade.
-- [ ] **T032** `[P]` — `.../Configurations/FavoritoConfiguration.cs`: chave
+- [x] **T032** `[P]` — `.../Configurations/FavoritoConfiguration.cs`: chave
       primária composta `HasKey(f => new { f.ProdutoId, f.UsuarioId })`, que é o
       que impede o par duplicado da RN-15.
-- [ ] **T033** `[P]` — `.../Configurations/AvaliacaoConfiguration.cs`.
-- [ ] **T034** — `DocesCabanaDbContext.cs`: `DbSet<Endereco>`, `DbSet<Favorito>`,
+- [x] **T033** `[P]` — `.../Configurations/AvaliacaoConfiguration.cs`.
+- [x] **T034** — `DocesCabanaDbContext.cs`: `DbSet<Endereco>`, `DbSet<Favorito>`,
       `DbSet<Avaliacao>`.
-- [ ] **T035** — Rodar `dotnet test`: T024–T026 passam.
+- [x] **T035** — Rodar `dotnet test`: T024–T026 passam.
 
 ---
 
