@@ -1,5 +1,6 @@
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.DatabaseContext;
+using DocesCabana.Infrastructure.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,5 +46,25 @@ public abstract class InfraestruturaSqliteEmMemoria : IAsyncLifetime
         await Contexto.SaveChangesAsync();
 
         return subcategoria.SubcategoriaId;
+    }
+
+    /// <summary>
+    /// Persiste um usuário válido e devolve o Id, para testes que precisam de
+    /// uma entidade com FK real para Usuario (Endereco, Favorito, Avaliacao,
+    /// Pedido).
+    /// </summary>
+    protected async Task<Guid> SemearUsuario()
+    {
+        var usuario = new Usuario(
+            "Cliente Teste",
+            $"{Guid.NewGuid():N}@teste.com",
+            "11987654321",
+            new DateTime(1990, 1, 1),
+            "52998224725");
+
+        Contexto.Users.Add(usuario);
+        await Contexto.SaveChangesAsync();
+
+        return usuario.Id;
     }
 }

@@ -187,31 +187,31 @@ escopo desta spec.*
 
 ## Fase 6 — Grupo E: persistência e massa inicial
 
-- [ ] **T046** — **Apagar o banco local** `DocesCabana.MVC/docescabana.db` (e os
+- [x] **T046** — **Apagar o banco local** `DocesCabana.MVC/docescabana.db` (e os
       arquivos `-shm`/`-wal`). Ele tem produtos com `SubcategoriaId` órfão, e a
       chave estrangeira nova **não aplica** sobre eles. O banco não é versionado
       e é descartável. Registrar o passo no `README.md`.
-- [ ] **T047** — Criar a migration:
+- [x] **T047** — Criar a migration:
       `dotnet ef migrations add AddRemainingDomainEntities --project
       DocesCabana.Infrastructure --startup-project DocesCabana.MVC`.
       Conferir no arquivo gerado que só há criação de tabela e chave estrangeira —
       **nenhuma alteração em `Produto`**. As navegações da T012 e da T022 assentam
       sobre colunas que já existem; se aparecer `AlterColumn` em `Produto`, parar
       e reavaliar.
-- [ ] **T048** — `DocesCabana.MVC/Helpers/DbInitializer.cs`: reescrever `Semear`
+- [x] **T048** — `DocesCabana.MVC/Helpers/DbInitializer.cs`: reescrever `Semear`
       na ordem categorias → subcategorias → produtos, com **identificadores
       fixos** (não `Guid.NewGuid()`), para que testes e E2E possam referenciar
       categoria conhecida. Três categorias — Salgados, Doces, Adega — com duas
       subcategorias cada, conforme o plano §5. Os seis produtos existentes passam
       a apontar para *Doces de Tacho*. **Implementa RF-02, CA-02.**
-- [ ] **T049** — `DocesCabana.Tests/Integration/Repositories/ModeloDeDadosIntegrationTests.cs`:
+- [x] **T049** — `DocesCabana.Tests/Integration/Repositories/ModeloDeDadosIntegrationTests.cs`:
       produto com subcategoria inexistente é recusado (**CA-03**); `Favorito`
       recusa o mesmo par duas vezes; `Estoque` recusa segundo registro para o
       mesmo produto; navegação vem `null` sem `Include` e preenchida com
       `Include`.
-- [ ] **T050** — Rodar `dotnet test`: verde, incluindo os testes de integração
+- [x] **T050** — Rodar `dotnet test`: verde, incluindo os testes de integração
       novos.
-- [ ] **T051** — Subir a aplicação, confirmar que o banco é recriado e semeado
+- [x] **T051** — Subir a aplicação, confirmar que o banco é recriado e semeado
       sem erro, e que a vitrine exibe os seis produtos com preço em formato
       brasileiro. **Prova CA-01.**
 
