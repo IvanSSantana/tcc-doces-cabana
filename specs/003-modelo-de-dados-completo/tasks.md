@@ -77,35 +77,35 @@ massa inicial, por isso vem primeiro.*
 
 ### Testes — devem falhar
 
-- [ ] **T014** `[P]` — `DocesCabana.Tests/Units/Entities/PromocaoTests.cs`: nome
+- [x] **T014** `[P]` — `DocesCabana.Tests/Units/Entities/PromocaoTests.cs`: nome
       vazio e nome longo demais; data de fim anterior à de início; tipo
       *Percentual* com valor 0, 101 e 100 (limite válido); tipo *ValorFixo* com
       valor 0 e negativo; `EstaVigente` dentro do período, fora do período, e com
       a promoção desativada. **Prova RN-06 a RN-10, CA-05, CA-06, CA-07.**
-- [ ] **T015** `[P]` — `DocesCabana.Tests/Units/Entities/EstoqueTests.cs`:
+- [x] **T015** `[P]` — `DocesCabana.Tests/Units/Entities/EstoqueTests.cs`:
       `ProdutoId` vazio; quantidade inicial negativa; `Adicionar` soma;
       `Retirar` dentro do saldo subtrai; `Retirar` além do saldo lança
       `InvalidOperationException` **e deixa a quantidade intacta**.
       **Prova RN-04, RN-05, CA-04.**
-- [ ] **T016** — Rodar `dotnet test` e confirmar o vermelho.
+- [x] **T016** — Rodar `dotnet test` e confirmar o vermelho.
 
 ### Implementação
 
-- [ ] **T017** `[P]` — `DocesCabana.Domain/Entities/Promocao.cs`: `Ativar`,
+- [x] **T017** `[P]` — `DocesCabana.Domain/Entities/Promocao.cs`: `Ativar`,
       `Desativar`, `AlterarPeriodo` e `EstaVigente(DateTime referencia)` — a data
       vem por parâmetro, nunca do relógio, para que a vigência seja testável.
-- [ ] **T018** `[P]` — `DocesCabana.Domain/Entities/Estoque.cs`: navegação
+- [x] **T018** `[P]` — `DocesCabana.Domain/Entities/Estoque.cs`: navegação
       anulável `Produto? Produto`; `Adicionar` e `Retirar`.
-- [ ] **T019** `[P]` — `.../Configurations/PromocaoConfiguration.cs`, com
+- [x] **T019** `[P]` — `.../Configurations/PromocaoConfiguration.cs`, com
       `Valor` em `HasColumnType("decimal(18,2)")` e `Tipo` **sem**
       `HasColumnType` (lição da `002`).
-- [ ] **T020** `[P]` — `.../Configurations/EstoqueConfiguration.cs`: 1:1 com
+- [x] **T020** `[P]` — `.../Configurations/EstoqueConfiguration.cs`: 1:1 com
       `Produto` por chave compartilhada —
       `HasOne(e => e.Produto).WithOne().HasForeignKey<Estoque>(e => e.ProdutoId)`.
-- [ ] **T021** — `DocesCabanaDbContext.cs`: `DbSet<Promocao>`, `DbSet<Estoque>`.
-- [ ] **T022** — `DocesCabana.Domain/Entities/Produto.cs`: navegação anulável
+- [x] **T021** — `DocesCabanaDbContext.cs`: `DbSet<Promocao>`, `DbSet<Estoque>`.
+- [x] **T022** — `DocesCabana.Domain/Entities/Produto.cs`: navegação anulável
       `Promocao? Promocao` sobre o `PromocaoId` que já existe.
-- [ ] **T023** — Rodar `dotnet test`: T014–T015 passam.
+- [x] **T023** — Rodar `dotnet test`: T014–T015 passam.
 
 ---
 

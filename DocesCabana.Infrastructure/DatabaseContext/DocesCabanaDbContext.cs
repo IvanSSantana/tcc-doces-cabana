@@ -19,6 +19,10 @@ public class DocesCabanaDbContext : IdentityDbContext<Usuario, IdentityRole<Guid
 
     public DbSet<Subcategoria> Subcategorias { get; set; }
 
+    public DbSet<Promocao> Promocoes { get; set; }
+
+    public DbSet<Estoque> Estoques { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

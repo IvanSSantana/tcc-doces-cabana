@@ -40,5 +40,10 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             .WithMany()
             .HasForeignKey(p => p.SubcategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.Promocao)
+            .WithMany()
+            .HasForeignKey(p => p.PromocaoId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
