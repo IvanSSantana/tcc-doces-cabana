@@ -26,7 +26,7 @@ public class DatabaseIntegrationTests : InfraestruturaSqliteEmMemoria
     {
         var repositorio = new Repository<Produto>(Contexto);
         var uow = new UnitOfWork(Contexto);
-        var subcategoriaId = Guid.NewGuid();
+        var subcategoriaId = await SemearSubcategoria();
         var produto = new Produto(subcategoriaId, "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg");
 
         await repositorio.Adicionar(produto);
@@ -42,7 +42,8 @@ public class DatabaseIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_DuasAlteracoesUmaInvalidaParaOBanco_Quando_SalvarAlteracoes_Entao_NenhumaDevePersistir()
     {
         var uow = new UnitOfWork(Contexto);
-        var produtoValido = new Produto(Guid.NewGuid(), "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg");
+        var subcategoriaId = await SemearSubcategoria();
+        var produtoValido = new Produto(subcategoriaId, "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg");
 
         // Dois usuários com o mesmo CPF violam o índice único da tabela — o
         // SalvarAlteracoes falha, e nenhuma das duas alterações deve persistir,

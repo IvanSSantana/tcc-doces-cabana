@@ -33,7 +33,12 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             
         builder.Property(p => p.SubcategoriaId)
             .IsRequired();
-            
+
         builder.Property(p => p.PromocaoId);
+
+        builder.HasOne(p => p.Subcategoria)
+            .WithMany()
+            .HasForeignKey(p => p.SubcategoriaId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

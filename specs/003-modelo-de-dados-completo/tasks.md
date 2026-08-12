@@ -27,12 +27,12 @@ para o pai. Referência a `Usuario` é `Guid` puro, sem navegação. Nenhuma col
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Criar branch `003-modelo-de-dados-completo` a partir de `main`,
+- [x] **T001** — Criar branch `003-modelo-de-dados-completo` a partir de `main`,
       com a `002` já integrada.
-- [ ] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado inicial
+- [x] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado inicial
       aqui: **152 testes, 0 falhas, 0 avisos**. É a linha de base contra a qual a
       T056 compara.
-- [ ] **T003** — `DocesCabana.Domain/Helpers/CepHelper.cs` e
+- [x] **T003** — `DocesCabana.Domain/Helpers/CepHelper.cs` e
       `DocesCabana.Tests/Units/Helpers/CepHelperTests.cs`: `ApenasDigitos` e
       `FormatoValido` (exatamente 8 dígitos), espelhando `CpfHelper`. Teste
       primeiro. **Implementa RN-13.**
@@ -46,30 +46,30 @@ massa inicial, por isso vem primeiro.*
 
 ### Testes — devem falhar
 
-- [ ] **T004** `[P]` — `DocesCabana.Tests/Units/Entities/CategoriaTests.cs`:
+- [x] **T004** `[P]` — `DocesCabana.Tests/Units/Entities/CategoriaTests.cs`:
       nome vazio, nome com 2 caracteres, nome com 101 caracteres, caso válido.
       **Prova RN-01.**
-- [ ] **T005** `[P]` — `DocesCabana.Tests/Units/Entities/SubcategoriaTests.cs`:
+- [x] **T005** `[P]` — `DocesCabana.Tests/Units/Entities/SubcategoriaTests.cs`:
       `CategoriaId` vazio, nome inválido nas mesmas faixas, caso válido.
       **Prova RN-02.**
-- [ ] **T006** — Rodar `dotnet test` e confirmar que T004–T005 falham por
+- [x] **T006** — Rodar `dotnet test` e confirmar que T004–T005 falham por
       ausência do tipo, não por outro motivo.
 
 ### Implementação
 
-- [ ] **T007** `[P]` — `DocesCabana.Domain/Entities/Categoria.cs`: `private set`,
+- [x] **T007** `[P]` — `DocesCabana.Domain/Entities/Categoria.cs`: `private set`,
       construtor validante, `protected Ctor()`, `AlterarNome`.
-- [ ] **T008** — `DocesCabana.Domain/Entities/Subcategoria.cs`: idem, mais a
+- [x] **T008** — `DocesCabana.Domain/Entities/Subcategoria.cs`: idem, mais a
       navegação anulável `Categoria? Categoria` sobre `CategoriaId`.
-- [ ] **T009** `[P]` — `DocesCabana.Infrastructure/DatabaseContext/Configurations/CategoriaConfiguration.cs`.
-- [ ] **T010** `[P]` — `.../Configurations/SubcategoriaConfiguration.cs`, com a
+- [x] **T009** `[P]` — `DocesCabana.Infrastructure/DatabaseContext/Configurations/CategoriaConfiguration.cs`.
+- [x] **T010** `[P]` — `.../Configurations/SubcategoriaConfiguration.cs`, com a
       chave estrangeira para `Categoria` e `DeleteBehavior.Restrict`.
-- [ ] **T011** — `DocesCabana.Infrastructure/DatabaseContext/DocesCabanaDbContext.cs`:
+- [x] **T011** — `DocesCabana.Infrastructure/DatabaseContext/DocesCabanaDbContext.cs`:
       `DbSet<Categoria>` e `DbSet<Subcategoria>`.
-- [ ] **T012** — `DocesCabana.Domain/Entities/Produto.cs`: navegação anulável
+- [x] **T012** — `DocesCabana.Domain/Entities/Produto.cs`: navegação anulável
       `Subcategoria? Subcategoria` sobre o `SubcategoriaId` que já existe.
       Nenhuma coluna nova. **RQ-10.**
-- [ ] **T013** — Rodar `dotnet test`: T004–T005 passam.
+- [x] **T013** — Rodar `dotnet test`: T004–T005 passam.
 
 ---
 

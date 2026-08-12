@@ -12,7 +12,7 @@ public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     {
         var unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new ProdutoRepository(Contexto);
-        var produto = CriarProduto();
+        var produto = await CriarProduto();
 
         await repositorio.Adicionar(produto);
         await unidadeDeTrabalho.SalvarAlteracoes();
@@ -28,9 +28,10 @@ public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     {
         var unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new ProdutoRepository(Contexto);
+        var subcategoriaId = await SemearSubcategoria();
 
-        await repositorio.Adicionar(CriarProduto());
-        await repositorio.Adicionar(CriarProduto());
+        await repositorio.Adicionar(CriarProduto(subcategoriaId));
+        await repositorio.Adicionar(CriarProduto(subcategoriaId));
         await unidadeDeTrabalho.SalvarAlteracoes();
 
         var produtos = (await repositorio.BuscarTodos()).ToList();
@@ -43,7 +44,7 @@ public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     {
         IUnitOfWork unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new ProdutoRepository(Contexto);
-        var produto = CriarProduto();
+        var produto = await CriarProduto();
 
         await repositorio.Adicionar(produto);
         await unidadeDeTrabalho.SalvarAlteracoes();
@@ -56,6 +57,12 @@ public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
         Assert.Null(encontrado);
     }
 
-    private static Produto CriarProduto() =>
-        new(Guid.NewGuid(), "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg");
+    private async Task<Produto> CriarProduto()
+    {
+        var subcategoriaId = await SemearSubcategoria();
+        return CriarProduto(subcategoriaId);
+    }
+
+    private static Produto CriarProduto(Guid subcategoriaId) =>
+        new(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg");
 }

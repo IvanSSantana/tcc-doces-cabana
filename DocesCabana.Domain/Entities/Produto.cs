@@ -18,6 +18,10 @@ public class Produto
 
     public string ImagemUrl { get; private set; } = default!;
 
+    // Navegação filho -> pai, anulável (vem null sem Include). Ambas as
+    // pontas vivem no domínio, então é navegação normal (RQ-10 da spec 003).
+    public Subcategoria? Subcategoria { get; private set; }
+
     protected Produto() { }
 
     public Produto(
