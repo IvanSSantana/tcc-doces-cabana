@@ -2,72 +2,95 @@
 
 **Spec:** [`spec.md`](./spec.md) · **Plano:** [`plan.md`](./plan.md)
 
-> ⚠️ Parcialmente bloqueado: a spec tem uma pendência aberta sobre como um
-> usuário vira administrador (seção 10). Só a **T030** depende dessa resposta —
-> todas as demais tarefas podem começar.
+> Reescrita em 2026-08-12: a versão original previa criar `Categoria`/`Subcategoria`
+> aqui — já existem, criadas pela `003-modelo-de-dados-completo`. A pendência de
+> papéis que bloqueava a T030 original está resolvida (mínimo viável inline,
+> tela completa fica para a `005`). Sem tarefas bloqueadas nesta versão.
 
 ---
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Criar branch `001-cadastro-produto-admin` a partir de `main`.
-- [ ] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado inicial verde.
-- [ ] **T003** — Inspecionar `DocesCabana.Infrastructure/DependencyInjections/IdentityDependencyInjection.cs` e confirmar se papéis (`AddRoles`) já estão habilitados. Registra o risco 2 do plano.
+- [ ] **T001** — Criar branch `001-cadastro-produto-admin` a partir de `main`
+      (com `003` já integrada).
+- [ ] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado
+      inicial verde: **227 testes, 0 falhas, 0 avisos**.
 
 ## Fase 2 — Testes (devem falhar)
 
-- [ ] **T004** `[P]` — `Tests/Units/Entities/SubcategoriaTests.cs`: nome vazio lança, nome com menos de 3 caracteres lança, `CategoriaId` vazio lança, caso válido constrói.
-- [ ] **T005** `[P]` — `Tests/Units/Validators/ProdutoDTOValidatorTests.cs`: um caso válido e um inválido para cada uma de RN-01 a RN-04 (CA-03, CA-04, CA-05).
-- [ ] **T006** `[P]` — `Tests/Units/Services/ProdutoServiceTests.cs`: adicionar `Dado_ProdutoValido_Quando_Cadastrar_Entao_DeveChamarAdicionarECommit` e `..._Entao_DeveRetornarDtoComIdPreenchido`.
-- [ ] **T007** — Rodar `dotnet test` e confirmar que T004–T006 falham pelo motivo esperado.
+- [ ] **T003** `[P]` — `Tests/Units/Services/SubcategoriaServiceTests.cs`:
+      `BuscarTodasSubcategorias` mapeia a lista do repositório para
+      `SubcategoriaDTO`.
+- [ ] **T004** `[P]` — `Tests/Units/Services/ProdutoServiceTests.cs`: acrescentar
+      `Dado_ProdutoValido_Quando_Cadastrar_Entao_DeveChamarSalvarAlteracoes` —
+      verifica que `IUnitOfWork.SalvarAlteracoes` é chamado após `Adicionar`.
+- [ ] **T005** `[P]` — `Tests/Units/Controllers/AdminControllerTests.cs`
+      (criar): GET carrega subcategorias; POST com `ModelState` inválido
+      devolve `ViewResult` e não chama `IProdutoService`; POST válido chama o
+      serviço e devolve `RedirectToActionResult` com `TempData` preenchido.
+- [ ] **T006** — Rodar `dotnet test` e confirmar que T003–T005 falham pelo
+      motivo esperado.
 
-## Fase 3 — Domínio
+## Fase 3 — Aplicação
 
-- [ ] **T008** `[P]` — `Domain/Entities/Categoria.cs`: `private set`, construtor validante, `protected Ctor()`.
-- [ ] **T009** `[P]` — `Domain/Entities/Subcategoria.cs`: mesmo padrão, com `ValidarCategoria` e `ValidarNome`.
-- [ ] **T010** — `dotnet test`: T004 passa.
+- [ ] **T007** `[P]` — `Application/DTOs/SubcategoriaDTO.cs`:
+      `SubcategoriaId`, `Nome`.
+- [ ] **T008** `[P]` — `Application/Contracts/Repositories/ISubcategoriaRepository.cs`.
+- [ ] **T009** `[P]` — `Application/Contracts/Services/ISubcategoriaService.cs`.
+- [ ] **T010** — `Application/Mappings/SubcategoriaMapper.cs`: `ToDTO`.
+- [ ] **T011** — `Application/Services/SubcategoriaService.cs`.
+- [ ] **T012** — `Application/Services/ProdutoService.cs`: `Cadastrar` passa a
+      chamar `_unitOfWork.SalvarAlteracoes()` após `Adicionar`. Injetar
+      `IUnitOfWork` no construtor. **Corrige D-01, causa raiz do RF-02.**
+- [ ] **T013** — Rodar `dotnet test`: T003–T004 passam.
 
-## Fase 4 — Aplicação
+## Fase 4 — Infraestrutura
 
-- [ ] **T011** `[P]` — `Application/DTOs/SubcategoriaDTO.cs` (`Id`, `Nome`).
-- [ ] **T012** `[P]` — `Application/Contracts/Repositories/ISubcategoriaRepository.cs`.
-- [ ] **T013** `[P]` — `Application/Contracts/Services/ISubcategoriaService.cs`.
-- [ ] **T014** `[P]` — `Application/Mappings/SubcategoriaMapper.cs`.
-- [ ] **T015** — `Application/Validators/ProdutoDTOValidator.cs`. Mensagens idênticas às do domínio (`Produto.cs`), para que o usuário veja o mesmo texto por qualquer caminho.
-- [ ] **T016** — `Application/Services/SubcategoriaService.cs`.
-- [ ] **T017** — `Application/Services/ProdutoService.cs`: injetar `IUnitOfWork`; em `Cadastrar`, chamar `Commit` após `Adicionar` e retornar `ProdutoMapper.ToDTO(produto)`. **Corrige a dívida D-01 e é a causa raiz do RF-02.**
-- [ ] **T018** — `dotnet test`: T005 e T006 passam.
+- [ ] **T014** — `Infrastructure/Repositories/SubcategoriaRepository.cs`:
+      `Repository<Subcategoria>`, análogo a `ProdutoRepository`.
+- [ ] **T015** — `Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`:
+      registrar `ISubcategoriaRepository` e `ISubcategoriaService`.
+- [ ] **T016** — `MVC/Helpers/DbInitializer.cs`: semear o papel
+      `Administrador` (via `RoleManager<IdentityRole<Guid>>`) e um usuário
+      administrador, condicionado a `!IsProduction()`. Senha do
+      `dotnet user-secrets` (`Admin:SenhaInicial`), nunca literal.
 
-## Fase 5 — Infraestrutura
+## Fase 5 — Apresentação
 
-- [ ] **T019** `[P]` — `Infrastructure/DatabaseContext/Configurations/CategoriaConfiguration.cs`.
-- [ ] **T020** `[P]` — `Infrastructure/DatabaseContext/Configurations/SubcategoriaConfiguration.cs`: FK para `Categoria` com `DeleteBehavior.Restrict`.
-- [ ] **T021** — `Infrastructure/DatabaseContext/DocesCabanaDbContext.cs`: `DbSet<Categoria>`, `DbSet<Subcategoria>`, e FK de `Produto.SubcategoriaId`.
-- [ ] **T022** — `Infrastructure/Repositories/SubcategoriaRepository.cs`.
-- [ ] **T023** — `Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`: registrar `ISubcategoriaRepository` e `ISubcategoriaService`.
-- [ ] **T024** — Migration `AddCategoriaSubcategoria`. Conferir o SQL gerado antes de aplicar.
-- [ ] **T025** — `Tests/Integration/Repositories/ProdutoRepositoryIntegrationTests.cs`: provar CA-02 — adicionar, commitar, reler e encontrar o produto.
+- [ ] **T017** — `MVC/Controllers/AdminController.cs`:
+      - Injetar `ISubcategoriaService`.
+      - GET `Cadastro`: carrega subcategorias, expõe via `ViewBag.Subcategorias`
+        (`SelectList`).
+      - POST vira `async Task<IActionResult>` com `[ValidateAntiForgeryToken]`.
+      - `if (!ModelState.IsValid) return View(dto);` antes de qualquer efeito.
+      - `await _produtoService.Cadastrar(dto)`. **Corrige D-03.**
+      - Sucesso: `TempData["Confirmacao"]` + `RedirectToAction(nameof(Cadastro))`.
+      - `[Authorize(Roles = "Administrador")]` na classe. **Corrige D-02.**
+- [ ] **T018** — `MVC/Views/Admin/Cadastro.cshtml`:
+      - `asp-action="Cadastro"` (corrige D-04).
+      - `<select asp-for="SubcategoriaId" asp-items="ViewBag.Subcategorias">`
+        (RF-07).
+      - Remover o campo Promoção e o `<select>` de `PromocaoTipo` (corrige D-05).
+      - Exibir `TempData["Confirmacao"]`.
+- [ ] **T019** `[P]` — `MVC/wwwroot/css/pages/cadastro_produto.css`: a view já
+      referencia este arquivo, que ainda não existe.
+- [ ] **T020** — Rodar `dotnet test`: T005 passa.
 
-## Fase 6 — Apresentação
+## Fase 6 — Fechamento
 
-- [ ] **T026** — `MVC/Helpers/DbInitializer.cs`: semear categorias e subcategorias **antes** dos produtos, e vincular os produtos da massa inicial a subcategorias reais (risco 1 do plano).
-- [ ] **T027** — `MVC/Controllers/AdminController.cs`:
-  - GET `Cadastro` carrega as subcategorias e devolve `SelectList` via `ViewBag`
-  - POST vira `async Task<IActionResult>` com `[ValidateAntiForgeryToken]`
-  - `if (!ModelState.IsValid) return View(dto);` antes de qualquer efeito
-  - `await _produtoService.Cadastrar(dto)` — **corrige a dívida D-03**
-  - Sucesso: `TempData` com mensagem e `RedirectToAction(nameof(Cadastro))`
-- [ ] **T028** — `MVC/Views/Admin/Cadastro.cshtml`: `asp-action="Cadastro"` (**corrige D-04**), `select` de subcategoria com `asp-items` (RF-07), remoção do campo Promoção (**corrige D-05**), exibição da mensagem de sucesso do `TempData`, inclusão de `_ValidationScriptsPartial`.
-- [ ] **T029** `[P]` — `MVC/wwwroot/css/pages/cadastro_produto.css`: o arquivo é referenciado pela view e ainda não existe.
-- [ ] **T030** — `[BLOQUEADA pela pendência da spec]` `AdminController` com `[Authorize(Roles = "Administrador")]` e semeadura do papel + usuário administrador no `DbInitializer`. **Corrige a dívida D-02.** Senha do administrador via *user secrets*, nunca literal.
-- [ ] **T031** — `Tests/Units/Controllers/AdminControllerTests.cs`: `ModelState` inválido devolve `ViewResult` e **não** chama o serviço; válido chama o serviço e devolve `RedirectToActionResult`.
-
-## Fase 7 — Fechamento
-
-- [ ] **T032** — `dotnet test` inteiro verde.
-- [ ] **T033** — Subir a aplicação e percorrer CA-01 a CA-07 manualmente.
-- [ ] **T034** — Preencher `checklist.md` a partir de `.specify/templates/checklist-template.md`.
-- [ ] **T035** — Atualizar a spec para *Implementada*, riscar as dívidas D-01 a D-06 em `specs/000-baseline/spec.md` e atualizar a linha da feature em `specs/README.md`.
+- [ ] **T021** — `dotnet test` inteiro verde, contagem maior que 227.
+- [ ] **T022** — Subir a aplicação e percorrer manualmente:
+      - CA-01: logar como admin, cadastrar produto válido, ver confirmação e
+        o produto na vitrine.
+      - CA-02: reiniciar a aplicação, confirmar que o produto persiste.
+      - CA-03, CA-04, CA-05: nome curto, preço zero, imagem inválida — erro no
+        campo certo.
+      - CA-06: acessar `/Admin/Cadastro` sem login — redireciona para Login.
+      - CA-07: logar como cliente comum — acesso negado.
+- [ ] **T023** — Preencher `checklist.md`.
+- [ ] **T024** — Atualizar a spec para *Implementada*; riscar D-01 a D-06 em
+      `specs/000-baseline/spec.md`; atualizar a linha da `001` em
+      `specs/README.md`.
 
 ---
 
@@ -75,25 +98,25 @@
 
 | Requisito | Tarefas |
 |---|---|
-| RF-01 | T028 |
-| RF-02 | T017, T024, T025 |
-| RF-03 | T027, T028 |
-| RF-04 | T015, T027, T028 |
-| RF-05 | T027, T031 |
-| RF-06 | T030 |
-| RF-07 | T011–T016, T022, T026, T028 |
-| RF-08 | T026, T033 |
-| RN-01 a RN-04 | T005, T015 (barreira de entrada) + `Produto.cs` já existente (invariante) |
-| RN-05 | já garantido pelo construtor de `Produto` |
-| RN-06 | cultura `pt-BR` já configurada; verificar em T033 |
+| RF-01 | T018 |
+| RF-02 | T012, T022 (CA-02) |
+| RF-03 | T017, T018 |
+| RF-04 | T017, T018 (validator já existe desde a `002`) |
+| RF-05 | T017, T005 |
+| RF-06 | T016, T017 |
+| RF-07 | T007–T011, T014, T018 |
+| RF-08 | T022 |
+| RN-01 a RN-04 | `ProdutoDTOValidator` (já existe, `002`) + `Produto.cs` (já existe) |
+| RN-05 | já garantido pelo construtor de `Produto` desde a `002` |
+| RN-06 | cultura `pt-BR` já configurada |
 
 ## Dívidas da baseline resolvidas aqui
 
 | Dívida | Tarefa |
 |---|---|
-| D-01 — escrita sem `IUnitOfWork` | T017 |
-| D-02 — área administrativa aberta | T030 |
-| D-03 — POST sem `await`, sem `ModelState`, sem antiforgery | T027 |
-| D-04 — `asp-action` apontando para ação inexistente | T028 |
-| D-05 — campo Promoção com enum errado | T028 |
-| D-06 — ausência de `ProdutoDTOValidator` | T015 |
+| D-01 — escrita sem `IUnitOfWork` | T012 |
+| D-02 — área administrativa aberta | T017 |
+| D-03 — POST sem `await`, sem `ModelState`, sem antiforgery | T017 |
+| D-04 — `asp-action` apontando para ação inexistente | T018 |
+| D-05 — campo Promoção com enum errado | T018 |
+| D-06 — ausência de `ProdutoDTOValidator` | já resolvida pela `002`, confirmada aqui |

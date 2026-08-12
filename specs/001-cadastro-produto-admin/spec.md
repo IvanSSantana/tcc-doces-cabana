@@ -1,11 +1,18 @@
 # Especificação — Cadastro de produto pelo administrador
 
 **ID:** `001-cadastro-produto-admin` · **Branch:** `001-cadastro-produto-admin`
-**Criada em:** 2026-08-07 · **Status:** Rascunho
+**Criada em:** 2026-08-07 · **Atualizada em:** 2026-08-12 · **Status:** Rascunho
 
 > Feature já iniciada no commit `7c4d541` ("Iniciando página de cadastrar produto
 > de Admin"). Esta spec formaliza retroativamente o que a tela deve fazer e
 > serve de exemplo executável do fluxo SDD.
+>
+> **Atualização de 2026-08-12:** a spec [`003-modelo-de-dados-completo`](../003-modelo-de-dados-completo/spec.md)
+> já criou `Categoria` e `Subcategoria` como entidade, configuração e migration
+> — esta feature só consome. A pendência de papéis (seção 10) foi resolvida:
+> haverá uma página dedicada de gestão de administradores, mas em spec própria
+> (`005`, ainda a especificar). Esta feature entrega o mínimo que o RF-06 exige
+> — o papel `Administrador` e um administrador semeado — sem a tela de gestão.
 
 ---
 
@@ -123,16 +130,23 @@ na vitrine imediatamente.
 
 ## 9. Dependências
 
-- **Depende de:** `000-baseline` (autenticação e entidade `Produto` existentes);
-  existência de subcategorias cadastradas na massa inicial para RF-07
-- **Bloqueia:** edição de produto, controle de estoque, promoções
+- **Depende de:** `000-baseline` (autenticação e entidade `Produto`
+  existentes); `003-modelo-de-dados-completo` (implementada — `Categoria` e
+  `Subcategoria` já existem como entidade, configuração e migration)
+- **Bloqueia:** edição de produto, controle de estoque, promoções; a página de
+  gestão de administradores da spec `005` reaproveita o papel `Administrador`
+  que esta feature cria
 
 ## 10. Pendências
 
 - [x] ~~`[NECESSITA ESCLARECIMENTO: o campo Promoção do formulário atual usa o enum PromocaoTipo, mas o produto guarda o identificador de uma promoção — o que o administrador deveria escolher?]`~~
       **Resolvido:** promoção não existe como cadastro ainda. O campo sai do
       formulário nesta entrega e volta na spec de promoções.
-- [ ] `[NECESSITA ESCLARECIMENTO: como um usuário se torna administrador? A massa inicial cria um administrador fixo, ou existirá uma tela de gestão de papéis?]`
+- [x] ~~`[NECESSITA ESCLARECIMENTO: como um usuário se torna administrador? A massa inicial cria um administrador fixo, ou existirá uma tela de gestão de papéis?]`~~
+      **Resolvido:** existirá uma página dedicada de gestão de administradores,
+      em spec própria (`005`, ainda a especificar). Esta feature entrega só o
+      necessário para o RF-06: o papel `Administrador` e um administrador
+      semeado via *user secret*, sem tela de gestão.
 
 ---
 
@@ -144,5 +158,5 @@ na vitrine imediatamente.
 - [x] Os caminhos de erro estão especificados
 - [x] Mensagens visíveis ao usuário estão em português, no texto final
 - [x] A seção "Fora de escopo" foi preenchida
-- [ ] Não restam marcações `[NECESSITA ESCLARECIMENTO]` — **1 pendente, bloqueia aprovação**
+- [x] Não restam marcações `[NECESSITA ESCLARECIMENTO]`
 - [x] Nada conflita com a constituição
