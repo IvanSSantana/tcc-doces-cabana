@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\DocesCabana.Infrastructure\DocesCabana.Infrastructure.csproj" />
@@ -20,6 +20,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>e74b4b05-e744-442a-b487-d5e751586900</UserSecretsId>
   </PropertyGroup>
 
 </Project>

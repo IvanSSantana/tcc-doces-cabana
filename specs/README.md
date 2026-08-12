@@ -10,21 +10,20 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | ID | Feature | Status | Artefatos |
 |---|---|---|---|
 | [000](./000-baseline/spec.md) | Baseline do sistema | Implementada (parcial) | spec |
-| [001](./001-cadastro-produto-admin/spec.md) | Cadastro de produto pelo administrador | Rascunho — 1 pendência aberta | spec · [plan](./001-cadastro-produto-admin/plan.md) · [tasks](./001-cadastro-produto-admin/tasks.md) |
+| [001](./001-cadastro-produto-admin/spec.md) | Cadastro de produto pelo administrador | Implementada | spec · [plan](./001-cadastro-produto-admin/plan.md) · [tasks](./001-cadastro-produto-admin/tasks.md) · [checklist](./001-cadastro-produto-admin/checklist.md) |
 | [002](./002-revisao-tecnica/spec.md) | Revisão técnica da base | Implementada | spec · [plan](./002-revisao-tecnica/plan.md) · [tasks](./002-revisao-tecnica/tasks.md) · [checklist](./002-revisao-tecnica/checklist.md) |
-| [003](./003-modelo-de-dados-completo/spec.md) | Modelo de dados completo | Implementada | spec · [plan](./003-modelo-de-dados-completo/plan.md) · [tasks](./003-modelo-de-dados-completo/tasks.md) |
+| [003](./003-modelo-de-dados-completo/spec.md) | Modelo de dados completo | Implementada | spec · [plan](./003-modelo-de-dados-completo/plan.md) · [tasks](./003-modelo-de-dados-completo/tasks.md) · [checklist](./003-modelo-de-dados-completo/checklist.md) |
 | 004 | Separar pessoa de credencial | A especificar | — |
 | 005 | Papéis e cadastro de administrador | A especificar | — |
 | 006 | Testes ponta a ponta em Playwright | A especificar | — |
 
-> **Ordem de execução:** `002` → `003` → `004` → `005` → `001` → `006`.
->
-> A `002` (feita) preparou a base. A `003` cria as dez tabelas que faltam — sem
-> elas a `001` não tem subcategoria para oferecer numa lista nem promoção de
-> verdade para vincular. A `004` separa o dado de negócio do usuário da
-> credencial do Identity, removendo a exceção à direção de dependência que a
-> constituição hoje tolera. A `005` resolve a pendência de autorização da `001`.
-> Só então a `001` fecha, e a `006` valida tudo pela interface.
+> **Ordem executada:** `002` → `003` → `001`. A `001` originalmente esperava a
+> `004`/`005` para resolver papéis, mas a pendência foi resolvida com o mínimo
+> viável embutido na própria `001` (papel `Administrador` + admin semeado) —
+> ver a nota de atualização na spec `001`. A `004` (separar pessoa de
+> credencial) e a `005` (tela de gestão de administradores) continuam no
+> backlog, agora sem bloquear nada além de si mesmas. A `006` (E2E) fica para
+> depois delas.
 
 ## Backlog
 

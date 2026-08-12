@@ -28,6 +28,7 @@ public static class IdentityDependencyInjection
         {
             options.LoginPath = "/Autenticacao/Login";
             options.LogoutPath = "/Autenticacao/Logout";
+            options.AccessDeniedPath = "/Home/AcessoNegado";
         });
 
         return services;

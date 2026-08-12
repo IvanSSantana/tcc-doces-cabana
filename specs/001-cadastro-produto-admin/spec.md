@@ -1,7 +1,7 @@
 # Especificação — Cadastro de produto pelo administrador
 
 **ID:** `001-cadastro-produto-admin` · **Branch:** `001-cadastro-produto-admin`
-**Criada em:** 2026-08-07 · **Atualizada em:** 2026-08-12 · **Status:** Rascunho
+**Criada em:** 2026-08-07 · **Atualizada em:** 2026-08-12 · **Status:** Implementada
 
 > Feature já iniciada no commit `7c4d541` ("Iniciando página de cadastrar produto
 > de Admin"). Esta spec formaliza retroativamente o que a tela deve fazer e

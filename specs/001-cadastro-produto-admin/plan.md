@@ -1,7 +1,7 @@
 # Plano Técnico — Cadastro de produto pelo administrador
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-07
-**Atualizado em:** 2026-08-12 · **Status:** Rascunho
+**Atualizado em:** 2026-08-12 · **Status:** Executado
 
 > **Nota de atualização.** Este plano foi reescrito depois que a spec
 > `003-modelo-de-dados-completo` foi implementada. A versão original desta

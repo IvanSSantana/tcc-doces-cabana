@@ -25,6 +25,11 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult AcessoNegado()
+    {
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

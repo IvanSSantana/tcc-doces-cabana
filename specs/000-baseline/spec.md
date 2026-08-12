@@ -112,11 +112,11 @@ uma vira tarefa em alguma spec futura.
 
 | # | Dívida | Princípio ferido | Status |
 |---|---|---|---|
-| D-01 | Nenhuma escrita chama `IUnitOfWork`; o `Repository<T>` só registra no `ChangeTracker`, então cadastros não são persistidos | VI | Aberta — endereçada pela spec [`001-cadastro-produto-admin`](../001-cadastro-produto-admin/spec.md) |
-| D-02 | `AdminController` não exige autorização — a área administrativa está aberta a qualquer visitante | VII | Aberta — endereçada pela spec `001` |
-| D-03 | `AdminController.Cadastro` (POST) não aguarda o serviço, não valida `ModelState` e não tem `[ValidateAntiForgeryToken]` | VII | Aberta — endereçada pela spec `001` |
-| D-04 | O formulário de cadastro de produto posta para `asp-action="Cadastrar"`, ação que não existe no controller | — | Aberta — endereçada pela spec `001` |
-| D-05 | O campo Promoção do formulário é preenchido com `PromocaoTipo` (um enum) onde se espera o identificador de uma promoção | — | Aberta — endereçada pela spec `001` |
+| D-01 | Nenhuma escrita chama `IUnitOfWork`; o `Repository<T>` só registra no `ChangeTracker`, então cadastros não são persistidos | VI | **Resolvida** pela spec [`001-cadastro-produto-admin`](../001-cadastro-produto-admin/spec.md) |
+| D-02 | `AdminController` não exige autorização — a área administrativa está aberta a qualquer visitante | VII | **Resolvida** pela spec `001` |
+| D-03 | `AdminController.Cadastro` (POST) não aguarda o serviço, não valida `ModelState` e não tem `[ValidateAntiForgeryToken]` | VII | **Resolvida** pela spec `001` |
+| D-04 | O formulário de cadastro de produto posta para `asp-action="Cadastrar"`, ação que não existe no controller | — | **Resolvida** pela spec `001` |
+| D-05 | O campo Promoção do formulário é preenchido com `PromocaoTipo` (um enum) onde se espera o identificador de uma promoção | — | **Resolvida** pela spec `001` (campo removido do formulário) |
 | D-06 | Não há `ProdutoDTOValidator`; o produto só é validado pelo domínio, então o erro chega ao usuário como exceção | III | **Resolvida** pela spec [`002-revisao-tecnica`](../002-revisao-tecnica/spec.md) |
 | D-07 | `Endereco` está no `.dbml` mas não existe como entidade | — | **Resolvida** pela spec [`003-modelo-de-dados-completo`](../003-modelo-de-dados-completo/spec.md) |
 

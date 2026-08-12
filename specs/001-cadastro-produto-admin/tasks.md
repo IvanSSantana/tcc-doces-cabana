@@ -79,7 +79,7 @@
 ## Fase 6 — Fechamento
 
 - [x] **T021** — `dotnet test` inteiro verde, contagem maior que 227.
-- [ ] **T022** — Subir a aplicação e percorrer manualmente:
+- [x] **T022** — Subir a aplicação e percorrer manualmente:
       - CA-01: logar como admin, cadastrar produto válido, ver confirmação e
         o produto na vitrine.
       - CA-02: reiniciar a aplicação, confirmar que o produto persiste.
@@ -87,8 +87,8 @@
         campo certo.
       - CA-06: acessar `/Admin/Cadastro` sem login — redireciona para Login.
       - CA-07: logar como cliente comum — acesso negado.
-- [ ] **T023** — Preencher `checklist.md`.
-- [ ] **T024** — Atualizar a spec para *Implementada*; riscar D-01 a D-06 em
+- [x] **T023** — Preencher `checklist.md`.
+- [x] **T024** — Atualizar a spec para *Implementada*; riscar D-01 a D-06 em
       `specs/000-baseline/spec.md`; atualizar a linha da `001` em
       `specs/README.md`.
 
