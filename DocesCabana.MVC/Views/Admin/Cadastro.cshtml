@@ -9,18 +9,19 @@
 
 <link rel="stylesheet" href="~/css/pages/cadastro_produto.css" asp-append-version="true">
 
-<form asp-action="Cadastrar" method="post" class="formulario-autenticacao">
+<form asp-action="Cadastro" method="post" class="formulario-autenticacao">
+    @Html.AntiForgeryToken()
 
     <div class="campo-entrada">
         <label asp-for="Nome">Nome do Produto</label>
         <input asp-for="Nome" class="campo-texto" placeholder="Digite o nome do produto..." required />
-        
+
         <span asp-validation-for="Nome" class="mensagem-erro"></span>
     </div>
 
     <div class="campo-entrada">
         <label asp-for="Preco">Preço</label>
-        <input asp-for="Preco" type="number" min="0" class="campo-texto" placeholder="Digite o preço do produto..." required />
+        <input asp-for="Preco" type="number" min="0" step="0.01" class="campo-texto" placeholder="Digite o preço do produto..." required />
 
         <span asp-validation-for="Preco" class="mensagem-erro"></span>
     </div>
@@ -43,21 +44,19 @@
 
     <div class="campo-entrada">
         <label asp-for="SubcategoriaId">Subcategoria</label>
-
-        @* Irá ter um sugestor sob o input *@
-        <input asp-for="SubcategoriaId" class="campo-texto" placeholder="Digite a subcategoria do produto..." required />
+        <select asp-for="SubcategoriaId" asp-items="ViewBag.Subcategorias" class="campo-texto">
+            <option value="">Selecione...</option>
+        </select>
 
         <span asp-validation-for="SubcategoriaId" class="mensagem-erro"></span>
     </div>
 
-    <div class="campo-entrada">
-        <label asp-for="PromocaoId">Promoção</label>
-        <select asp-for="PromocaoId" asp-items="Html.GetEnumSelectList<PromocaoTipo>()" class="campo-texto">
-            <option value="">Selecione...</option>
-        </select>
-
-        <span asp-validation-for="PromocaoId" class="mensagem-erro"></span>
-    </div>
+    @if (TempData["Confirmacao"] is string confirmacao)
+    {
+        <div class="resumo-sucesso">
+            <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
+        </div>
+    }
 
     @if (!ViewData.ModelState.IsValid)
     {
@@ -79,3 +78,7 @@
     </div>
 
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

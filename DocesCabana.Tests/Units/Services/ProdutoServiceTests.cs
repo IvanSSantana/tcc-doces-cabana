@@ -1,6 +1,7 @@
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Services;
+using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Enums;
 using Moq;
@@ -10,12 +11,14 @@ namespace DocesCabana.Tests.Units.Services;
 public class ProdutoServiceTests
 {
     private readonly Mock<IProdutoRepository> _produtoRepositoryMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly ProdutoService _produtoService;
 
     public ProdutoServiceTests()
     {
         _produtoRepositoryMock = new Mock<IProdutoRepository>();
-        _produtoService = new ProdutoService(_produtoRepositoryMock.Object);
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _produtoService = new ProdutoService(_produtoRepositoryMock.Object, _unitOfWorkMock.Object);
     }
 
     [Fact]
@@ -80,6 +83,23 @@ public class ProdutoServiceTests
 
         _produtoRepositoryMock.Verify(r => r.Adicionar(It.IsAny<Produto>()), Times.Once);
         Assert.NotNull(resultado);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoValido_Quando_Cadastrar_Entao_DeveChamarSalvarAlteracoes()
+    {
+        var dto = new ProdutoDTO
+        {
+            Nome = "Brigadeiro Gourmet",
+            Preco = 5.50m,
+            Status = ProdutoStatus.Ativo,
+            ImagemUrl = "https://imagem.com/brigadeiro.jpg",
+            SubcategoriaId = Guid.NewGuid()
+        };
+
+        await _produtoService.Cadastrar(dto);
+
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
     }
 
     [Fact]

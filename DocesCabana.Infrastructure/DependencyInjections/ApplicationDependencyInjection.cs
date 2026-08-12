@@ -18,8 +18,10 @@ public static class ApplicationDependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
+        services.AddScoped<ISubcategoriaRepository, SubcategoriaRepository>();
         services.AddScoped<IUsuarioService, UsuarioService>();
         services.AddScoped<IProdutoService, ProdutoService>();
+        services.AddScoped<ISubcategoriaService, SubcategoriaService>();
         services.AddScoped<IEmailService, EmailService>();
 
         return services;

@@ -11,53 +11,53 @@
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Criar branch `001-cadastro-produto-admin` a partir de `main`
+- [x] **T001** — Criar branch `001-cadastro-produto-admin` a partir de `main`
       (com `003` já integrada).
-- [ ] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado
+- [x] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado
       inicial verde: **227 testes, 0 falhas, 0 avisos**.
 
 ## Fase 2 — Testes (devem falhar)
 
-- [ ] **T003** `[P]` — `Tests/Units/Services/SubcategoriaServiceTests.cs`:
+- [x] **T003** `[P]` — `Tests/Units/Services/SubcategoriaServiceTests.cs`:
       `BuscarTodasSubcategorias` mapeia a lista do repositório para
       `SubcategoriaDTO`.
-- [ ] **T004** `[P]` — `Tests/Units/Services/ProdutoServiceTests.cs`: acrescentar
+- [x] **T004** `[P]` — `Tests/Units/Services/ProdutoServiceTests.cs`: acrescentar
       `Dado_ProdutoValido_Quando_Cadastrar_Entao_DeveChamarSalvarAlteracoes` —
       verifica que `IUnitOfWork.SalvarAlteracoes` é chamado após `Adicionar`.
-- [ ] **T005** `[P]` — `Tests/Units/Controllers/AdminControllerTests.cs`
+- [x] **T005** `[P]` — `Tests/Units/Controllers/AdminControllerTests.cs`
       (criar): GET carrega subcategorias; POST com `ModelState` inválido
       devolve `ViewResult` e não chama `IProdutoService`; POST válido chama o
       serviço e devolve `RedirectToActionResult` com `TempData` preenchido.
-- [ ] **T006** — Rodar `dotnet test` e confirmar que T003–T005 falham pelo
+- [x] **T006** — Rodar `dotnet test` e confirmar que T003–T005 falham pelo
       motivo esperado.
 
 ## Fase 3 — Aplicação
 
-- [ ] **T007** `[P]` — `Application/DTOs/SubcategoriaDTO.cs`:
+- [x] **T007** `[P]` — `Application/DTOs/SubcategoriaDTO.cs`:
       `SubcategoriaId`, `Nome`.
-- [ ] **T008** `[P]` — `Application/Contracts/Repositories/ISubcategoriaRepository.cs`.
-- [ ] **T009** `[P]` — `Application/Contracts/Services/ISubcategoriaService.cs`.
-- [ ] **T010** — `Application/Mappings/SubcategoriaMapper.cs`: `ToDTO`.
-- [ ] **T011** — `Application/Services/SubcategoriaService.cs`.
-- [ ] **T012** — `Application/Services/ProdutoService.cs`: `Cadastrar` passa a
+- [x] **T008** `[P]` — `Application/Contracts/Repositories/ISubcategoriaRepository.cs`.
+- [x] **T009** `[P]` — `Application/Contracts/Services/ISubcategoriaService.cs`.
+- [x] **T010** — `Application/Mappings/SubcategoriaMapper.cs`: `ToDTO`.
+- [x] **T011** — `Application/Services/SubcategoriaService.cs`.
+- [x] **T012** — `Application/Services/ProdutoService.cs`: `Cadastrar` passa a
       chamar `_unitOfWork.SalvarAlteracoes()` após `Adicionar`. Injetar
       `IUnitOfWork` no construtor. **Corrige D-01, causa raiz do RF-02.**
-- [ ] **T013** — Rodar `dotnet test`: T003–T004 passam.
+- [x] **T013** — Rodar `dotnet test`: T003–T004 passam.
 
 ## Fase 4 — Infraestrutura
 
-- [ ] **T014** — `Infrastructure/Repositories/SubcategoriaRepository.cs`:
+- [x] **T014** — `Infrastructure/Repositories/SubcategoriaRepository.cs`:
       `Repository<Subcategoria>`, análogo a `ProdutoRepository`.
-- [ ] **T015** — `Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`:
+- [x] **T015** — `Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`:
       registrar `ISubcategoriaRepository` e `ISubcategoriaService`.
-- [ ] **T016** — `MVC/Helpers/DbInitializer.cs`: semear o papel
+- [x] **T016** — `MVC/Helpers/DbInitializer.cs`: semear o papel
       `Administrador` (via `RoleManager<IdentityRole<Guid>>`) e um usuário
       administrador, condicionado a `!IsProduction()`. Senha do
       `dotnet user-secrets` (`Admin:SenhaInicial`), nunca literal.
 
 ## Fase 5 — Apresentação
 
-- [ ] **T017** — `MVC/Controllers/AdminController.cs`:
+- [x] **T017** — `MVC/Controllers/AdminController.cs`:
       - Injetar `ISubcategoriaService`.
       - GET `Cadastro`: carrega subcategorias, expõe via `ViewBag.Subcategorias`
         (`SelectList`).
@@ -66,19 +66,19 @@
       - `await _produtoService.Cadastrar(dto)`. **Corrige D-03.**
       - Sucesso: `TempData["Confirmacao"]` + `RedirectToAction(nameof(Cadastro))`.
       - `[Authorize(Roles = "Administrador")]` na classe. **Corrige D-02.**
-- [ ] **T018** — `MVC/Views/Admin/Cadastro.cshtml`:
+- [x] **T018** — `MVC/Views/Admin/Cadastro.cshtml`:
       - `asp-action="Cadastro"` (corrige D-04).
       - `<select asp-for="SubcategoriaId" asp-items="ViewBag.Subcategorias">`
         (RF-07).
       - Remover o campo Promoção e o `<select>` de `PromocaoTipo` (corrige D-05).
       - Exibir `TempData["Confirmacao"]`.
-- [ ] **T019** `[P]` — `MVC/wwwroot/css/pages/cadastro_produto.css`: a view já
+- [x] **T019** `[P]` — `MVC/wwwroot/css/pages/cadastro_produto.css`: a view já
       referencia este arquivo, que ainda não existe.
-- [ ] **T020** — Rodar `dotnet test`: T005 passa.
+- [x] **T020** — Rodar `dotnet test`: T005 passa.
 
 ## Fase 6 — Fechamento
 
-- [ ] **T021** — `dotnet test` inteiro verde, contagem maior que 227.
+- [x] **T021** — `dotnet test` inteiro verde, contagem maior que 227.
 - [ ] **T022** — Subir a aplicação e percorrer manualmente:
       - CA-01: logar como admin, cadastrar produto válido, ver confirmação e
         o produto na vitrine.

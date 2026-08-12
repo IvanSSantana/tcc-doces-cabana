@@ -2,16 +2,19 @@ using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Mappings;
+using DocesCabana.Domain.Contracts;
 
 namespace DocesCabana.Application.Services;
 
 public class ProdutoService : IProdutoService
 {
     private readonly IProdutoRepository _produtoRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ProdutoService(IProdutoRepository produtoRepository)
+    public ProdutoService(IProdutoRepository produtoRepository, IUnitOfWork unitOfWork)
     {
         _produtoRepository = produtoRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<List<ProdutoDTO>> BuscarTodosProdutos()
@@ -35,6 +38,7 @@ public class ProdutoService : IProdutoService
     {
         var produto = ProdutoMapper.ToEntity(dto);
         await _produtoRepository.Adicionar(produto);
+        await _unitOfWork.SalvarAlteracoes();
 
         return ProdutoMapper.ToDTO(produto);
     }
