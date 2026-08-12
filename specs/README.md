@@ -13,17 +13,21 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [001](./001-cadastro-produto-admin/spec.md) | Cadastro de produto pelo administrador | Implementada | spec · [plan](./001-cadastro-produto-admin/plan.md) · [tasks](./001-cadastro-produto-admin/tasks.md) · [checklist](./001-cadastro-produto-admin/checklist.md) |
 | [002](./002-revisao-tecnica/spec.md) | Revisão técnica da base | Implementada | spec · [plan](./002-revisao-tecnica/plan.md) · [tasks](./002-revisao-tecnica/tasks.md) · [checklist](./002-revisao-tecnica/checklist.md) |
 | [003](./003-modelo-de-dados-completo/spec.md) | Modelo de dados completo | Implementada | spec · [plan](./003-modelo-de-dados-completo/plan.md) · [tasks](./003-modelo-de-dados-completo/tasks.md) · [checklist](./003-modelo-de-dados-completo/checklist.md) |
-| 004 | Separar pessoa de credencial | A especificar | — |
-| 005 | Papéis e cadastro de administrador | A especificar | — |
+| [004](./004-separar-pessoa-de-credencial/spec.md) | Separar pessoa de credencial | Rascunho | spec · [plan](./004-separar-pessoa-de-credencial/plan.md) · [tasks](./004-separar-pessoa-de-credencial/tasks.md) |
+| [005](./005-gestao-de-administradores/spec.md) | Gestão de administradores | Rascunho | spec · [plan](./005-gestao-de-administradores/plan.md) · [tasks](./005-gestao-de-administradores/tasks.md) |
 | 006 | Testes ponta a ponta em Playwright | A especificar | — |
 
 > **Ordem executada:** `002` → `003` → `001`. A `001` originalmente esperava a
 > `004`/`005` para resolver papéis, mas a pendência foi resolvida com o mínimo
-> viável embutido na própria `001` (papel `Administrador` + admin semeado) —
-> ver a nota de atualização na spec `001`. A `004` (separar pessoa de
-> credencial) e a `005` (tela de gestão de administradores) continuam no
-> backlog, agora sem bloquear nada além de si mesmas. A `006` (E2E) fica para
-> depois delas.
+> viável embutido nela própria (papel `Administrador` + admin semeado) — ver a
+> nota de atualização na spec `001`.
+>
+> **Ordem seguinte:** `004` → `005` → `006`. A `004` separa o dado de negócio do
+> usuário da credencial do Identity, encerrando a limitação de navegação que a
+> `003` registrou como RQ-02 e reescrevendo a exceção que a constituição abre ao
+> Princípio I. A `005` depende dela porque cadastrar administrador cria as duas
+> metades e reaproveita a compensação que a `004` introduz. A `006` valida tudo
+> pela interface.
 
 ## Backlog
 
