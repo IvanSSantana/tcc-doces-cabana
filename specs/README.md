@@ -12,27 +12,38 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [000](./000-baseline/spec.md) | Baseline do sistema | Implementada (parcial) | spec |
 | [001](./001-cadastro-produto-admin/spec.md) | Cadastro de produto pelo administrador | Rascunho — 1 pendência aberta | spec · [plan](./001-cadastro-produto-admin/plan.md) · [tasks](./001-cadastro-produto-admin/tasks.md) |
 | [002](./002-revisao-tecnica/spec.md) | Revisão técnica da base | Implementada | spec · [plan](./002-revisao-tecnica/plan.md) · [tasks](./002-revisao-tecnica/tasks.md) · [checklist](./002-revisao-tecnica/checklist.md) |
+| [003](./003-modelo-de-dados-completo/spec.md) | Modelo de dados completo | Rascunho | spec · [plan](./003-modelo-de-dados-completo/plan.md) · [tasks](./003-modelo-de-dados-completo/tasks.md) |
+| 004 | Separar pessoa de credencial | A especificar | — |
+| 005 | Papéis e cadastro de administrador | A especificar | — |
+| 006 | Testes ponta a ponta em Playwright | A especificar | — |
 
-> **Ordem de execução:** a `002` vem **antes** da `001`. A `001` grava produto
-> através da unidade de trabalho que a `002` simplifica, precisa da validação de
-> entrada que a `002` cria, e depende da correção de status que a `002` faz.
+> **Ordem de execução:** `002` → `003` → `004` → `005` → `001` → `006`.
+>
+> A `002` (feita) preparou a base. A `003` cria as dez tabelas que faltam — sem
+> elas a `001` não tem subcategoria para oferecer numa lista nem promoção de
+> verdade para vincular. A `004` separa o dado de negócio do usuário da
+> credencial do Identity, removendo a exceção à direção de dependência que a
+> constituição hoje tolera. A `005` resolve a pendência de autorização da `001`.
+> Só então a `001` fecha, e a `006` valida tudo pela interface.
 
-## Backlog sugerido
+## Backlog
 
 Derivado das tabelas do [`ModelagemBancoTCC.dbml`](../ModelagemBancoTCC.dbml) que
-ainda não têm comportamento. Ordem sugerida por dependência:
+ainda não têm comportamento. **Sem número** — o número é atribuído quando a spec
+é criada, para que a chegada de uma feature nova não renumere a lista inteira.
+Ordem sugerida por dependência:
 
-| Próximo ID | Feature | Depende de |
-|---|---|---|
-| 003 | Listagem, edição e exclusão de produto (admin) | 001 |
-| 004 | Navegação por categoria e subcategoria | 001 |
-| 005 | Controle de estoque | 001 |
-| 006 | Lista de favoritos | 000 |
-| 007 | Endereço do usuário | 000 |
-| 008 | Carrinho e fechamento de pedido | 005, 007 |
-| 009 | Pagamento | 008 |
-| 010 | Avaliação de produto | 008 |
-| 011 | Promoções | 001 |
+| Feature | Depende de |
+|---|---|
+| Listagem, edição e exclusão de produto (admin) | 001 |
+| Navegação por categoria e subcategoria | 003 |
+| Controle de estoque | 003 |
+| Lista de favoritos | 003 |
+| Endereço do usuário | 003 |
+| Carrinho e fechamento de pedido | estoque, endereço |
+| Pagamento | carrinho |
+| Avaliação de produto | carrinho |
+| Promoções na vitrine | 003 |
 
 ## Como criar a próxima
 
