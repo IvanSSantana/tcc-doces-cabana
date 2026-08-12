@@ -29,6 +29,12 @@ public class DocesCabanaDbContext : IdentityDbContext<Usuario, IdentityRole<Guid
 
     public DbSet<Avaliacao> Avaliacoes { get; set; }
 
+    public DbSet<Pedido> Pedidos { get; set; }
+
+    public DbSet<ItemPedido> ItensPedido { get; set; }
+
+    public DbSet<Pagamento> Pagamentos { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -155,33 +155,33 @@ escopo desta spec.*
 
 ### Testes — devem falhar
 
-- [ ] **T036** `[P]` — `DocesCabana.Tests/Units/Entities/PedidoTests.cs`:
+- [x] **T036** `[P]` — `DocesCabana.Tests/Units/Entities/PedidoTests.cs`:
       `UsuarioId` e `EnderecoEntregaId` vazios; valor negativo; e o caso válido
       confirmando que nasce com status *Pendente*, pagamento não aprovado e data
       preenchida. **Prova RN-19 a RN-21, CA-09.**
-- [ ] **T037** `[P]` — `DocesCabana.Tests/Units/Entities/ItemPedidoTests.cs`:
+- [x] **T037** `[P]` — `DocesCabana.Tests/Units/Entities/ItemPedidoTests.cs`:
       identificadores vazios; quantidade 0 e negativa; preço unitário 0 e
       negativo; caso válido. **Prova RN-22, CA-10.**
-- [ ] **T038** `[P]` — `DocesCabana.Tests/Units/Entities/PagamentoTests.cs`:
+- [x] **T038** `[P]` — `DocesCabana.Tests/Units/Entities/PagamentoTests.cs`:
       `PedidoId` vazio; valor 0 e negativo; caso válido confirmando status
       *Pendente* e `DataPagamento` nula. **Prova RN-23 a RN-25.**
-- [ ] **T039** — Rodar `dotnet test` e confirmar o vermelho.
+- [x] **T039** — Rodar `dotnet test` e confirmar o vermelho.
 
 ### Implementação
 
-- [ ] **T040** `[P]` — `DocesCabana.Domain/Entities/Pedido.cs`: navegação
+- [x] **T040** `[P]` — `DocesCabana.Domain/Entities/Pedido.cs`: navegação
       `Endereco? EnderecoEntrega`; `UsuarioId` sem navegação; **nenhuma coleção
       de itens** e nenhum método de transição.
-- [ ] **T041** `[P]` — `DocesCabana.Domain/Entities/ItemPedido.cs`: navegações
+- [x] **T041** `[P]` — `DocesCabana.Domain/Entities/ItemPedido.cs`: navegações
       `Pedido? Pedido` e `Produto? Produto`.
-- [ ] **T042** `[P]` — `DocesCabana.Domain/Entities/Pagamento.cs`: navegação
+- [x] **T042** `[P]` — `DocesCabana.Domain/Entities/Pagamento.cs`: navegação
       `Pedido? Pedido`.
-- [ ] **T043** `[P]` — `.../Configurations/PedidoConfiguration.cs`,
+- [x] **T043** `[P]` — `.../Configurations/PedidoConfiguration.cs`,
       `ItemPedidoConfiguration.cs` e `PagamentoConfiguration.cs`. `Pagamento` é
       1:1 com `Pedido`; os valores monetários usam `decimal(18,2)`.
-- [ ] **T044** — `DocesCabanaDbContext.cs`: `DbSet<Pedido>`, `DbSet<ItemPedido>`,
+- [x] **T044** — `DocesCabanaDbContext.cs`: `DbSet<Pedido>`, `DbSet<ItemPedido>`,
       `DbSet<Pagamento>`.
-- [ ] **T045** — Rodar `dotnet test`: T036–T038 passam. As dez entidades existem.
+- [x] **T045** — Rodar `dotnet test`: T036–T038 passam. As dez entidades existem.
 
 ---
 
