@@ -219,22 +219,22 @@ escopo desta spec.*
 
 ## Fase 7 — Documentação e fechamento
 
-- [ ] **T052** `[P]` — `ModelagemBancoTCC.dbml`: remover `Promocao_Produto_FK`;
+- [x] **T052** `[P]` — `ModelagemBancoTCC.dbml`: remover `Promocao_Produto_FK`;
       renomear `Produto_Pedido_FK` para `ItemPedido` e `Favoritos` para
       `Favorito`; `Promocao.Valor` de `smallint` para `decimal(18,2)`; e corrigir
       `Usuario`, que ainda lista `Senha varchar(255)` embora o sistema use o
       `PasswordHash` do Identity desde a segunda migration. **RQ-06.**
-- [ ] **T053** `[P]` — `specs/000-baseline/spec.md`: a §5 deixa de listar como
+- [x] **T053** `[P]` — `specs/000-baseline/spec.md`: a §5 deixa de listar como
       "modelado no papel" tudo o que passou a existir; sobra apenas a nota de que
       as features que consomem essas tabelas continuam pendentes. A dívida D-07
       (`Endereco` sem entidade) é marcada como **resolvida** por esta spec.
-- [ ] **T054** `[P]` — `specs/README.md`: status da `003` para *Implementada*.
-- [ ] **T055** — Conferir `.dbml` contra
+- [x] **T054** `[P]` — `specs/README.md`: status da `003` para *Implementada*.
+- [x] **T055** — Conferir `.dbml` contra
       `Migrations/DocesCabanaDbContextModelSnapshot.cs`: tabelas, colunas e
       relacionamentos correspondem, e nenhum nome `*_FK` sobrou. **Prova CA-11.**
-- [ ] **T056** — `dotnet build` sem avisos novos e `dotnet test` inteiro verde,
+- [x] **T056** — `dotnet build` sem avisos novos e `dotnet test` inteiro verde,
       com contagem maior que os 152 da T002. **Prova CA-12.**
-- [ ] **T057** — Preencher `checklist.md` e atualizar o status da spec.
+- [x] **T057** — Preencher `checklist.md` e atualizar o status da spec.
 
 ---
 

@@ -76,23 +76,29 @@ absoluta `http`/`https`; produto sempre pertence a uma subcategoria.
 
 ---
 
-## 5. Modelado no banco, ainda sem comportamento
+## 5. Esquema completo, comportamento pendente
 
 O arquivo [`ModelagemBancoTCC.dbml`](../../ModelagemBancoTCC.dbml) descreve o
-esquema completo pretendido. Destes, **existem como entidade e persistência
-apenas `Produto` e `Usuario`**. As demais tabelas estão modeladas no papel e
-aguardam spec própria:
+esquema completo. Desde a spec `003-modelo-de-dados-completo`, **todas as doze
+entidades existem como tabela e como classe de domínio**, com invariante
+validada no construtor. O que falta não é esquema — é a tela e o serviço de
+aplicação de cada feature:
 
-| Tabela modelada | Feature futura |
+| Entidade pronta | Feature que a consome, ainda pendente |
 |---|---|
 | `Categoria`, `Subcategoria` | Navegação por categoria |
 | `Estoque` | Controle de estoque |
-| `Promocao`, `Promocao_Produto_FK` | Promoções |
-| `Endereco` | Endereço de entrega |
-| `Favoritos` | Lista de favoritos |
+| `Promocao` | Promoções na vitrine |
+| `Endereco` | Endereço do usuário |
+| `Favorito` | Lista de favoritos |
 | `Avaliacao` | Avaliação de produto |
-| `Pedido`, `Produto_Pedido_FK` | Carrinho e pedido |
+| `Pedido`, `ItemPedido` | Carrinho e fechamento de pedido |
 | `Pagamento` | Pagamento |
+
+`Pedido` e `Pagamento` nascem sem método de transição de estado (cancelar,
+aprovar, estornar) — essas regras pertencem à spec que as definir, não ao
+esquema. `ItemPedido` é plano, sem coleção em `Pedido`: decidir como o agregado
+de compra funciona é decisão da spec de carrinho.
 
 O `ProdutoDTO` já carrega `EstaFavorito` e `PromocaoId`, mas nada consome esses
 campos ainda — são ganchos, não funcionalidade.
@@ -112,7 +118,7 @@ uma vira tarefa em alguma spec futura.
 | D-04 | O formulário de cadastro de produto posta para `asp-action="Cadastrar"`, ação que não existe no controller | — | Aberta — endereçada pela spec `001` |
 | D-05 | O campo Promoção do formulário é preenchido com `PromocaoTipo` (um enum) onde se espera o identificador de uma promoção | — | Aberta — endereçada pela spec `001` |
 | D-06 | Não há `ProdutoDTOValidator`; o produto só é validado pelo domínio, então o erro chega ao usuário como exceção | III | **Resolvida** pela spec [`002-revisao-tecnica`](../002-revisao-tecnica/spec.md) |
-| D-07 | `Endereco` está no `.dbml` mas não existe como entidade | — | Aberta — sem spec própria ainda no backlog |
+| D-07 | `Endereco` está no `.dbml` mas não existe como entidade | — | **Resolvida** pela spec [`003-modelo-de-dados-completo`](../003-modelo-de-dados-completo/spec.md) |
 
 ---
 

@@ -12,7 +12,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [000](./000-baseline/spec.md) | Baseline do sistema | Implementada (parcial) | spec |
 | [001](./001-cadastro-produto-admin/spec.md) | Cadastro de produto pelo administrador | Rascunho — 1 pendência aberta | spec · [plan](./001-cadastro-produto-admin/plan.md) · [tasks](./001-cadastro-produto-admin/tasks.md) |
 | [002](./002-revisao-tecnica/spec.md) | Revisão técnica da base | Implementada | spec · [plan](./002-revisao-tecnica/plan.md) · [tasks](./002-revisao-tecnica/tasks.md) · [checklist](./002-revisao-tecnica/checklist.md) |
-| [003](./003-modelo-de-dados-completo/spec.md) | Modelo de dados completo | Rascunho | spec · [plan](./003-modelo-de-dados-completo/plan.md) · [tasks](./003-modelo-de-dados-completo/tasks.md) |
+| [003](./003-modelo-de-dados-completo/spec.md) | Modelo de dados completo | Implementada | spec · [plan](./003-modelo-de-dados-completo/plan.md) · [tasks](./003-modelo-de-dados-completo/tasks.md) |
 | 004 | Separar pessoa de credencial | A especificar | — |
 | 005 | Papéis e cadastro de administrador | A especificar | — |
 | 006 | Testes ponta a ponta em Playwright | A especificar | — |

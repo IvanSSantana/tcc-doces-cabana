@@ -1,8 +1,9 @@
 Table Produto [headercolor: #175e7a] {
 	ProdutoId uniqueidentifier [ pk, unique ]
 	SubcategoriaId uniqueidentifier [ not null ]
+	PromocaoId uniqueidentifier
 	Nome varchar(255) [ not null ]
-	Preco smallmoney [ not null ]
+	Preco decimal(18,2) [ not null ]
 	Status tinyint [ not null ]
 	ImagemUrl nvarchar(255) [ not null ]
 }
@@ -14,7 +15,34 @@ Table Usuario [headercolor: #175e7a] {
 	Celular varchar(20)
 	DataNascimento date
 	CPF varchar(11)
-	Senha varchar(255)
+	PasswordHash varchar(255)
+}
+
+Table Categoria [headercolor: #175e7a] {
+	CategoriaId uniqueidentifier [ pk, not null, unique ]
+	Nome nvarchar(100) [ not null ]
+}
+
+Table Subcategoria [headercolor: #175e7a] {
+	SubcategoriaId uniqueidentifier [ pk, not null, unique ]
+	CategoriaId uniqueidentifier [ not null ]
+	Nome nvarchar(100) [ not null ]
+}
+
+Table Estoque [headercolor: #175e7a] {
+	ProdutoId uniqueidentifier [ pk, not null, unique ]
+	Quantidade smallint
+}
+
+Table Promocao [headercolor: #175e7a] {
+	PromocaoId uniqueidentifier [ pk, unique ]
+	Nome nvarchar(255)
+	Descricao nvarchar(255)
+	Tipo tinyint
+	Valor decimal(18,2) [ not null ]
+	DataInicio datetime2 [ not null ]
+	DataFim datetime2 [ not null ]
+	Ativa bit [ not null ]
 }
 
 Table Endereco [headercolor: #175e7a] {
@@ -29,12 +57,12 @@ Table Endereco [headercolor: #175e7a] {
 	Complemento nvarchar(100)
 }
 
-Table Favoritos [headercolor: #175e7a] {
+Table Favorito [headercolor: #175e7a] {
 	ProdutoId uniqueidentifier
 	UsuarioId uniqueidentifier
 
 	indexes {
-		(ProdutoId, UsuarioId) [ name: 'Favoritos_index_1' ]
+		(ProdutoId, UsuarioId) [ pk ]
 	}
 }
 
@@ -52,78 +80,46 @@ Table Pedido [headercolor: #175e7a] {
 	UsuarioId uniqueidentifier [ not null ]
 	EnderecoEntregaId uniqueidentifier [ not null ]
 	PagamentoAprovado bit
-	Valor smallmoney
+	Valor decimal(18,2)
 	Status tinyint
 	Data datetime2
 }
 
-Table Pagamento [headercolor: #175e7a] {
-	PagamentoId uniqueidentifier [ pk, not null, unique ]
-	PedidoId uniqueidentifier [ not null ]
-	Metodo tinyint [ not null ]
-	Status tinyint [ not null ]
-	Valor smallmoney [ not null ]
-	DataPagamento datetime2
-
-	indexes {
-		(PagamentoId, PedidoId) [ name: 'Pagamento_index_1' ]
-	}
-}
-
-Table Estoque [headercolor: #175e7a] {
-	ProdutoId uniqueidentifier [ pk, not null, unique ]
-	Quantidade smallint
-}
-
-Table Subcategoria [headercolor: #175e7a] {
-	SubcategoriaId uniqueidentifier [ pk, not null, unique ]
-	CategoriaId uniqueidentifier [ not null ]
-	Nome nvarchar(100)
-}
-
-Table Categoria [headercolor: #175e7a] {
-	CategoriaId uniqueidentifier [ pk, not null, unique ]
-	Nome nvarchar(100) [ not null ]
-}
-
-Table Promocao [headercolor: #175e7a] {
-	PromocaoId uniqueidentifier [ pk, not null, unique ]
-	Nome nvarchar(255)
-	Descricao nvarchar(255)
-	Tipo tinyint
-	Valor smallint [ not null ]
-	DataInicio datetime2 [ not null ]
-	DataFim datetime2 [ not null ]
-	Ativa bit [ not null ]
-}
-
-Table Promocao_Produto_FK [headercolor: #175e7a] {
-	PromocaoId uniqueidentifier [ not null ]
-	ProdutoId uniqueidentifier [ not null ]
-}
-
-Table Produto_Pedido_FK [headercolor: #175e7a] {
-	ProdutoPedidoId uniqueidentifier [ pk, not null, unique ]
+Table ItemPedido [headercolor: #175e7a] {
+	ItemPedidoId uniqueidentifier [ pk, not null, unique ]
 	ProdutoId uniqueidentifier [ not null ]
 	PedidoId uniqueidentifier [ not null ]
 	Quantidade smallint [ not null ]
-	PrecoUnitario smallmoney [ not null ]
+	PrecoUnitario decimal(18,2) [ not null ]
 
 	indexes {
-		(ProdutoId, PedidoId) [ name: 'Produto_Pedido_FK_index_0' ]
+		(ProdutoId, PedidoId) [ name: 'ItemPedido_index_0' ]
 	}
 }
 
-Ref fk_Produto_Pedido_FK_ProdutoId_Produto {
-	Produto_Pedido_FK.ProdutoId - Produto.ProdutoId [ delete: no action, update: no action ]
+Table Pagamento [headercolor: #175e7a] {
+	PagamentoId uniqueidentifier [ pk, not null, unique ]
+	PedidoId uniqueidentifier [ pk, not null, unique ]
+	Metodo tinyint [ not null ]
+	Status tinyint [ not null ]
+	Valor decimal(18,2) [ not null ]
+	DataPagamento datetime2
 }
 
-Ref fk_Produto_Pedido_FK_PedidoId_Pedido {
-	Produto_Pedido_FK.PedidoId - Pedido.PedidoId [ delete: no action, update: no action ]
+Ref fk_ItemPedido_ProdutoId_Produto {
+	ItemPedido.ProdutoId - Produto.ProdutoId [ delete: no action, update: no action ]
+}
+
+Ref fk_ItemPedido_PedidoId_Pedido {
+	ItemPedido.PedidoId - Pedido.PedidoId [ delete: no action, update: no action ]
 }
 
 Ref fk_Pedido_UsuarioId_Usuario {
 	Pedido.UsuarioId > Usuario.UsuarioId [ delete: no action, update: no action ]
+}
+
+Ref fk_Pedido_EnderecoEntregaId_Endereco {
+	Pedido.EnderecoEntregaId > Endereco.EnderecoId [ delete: no action, update: no action ]
 }
 
 Ref fk_Avaliacao_UsuarioId_Usuario {
@@ -138,12 +134,12 @@ Ref fk_Endereco_UsuarioId_Usuario {
 	Endereco.UsuarioId > Usuario.UsuarioId [ delete: no action, update: no action ]
 }
 
-Ref fk_Favoritos_ProdutoId_Produto {
-	Favoritos.ProdutoId > Produto.ProdutoId [ delete: no action, update: no action ]
+Ref fk_Favorito_ProdutoId_Produto {
+	Favorito.ProdutoId > Produto.ProdutoId [ delete: no action, update: no action ]
 }
 
-Ref fk_Favoritos_UsuarioId_Usuario {
-	Favoritos.UsuarioId > Usuario.UsuarioId [ delete: no action, update: no action ]
+Ref fk_Favorito_UsuarioId_Usuario {
+	Favorito.UsuarioId > Usuario.UsuarioId [ delete: no action, update: no action ]
 }
 
 Ref fk_Pagamento_PedidoId_Pedido {
@@ -162,10 +158,6 @@ Ref fk_Produto_SubcategoriaId_Subcategoria {
 	Produto.SubcategoriaId > Subcategoria.SubcategoriaId [ delete: no action, update: no action ]
 }
 
-Ref fk_Promocao_Produto_FK_ProdutoId_Produto {
-	Promocao_Produto_FK.ProdutoId > Produto.ProdutoId [ delete: no action, update: no action ]
-}
-
-Ref fk_Promocao_Produto_FK_PromocaoId_Promocao {
-	Promocao_Produto_FK.PromocaoId > Promocao.PromocaoId [ delete: no action, update: no action ]
+Ref fk_Produto_PromocaoId_Promocao {
+	Produto.PromocaoId > Promocao.PromocaoId [ delete: no action, update: no action ]
 }

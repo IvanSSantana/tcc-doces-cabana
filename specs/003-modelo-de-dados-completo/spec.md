@@ -1,7 +1,7 @@
 # Especificação — Modelo de dados completo
 
 **ID:** `003-modelo-de-dados-completo` · **Branch:** `003-modelo-de-dados-completo`
-**Criada em:** 2026-08-12 · **Status:** Rascunho
+**Criada em:** 2026-08-12 · **Status:** Implementada
 
 ---
 
