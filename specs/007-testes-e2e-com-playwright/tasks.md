@@ -35,16 +35,16 @@
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Criar branch `007-testes-e2e-com-playwright` a partir de `main`
+- [x] **T001** — Criar branch `007-testes-e2e-com-playwright` a partir de `main`
       (com a `006` já integrada).
-- [ ] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado inicial
+- [x] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado inicial
       verde (257 na última medição) como linha de base da T029.
 
 ## Fase 2 — Governança
 
 *Sem isto, tudo o que vem depois viola o Princípio V vigente.*
 
-- [ ] **T003** — `.specify/memory/constitution.md`: emenda **1.2.0 → 1.3.0**.
+- [x] **T003** — `.specify/memory/constitution.md`: emenda **1.2.0 → 1.3.0**.
       Reescrever a linha de ferramentas do Princípio V conforme o plano §9
       (xUnit + Moq + coverlet para unidade e integração; `Microsoft.Playwright`
       para ponta a ponta; xUnit segue como runner único) e acrescentar a linha
@@ -52,34 +52,34 @@
 
 ## Fase 3 — Testes da parte nova de produção (devem falhar)
 
-- [ ] **T004** `[P]` — `DocesCabana.Tests/Units/Services/EmailServiceArquivoTests.cs`
+- [x] **T004** `[P]` — `DocesCabana.Tests/Units/Services/EmailServiceArquivoTests.cs`
       (criar): grava o corpo do e-mail num arquivo da pasta configurada; cria a
       pasta se não existir; dois envios geram dois arquivos; sem pasta
       configurada, falha em vez de escolher um lugar sozinho. **Prova RF-06.**
-- [ ] **T005** `[P]` — `DocesCabana.Tests/Units/DependencyInjections/RegistroDeEmailTests.cs`
+- [x] **T005** `[P]` — `DocesCabana.Tests/Units/DependencyInjections/RegistroDeEmailTests.cs`
       (criar): `Adaptador = "Arquivo"` resolve `EmailServiceArquivo`; ausente,
       vazio, ou com valor desconhecido resolve `EmailService`. **É a trava do
       risco 2 do plano §8** — o dia em que alguém trocar o padrão sem querer,
       este teste fica vermelho.
-- [ ] **T006** — Rodar `dotnet test` e confirmar que T004 e T005 falham pelo
+- [x] **T006** — Rodar `dotnet test` e confirmar que T004 e T005 falham pelo
       motivo esperado — ausência de `EmailServiceArquivo` e da propriedade
       `Adaptador` —, não por erro de compilação alheio.
 
 ## Fase 4 — Adaptador de e-mail
 
-- [ ] **T007** — `DocesCabana.Infrastructure/Services/EmailSettings.cs`:
+- [x] **T007** — `DocesCabana.Infrastructure/Services/EmailSettings.cs`:
       acrescentar `Adaptador` (padrão `"Smtp"`) e `PastaDeSaida` (padrão vazio,
       de propósito — ver T008).
-- [ ] **T008** — `DocesCabana.Infrastructure/Services/EmailServiceArquivo.cs`
+- [x] **T008** — `DocesCabana.Infrastructure/Services/EmailServiceArquivo.cs`
       (criar): um arquivo por e-mail, com destinatário, assunto e corpo. Com
       `PastaDeSaida` vazia, **lançar** — nunca inventar um diretório, que é como
       e-mail vai parar em lugar servido por HTTP (risco 1 do plano §8).
-- [ ] **T009** — `DocesCabana.Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`:
+- [x] **T009** — `DocesCabana.Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`:
       escolher o adaptador pela configuração. A comparação é
       **`"Arquivo"` explicitamente**; todo o resto cai em `EmailService`.
-- [ ] **T010** `[P]` — `DocesCabana.MVC/appsettings.Example.json`: documentar as
+- [x] **T010** `[P]` — `DocesCabana.MVC/appsettings.Example.json`: documentar as
       duas chaves novas com `"Adaptador": "Smtp"`. Nenhuma credencial real.
-- [ ] **T011** — Rodar `dotnet test`: T004 e T005 passam; nada mais mudou de cor.
+- [x] **T011** — Rodar `dotnet test`: T004 e T005 passam; nada mais mudou de cor.
 
 ## Fase 5 — Andaime do E2E
 

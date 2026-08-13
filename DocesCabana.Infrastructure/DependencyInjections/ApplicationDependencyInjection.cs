@@ -24,7 +24,22 @@ public static class ApplicationDependencyInjection
         services.AddScoped<IAdministradorService, AdministradorService>();
         services.AddScoped<IProdutoService, ProdutoService>();
         services.AddScoped<ISubcategoriaService, SubcategoriaService>();
-        services.AddScoped<IEmailService, EmailService>();
+        services.AddEmailService(configuration);
+
+        return services;
+    }
+
+    // Isolado do restante do registro para ser testável sem montar o grafo de
+    // dependências inteiro (repositórios, UnitOfWork, DbContext) — ver
+    // RegistroDeEmailTests (spec 007).
+    public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration)
+    {
+        var adaptador = configuration["EmailSettings:Adaptador"];
+
+        if (adaptador == "Arquivo")
+            services.AddScoped<IEmailService, EmailServiceArquivo>();
+        else
+            services.AddScoped<IEmailService, EmailService>();
 
         return services;
     }

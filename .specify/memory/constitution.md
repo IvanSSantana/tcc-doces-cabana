@@ -1,6 +1,6 @@
 # Constituição — Doces Cabana
 
-**Versão:** 1.2.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-08-13
+**Versão:** 1.3.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-08-13
 
 Este documento define os princípios inegociáveis do projeto. Toda `spec`, `plan` e
 `tasks` é validada contra ele antes de virar código. Quando uma decisão técnica
@@ -128,7 +128,10 @@ Organização em `DocesCabana.Tests`:
 - `Integration/Repositories` — SQLite em memória via
   [`InfraestruturaSqliteEmMemoria`](../../DocesCabana.Tests/Integration/InfraestruturaSqliteEmMemoria.cs).
 
-Ferramentas fixas: xUnit + Moq + coverlet. Não introduzir framework de teste novo.
+Ferramentas fixas: xUnit + Moq + coverlet para teste de unidade e de
+integração; `Microsoft.Playwright` para teste de ponta a ponta em navegador,
+com o xUnit seguindo como runner único. Não introduzir outro framework de
+teste, nem um segundo runner.
 
 **Definição de "pronto" para uma feature:** `dotnet test` verde, cobertura das
 regras de negócio novas em teste unitário, e ao menos um teste de integração
@@ -208,3 +211,4 @@ justificativa escrita na `spec`:
 | 1.0.0 | 2026-08-07 | Ratificação inicial, extraída da arquitetura e das convenções já presentes no código. |
 | 1.1.0 | 2026-08-11 | Feature `002-revisao-tecnica`. Princípio IV ganha a regra de que nome de arquivo, nome de tipo e pasta/namespace coincidem (RQ-03). Princípio VI perde a menção a transação explícita: `IUnitOfWork` fica só com `SalvarAlteracoes` — a abstração de transação manual foi removida por não ter consumidor e por duplicar a atomicidade que `SaveChangesAsync` já garante (RQ-02). |
 | 1.2.0 | 2026-08-13 | Feature `004-separar-pessoa-de-credencial`. A exceção do Princípio I é reescrita: o motivo deixa de ser "a entidade `Usuario` herda de `IdentityUser<Guid>`" (deixou de ser verdade — `Usuario` passou a ser do domínio) e passa a ser a dependência de `UserManager`/`SignInManager`. Acrescentado que entidades de domínio referenciam `Usuario` por navegação normal, encerrando a limitação que a `003` havia registrado como RQ-02. |
+| 1.3.0 | 2026-08-13 | Feature `007-testes-e2e-com-playwright`. Princípio V passa a distinguir camada de teste: xUnit + Moq + coverlet continuam fixos para unidade e integração; `Microsoft.Playwright` entra como driver de navegador para teste de ponta a ponta, com o xUnit seguindo como runner único — não introduzido um segundo runner, só um driver para uma camada que a stack anterior não alcançava. |
