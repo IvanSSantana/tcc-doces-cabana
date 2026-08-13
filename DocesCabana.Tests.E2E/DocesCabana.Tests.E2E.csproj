@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.62.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ReferenceOutputAssembly=false de propósito: este projeto não consome
+         tipo nenhum da MVC, só precisa que ela esteja compilada antes de subir
+         como processo filho (ver Infraestrutura/AplicacaoEmExecucao.cs). Sem
+         isso o dotnet não garante a ordem de build entre os dois projetos. -->
+    <ProjectReference Include="..\DocesCabana.MVC\DocesCabana.MVC.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

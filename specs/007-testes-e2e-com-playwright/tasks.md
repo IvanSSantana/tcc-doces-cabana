@@ -86,33 +86,33 @@
 *Nenhum teste de fluxo ainda. O objetivo é provar que a aplicação sobe e o
 navegador a alcança, antes de empilhar doze fluxos em cima disso.*
 
-- [ ] **T012** — `DocesCabana.Tests.E2E/DocesCabana.Tests.E2E.csproj` (criar) e
+- [x] **T012** — `DocesCabana.Tests.E2E/DocesCabana.Tests.E2E.csproj` (criar) e
       `tcc-doces-cabana.sln` (alterar): pacotes `Microsoft.Playwright`, `xunit`,
       `xunit.runner.visualstudio`, `Microsoft.NET.Test.Sdk`; `ProjectReference`
       da MVC com `ReferenceOutputAssembly="false"`, só para ordem de compilação.
-- [ ] **T013** — `DocesCabana.Tests.E2E/Infraestrutura/AplicacaoEmExecucao.cs`
+- [x] **T013** — `DocesCabana.Tests.E2E/Infraestrutura/AplicacaoEmExecucao.cs`
       (criar): porta livre; pasta temporária com o SQLite e a pasta de e-mails;
       senha do administrador gerada na hora; sobe `dotnet DocesCabana.MVC.dll`
       com `WorkingDirectory` no projeto MVC; espera `GET /` responder `200`;
       derruba com `Kill(entireProcessTree: true)` e apaga a pasta. Em falha de
       subida, a exceção carrega `stdout` e `stderr` capturados.
       **Prova RF-04, RF-08, RN-01, RN-04, RN-05.**
-- [ ] **T014** — `DocesCabana.Tests.E2E/Infraestrutura/ColecaoE2E.cs` e
+- [x] **T014** — `DocesCabana.Tests.E2E/Infraestrutura/ColecaoE2E.cs` e
       `TesteE2E.cs` (criar): uma instância da aplicação para a suíte inteira,
       via `[CollectionDefinition]`; contexto de navegador novo por teste, para
       que cookie de um não vaze para o outro; rastro do Playwright gravado
       quando o teste falha. A classe base leva `[Trait("Categoria", "E2E")]`,
       que é o que a T029 vai conferir estar realmente separando as suítes.
       **Prova RN-02, RF-08.**
-- [ ] **T015** `[P]` — `DocesCabana.Tests.E2E/Infraestrutura/GeradorDeDados.cs`
+- [x] **T015** `[P]` — `DocesCabana.Tests.E2E/Infraestrutura/GeradorDeDados.cs`
       (criar): e-mail único e CPF com dígito verificador válido por chamada.
       **Prova RN-03.** Sem isto, dois testes que cadastram colidem no índice
       único e o segundo falha por motivo que não tem nada a ver com o que ele
       queria provar.
-- [ ] **T016** `[P]` — `DocesCabana.Tests.E2E/Infraestrutura/CaixaDeEntrada.cs`
+- [x] **T016** `[P]` — `DocesCabana.Tests.E2E/Infraestrutura/CaixaDeEntrada.cs`
       (criar): espera surgir arquivo na pasta de e-mails e extrai o link de
       redefinição do corpo. Espera por condição, não por tempo.
-- [ ] **T017** — Instalar o navegador e escrever **um** teste de fumaça: a
+- [x] **T017** — Instalar o navegador e escrever **um** teste de fumaça: a
       página inicial abre e mostra a logo. Rodar e ver verde.
       **Esta é a tarefa que prova o andaime** — se ela não passar, nada nas
       fases seguintes vai passar, e por motivos que não têm a ver com os fluxos.
