@@ -158,22 +158,22 @@ tem links "Entrar" e "Cadastre-se" que colidem com os da página (risco do §8).
 
 ## Fase 8 — Fechamento
 
-- [ ] **T027** — `DocesCabana.Tests.E2E/README.md` (criar): instalação do
+- [x] **T027** — `DocesCabana.Tests.E2E/README.md` (criar): instalação do
       navegador e os dois comandos — `dotnet test --filter "Categoria!=E2E"`
       para o ciclo rápido, `dotnet test DocesCabana.Tests.E2E` para o E2E.
       **Prova RF-05, RF-09.**
-- [ ] **T028** — Rodar a suíte E2E **duas vezes seguidas**, sem limpar nada
+- [x] **T028** — Rodar a suíte E2E **duas vezes seguidas**, sem limpar nada
       entre elas, e confirmar mesmo resultado. **Prova CA-13, RN-05.** Se a
       segunda execução falhar, há resíduo — e resíduo é defeito da T013, não
       motivo para rodar `git clean` e seguir.
-- [ ] **T029** — `dotnet build` sem avisos novos; `dotnet test --filter
+- [x] **T029** — `dotnet build` sem avisos novos; `dotnet test --filter
       "Categoria!=E2E"` verde com contagem maior que a da T002 (as duas de
       unidade da Fase 3). **Conferir que o filtro de fato exclui os E2E** —
       comparar a contagem com e sem o filtro, e ver a diferença bater com o
       número de testes de fluxo. Marca herdada de classe base é o tipo de coisa
       que se assume que funciona e às vezes não funciona.
-- [ ] **T030** — Preencher `checklist.md`.
-- [ ] **T031** — Atualizar a spec para *Implementada*, o plano para *Executado*,
+- [x] **T030** — Preencher `checklist.md`.
+- [x] **T031** — Atualizar a spec para *Implementada*, o plano para *Executado*,
       e a linha da `007` em `specs/README.md`.
 
 ---

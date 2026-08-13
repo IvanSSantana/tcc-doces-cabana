@@ -1,7 +1,7 @@
 # Especificação — Testes E2E com Playwright
 
 **ID:** `007-testes-e2e-com-playwright` · **Branch:** `007-testes-e2e-com-playwright`
-**Criada em:** 2026-08-13 · **Status:** Rascunho
+**Criada em:** 2026-08-13 · **Status:** Implementada
 
 ---
 
@@ -211,6 +211,6 @@ Nenhuma.
 - [x] Mensagens visíveis ao usuário estão escritas em português, no texto final
 - [x] A seção "Fora de escopo" foi preenchida de verdade
 - [x] Não restam marcações `[NECESSITA ESCLARECIMENTO]`
-- [ ] Nada aqui conflita com `.specify/memory/constitution.md` — **conflita**:
-      Princípio V proíbe framework de teste novo. Resolvido por emenda 1.3.0,
-      justificada no plano §9 e executada nas tarefas
+- [x] Nada aqui conflita com `.specify/memory/constitution.md` — o Princípio V
+      proibia framework de teste novo; resolvido pela emenda 1.3.0 (executada
+      na T003, antes de qualquer pacote entrar), justificada no plano §9
