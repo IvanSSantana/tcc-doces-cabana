@@ -95,7 +95,7 @@ todo mundo, inclusive para quem estiver testando.
 
 - [x] **T020** — `dotnet build` sem avisos novos e `dotnet test` verde, com
       contagem maior que a da T002.
-- [ ] **T021** — Fumaça manual, com a aplicação rodando:
+- [x] **T021** — Fumaça manual, com a aplicação rodando:
       - Entrar como o administrador semeado e abrir a gestão: ele consta na
         lista (**CA-01**).
       - Cadastrar um administrador novo: confirmação aparece e ele entra na
@@ -109,8 +109,8 @@ todo mundo, inclusive para quem estiver testando.
       - Sair e acessar a gestão sem login: vai para o login (**CA-07**).
       - Entrar como cliente comum: acesso negado (**CA-08**) e nenhum link no
         cabeçalho (**CA-09**).
-- [ ] **T022** — Preencher `checklist.md`.
-- [ ] **T023** — Atualizar a spec para *Implementada* e a linha da `005` em
+- [x] **T022** — Preencher `checklist.md`.
+- [x] **T023** — Atualizar a spec para *Implementada* e a linha da `005` em
       `specs/README.md`.
 
 ---

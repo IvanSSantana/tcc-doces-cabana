@@ -36,15 +36,7 @@ public class AdministradorController : Controller
         if (!ModelState.IsValid)
             return View(dto);
 
-        try
-        {
-            await _administradorService.CadastrarAdministrador(dto);
-        }
-        catch (InvalidOperationException ex)
-        {
-            ModelState.AddModelError(string.Empty, ex.Message);
-            return View(dto);
-        }
+        await _administradorService.CadastrarAdministrador(dto);
 
         TempData["Confirmacao"] = "Administrador cadastrado com sucesso!";
         return RedirectToAction(nameof(Index));

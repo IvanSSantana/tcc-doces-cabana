@@ -1,7 +1,7 @@
 # Especificação — Gestão de administradores
 
 **ID:** `005-gestao-de-administradores` · **Branch:** `005-gestao-de-administradores`
-**Criada em:** 2026-08-12 · **Status:** Rascunho
+**Criada em:** 2026-08-12 · **Status:** Implementada
 
 ---
 

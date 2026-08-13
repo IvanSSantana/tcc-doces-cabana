@@ -1,7 +1,7 @@
 # Plano Técnico — Gestão de administradores
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-12
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 
