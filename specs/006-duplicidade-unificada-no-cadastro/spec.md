@@ -1,7 +1,7 @@
 # Especificação — Duplicidade unificada no cadastro
 
 **ID:** `006-duplicidade-unificada-no-cadastro` · **Branch:** `006-duplicidade-unificada-no-cadastro`
-**Criada em:** 2026-08-13 · **Status:** Rascunho
+**Criada em:** 2026-08-13 · **Status:** Implementada
 
 ---
 

@@ -77,7 +77,7 @@ como estão.
 
 | Arquivo | Ação | O quê |
 |---|---|---|
-| `Units/Services/AdministradorServiceTests.cs` | **criar** | RF-01, RF-03, RN-04, RN-05 |
+| `Units/Services/AdministradorServiceTests.cs` | **criar** | RF-01, RF-03, RN-04 |
 | `Units/Controllers/AdministradorControllerTests.cs` | **criar** | RF-06, RF-07 — `ModelState` inválido não chama o serviço; válido redireciona com `TempData` |
 | `Units/Services/UsuarioServiceCadastroTests.cs` | alterar | Acrescentar: com `papel` informado, o papel é atribuído; se a atribuição falhar, a conta é desfeita |
 
@@ -163,12 +163,20 @@ Mapeamento critério → teste:
 | Critério | Teste que o prova |
 |---|---|
 | CA-01 | `Dado_DoisAdministradores_Quando_ListarAdministradores_Entao_DeveRetornarNomeEEmailDeCada` |
-| CA-02 | `Dado_DadosValidos_Quando_CadastroPost_Entao_DeveRedirecionarComConfirmacao` |
+| CA-02 | `Dado_DadosValidos_Quando_CadastroPost_Entao_DeveCadastrarERedirecionarComConfirmacao` |
 | CA-03 | verificação manual — exige entrar com a conta nova |
-| CA-04 | `Dado_EmailJaUsado_Quando_CadastrarAdministrador_Entao_DeveLancarInvalidOperationException` |
-| CA-05 | `Dado_CpfJaUsado_Quando_CadastrarAdministrador_Entao_DeveDesfazerAConta` |
+| CA-04 | `Dado_EmailJaCadastrado_Quando_CadastrarUsuario_Entao_DeveLancarInvalidOperationExceptionSemTocarNoUsuario` (`UsuarioServiceCadastroTests`) — o cadastro de administrador não tinha pré-checagem própria de duplicidade; a `005` cobriu esse caminho só no nível do `UsuarioService`, não no do `AdministradorController`. Corrigido pela `006`, que acrescenta o teste que faltava aqui |
+| CA-05 | `Dado_FalhaAoAtribuirPapel_Quando_CadastrarUsuario_Entao_DeveApagarAContaCriada` (`UsuarioServiceCadastroTests`) — prova RN-05 (falha ao atribuir o papel), não duplicidade de CPF. A duplicidade de CPF, especificamente, ficou sem teste no nível do administrador até a `006` |
 | CA-06 | Já coberto por `CadastroDTOValidatorTests` desde a `002`; confirmar, não reescrever |
 | CA-07, CA-08, CA-09 | verificação manual — autorização por atributo e `User.IsInRole` na view não são unit-testáveis sem host de integração |
+
+> **Nota de correção (registrada pela `006`):** esta tabela originalmente
+> apontava para `Dado_EmailJaUsado_Quando_CadastrarAdministrador_...` e
+> `Dado_CpfJaUsado_Quando_CadastrarAdministrador_...`, em
+> `AdministradorServiceTests.cs`. Nenhum dos dois foi escrito — a auditoria da
+> `005` encontrou a divergência e a `006` fechou a lacuna real: o cadastro de
+> administrador não tratava duplicidade de CPF com a mesma mensagem do cadastro
+> de cliente. Ver `specs/006-duplicidade-unificada-no-cadastro/`.
 
 ## 7. Alternativas descartadas
 

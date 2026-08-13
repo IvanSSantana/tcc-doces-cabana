@@ -94,7 +94,7 @@
 
 ## Fase 6 — Fechamento
 
-- [ ] **T014** — Fumaça manual, com a aplicação rodando:
+- [x] **T014** — Fumaça manual, com a aplicação rodando:
       - Cadastrar administrador com CPF já usado: mensagem correta, formulário
         de volta com o que foi digitado (**CA-01**).
       - Idem com e-mail já usado (**CA-02**).
@@ -105,15 +105,15 @@
         um CPF livre, e ver funcionar (**CA-05**). Conferir no banco, não na
         tela — foi exatamente essa conferência que faltou na `005`.
       - Cadastro válido nas duas portas segue criando conta (**CA-06**).
-- [ ] **T015** — `specs/005-gestao-de-administradores/plan.md`: corrigir a §3
+- [x] **T015** — `specs/005-gestao-de-administradores/plan.md`: corrigir a §3
       (RN-05 é provada em `UsuarioServiceCadastroTests`, não em
       `AdministradorServiceTests`) e a §6 (remover os dois nomes de teste que
       nunca existiram e apontar para os que existem). Dívida registrada na
       auditoria da `005`.
-- [ ] **T016** — `dotnet build` sem avisos novos e `dotnet test` verde, com
+- [x] **T016** — `dotnet build` sem avisos novos e `dotnet test` verde, com
       contagem maior que a da T002.
-- [ ] **T017** — Preencher `checklist.md`.
-- [ ] **T018** — Atualizar a spec para *Implementada*, o plano para *Executado*,
+- [x] **T017** — Preencher `checklist.md`.
+- [x] **T018** — Atualizar a spec para *Implementada*, o plano para *Executado*,
       e `specs/README.md`: linha da `006` e renumeração da linha do Playwright
       para `007`.
 

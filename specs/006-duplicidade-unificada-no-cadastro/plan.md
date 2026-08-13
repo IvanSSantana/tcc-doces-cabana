@@ -1,7 +1,7 @@
 # Plano Técnico — Duplicidade unificada no cadastro
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-13
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 
