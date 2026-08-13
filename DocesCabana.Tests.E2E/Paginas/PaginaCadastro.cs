@@ -19,6 +19,7 @@ public class PaginaCadastro
 {
     private readonly IPage _pagina;
     private ILocator Container => _pagina.Locator(".container-autenticacao");
+    private ILocator Formulario => Container.Locator("form.formulario-autenticacao");
 
     public PaginaCadastro(IPage pagina) => _pagina = pagina;
 
@@ -48,12 +49,16 @@ public class PaginaCadastro
     public async Task Enviar() =>
         await Container.GetByRole(AriaRole.Button, new() { Name = "Cadastrar" }).ClickAsync();
 
-    public ILocator MensagemDeErroGeral => Container.Locator(".resumo-erros .mensagem-erro");
+    // ".resumo-erros" se repete três vezes na página: a dica fixa de senha
+    // (#requisitos-senha, sempre no DOM, só escondida por CSS), o erro da
+    // própria senha, e o erro geral do formulário. "> div.resumo-erros"
+    // (filho direto do <form>) isola o terceiro — os outros dois vivem
+    // dentro de ".campo-entrada", um nível a mais.
+    public ILocator MensagemDeErroGeral => Formulario.Locator("> div.resumo-erros .mensagem-erro");
 
-    // O campo Senha tem dois ".resumo-erros": "#requisitos-senha" (dica fixa,
-    // controlada por JS) e o bloco de erro do servidor. Só o segundo importa
-    // aqui — CA-03/CA-06 verificam a mensagem que o servidor devolveu.
+    // O campo Senha tem dois ".resumo-erros": a dica fixa (com id, excluída
+    // aqui) e o bloco de erro do servidor. CA-03/CA-06 verificam o segundo.
     public ILocator ErroDeSenha => Container.Locator("#input-senha-cadastro")
         .Locator("xpath=ancestor::div[contains(@class,'campo-entrada')]")
-        .Locator("div.resumo-erros:not(#requisitos-senha) .mensagem-erro");
+        .Locator("> div.resumo-erros:not(#requisitos-senha)");
 }

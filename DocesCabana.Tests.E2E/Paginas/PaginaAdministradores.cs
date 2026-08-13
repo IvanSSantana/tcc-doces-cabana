@@ -8,6 +8,7 @@ public class PaginaAdministradores
     private readonly IPage _pagina;
     private ILocator ContainerIndice => _pagina.Locator(".container-administradores");
     private ILocator ContainerCadastro => _pagina.Locator(".container-autenticacao");
+    private ILocator FormularioCadastro => ContainerCadastro.Locator("form.formulario-autenticacao");
 
     public PaginaAdministradores(IPage pagina) => _pagina = pagina;
 
@@ -37,5 +38,7 @@ public class PaginaAdministradores
     public async Task EnviarCadastro() =>
         await ContainerCadastro.GetByRole(AriaRole.Button, new() { Name = "Cadastrar Administrador" }).ClickAsync();
 
-    public ILocator MensagemDeErroCadastro => ContainerCadastro.Locator(".resumo-erros .mensagem-erro");
+    // Mesma colisão de ".resumo-erros" da tela de cadastro de cliente — ver
+    // PaginaCadastro.MensagemDeErroGeral.
+    public ILocator MensagemDeErroCadastro => FormularioCadastro.Locator("> div.resumo-erros .mensagem-erro");
 }

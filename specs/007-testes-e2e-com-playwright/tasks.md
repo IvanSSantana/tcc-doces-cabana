@@ -138,23 +138,23 @@ tem links "Entrar" e "Cadastre-se" que colidem com os da página (risco do §8).
 
 ## Fase 7 — Fluxos
 
-- [ ] **T021** `[P]` — `DocesCabana.Tests.E2E/Fluxos/CadastroDeClienteTests.cs`
+- [x] **T021** `[P]` — `DocesCabana.Tests.E2E/Fluxos/CadastroDeClienteTests.cs`
       (criar): **CA-01, CA-02, CA-03**. A duplicidade cobre e-mail e CPF, nas
       duas portas — é a garantia de que a `006` não regride pela tela.
-- [ ] **T022** `[P]` — `DocesCabana.Tests.E2E/Fluxos/LoginTests.cs` (criar):
+- [x] **T022** `[P]` — `DocesCabana.Tests.E2E/Fluxos/LoginTests.cs` (criar):
       **CA-04, CA-05, CA-06**. O teste de senha errada usa conta descartável
       própria: cinco erros bloqueiam por quinze minutos, e bloquear o
       administrador semeado derruba metade da suíte.
-- [ ] **T023** — `DocesCabana.Tests.E2E/Fluxos/RecuperacaoDeSenhaTests.cs`
+- [x] **T023** — `DocesCabana.Tests.E2E/Fluxos/RecuperacaoDeSenhaTests.cs`
       (criar): **CA-07, CA-08**. A redefinição vai do pedido ao login com a
       senha nova, passando pelo link lido da caixa de entrada, e confirma que a
       senha antiga deixou de valer. **Prova RF-07.**
-- [ ] **T024** `[P]` — `DocesCabana.Tests.E2E/Fluxos/CadastroDeProdutoTests.cs`
+- [x] **T024** `[P]` — `DocesCabana.Tests.E2E/Fluxos/CadastroDeProdutoTests.cs`
       (criar): **CA-09**, caminho feliz e campo inválido. Usa a subcategoria de
       identificador fixo que o `DbInitializer` semeia desde a `003`.
-- [ ] **T025** `[P]` — `DocesCabana.Tests.E2E/Fluxos/AreaAdministrativaTests.cs`
+- [x] **T025** `[P]` — `DocesCabana.Tests.E2E/Fluxos/AreaAdministrativaTests.cs`
       (criar): **CA-10, CA-11, CA-12**.
-- [ ] **T026** — Rodar `dotnet test DocesCabana.Tests.E2E` inteiro e ver verde.
+- [x] **T026** — Rodar `dotnet test DocesCabana.Tests.E2E` inteiro e ver verde.
 
 ## Fase 8 — Fechamento
 
