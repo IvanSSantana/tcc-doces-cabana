@@ -49,22 +49,21 @@ public abstract class InfraestruturaSqliteEmMemoria : IAsyncLifetime
     }
 
     /// <summary>
-    /// Persiste um usuário válido e devolve o Id, para testes que precisam de
-    /// uma entidade com FK real para Usuario (Endereco, Favorito, Avaliacao,
-    /// Pedido).
+    /// Persiste as duas metades de um usuário válido — a ContaDeAcesso e o
+    /// Usuario do domínio, com o mesmo Guid — e devolve o identificador
+    /// compartilhado, para testes que precisam de uma entidade com FK real
+    /// para Usuario (Endereco, Favorito, Avaliacao, Pedido).
     /// </summary>
     protected async Task<Guid> SemearUsuario()
     {
-        var usuario = new Usuario(
-            "Cliente Teste",
-            $"{Guid.NewGuid():N}@teste.com",
-            "11987654321",
-            new DateTime(1990, 1, 1),
-            "52998224725");
-
-        Contexto.Users.Add(usuario);
+        var conta = new ContaDeAcesso($"{Guid.NewGuid():N}@teste.com");
+        Contexto.Users.Add(conta);
         await Contexto.SaveChangesAsync();
 
-        return usuario.Id;
+        var usuario = new Usuario(conta.Id, "Cliente Teste", "52998224725", "11987654321", new DateTime(1990, 1, 1));
+        Contexto.Usuarios.Add(usuario);
+        await Contexto.SaveChangesAsync();
+
+        return conta.Id;
     }
 }

@@ -19,6 +19,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
         services.AddScoped<ISubcategoriaRepository, SubcategoriaRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IUsuarioService, UsuarioService>();
         services.AddScoped<IProdutoService, ProdutoService>();
         services.AddScoped<ISubcategoriaService, SubcategoriaService>();

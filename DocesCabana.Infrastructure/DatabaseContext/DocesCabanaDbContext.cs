@@ -7,13 +7,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Infrastructure.DatabaseContext;
 
-public class DocesCabanaDbContext : IdentityDbContext<Usuario, IdentityRole<Guid>, Guid>    
-{   
+public class DocesCabanaDbContext : IdentityDbContext<ContaDeAcesso, IdentityRole<Guid>, Guid>
+{
     public DocesCabanaDbContext(DbContextOptions<DocesCabanaDbContext> options) : base(options)
     {
     }
 
     public DbSet<Produto> Produtos { get; set; }
+
+    public DbSet<Usuario> Usuarios { get; set; }
 
     public DbSet<Categoria> Categorias { get; set; }
 

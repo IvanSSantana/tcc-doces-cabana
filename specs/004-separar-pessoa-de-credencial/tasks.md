@@ -34,30 +34,30 @@ no mesmo diff é o jeito mais rápido de esconder uma quebra.
 
 ### Testes — devem falhar
 
-- [ ] **T003** `[P]` — `DocesCabana.Tests/Units/Entities/UsuarioTests.cs`:
+- [x] **T003** `[P]` — `DocesCabana.Tests/Units/Entities/UsuarioTests.cs`:
       reescrever para o `Usuario` do **domínio**. Nome vazio; CPF inválido,
       com dígitos repetidos e pontuado (deve normalizar); celular inválido e
       pontuado (deve normalizar); data futura e anterior a 120 anos;
       `UsuarioId` vazio. **Os casos de e-mail saem daqui** — vão para a T004.
       **Prova RN-01 a RN-04.**
-- [ ] **T004** `[P]` — `DocesCabana.Tests/Units/Entities/ContaDeAcessoTests.cs`
+- [x] **T004** `[P]` — `DocesCabana.Tests/Units/Entities/ContaDeAcessoTests.cs`
       (criar): e-mail vazio, e-mail malformado, e-mail válido. São os casos que
       saíram da T003. **Prova RN-06.**
-- [ ] **T005** — Rodar `dotnet test` e confirmar que T003–T004 falham por
+- [x] **T005** — Rodar `dotnet test` e confirmar que T003–T004 falham por
       ausência de tipo, não por outro motivo.
 
 ### Implementação
 
-- [ ] **T006** — `DocesCabana.Domain/Entities/Usuario.cs` (criar): `private set`,
+- [x] **T006** — `DocesCabana.Domain/Entities/Usuario.cs` (criar): `private set`,
       construtor validante que **normaliza CPF e celular para dígitos** usando
       `CpfHelper` e `TelefoneHelper`, `protected Ctor()`, e
       `AtualizarDados(nome, celular, dataNascimento)`.
-- [ ] **T007** — `DocesCabana.Infrastructure/Identity/Usuario.cs` → renomear
+- [x] **T007** — `DocesCabana.Infrastructure/Identity/Usuario.cs` → renomear
       arquivo e classe para `ContaDeAcesso.cs` / `ContaDeAcesso`. Remover
       `Nome`, `CPF` e `DataNascimento`; **manter** a validação de e-mail
       (`EmailRegex`) e o construtor `ContaDeAcesso(string email)`; acrescentar a
       navegação `Usuario? Usuario` — infraestrutura pode referenciar domínio.
-- [ ] **T008** — Rodar `dotnet test`: T003–T004 passam. O resto do projeto
+- [x] **T008** — Rodar `dotnet test`: T003–T004 passam. O resto do projeto
       ainda não compila — é esperado, o bloco B conserta.
 
 ---
@@ -67,7 +67,7 @@ no mesmo diff é o jeito mais rápido de esconder uma quebra.
 *Um commit só, mecânico. Se algum teste mudar de resultado aqui, a renomeação
 está errada.*
 
-- [ ] **T009** — Trocar `Usuario` por `ContaDeAcesso` onde o tipo referido é o
+- [x] **T009** — Trocar `Usuario` por `ContaDeAcesso` onde o tipo referido é o
       do Identity, nos 16 pontos de `UserManager<>`, `SignInManager<>` e
       `IdentityDbContext<>`:
       `Infrastructure/DatabaseContext/DocesCabanaDbContext.cs`,
@@ -76,15 +76,15 @@ está errada.*
       `Identity/Mappings/UsuarioMapper.cs`,
       `MVC/Controllers/AutenticacaoController.cs`,
       `MVC/Helpers/DbInitializer.cs`.
-- [ ] **T010** — Trocar o mesmo tipo nos testes:
+- [x] **T010** — Trocar o mesmo tipo nos testes:
       `Units/Services/{UsuarioServiceTests,UsuarioServiceLoginTests}.cs`,
       `Units/Mappings/UsuarioMapperTests.cs`,
       `Units/Controllers/AutenticacaoControllerTests.cs`,
       `Integration/{InfraestruturaSqliteEmMemoria,DatabaseIntegrationTests}.cs`.
-- [ ] **T011** — `DocesCabana.Infrastructure/DatabaseContext/Configurations/`:
+- [x] **T011** — `DocesCabana.Infrastructure/DatabaseContext/Configurations/`:
       renomear `UsuarioConfiguration.cs` para `ContaDeAcessoConfiguration.cs`,
       apontando para `ContaDeAcesso` e mantendo, por ora, só o `ToTable`.
-- [ ] **T012** — Rodar `dotnet build`. Ainda haverá erro nos pontos que
+- [x] **T012** — Rodar `dotnet build`. Ainda haverá erro nos pontos que
       dependem de `Nome`/`CPF`/`DataNascimento` na conta — mapear quais são
       antes de seguir; são exatamente os que o bloco C resolve.
 
@@ -94,29 +94,29 @@ está errada.*
 
 ### Testes — devem falhar
 
-- [ ] **T013** `[P]` — `DocesCabana.Tests/Units/Services/UsuarioServiceCadastroTests.cs`
+- [x] **T013** `[P]` — `DocesCabana.Tests/Units/Services/UsuarioServiceCadastroTests.cs`
       (criar): cadastro válido cria as duas metades com o **mesmo** `Guid`; e —
       o caso que importa — quando a gravação do `Usuario` falha, a conta já
       criada é **apagada** via `UserManager.DeleteAsync`.
       **Prova RN-08, CA-01, CA-04.**
-- [ ] **T014** `[P]` — `DocesCabana.Tests/Units/Mappings/UsuarioMapperTests.cs`:
+- [x] **T014** `[P]` — `DocesCabana.Tests/Units/Mappings/UsuarioMapperTests.cs`:
       ajustar para a assinatura nova — o DTO traz e-mail da `ContaDeAcesso` e
       nome, CPF, celular e nascimento do `Usuario`.
-- [ ] **T015** `[P]` — `DocesCabana.Tests/Units/Services/UsuarioServiceLoginTests.cs`:
+- [x] **T015** `[P]` — `DocesCabana.Tests/Units/Services/UsuarioServiceLoginTests.cs`:
       ajustar o caminho de CPF para passar pelo `IUsuarioRepository` em vez de
       `_userManager.Users`. **Preserva CA-02 e CA-03.**
-- [ ] **T016** — Rodar `dotnet test` e confirmar o vermelho pelo motivo certo.
+- [x] **T016** — Rodar `dotnet test` e confirmar o vermelho pelo motivo certo.
 
 ### Implementação
 
-- [ ] **T017** `[P]` — `DocesCabana.Application/Contracts/Repositories/IUsuarioRepository.cs`
+- [x] **T017** `[P]` — `DocesCabana.Application/Contracts/Repositories/IUsuarioRepository.cs`
       (criar): `IRepository<Usuario>` mais `Task<Usuario?> BuscarPorCpf(string cpf)`.
-- [ ] **T018** `[P]` — `DocesCabana.Infrastructure/Repositories/UsuarioRepository.cs`
+- [x] **T018** `[P]` — `DocesCabana.Infrastructure/Repositories/UsuarioRepository.cs`
       (criar).
-- [ ] **T019** — `DocesCabana.Infrastructure/Identity/Mappings/UsuarioMapper.cs`:
+- [x] **T019** — `DocesCabana.Infrastructure/Identity/Mappings/UsuarioMapper.cs`:
       `ToDTO(Usuario usuario, ContaDeAcesso conta)`. `CadastroToEntity` deixa de
       existir na forma atual — o serviço passa a construir as duas metades.
-- [ ] **T020** — `DocesCabana.Infrastructure/Identity/Services/UsuarioService.cs`:
+- [x] **T020** — `DocesCabana.Infrastructure/Identity/Services/UsuarioService.cs`:
       - `CadastrarUsuario`: cria a `ContaDeAcesso`, depois o `Usuario`, e
         **compensa com `DeleteAsync` se a segunda metade falhar** (plano §4).
       - `BuscarPorLogin` e `ResolverUsuario`: CPF passa a vir do
@@ -124,9 +124,9 @@ está errada.*
       - `BuscarUsuarioPorId` e `AlterarDadosUsuario`: leem e gravam o `Usuario`
         do domínio; a gravação usa `IUnitOfWork`.
       - Injetar `IUsuarioRepository` e `IUnitOfWork`.
-- [ ] **T021** — `DocesCabana.Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`:
+- [x] **T021** — `DocesCabana.Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`:
       registrar `IUsuarioRepository`.
-- [ ] **T022** — Rodar `dotnet test`: T013–T015 passam.
+- [x] **T022** — Rodar `dotnet test`: T013–T015 passam.
 
 ---
 

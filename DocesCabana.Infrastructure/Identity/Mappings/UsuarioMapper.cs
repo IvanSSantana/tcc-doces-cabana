@@ -1,26 +1,17 @@
 using DocesCabana.Application.DTOs;
-using DocesCabana.Application.DTOs.Autenticacao;
-using DocesCabana.Domain.Helpers;
+using DocesCabana.Domain.Entities;
 
 namespace DocesCabana.Infrastructure.Identity.Mappings;
 
 public static class UsuarioMapper
 {
-    public static Usuario CadastroToEntity(CadastroDTO dto) =>
-        new(
-            dto.Nome!,
-            dto.Email!,
-            TelefoneHelper.ApenasDigitos(dto.Celular!),
-            dto.DataNascimento ?? new DateTime(),
-            CpfHelper.ApenasDigitos(dto.CPF!));
-
-    public static UsuarioDTO ToDTO(Usuario usuario) =>
+    public static UsuarioDTO ToDTO(Usuario usuario, ContaDeAcesso conta) =>
         new()
         {
-            Id = usuario.Id,
+            Id = usuario.UsuarioId,
             Nome = usuario.Nome,
-            Email = usuario.Email!,
-            Celular = usuario.PhoneNumber!,
+            Email = conta.Email!,
+            Celular = usuario.Celular,
             DataNascimento = usuario.DataNascimento,
             CPF = usuario.CPF
         };

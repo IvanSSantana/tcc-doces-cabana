@@ -47,14 +47,20 @@ public class DatabaseIntegrationTests : InfraestruturaSqliteEmMemoria
 
         // Dois usuários com o mesmo CPF violam o índice único da tabela — o
         // SalvarAlteracoes falha, e nenhuma das duas alterações deve persistir,
-        // exatamente o comportamento que a transação explícita removida (RQ-02)
-        // dava e que o SaveChangesAsync já fornece por si.
-        var usuario1 = new Usuario("Cliente Um", "cliente.um@teste.com", "11987654321", new DateTime(1990, 1, 1), "52998224725");
-        var usuario2 = new Usuario("Cliente Dois", "cliente.dois@teste.com", "11987654322", new DateTime(1991, 2, 2), "52998224725");
+        // exatamente o comportamento que a transação explícita removida (RQ-02
+        // da spec 002) dava e que o SaveChangesAsync já fornece por si.
+        var conta1 = new ContaDeAcesso("cliente.um@teste.com");
+        var conta2 = new ContaDeAcesso("cliente.dois@teste.com");
+        await Contexto.Users.AddAsync(conta1);
+        await Contexto.Users.AddAsync(conta2);
+        await Contexto.SaveChangesAsync();
+
+        var usuario1 = new Usuario(conta1.Id, "Cliente Um", "52998224725", "11987654321", new DateTime(1990, 1, 1));
+        var usuario2 = new Usuario(conta2.Id, "Cliente Dois", "52998224725", "11987654322", new DateTime(1991, 2, 2));
 
         await Contexto.Produtos.AddAsync(produtoValido);
-        await Contexto.Users.AddAsync(usuario1);
-        await Contexto.Users.AddAsync(usuario2);
+        await Contexto.Usuarios.AddAsync(usuario1);
+        await Contexto.Usuarios.AddAsync(usuario2);
 
         await Assert.ThrowsAsync<DbUpdateException>(() => uow.SalvarAlteracoes());
 

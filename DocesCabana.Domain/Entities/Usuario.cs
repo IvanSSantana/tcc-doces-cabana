@@ -1,30 +1,35 @@
-using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Identity;
-using DocesCabana.Domain.Helpers; 
+using DocesCabana.Domain.Helpers;
 
-namespace DocesCabana.Infrastructure.Identity;
+namespace DocesCabana.Domain.Entities;
 
-public class Usuario : IdentityUser<Guid>
+public class Usuario
 {
+    public Guid UsuarioId { get; private set; }
+
     public string Nome { get; private set; } = default!;
-    public DateTime DataNascimento { get; private set; }
+
     public string CPF { get; private set; } = default!;
+
+    public string Celular { get; private set; } = default!;
+
+    public DateTime DataNascimento { get; private set; }
 
     protected Usuario() { }
 
-    public Usuario(string nome, string email, string celular, DateTime dataNascimento, string cpf)
+    // UsuarioId vem de fora (o Id da ContaDeAcesso já criada): a conta é a
+    // principal na relação 1:1, o usuário é o dependente.
+    public Usuario(Guid usuarioId, string nome, string cpf, string celular, DateTime dataNascimento)
     {
+        ValidarUsuarioId(usuarioId);
         ValidarNome(nome);
-        ValidarEmail(email);
+        ValidarCPF(cpf);
         ValidarCelular(celular);
         ValidarDataNascimento(dataNascimento);
-        ValidarCPF(cpf);
 
-        UserName = email;
-        PhoneNumber = celular;
+        UsuarioId = usuarioId;
         Nome = nome;
-        Email = email;
-        CPF = cpf;
+        CPF = CpfHelper.ApenasDigitos(cpf);
+        Celular = TelefoneHelper.ApenasDigitos(celular);
         DataNascimento = dataNascimento;
     }
 
@@ -35,8 +40,14 @@ public class Usuario : IdentityUser<Guid>
         ValidarDataNascimento(dataNascimento);
 
         Nome = nome;
-        PhoneNumber = celular;
+        Celular = TelefoneHelper.ApenasDigitos(celular);
         DataNascimento = dataNascimento;
+    }
+
+    private void ValidarUsuarioId(Guid usuarioId)
+    {
+        if (usuarioId == Guid.Empty)
+            throw new ArgumentException("Usuário inválido.", nameof(usuarioId));
     }
 
     private void ValidarNome(string nome)
@@ -45,17 +56,13 @@ public class Usuario : IdentityUser<Guid>
             throw new ArgumentNullException(nameof(nome), "Nome é obrigatório!");
     }
 
-    private static readonly Regex EmailRegex = new(
-        @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$",
-        RegexOptions.Compiled);
-
-    private void ValidarEmail(string email)
+    private void ValidarCPF(string cpf)
     {
-        if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentNullException(nameof(email), "Email é obrigatório!");
+        if (string.IsNullOrWhiteSpace(cpf))
+            throw new ArgumentNullException(nameof(cpf), "CPF é obrigatório!");
 
-        if (!EmailRegex.IsMatch(email))
-            throw new ArgumentException("Email inválido.", nameof(email));
+        if (!CpfHelper.CpfValido(cpf))
+            throw new ArgumentException("CPF inválido.", nameof(cpf));
     }
 
     private void ValidarCelular(string celular)
@@ -75,14 +82,5 @@ public class Usuario : IdentityUser<Guid>
             throw new ArgumentException("Data de nascimento inválida.", nameof(dataNascimento));
         if (dataNascimento < hoje.AddYears(-120))
             throw new ArgumentException("Data de nascimento inválida.", nameof(dataNascimento));
-    }
-    
-    private void ValidarCPF(string cpf)
-    {
-        if (string.IsNullOrWhiteSpace(cpf))
-            throw new ArgumentNullException(nameof(cpf), "CPF é obrigatório!");
-
-        if (!CpfHelper.CpfValido(cpf))
-            throw new ArgumentException("CPF inválido.", nameof(cpf));
     }
 }

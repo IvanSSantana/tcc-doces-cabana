@@ -87,7 +87,8 @@ public static class DbInitializer
     private static async Task SemearAdministrador(IServiceProvider serviceProvider)
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        var userManager = serviceProvider.GetRequiredService<UserManager<Usuario>>();
+        var userManager = serviceProvider.GetRequiredService<UserManager<ContaDeAcesso>>();
+        var context = serviceProvider.GetRequiredService<DocesCabanaDbContext>();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
         if (!await roleManager.RoleExistsAsync(PapelAdministrador))
@@ -103,15 +104,21 @@ public static class DbInitializer
         if (string.IsNullOrWhiteSpace(senha))
             return;
 
-        var administrador = new Usuario(
-            "Administrador Doces Cabana",
-            EmailAdministrador,
-            "14999999999",
-            new DateTime(1990, 1, 1),
-            "52998224725");
+        var conta = new ContaDeAcesso(EmailAdministrador);
+        var resultado = await userManager.CreateAsync(conta, senha);
+        if (!resultado.Succeeded)
+            return;
 
-        var resultado = await userManager.CreateAsync(administrador, senha);
-        if (resultado.Succeeded)
-            await userManager.AddToRoleAsync(administrador, PapelAdministrador);
+        var administrador = new Usuario(
+            conta.Id,
+            "Administrador Doces Cabana",
+            "52998224725",
+            "14999999999",
+            new DateTime(1990, 1, 1));
+
+        context.Usuarios.Add(administrador);
+        await context.SaveChangesAsync();
+
+        await userManager.AddToRoleAsync(conta, PapelAdministrador);
     }
 }

@@ -1,37 +1,45 @@
+using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
+using DocesCabana.Domain.Contracts;
+using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Helpers;
 using DocesCabana.Infrastructure.Identity.Mappings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Infrastructure.Identity.Services;
 
 public class UsuarioService : IUsuarioService
 {
-    private readonly UserManager<Usuario> _userManager;
-    private readonly SignInManager<Usuario> _signInManager;
+    private readonly UserManager<ContaDeAcesso> _userManager;
+    private readonly SignInManager<ContaDeAcesso> _signInManager;
+    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
     private readonly ILogger<UsuarioService> _logger;
 
     public UsuarioService(
-        UserManager<Usuario> userManager,
-        SignInManager<Usuario> signInManager,
+        UserManager<ContaDeAcesso> userManager,
+        SignInManager<ContaDeAcesso> signInManager,
+        IUsuarioRepository usuarioRepository,
+        IUnitOfWork unitOfWork,
         IEmailService emailService,
         ILogger<UsuarioService> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _usuarioRepository = usuarioRepository;
+        _unitOfWork = unitOfWork;
         _emailService = emailService;
         _logger = logger;
     }
 
     public async Task<UsuarioDTO> CadastrarUsuario(CadastroDTO dto)
     {
-        var usuario = UsuarioMapper.CadastroToEntity(dto);
-        var resultado = await _userManager.CreateAsync(usuario, dto.Senha!);
+        var conta = new ContaDeAcesso(dto.Email!);
+        var resultado = await _userManager.CreateAsync(conta, dto.Senha!);
 
         if (!resultado.Succeeded)
         {
@@ -47,61 +55,87 @@ public class UsuarioService : IUsuarioService
                 ObterMensagensErro(resultado));
         }
 
-        return UsuarioMapper.ToDTO(usuario);
+        // A partir daqui, se qualquer coisa falhar, a conta já criada é
+        // desfeita — não deixamos credencial sem cadastro (RN-08 da spec 004).
+        try
+        {
+            var usuario = new Usuario(conta.Id, dto.Nome!, dto.CPF!, dto.Celular!, dto.DataNascimento ?? new DateTime());
+            await _usuarioRepository.Adicionar(usuario);
+            await _unitOfWork.SalvarAlteracoes();
+
+            return UsuarioMapper.ToDTO(usuario, conta);
+        }
+        catch
+        {
+            await _userManager.DeleteAsync(conta);
+            throw;
+        }
     }
 
     public async Task<UsuarioDTO> BuscarUsuarioPorId(Guid usuarioId)
     {
-        var usuario = await _userManager.FindByIdAsync(usuarioId.ToString());
+        var conta = await _userManager.FindByIdAsync(usuarioId.ToString());
+        if (conta is null)
+            throw new KeyNotFoundException($"Usuário com ID {usuarioId} não encontrado.");
 
+        var usuario = await _usuarioRepository.BuscarPorId(usuarioId);
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com ID {usuarioId} não encontrado.");
 
-        return UsuarioMapper.ToDTO(usuario);
+        return UsuarioMapper.ToDTO(usuario, conta);
     }
 
     public async Task<UsuarioDTO?> BuscarPorLogin(string login)
     {
-        var usuario = await ResolverUsuario(login);
+        var resolvido = await ResolverUsuario(login);
 
-        return usuario is null ? null : UsuarioMapper.ToDTO(usuario);
+        return resolvido is null ? null : UsuarioMapper.ToDTO(resolvido.Value.Usuario, resolvido.Value.Conta);
     }
 
-    private async Task<Usuario?> ResolverUsuario(string login)
+    private async Task<(Usuario Usuario, ContaDeAcesso Conta)?> ResolverUsuario(string login)
     {
-        var usuario = await _userManager.FindByEmailAsync(login);
+        var conta = await _userManager.FindByEmailAsync(login);
 
-        if (usuario is not null)
-            return usuario;
+        if (conta is not null)
+        {
+            var usuarioPorConta = await _usuarioRepository.BuscarPorId(conta.Id);
+            return usuarioPorConta is null ? null : (usuarioPorConta, conta);
+        }
 
-        var cpf = new string(login.Where(char.IsDigit).ToArray());
-        return await _userManager.Users.FirstOrDefaultAsync(u => u.CPF == cpf);
+        var cpf = CpfHelper.ApenasDigitos(login);
+        var usuario = await _usuarioRepository.BuscarPorCpf(cpf);
+        if (usuario is null)
+            return null;
+
+        var contaDoUsuario = await _userManager.FindByIdAsync(usuario.UsuarioId.ToString());
+        return contaDoUsuario is null ? null : (usuario, contaDoUsuario);
     }
-    
+
     public async Task<UsuarioDTO> AlterarDadosUsuario(UsuarioDTO usuarioDto)
     {
-        var usuario = await _userManager.FindByIdAsync(usuarioDto.Id.ToString());
-        
+        var conta = await _userManager.FindByIdAsync(usuarioDto.Id.ToString());
+        if (conta is null)
+            throw new KeyNotFoundException($"Usuário com ID {usuarioDto.Id} não encontrado.");
+
+        var usuario = await _usuarioRepository.BuscarPorId(usuarioDto.Id);
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com ID {usuarioDto.Id} não encontrado.");
 
         usuario.AtualizarDados(usuarioDto.Nome, TelefoneHelper.ApenasDigitos(usuarioDto.Celular), usuarioDto.DataNascimento);
-        
-        var resultado = await _userManager.UpdateAsync(usuario);
 
-        if (!resultado.Succeeded)
-            throw new InvalidOperationException(ObterMensagensErro(resultado));
+        _usuarioRepository.Atualizar(usuario);
+        await _unitOfWork.SalvarAlteracoes();
 
-        return UsuarioMapper.ToDTO(usuario);
+        return UsuarioMapper.ToDTO(usuario, conta);
     }
 
     public async Task<SignInResult> RealizarLogin(string login, string senha, bool lembrarMe)
     {
-        var usuario = await ResolverUsuario(login);
-        if (usuario is null)
+        var resolvido = await ResolverUsuario(login);
+        if (resolvido is null)
             return SignInResult.Failed;
 
-        var resultado = await _signInManager.PasswordSignInAsync(usuario.Email!, senha, lembrarMe, lockoutOnFailure: true);
+        var resultado = await _signInManager.PasswordSignInAsync(resolvido.Value.Conta.Email!, senha, lembrarMe, lockoutOnFailure: true);
         return resultado;
     }
 
@@ -112,34 +146,34 @@ public class UsuarioService : IUsuarioService
 
     public async Task<string> GerarTokenRedefinicaoSenha(string email)
     {
-        var usuario = await _userManager.FindByEmailAsync(email);
-        if (usuario is null)
+        var conta = await _userManager.FindByEmailAsync(email);
+        if (conta is null)
             throw new KeyNotFoundException($"Usuário com e-mail {email} não encontrado.");
 
-        return await _userManager.GeneratePasswordResetTokenAsync(usuario);
+        return await _userManager.GeneratePasswordResetTokenAsync(conta);
     }
 
     public async Task<bool> SolicitarRedefinicaoSenha(string email, string corpo)
     {
-        var usuario = await _userManager.FindByEmailAsync(email);
-        if (usuario is null)
+        var conta = await _userManager.FindByEmailAsync(email);
+        if (conta is null)
         {
             return false;
         }
 
         var assunto = "Doces Cabana - Redefinição de Senha";
-        
+
         await _emailService.EnviarEmail(email, assunto, corpo);
         return true;
     }
 
     public async Task<bool> ConfirmarRedefinicaoSenha(string email, string token, string novaSenha)
     {
-        var usuario = await _userManager.FindByEmailAsync(email);
-        if (usuario is null)
+        var conta = await _userManager.FindByEmailAsync(email);
+        if (conta is null)
             return false;
 
-        var resultado = await _userManager.ResetPasswordAsync(usuario, token, novaSenha);
+        var resultado = await _userManager.ResetPasswordAsync(conta, token, novaSenha);
         return resultado.Succeeded;
     }
 
@@ -148,13 +182,13 @@ public class UsuarioService : IUsuarioService
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
             return false;
 
-        var usuario = await _userManager.FindByEmailAsync(email);
-        
-        if (usuario is null)
+        var conta = await _userManager.FindByEmailAsync(email);
+
+        if (conta is null)
             return false;
 
-        var resultado = await _userManager.ConfirmEmailAsync(usuario, token);
-        
+        var resultado = await _userManager.ConfirmEmailAsync(conta, token);
+
         if (!resultado.Succeeded)
             return false;
         return true;

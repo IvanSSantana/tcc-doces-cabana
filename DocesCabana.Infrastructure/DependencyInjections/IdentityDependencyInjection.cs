@@ -9,7 +9,7 @@ public static class IdentityDependencyInjection
 {
     public static IServiceCollection AddIdentityConfiguration(this IServiceCollection services)
     {
-        services.AddIdentity<Usuario, IdentityRole<Guid>>(options =>
+        services.AddIdentity<ContaDeAcesso, IdentityRole<Guid>>(options =>
         {
             options.Password.RequiredLength = 6;
             options.Password.RequireLowercase = true;
