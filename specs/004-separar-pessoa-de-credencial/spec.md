@@ -1,7 +1,7 @@
 # Especificação — Separar pessoa de credencial
 
 **ID:** `004-separar-pessoa-de-credencial` · **Branch:** `004-separar-pessoa-de-credencial`
-**Criada em:** 2026-08-12 · **Status:** Rascunho
+**Criada em:** 2026-08-12 · **Status:** Implementada
 
 ---
 

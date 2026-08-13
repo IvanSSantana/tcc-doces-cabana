@@ -8,13 +8,22 @@ Table Produto [headercolor: #175e7a] {
 	ImagemUrl nvarchar(255) [ not null ]
 }
 
+// Usuario e ContaDeAcesso são as duas metades de uma mesma pessoa, separadas
+// pela spec 004-separar-pessoa-de-credencial: Usuario é dado de negócio,
+// ContaDeAcesso é a credencial do ASP.NET Identity. 1:1 por chave
+// compartilhada — UsuarioId é ao mesmo tempo PK de Usuario e FK para
+// ContaDeAcesso.Id.
 Table Usuario [headercolor: #175e7a] {
 	UsuarioId uniqueidentifier [ pk, unique ]
-	NomeCompleto varchar(255)
-	Email varchar(255)
-	Celular varchar(20)
+	Nome varchar(255) [ not null ]
+	CPF varchar(11) [ not null, unique ]
+	Celular varchar(11) [ not null ]
 	DataNascimento date
-	CPF varchar(11)
+}
+
+Table ContaDeAcesso [headercolor: #175e7a] {
+	Id uniqueidentifier [ pk, unique ]
+	Email varchar(255)
 	PasswordHash varchar(255)
 }
 
@@ -160,4 +169,8 @@ Ref fk_Produto_SubcategoriaId_Subcategoria {
 
 Ref fk_Produto_PromocaoId_Promocao {
 	Produto.PromocaoId > Promocao.PromocaoId [ delete: no action, update: no action ]
+}
+
+Ref fk_Usuario_UsuarioId_ContaDeAcesso {
+	Usuario.UsuarioId - ContaDeAcesso.Id [ delete: cascade, update: no action ]
 }

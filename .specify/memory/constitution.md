@@ -1,6 +1,6 @@
 # Constituição — Doces Cabana
 
-**Versão:** 1.1.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-08-11
+**Versão:** 1.2.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-08-13
 
 Este documento define os princípios inegociáveis do projeto. Toda `spec`, `plan` e
 `tasks` é validada contra ele antes de virar código. Quando uma decisão técnica
@@ -30,10 +30,18 @@ MVC ──────► Application ──────► Domain
   módulos de injeção de dependência da `Infrastructure`.
 
 **Exceção conhecida e documentada:** `IUsuarioService` vive em
-`Infrastructure/Identity/Services` porque a entidade `Usuario` herda de
-`IdentityUser<Guid>`. Controllers dependem dessa interface diretamente. Qualquer
-nova feature de autenticação segue esse mesmo caminho; **nenhuma outra** exceção
-à direção de dependência é permitida sem emenda constitucional.
+`Infrastructure/Identity/Services` porque sua implementação depende de
+`UserManager` e `SignInManager`, tipos do ASP.NET Identity. A entidade
+`Usuario` em si é de domínio — não herda de nada do Identity, que é quem
+guarda a credencial (`ContaDeAcesso`, em `Infrastructure/Identity`). Controllers
+dependem de `IUsuarioService` diretamente. Qualquer nova feature de autenticação
+segue esse mesmo caminho; **nenhuma outra** exceção à direção de dependência é
+permitida sem emenda constitucional.
+
+Entidades de domínio referenciam `Usuario` por propriedade de navegação normal,
+como referenciam qualquer outra entidade do domínio — a exceção acima é sobre
+onde `IUsuarioService` mora, não sobre como o domínio se relaciona com
+`Usuario`.
 
 **Como verificar:** olhar os `<ProjectReference>` do `.csproj` alterado. Se uma
 tarefa exige uma referência nova, ela viola este princípio até prova em contrário.
@@ -199,3 +207,4 @@ justificativa escrita na `spec`:
 |---|---|---|
 | 1.0.0 | 2026-08-07 | Ratificação inicial, extraída da arquitetura e das convenções já presentes no código. |
 | 1.1.0 | 2026-08-11 | Feature `002-revisao-tecnica`. Princípio IV ganha a regra de que nome de arquivo, nome de tipo e pasta/namespace coincidem (RQ-03). Princípio VI perde a menção a transação explícita: `IUnitOfWork` fica só com `SalvarAlteracoes` — a abstração de transação manual foi removida por não ter consumidor e por duplicar a atomicidade que `SaveChangesAsync` já garante (RQ-02). |
+| 1.2.0 | 2026-08-13 | Feature `004-separar-pessoa-de-credencial`. A exceção do Princípio I é reescrita: o motivo deixa de ser "a entidade `Usuario` herda de `IdentityUser<Guid>`" (deixou de ser verdade — `Usuario` passou a ser do domínio) e passa a ser a dependência de `UserManager`/`SignInManager`. Acrescentado que entidades de domínio referenciam `Usuario` por navegação normal, encerrando a limitação que a `003` havia registrado como RQ-02. |

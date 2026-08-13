@@ -22,9 +22,9 @@ no mesmo diff é o jeito mais rápido de esconder uma quebra.
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Criar branch `004-separar-pessoa-de-credencial` a partir de
+- [x] **T001** — Criar branch `004-separar-pessoa-de-credencial` a partir de
       `main` (com `001` e `003` já integradas).
-- [ ] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado
+- [x] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado
       inicial: **233 testes, 0 falhas, 0 avisos**. É a linha de base contra a
       qual a T040 compara.
 
@@ -162,50 +162,50 @@ está errada.*
 
 ## Fase 6 — Bloco E: persistência, massa inicial e fechamento
 
-- [ ] **T030** — **Apagar o banco local** `DocesCabana.MVC/docescabana.db` (e os
+- [x] **T030** — **Apagar o banco local** `DocesCabana.MVC/docescabana.db` (e os
       arquivos `-shm`/`-wal`). As contas existentes são perdidas — esperado e
       documentado (plano §5); o administrador é recriado na subida.
-- [ ] **T031** — Criar a migration:
+- [x] **T031** — Criar a migration:
       `dotnet ef migrations add SepararPessoaDeCredencial --project
       DocesCabana.Infrastructure --startup-project DocesCabana.MVC`.
       Conferir no arquivo gerado que a tabela `ContaDeAcesso` existe, que a
       tabela `Usuario` tem só as cinco colunas do domínio, e que as chaves
       estrangeiras de `Endereco`, `Favorito`, `Avaliacao` e `Pedido` apontam
       para `Usuario`, não para `ContaDeAcesso`.
-- [ ] **T032** — `DocesCabana.MVC/Helpers/DbInitializer.cs`: o administrador
+- [x] **T032** — `DocesCabana.MVC/Helpers/DbInitializer.cs`: o administrador
       semeado passa a ser criado em duas metades, com o mesmo `Guid`.
-- [ ] **T033** — `DocesCabana.Tests/Integration/InfraestruturaSqliteEmMemoria.cs`:
+- [x] **T033** — `DocesCabana.Tests/Integration/InfraestruturaSqliteEmMemoria.cs`:
       `SemearUsuario` cria as duas metades e devolve o `Guid` compartilhado.
       Ajustar `DatabaseIntegrationTests` para o CPF único vir do domínio.
-- [ ] **T034** — Busca textual por `PhoneNumber` em todo o projeto: nenhuma
+- [x] **T034** — Busca textual por `PhoneNumber` em todo o projeto: nenhuma
       escrita nem leitura deve sobrar fora do que o Identity faz internamente.
       **Prova RQ-07.**
-- [ ] **T035** — Rodar `dotnet test`: verde.
+- [x] **T035** — Rodar `dotnet test`: verde.
 
 ---
 
 ## Fase 7 — Documentação e fechamento
 
-- [ ] **T036** — `.specify/memory/constitution.md`: versão **1.2.0**. Reescrever
+- [x] **T036** — `.specify/memory/constitution.md`: versão **1.2.0**. Reescrever
       a exceção do Princípio I — o motivo passa a ser a dependência de
       `UserManager`/`SignInManager`, e não mais a herança da entidade — e
       registrar que entidades de domínio referenciam `Usuario` por navegação
       normal. Linha no histórico com data 2026-08-12 e motivo.
-- [ ] **T037** `[P]` — `specs/003-modelo-de-dados-completo/spec.md`: anotar na
+- [x] **T037** `[P]` — `specs/003-modelo-de-dados-completo/spec.md`: anotar na
       RQ-02 que a limitação foi encerrada por esta spec.
-- [ ] **T038** `[P]` — `ModelagemBancoTCC.dbml`: acrescentar `ContaDeAcesso` e
+- [x] **T038** `[P]` — `ModelagemBancoTCC.dbml`: acrescentar `ContaDeAcesso` e
       deixar `Usuario` com nome, CPF, celular e nascimento — as duas metades,
       como o banco passou a ser.
-- [ ] **T039** `[P]` — `specs/README.md`: status da `004` para *Implementada*.
-- [ ] **T040** — `dotnet build` sem avisos novos e `dotnet test` verde, com
+- [x] **T039** `[P]` — `specs/README.md`: status da `004` para *Implementada*.
+- [x] **T040** — `dotnet build` sem avisos novos e `dotnet test` verde, com
       contagem maior ou igual aos 233 da T002. **Prova CA-07.**
-- [ ] **T041** — Fumaça manual, com a aplicação rodando: criar conta; entrar
+- [x] **T041** — Fumaça manual, com a aplicação rodando: criar conta; entrar
       com e-mail (CA-02); sair e entrar com CPF, com e sem pontuação (CA-03);
       solicitar redefinição de senha e concluir com a senha nova (CA-06);
       tentar criar segunda conta com o **mesmo CPF** e outro e-mail, e depois
       confirmar que esse e-mail **não** entra no sistema — prova que a conta
       órfã foi desfeita (CA-04).
-- [ ] **T042** — Preencher `checklist.md` e atualizar o status da spec.
+- [x] **T042** — Preencher `checklist.md` e atualizar o status da spec.
 
 ---
 

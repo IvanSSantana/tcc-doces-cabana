@@ -75,7 +75,10 @@ persistidas, de modo que toda feature seguinte encontre o esquema pronto.
   configuração de persistência e tabela no banco: `Categoria`, `Subcategoria`,
   `Estoque`, `Promocao`, `Endereco`, `Favorito`, `Avaliacao`, `Pedido`,
   `ItemPedido` e `Pagamento`.
-- **RQ-02** *(Princípio I)* — Nenhuma entidade de domínio DEVE ter propriedade de
+- **RQ-02** *(Princípio I)* — **Limitação encerrada pela spec `004-separar-pessoa-de-credencial`**,
+  que passou `Usuario` para o domínio — as quatro entidades abaixo navegam até
+  ele normalmente desde então. Texto original, mantido como registro histórico:
+  nenhuma entidade de domínio DEVE ter propriedade de
   navegação para `Usuario`, que vive na infraestrutura por herdar de
   `IdentityUser<Guid>`. Nesses quatro casos — `Endereco`, `Favorito`,
   `Avaliacao` e `Pedido` — a referência é o identificador, e o relacionamento é
