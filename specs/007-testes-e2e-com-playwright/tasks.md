@@ -129,11 +129,11 @@ navegador a alcança, antes de empilhar doze fluxos em cima disso.*
 *Escopar os seletores no formulário ou no `main`: o `_ModalLogin` do `_Layout`
 tem links "Entrar" e "Cadastre-se" que colidem com os da página (risco do §8).*
 
-- [ ] **T018** `[P]` — `DocesCabana.Tests.E2E/Paginas/PaginaLogin.cs` e
+- [x] **T018** `[P]` — `DocesCabana.Tests.E2E/Paginas/PaginaLogin.cs` e
       `PaginaCadastro.cs` (criar).
-- [ ] **T019** `[P]` — `DocesCabana.Tests.E2E/Paginas/PaginaEsqueceuSenha.cs` e
+- [x] **T019** `[P]` — `DocesCabana.Tests.E2E/Paginas/PaginaEsqueceuSenha.cs` e
       `PaginaRedefinirSenha.cs` (criar).
-- [ ] **T020** `[P]` — `DocesCabana.Tests.E2E/Paginas/PaginaCadastroProduto.cs` e
+- [x] **T020** `[P]` — `DocesCabana.Tests.E2E/Paginas/PaginaCadastroProduto.cs` e
       `PaginaAdministradores.cs` (criar).
 
 ## Fase 7 — Fluxos

@@ -43,6 +43,15 @@
               <span>Administradores</span>
             </a>
           }
+
+          <form asp-controller="Autenticacao" asp-action="Logout" method="post" class="formulario-sair">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="botao-acao botao-sair" aria-label="Sair">
+              <i class="fa-solid fa-right-from-bracket icone-acao"></i>
+
+              <span>Sair</span>
+            </button>
+          </form>
         }
         else 
         {
