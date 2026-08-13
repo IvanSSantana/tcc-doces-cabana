@@ -23,21 +23,21 @@ todo mundo, inclusive para quem estiver testando.
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Criar branch `005-gestao-de-administradores` a partir de `main`
+- [x] **T001** — Criar branch `005-gestao-de-administradores` a partir de `main`
       (com a `004` já integrada).
-- [ ] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado
+- [x] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado
       inicial verde. É a linha de base da T020.
 
 ## Fase 2 — A constante de papel muda de casa
 
 *Sem isto, um serviço da infraestrutura não consegue enxergar o nome do papel.*
 
-- [ ] **T003** — `DocesCabana.Domain/Papeis.cs` (criar):
+- [x] **T003** — `DocesCabana.Domain/Papeis.cs` (criar):
       `public const string Administrador = "Administrador";` — **o mesmo valor
       literal de hoje**. Remover `PapelAdministrador` de
       `MVC/Helpers/DbInitializer.cs` e apontar `MVC/Controllers/AdminController.cs`
       e o próprio `DbInitializer` para `Papeis.Administrador`.
-- [ ] **T004** — Rodar `dotnet test`: verde, sem mudança de contagem. É
+- [x] **T004** — Rodar `dotnet test`: verde, sem mudança de contagem. É
       refatoração pura.
 
 ## Fase 3 — Testes (devem falhar)

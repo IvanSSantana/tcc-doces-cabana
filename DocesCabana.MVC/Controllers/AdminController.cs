@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
-using DocesCabana.MVC.Helpers;
+using DocesCabana.Domain;
 using DocesCabana.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DocesCabana.MVC.Controllers;
 
-[Authorize(Roles = DbInitializer.PapelAdministrador)]
+[Authorize(Roles = Papeis.Administrador)]
 public class AdminController : Controller
 {
     private readonly IProdutoService _produtoService;

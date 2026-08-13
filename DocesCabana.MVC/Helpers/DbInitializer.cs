@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DocesCabana.Domain;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.DatabaseContext;
 using DocesCabana.Infrastructure.Identity;
@@ -26,7 +27,6 @@ public static class DbInitializer
     public static readonly Guid SubcategoriaVinhosId = new("22222222-0000-0000-0000-000000000005");
     public static readonly Guid SubcategoriaDestiladosId = new("22222222-0000-0000-0000-000000000006");
 
-    public const string PapelAdministrador = "Administrador";
     public const string EmailAdministrador = "admin@docescabana.com.br";
 
     public static void Migrar(IServiceProvider serviceProvider)
@@ -91,8 +91,8 @@ public static class DbInitializer
         var context = serviceProvider.GetRequiredService<DocesCabanaDbContext>();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
-        if (!await roleManager.RoleExistsAsync(PapelAdministrador))
-            await roleManager.CreateAsync(new IdentityRole<Guid>(PapelAdministrador));
+        if (!await roleManager.RoleExistsAsync(Papeis.Administrador))
+            await roleManager.CreateAsync(new IdentityRole<Guid>(Papeis.Administrador));
 
         if (await userManager.FindByEmailAsync(EmailAdministrador) is not null)
             return;
@@ -119,6 +119,6 @@ public static class DbInitializer
         context.Usuarios.Add(administrador);
         await context.SaveChangesAsync();
 
-        await userManager.AddToRoleAsync(conta, PapelAdministrador);
+        await userManager.AddToRoleAsync(conta, Papeis.Administrador);
     }
 }
