@@ -142,6 +142,53 @@ public class UsuarioServiceCadastroTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task Dado_PapelInformado_Quando_CadastrarUsuario_Entao_DeveAtribuirOPapel()
+    {
+        var dto = CriarCadastroDTO();
+        _userManagerMock
+            .Setup(u => u.CreateAsync(It.IsAny<ContaDeAcesso>(), dto.Senha!))
+            .Callback<ContaDeAcesso, string>((conta, _) =>
+                typeof(IdentityUser<Guid>).GetProperty(nameof(IdentityUser<Guid>.Id))!.SetValue(conta, Guid.NewGuid()))
+            .ReturnsAsync(IdentityResult.Success);
+        _userManagerMock.Setup(u => u.AddToRoleAsync(It.IsAny<ContaDeAcesso>(), "Administrador"))
+            .ReturnsAsync(IdentityResult.Success);
+
+        await _usuarioService.CadastrarUsuario(dto, "Administrador");
+
+        _userManagerMock.Verify(u => u.AddToRoleAsync(It.IsAny<ContaDeAcesso>(), "Administrador"), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_FalhaAoAtribuirPapel_Quando_CadastrarUsuario_Entao_DeveApagarAContaCriada()
+    {
+        // Sem compensação aqui, sobraria uma conta de cliente que ninguém
+        // pediu — a gestão de administradores não entrega promoção de conta
+        // existente (fora de escopo da spec 005). RN-05 da spec 005.
+        var dto = CriarCadastroDTO();
+        ContaDeAcesso? contaCriada = null;
+        _userManagerMock
+            .Setup(u => u.CreateAsync(It.IsAny<ContaDeAcesso>(), dto.Senha!))
+            .Callback<ContaDeAcesso, string>((conta, _) =>
+            {
+                typeof(IdentityUser<Guid>).GetProperty(nameof(IdentityUser<Guid>.Id))!.SetValue(conta, Guid.NewGuid());
+                contaCriada = conta;
+            })
+            .ReturnsAsync(IdentityResult.Success);
+        var erroPapel = new IdentityError { Description = "Papel inexistente" };
+        _userManagerMock.Setup(u => u.AddToRoleAsync(It.IsAny<ContaDeAcesso>(), "Administrador"))
+            .ReturnsAsync(IdentityResult.Failed(erroPapel));
+        _userManagerMock.Setup(u => u.DeleteAsync(It.IsAny<ContaDeAcesso>()))
+            .ReturnsAsync(IdentityResult.Success);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _usuarioService.CadastrarUsuario(dto, "Administrador"));
+
+        _userManagerMock.Verify(
+            u => u.DeleteAsync(It.Is<ContaDeAcesso>(c => c == contaCriada)),
+            Times.Once);
+    }
+
     private static CadastroDTO CriarCadastroDTO() =>
         new()
         {

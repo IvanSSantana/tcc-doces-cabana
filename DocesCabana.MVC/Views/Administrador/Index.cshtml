@@ -1,0 +1,47 @@
+@using DocesCabana.Application.DTOs
+@model List<UsuarioDTO>
+@{
+    ViewData["Title"] = "Administradores";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/pages/administradores.css" asp-append-version="true">
+
+<main class="container-administradores">
+    <div class="cabecalho-administradores">
+        <h1 class="titulo-tela">Administradores</h1>
+        <a asp-action="Cadastro" class="botao-acao botao-novo-administrador">Novo administrador</a>
+    </div>
+
+    @if (TempData["Confirmacao"] is string confirmacao)
+    {
+        <div class="resumo-sucesso">
+            <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <p class="mensagem-vazia">Nenhum administrador cadastrado.</p>
+    }
+    else
+    {
+        <table class="tabela-administradores">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var administrador in Model)
+                {
+                    <tr>
+                        <td>@administrador.Nome</td>
+                        <td>@administrador.Email</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</main>

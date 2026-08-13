@@ -36,7 +36,7 @@ public class UsuarioService : IUsuarioService
         _logger = logger;
     }
 
-    public async Task<UsuarioDTO> CadastrarUsuario(CadastroDTO dto)
+    public async Task<UsuarioDTO> CadastrarUsuario(CadastroDTO dto, string? papel = null)
     {
         var conta = new ContaDeAcesso(dto.Email!);
         var resultado = await _userManager.CreateAsync(conta, dto.Senha!);
@@ -55,13 +55,22 @@ public class UsuarioService : IUsuarioService
                 ObterMensagensErro(resultado));
         }
 
-        // A partir daqui, se qualquer coisa falhar, a conta já criada é
-        // desfeita — não deixamos credencial sem cadastro (RN-08 da spec 004).
+        // A partir daqui, se qualquer coisa falhar — cadastro do usuário ou
+        // atribuição do papel —, a conta já criada é desfeita: não deixamos
+        // credencial sem cadastro nem conta de cliente que ninguém pediu
+        // (RN-08 da spec 004, RN-05 da spec 005).
         try
         {
             var usuario = new Usuario(conta.Id, dto.Nome!, dto.CPF!, dto.Celular!, dto.DataNascimento ?? new DateTime());
             await _usuarioRepository.Adicionar(usuario);
             await _unitOfWork.SalvarAlteracoes();
+
+            if (!string.IsNullOrWhiteSpace(papel))
+            {
+                var resultadoPapel = await _userManager.AddToRoleAsync(conta, papel);
+                if (!resultadoPapel.Succeeded)
+                    throw new InvalidOperationException(ObterMensagensErro(resultadoPapel));
+            }
 
             return UsuarioMapper.ToDTO(usuario, conta);
         }

@@ -42,58 +42,58 @@ todo mundo, inclusive para quem estiver testando.
 
 ## Fase 3 — Testes (devem falhar)
 
-- [ ] **T005** `[P]` — `Tests/Units/Services/AdministradorServiceTests.cs`
+- [x] **T005** `[P]` — `Tests/Units/Services/AdministradorServiceTests.cs`
       (criar): `ListarAdministradores` compõe nome (do `Usuario`) e e-mail (da
       `ContaDeAcesso`) de cada administrador; `CadastrarAdministrador` repassa
       `Papeis.Administrador` para `CadastrarUsuario`. **Prova RF-01, RF-03, RN-04.**
-- [ ] **T006** `[P]` — `Tests/Units/Services/UsuarioServiceCadastroTests.cs`:
+- [x] **T006** `[P]` — `Tests/Units/Services/UsuarioServiceCadastroTests.cs`:
       acrescentar — com `papel` informado, `AddToRoleAsync` é chamado; se ele
       falhar, a conta criada é apagada. **Prova RN-05, CA-05.**
-- [ ] **T007** `[P]` — `Tests/Units/Controllers/AdministradorControllerTests.cs`
+- [x] **T007** `[P]` — `Tests/Units/Controllers/AdministradorControllerTests.cs`
       (criar): `Index` devolve a lista; `Cadastro` POST com `ModelState`
       inválido devolve `ViewResult` e **não** chama o serviço; POST válido chama
       o serviço e devolve `RedirectToActionResult` com `TempData` preenchido.
       **Prova RF-06, RF-07, CA-02.**
-- [ ] **T008** — Rodar `dotnet test` e confirmar que T005–T007 falham pelo
+- [x] **T008** — Rodar `dotnet test` e confirmar que T005–T007 falham pelo
       motivo esperado.
 
 ## Fase 4 — Serviço
 
-- [ ] **T009** — `Infrastructure/Identity/Services/IUsuarioService.cs` e
+- [x] **T009** — `Infrastructure/Identity/Services/IUsuarioService.cs` e
       `UsuarioService.cs`: acrescentar o parâmetro opcional
       `string? papel = null` a `CadastrarUsuario` e atribuir o papel **dentro**
       do bloco que a `004` já compensa (plano §4). Quem chama hoje não muda.
-- [ ] **T010** `[P]` — `Infrastructure/Identity/Services/IAdministradorService.cs`
+- [x] **T010** `[P]` — `Infrastructure/Identity/Services/IAdministradorService.cs`
       (criar).
-- [ ] **T011** — `Infrastructure/Identity/Services/AdministradorService.cs`
+- [x] **T011** — `Infrastructure/Identity/Services/AdministradorService.cs`
       (criar): `ListarAdministradores` usa `GetUsersInRoleAsync` e completa os
       nomes pelo `IUsuarioRepository`; `CadastrarAdministrador` delega a
       `CadastrarUsuario(dto, Papeis.Administrador)`.
-- [ ] **T012** — `Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`:
+- [x] **T012** — `Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`:
       registrar `IAdministradorService`.
-- [ ] **T013** — Rodar `dotnet test`: T005 e T006 passam.
+- [x] **T013** — Rodar `dotnet test`: T005 e T006 passam.
 
 ## Fase 5 — Apresentação
 
-- [ ] **T014** — `MVC/Controllers/AdministradorController.cs` (criar):
+- [x] **T014** — `MVC/Controllers/AdministradorController.cs` (criar):
       `[Authorize(Roles = Papeis.Administrador)]` na classe;
       `Index` lista; `Cadastro` GET devolve o formulário; `Cadastro` POST com
       `[ValidateAntiForgeryToken]`, guarda de `ModelState`, e no sucesso
       `TempData["Confirmacao"]` + `RedirectToAction(nameof(Index))`.
-- [ ] **T015** `[P]` — `MVC/Views/Administrador/Index.cshtml` (criar): tabela de
+- [x] **T015** `[P]` — `MVC/Views/Administrador/Index.cshtml` (criar): tabela de
       nome e e-mail, mensagem de confirmação do `TempData`, link para o
       cadastro.
-- [ ] **T016** `[P]` — `MVC/Views/Administrador/Cadastro.cshtml` (criar):
+- [x] **T016** `[P]` — `MVC/Views/Administrador/Cadastro.cshtml` (criar):
       formulário espelhando `Views/Autenticacao/Cadastro.cshtml`, com
       `asp-validation-for` em cada campo e `_ValidationScriptsPartial`.
-- [ ] **T017** `[P]` — `MVC/wwwroot/css/pages/administradores.css` (criar).
-- [ ] **T018** — `MVC/Views/Shared/Components/Header/Default.cshtml`: link para a
+- [x] **T017** `[P]` — `MVC/wwwroot/css/pages/administradores.css` (criar).
+- [x] **T018** — `MVC/Views/Shared/Components/Header/Default.cshtml`: link para a
       gestão dentro de `@if (User.IsInRole(Papeis.Administrador))`. **Prova RF-09.**
-- [ ] **T019** — Rodar `dotnet test`: T007 passa.
+- [x] **T019** — Rodar `dotnet test`: T007 passa.
 
 ## Fase 6 — Fechamento
 
-- [ ] **T020** — `dotnet build` sem avisos novos e `dotnet test` verde, com
+- [x] **T020** — `dotnet build` sem avisos novos e `dotnet test` verde, com
       contagem maior que a da T002.
 - [ ] **T021** — Fumaça manual, com a aplicação rodando:
       - Entrar como o administrador semeado e abrir a gestão: ele consta na

@@ -6,7 +6,7 @@ namespace DocesCabana.Infrastructure.Identity.Services;
 
 public interface IUsuarioService
 {
-    Task<UsuarioDTO> CadastrarUsuario(CadastroDTO usuario);
+    Task<UsuarioDTO> CadastrarUsuario(CadastroDTO usuario, string? papel = null);
     Task<UsuarioDTO> BuscarUsuarioPorId(Guid usuarioId);
     Task<UsuarioDTO?> BuscarPorLogin(string login);
     Task<UsuarioDTO> AlterarDadosUsuario(UsuarioDTO usuarioDto);

@@ -21,6 +21,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<ISubcategoriaRepository, SubcategoriaRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IUsuarioService, UsuarioService>();
+        services.AddScoped<IAdministradorService, AdministradorService>();
         services.AddScoped<IProdutoService, ProdutoService>();
         services.AddScoped<ISubcategoriaService, SubcategoriaService>();
         services.AddScoped<IEmailService, EmailService>();

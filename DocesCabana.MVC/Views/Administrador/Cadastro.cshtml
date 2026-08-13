@@ -1,0 +1,113 @@
+@using DocesCabana.Application.DTOs.Autenticacao;
+@model CadastroDTO
+@{
+    ViewData["Title"] = "Cadastrar Administrador";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/pages/autenticacao.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/administradores.css" asp-append-version="true">
+
+<main class="container-autenticacao">
+    <h1 class="titulo-tela">Cadastrar Administrador</h1>
+
+    <form asp-action="Cadastro" method="post" class="formulario-autenticacao">
+        <div class="campo-entrada">
+            <label asp-for="Nome">Nome Completo</label>
+            <input asp-for="Nome" type="text" placeholder="Digite o nome completo..." class="campo-texto" required />
+            <span asp-validation-for="Nome" class="mensagem-erro"></span>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="Email">E-mail</label>
+            <input asp-for="Email" type="email" placeholder="Digite o e-mail..." class="campo-texto" required />
+            <span asp-validation-for="Email" class="mensagem-erro"></span>
+        </div>
+
+        <div class="linha-dupla">
+            <div class="campo-entrada">
+                <label asp-for="Celular">Número de celular</label>
+                <input asp-for="Celular" type="tel" placeholder="(00) 00000-0000" class="campo-texto" required />
+                <span asp-validation-for="Celular" class="mensagem-erro"></span>
+            </div>
+
+            <div class="campo-entrada">
+                <label asp-for="DataNascimento">Data de Nascimento</label>
+                <input asp-for="DataNascimento" type="text" id="DataNascimento" placeholder="DD/MM/AAAA" class="campo-texto" required />
+                <span asp-validation-for="DataNascimento" class="mensagem-erro"></span>
+            </div>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="CPF">CPF</label>
+            <input asp-for="CPF" type="text" id="CPF" placeholder="000.000.000-00" class="campo-texto" required />
+            <span asp-validation-for="CPF" class="mensagem-erro"></span>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="Senha">Senha</label>
+            <div class="campo-senha-container">
+                <input asp-for="Senha" type="password" id="input-senha-cadastro" placeholder="Digite a senha..." class="campo-texto" required />
+                <button type="button" class="botao-mostrar-senha" onclick="toggleSenha('input-senha-cadastro', 'svg-olho-cadastro')" id="botao-toggle-senha-cadastro" aria-label="Mostrar senha">
+                    <i class="fa-regular fa-eye-slash icone-olho" id="svg-olho-cadastro"></i>
+                </button>
+            </div>
+
+            <div id="requisitos-senha" class="resumo-erros" style="display: none;">
+                <span class="mensagem-erro exibicao-bloco" id="req-comprimento">• Pelo menos 6 caracteres</span>
+                <span class="mensagem-erro exibicao-bloco" id="req-maiuscula">• Pelo menos uma letra maiúscula</span>
+                <span class="mensagem-erro exibicao-bloco" id="req-minuscula">• Pelo menos uma letra minúscula</span>
+                <span class="mensagem-erro exibicao-bloco" id="req-numero">• Pelo menos um número</span>
+                <span class="mensagem-erro exibicao-bloco" id="req-especial">• Pelo menos um caractere especial (ex: !, &#64;, #, $, %)</span>
+            </div>
+
+            @if (ViewData.ModelState["Senha"]?.Errors.Any() == true)
+            {
+                <div class="resumo-erros">
+                    @foreach (var erro in ViewData.ModelState["Senha"]!.Errors)
+                    {
+                        <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="ConfirmacaoSenha">Confirmar Senha</label>
+            <div class="campo-senha-container">
+                <input asp-for="ConfirmacaoSenha" type="password" id="input-confirmacao-senha" placeholder="Digite a senha novamente..." class="campo-texto" required />
+                <button type="button" class="botao-mostrar-senha" onclick="toggleSenha('input-confirmacao-senha', 'svg-olho-confirmacao')" id="botao-toggle-confirmacao-senha" aria-label="Mostrar senha">
+                    <i class="fa-regular fa-eye-slash icone-olho" id="svg-olho-confirmacao"></i>
+                </button>
+            </div>
+            <span asp-validation-for="ConfirmacaoSenha" class="mensagem-erro"></span>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            var modelErrors = ViewData.ModelState[string.Empty]?.Errors;
+            if (modelErrors != null && modelErrors.Any())
+            {
+                <div class="resumo-erros">
+                    @foreach (var erro in modelErrors)
+                    {
+                        <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+                    }
+                </div>
+            }
+        }
+
+        <div class="container-link">
+            <a asp-action="Index" class="link-navegacao">Voltar para a lista</a>
+        </div>
+
+        <div class="container-botao">
+            <button type="submit" class="botao-acao">Cadastrar Administrador</button>
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+    <script src="~/js/autenticacao.js" asp-append-version="true"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
