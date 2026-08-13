@@ -29,68 +29,68 @@
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Criar branch `006-duplicidade-unificada-no-cadastro` a partir de
+- [x] **T001** — Criar branch `006-duplicidade-unificada-no-cadastro` a partir de
       `main` (com a `005` já integrada).
-- [ ] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado inicial
+- [x] **T002** — Rodar `dotnet build` e `dotnet test`; registrar o estado inicial
       verde (250 na última medição) como linha de base da T016.
 
 ## Fase 2 — Testes (devem falhar)
 
 *Escreva, rode, veja vermelho. Só então passe para a Fase 3.*
 
-- [ ] **T003** `[P]` — `DocesCabana.Tests/Units/Services/UsuarioServiceCadastroTests.cs`:
+- [x] **T003** `[P]` — `DocesCabana.Tests/Units/Services/UsuarioServiceCadastroTests.cs`:
       acrescentar — `ContaJaExiste` devolve `true` quando o e-mail tem dono,
       `true` quando o CPF tem dono, `false` quando nenhum dos dois; e a corrida
       de CPF (`SalvarAlteracoes` lançando `DbUpdateException` com o CPF já no
       repositório) apaga a conta criada **e** lança com a mensagem amigável, não
       com erro interno. **Prova RN-01, RF-06, CA-05.**
-- [ ] **T004** `[P]` — `DocesCabana.Tests/Units/Controllers/AdministradorControllerTests.cs`:
+- [x] **T004** `[P]` — `DocesCabana.Tests/Units/Controllers/AdministradorControllerTests.cs`:
       acrescentar — com CPF já usado e com e-mail já usado, o POST devolve
       `ViewResult` com o dto, o `ModelState` traz
       `MensagensCadastro.DadosJaAssociados` e `CadastrarAdministrador` **não** é
       chamado. **Prova RF-01 a RF-05, CA-01, CA-02.** É o teste que faltava na
       `005` e que teria pego o defeito.
-- [ ] **T005** `[P]` — `DocesCabana.Tests/Units/Controllers/AutenticacaoControllerTests.cs`:
+- [x] **T005** `[P]` — `DocesCabana.Tests/Units/Controllers/AutenticacaoControllerTests.cs`:
       ajustar `Dado_UsuarioExistente_...` e
       `Dado_DadosValidos_Quando_CadastroPost_...` para mockar `ContaJaExiste` em
       vez de `BuscarPorLogin`, e desdobrar o primeiro em dois casos — e-mail
       repetido e CPF repetido —, ambos asseverando contra a constante.
       **Prova CA-03, CA-04, e a não-regressão da CA-06.**
-- [ ] **T006** — Rodar `dotnet test` e confirmar que T003–T005 falham pelo motivo
+- [x] **T006** — Rodar `dotnet test` e confirmar que T003–T005 falham pelo motivo
       esperado — ausência de `ContaJaExiste` e de `MensagensCadastro`, não erro
       de compilação alheio.
 
 ## Fase 3 — Aplicação
 
-- [ ] **T007** — `DocesCabana.Application/Mensagens/MensagensCadastro.cs`
+- [x] **T007** — `DocesCabana.Application/Mensagens/MensagensCadastro.cs`
       (criar): `public const string DadosJaAssociados` com **exatamente** o texto
       que já está hoje em `UsuarioService` e em `AutenticacaoController`.
       Copie o literal existente; não redigite.
 
 ## Fase 4 — Serviço
 
-- [ ] **T008** — `DocesCabana.Infrastructure/Identity/Services/IUsuarioService.cs`:
+- [x] **T008** — `DocesCabana.Infrastructure/Identity/Services/IUsuarioService.cs`:
       acrescentar `Task<bool> ContaJaExiste(string email, string cpf);`.
-- [ ] **T009** — `DocesCabana.Infrastructure/Identity/Services/UsuarioService.cs`:
+- [x] **T009** — `DocesCabana.Infrastructure/Identity/Services/UsuarioService.cs`:
       implementar `ContaJaExiste` sobre `BuscarPorLogin`; trocar o literal da
       mensagem pela constante; acrescentar o `catch (DbUpdateException)` que
       confirma a colisão por consulta **antes** do `DeleteAsync` e traduz para a
       mensagem amigável (plano §4). O teste da corrida da T003 é o que prova que
       a compensação continua removendo a conta nesse caminho novo — risco 1 do
       plano §8.
-- [ ] **T010** — Rodar `dotnet test`: T003 passa.
+- [x] **T010** — Rodar `dotnet test`: T003 passa.
 
 ## Fase 5 — Apresentação
 
-- [ ] **T011** — `DocesCabana.MVC/Controllers/AdministradorController.cs`:
+- [x] **T011** — `DocesCabana.MVC/Controllers/AdministradorController.cs`:
       guarda de duplicidade após a de `ModelState` e antes de cadastrar —
       `ModelState.AddModelError(string.Empty, MensagensCadastro.DadosJaAssociados)`
       e `return View(dto)`. **É a correção do defeito.**
-- [ ] **T012** — `DocesCabana.MVC/Controllers/AutenticacaoController.cs`: trocar
+- [x] **T012** — `DocesCabana.MVC/Controllers/AutenticacaoController.cs`: trocar
       a dupla chamada a `BuscarPorLogin` por `ContaJaExiste` e o literal pela
       constante. Comportamento observável idêntico — mesma mensagem, mesma
       chave de `ModelState`, mesma view.
-- [ ] **T013** — Rodar `dotnet test`: T004 e T005 passam.
+- [x] **T013** — Rodar `dotnet test`: T004 e T005 passam.
 
 ## Fase 6 — Fechamento
 

@@ -2,11 +2,13 @@ using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
+using DocesCabana.Application.Mensagens;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Helpers;
 using DocesCabana.Infrastructure.Identity.Mappings;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DocesCabana.Infrastructure.Identity.Services;
@@ -48,8 +50,7 @@ public class UsuarioService : IUsuarioService
                 e.Code == "DuplicateEmail");
 
             if (erroDuplicidade)
-                throw new InvalidOperationException(
-                    "Os dados informados já estão associados a uma conta existente.");
+                throw new InvalidOperationException(MensagensCadastro.DadosJaAssociados);
 
             throw new InvalidOperationException(
                 ObterMensagensErro(resultado));
@@ -74,12 +75,31 @@ public class UsuarioService : IUsuarioService
 
             return UsuarioMapper.ToDTO(usuario, conta);
         }
+        catch (DbUpdateException)
+        {
+            // ContaJaExiste não pega a corrida entre duas requisições
+            // simultâneas com o mesmo CPF — quem pega é o índice único, aqui.
+            // A consulta vem antes do DeleteAsync de propósito: ela não
+            // descarrega o ChangeTracker, e o DeleteAsync grava (spec 006).
+            var cpf = CpfHelper.ApenasDigitos(dto.CPF!);
+            var colisaoDeCpf = await _usuarioRepository.BuscarPorCpf(cpf) is not null;
+
+            await _userManager.DeleteAsync(conta);
+
+            if (colisaoDeCpf)
+                throw new InvalidOperationException(MensagensCadastro.DadosJaAssociados);
+
+            throw;
+        }
         catch
         {
             await _userManager.DeleteAsync(conta);
             throw;
         }
     }
+
+    public async Task<bool> ContaJaExiste(string email, string cpf) =>
+        await BuscarPorLogin(email) is not null || await BuscarPorLogin(cpf) is not null;
 
     public async Task<UsuarioDTO> BuscarUsuarioPorId(Guid usuarioId)
     {

@@ -1,4 +1,5 @@
 using DocesCabana.Application.DTOs.Autenticacao;
+using DocesCabana.Application.Mensagens;
 using DocesCabana.Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
@@ -53,11 +54,9 @@ public class AutenticacaoController : Controller
         if (!ModelState.IsValid)
             return View(dto);
 
-        var usuarioExistente = await _usuarioService.BuscarPorLogin(dto.Email!) ?? await _usuarioService.BuscarPorLogin(dto.CPF!);
-
-        if (usuarioExistente != null)
+        if (await _usuarioService.ContaJaExiste(dto.Email!, dto.CPF!))
         {
-            ModelState.AddModelError(string.Empty, "Os dados informados já estão associados a uma conta existente.");
+            ModelState.AddModelError(string.Empty, MensagensCadastro.DadosJaAssociados);
             return View(dto);
         }
 

@@ -1,12 +1,14 @@
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs.Autenticacao;
+using DocesCabana.Application.Mensagens;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.Identity;
 using DocesCabana.Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication;
@@ -184,6 +186,83 @@ public class UsuarioServiceCadastroTests
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             _usuarioService.CadastrarUsuario(dto, "Administrador"));
 
+        _userManagerMock.Verify(
+            u => u.DeleteAsync(It.Is<ContaDeAcesso>(c => c == contaCriada)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_EmailComDono_Quando_ContaJaExiste_Entao_DeveRetornarTrue()
+    {
+        var email = "existente@teste.com";
+        var cpf = "11144477735";
+        var contaExistente = new ContaDeAcesso(email);
+        typeof(IdentityUser<Guid>).GetProperty(nameof(IdentityUser<Guid>.Id))!.SetValue(contaExistente, Guid.NewGuid());
+        var usuarioExistente = new Usuario(contaExistente.Id, "Dono do E-mail", "52998224725", "11987654321", new DateTime(1990, 1, 1));
+
+        _userManagerMock.Setup(u => u.FindByEmailAsync(email)).ReturnsAsync(contaExistente);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(contaExistente.Id)).ReturnsAsync(usuarioExistente);
+
+        var resultado = await _usuarioService.ContaJaExiste(email, cpf);
+
+        Assert.True(resultado);
+    }
+
+    [Fact]
+    public async Task Dado_CpfComDono_Quando_ContaJaExiste_Entao_DeveRetornarTrue()
+    {
+        var email = "novo@teste.com";
+        var cpf = "52998224725";
+        var contaExistente = new ContaDeAcesso("dono.do.cpf@teste.com");
+        typeof(IdentityUser<Guid>).GetProperty(nameof(IdentityUser<Guid>.Id))!.SetValue(contaExistente, Guid.NewGuid());
+        var usuarioExistente = new Usuario(contaExistente.Id, "Dono do CPF", cpf, "11987654321", new DateTime(1990, 1, 1));
+
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorCpf(It.IsAny<string>())).ReturnsAsync(usuarioExistente);
+        _userManagerMock.Setup(u => u.FindByIdAsync(usuarioExistente.UsuarioId.ToString())).ReturnsAsync(contaExistente);
+
+        var resultado = await _usuarioService.ContaJaExiste(email, cpf);
+
+        Assert.True(resultado);
+    }
+
+    [Fact]
+    public async Task Dado_NenhumDosDois_Quando_ContaJaExiste_Entao_DeveRetornarFalse()
+    {
+        var resultado = await _usuarioService.ContaJaExiste("livre@teste.com", "39053344705");
+
+        Assert.False(resultado);
+    }
+
+    [Fact]
+    public async Task Dado_CorridaDeCpf_Quando_CadastrarUsuario_Entao_DeveApagarAContaEDarMensagemAmigavel()
+    {
+        // A pré-checagem de ContaJaExiste não pega a corrida entre duas
+        // requisições simultâneas com o mesmo CPF — quem pega é o índice único
+        // no SalvarAlteracoes. Sem esta tradução, o usuário veria "erro
+        // interno" em vez da mensagem de duplicidade (RF-04, CA-05 da 006).
+        var dto = CriarCadastroDTO();
+        ContaDeAcesso? contaCriada = null;
+        _userManagerMock
+            .Setup(u => u.CreateAsync(It.IsAny<ContaDeAcesso>(), dto.Senha!))
+            .Callback<ContaDeAcesso, string>((conta, _) =>
+            {
+                typeof(IdentityUser<Guid>).GetProperty(nameof(IdentityUser<Guid>.Id))!.SetValue(conta, Guid.NewGuid());
+                contaCriada = conta;
+            })
+            .ReturnsAsync(IdentityResult.Success);
+        _usuarioRepositoryMock.Setup(r => r.Adicionar(It.IsAny<Usuario>()))
+            .Returns(Task.CompletedTask);
+        _unitOfWorkMock.Setup(u => u.SalvarAlteracoes(default))
+            .ThrowsAsync(new DbUpdateException("simulação: índice único de CPF violado"));
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorCpf(It.IsAny<string>()))
+            .ReturnsAsync(new Usuario(Guid.NewGuid(), "Outro Cliente", dto.CPF!, "11988887777", new DateTime(1985, 5, 5)));
+        _userManagerMock.Setup(u => u.DeleteAsync(It.IsAny<ContaDeAcesso>()))
+            .ReturnsAsync(IdentityResult.Success);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _usuarioService.CadastrarUsuario(dto));
+
+        Assert.Equal(MensagensCadastro.DadosJaAssociados, ex.Message);
         _userManagerMock.Verify(
             u => u.DeleteAsync(It.Is<ContaDeAcesso>(c => c == contaCriada)),
             Times.Once);

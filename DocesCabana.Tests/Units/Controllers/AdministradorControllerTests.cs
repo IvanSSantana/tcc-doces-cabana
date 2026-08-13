@@ -1,5 +1,6 @@
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
+using DocesCabana.Application.Mensagens;
 using DocesCabana.Infrastructure.Identity.Services;
 using DocesCabana.MVC.Controllers;
 using Microsoft.AspNetCore.Http;
@@ -16,12 +17,14 @@ namespace DocesCabana.Tests.Units.Controllers;
 public class AdministradorControllerTests
 {
     private readonly Mock<IAdministradorService> _administradorServiceMock;
+    private readonly Mock<IUsuarioService> _usuarioServiceMock;
     private readonly AdministradorController _controller;
 
     public AdministradorControllerTests()
     {
         _administradorServiceMock = new Mock<IAdministradorService>();
-        _controller = new AdministradorController(_administradorServiceMock.Object);
+        _usuarioServiceMock = new Mock<IUsuarioService>();
+        _controller = new AdministradorController(_administradorServiceMock.Object, _usuarioServiceMock.Object);
     }
 
     [Fact]
@@ -85,6 +88,54 @@ public class AdministradorControllerTests
         Assert.Equal("Index", redirectResult.ActionName);
         _administradorServiceMock.Verify(s => s.CadastrarAdministrador(dto), Times.Once);
         Assert.NotNull(_controller.TempData["Confirmacao"]);
+    }
+
+    [Fact]
+    public async Task Dado_CpfJaUsado_Quando_CadastroPost_Entao_DeveRetornarViewComErroSemCadastrar()
+    {
+        var dto = new CadastroDTO
+        {
+            Nome = "Admin Repetido",
+            Email = "admin.novo@doces.com",
+            Celular = "11987654321",
+            DataNascimento = new DateTime(1990, 1, 1),
+            CPF = "529.982.247-25",
+            Senha = "SenhaForte@123",
+            ConfirmacaoSenha = "SenhaForte@123"
+        };
+        _usuarioServiceMock.Setup(s => s.ContaJaExiste(dto.Email!, dto.CPF!)).ReturnsAsync(true);
+
+        var resultado = await _controller.Cadastro(dto);
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(dto, viewResult.Model);
+        Assert.True(_controller.ModelState.ContainsKey(string.Empty));
+        Assert.Equal(MensagensCadastro.DadosJaAssociados, _controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+        _administradorServiceMock.Verify(s => s.CadastrarAdministrador(It.IsAny<CadastroDTO>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_EmailJaUsado_Quando_CadastroPost_Entao_DeveRetornarViewComErroSemCadastrar()
+    {
+        var dto = new CadastroDTO
+        {
+            Nome = "Admin Repetido",
+            Email = "admin.existente@doces.com",
+            Celular = "11987654321",
+            DataNascimento = new DateTime(1990, 1, 1),
+            CPF = "111.444.777-35",
+            Senha = "SenhaForte@123",
+            ConfirmacaoSenha = "SenhaForte@123"
+        };
+        _usuarioServiceMock.Setup(s => s.ContaJaExiste(dto.Email!, dto.CPF!)).ReturnsAsync(true);
+
+        var resultado = await _controller.Cadastro(dto);
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(dto, viewResult.Model);
+        Assert.True(_controller.ModelState.ContainsKey(string.Empty));
+        Assert.Equal(MensagensCadastro.DadosJaAssociados, _controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+        _administradorServiceMock.Verify(s => s.CadastrarAdministrador(It.IsAny<CadastroDTO>()), Times.Never);
     }
 
     private void ConfigurarTempData()

@@ -1,4 +1,5 @@
 using DocesCabana.Application.DTOs.Autenticacao;
+using DocesCabana.Application.Mensagens;
 using DocesCabana.Domain;
 using DocesCabana.Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -10,10 +11,12 @@ namespace DocesCabana.MVC.Controllers;
 public class AdministradorController : Controller
 {
     private readonly IAdministradorService _administradorService;
+    private readonly IUsuarioService _usuarioService;
 
-    public AdministradorController(IAdministradorService administradorService)
+    public AdministradorController(IAdministradorService administradorService, IUsuarioService usuarioService)
     {
         _administradorService = administradorService;
+        _usuarioService = usuarioService;
     }
 
     [HttpGet]
@@ -35,6 +38,12 @@ public class AdministradorController : Controller
     {
         if (!ModelState.IsValid)
             return View(dto);
+
+        if (await _usuarioService.ContaJaExiste(dto.Email!, dto.CPF!))
+        {
+            ModelState.AddModelError(string.Empty, MensagensCadastro.DadosJaAssociados);
+            return View(dto);
+        }
 
         await _administradorService.CadastrarAdministrador(dto);
 

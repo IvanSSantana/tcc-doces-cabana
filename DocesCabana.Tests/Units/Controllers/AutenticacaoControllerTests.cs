@@ -1,5 +1,6 @@
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
+using DocesCabana.Application.Mensagens;
 using DocesCabana.Infrastructure.Identity.Services;
 using DocesCabana.MVC.Controllers;
 using Microsoft.AspNetCore.Http;
@@ -111,31 +112,46 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
-    public async Task Dado_UsuarioExistente_Quando_CadastroPost_Entao_DeveAdicionarErroERetornarView()
+    public async Task Dado_EmailJaUsado_Quando_CadastroPost_Entao_DeveAdicionarErroERetornarView()
     {
         var dto = new CadastroDTO { Email = "existente@email.com", CPF = "54839427011" };
-        var usuarioExistente = new UsuarioDTO { Email = "existente@email.com" };
 
-        _usuarioServiceMock.Setup(s => s.BuscarPorLogin(dto.Email))
-            .ReturnsAsync(usuarioExistente);
+        _usuarioServiceMock.Setup(s => s.ContaJaExiste(dto.Email!, dto.CPF!))
+            .ReturnsAsync(true);
 
         var resultado = await _controller.Cadastro(dto);
 
         var viewResult = Assert.IsType<ViewResult>(resultado);
         Assert.Equal(dto, viewResult.Model);
         Assert.True(_controller.ModelState.ContainsKey(string.Empty));
-        Assert.Contains("Os dados informados já estão associados", _controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+        Assert.Equal(MensagensCadastro.DadosJaAssociados, _controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+        _usuarioServiceMock.Verify(s => s.CadastrarUsuario(It.IsAny<CadastroDTO>(), It.IsAny<string?>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_CpfJaUsado_Quando_CadastroPost_Entao_DeveAdicionarErroERetornarView()
+    {
+        var dto = new CadastroDTO { Email = "novo@email.com", CPF = "54839427011" };
+
+        _usuarioServiceMock.Setup(s => s.ContaJaExiste(dto.Email!, dto.CPF!))
+            .ReturnsAsync(true);
+
+        var resultado = await _controller.Cadastro(dto);
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(dto, viewResult.Model);
+        Assert.True(_controller.ModelState.ContainsKey(string.Empty));
+        Assert.Equal(MensagensCadastro.DadosJaAssociados, _controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+        _usuarioServiceMock.Verify(s => s.CadastrarUsuario(It.IsAny<CadastroDTO>(), It.IsAny<string?>()), Times.Never);
     }
 
     [Fact]
     public async Task Dado_DadosValidos_Quando_CadastroPost_Entao_DeveCadastrarERedirecionarParaLogin()
     {
         var dto = new CadastroDTO { Email = "novo@email.com", CPF = "54839427011" };
-        _usuarioServiceMock.Setup(s => s.BuscarPorLogin(dto.Email))
-            .ReturnsAsync((UsuarioDTO?)null);
-        _usuarioServiceMock.Setup(s => s.BuscarPorLogin(dto.CPF))
-            .ReturnsAsync((UsuarioDTO?)null);
-        _usuarioServiceMock.Setup(s => s.CadastrarUsuario(dto))
+        _usuarioServiceMock.Setup(s => s.ContaJaExiste(dto.Email!, dto.CPF!))
+            .ReturnsAsync(false);
+        _usuarioServiceMock.Setup(s => s.CadastrarUsuario(dto, null))
             .ReturnsAsync(new UsuarioDTO());
 
         var resultado = await _controller.Cadastro(dto);
