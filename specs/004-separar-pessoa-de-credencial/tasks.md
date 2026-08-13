@@ -134,29 +134,29 @@ está errada.*
 
 ### Testes — devem falhar
 
-- [ ] **T023** — `DocesCabana.Tests/Integration/Repositories/ModeloDeDadosIntegrationTests.cs`:
+- [x] **T023** — `DocesCabana.Tests/Integration/Repositories/ModeloDeDadosIntegrationTests.cs`:
       acrescentar — `Endereco` consultado com `Include(e => e.Usuario)` traz o
       nome do usuário; consultado sem `Include`, a navegação vem `null`.
       **Prova CA-05.**
-- [ ] **T024** — Rodar `dotnet test` e confirmar o vermelho.
+- [x] **T024** — Rodar `dotnet test` e confirmar o vermelho.
 
 ### Implementação
 
-- [ ] **T025** `[P]` — `DocesCabana.Domain/Entities/{Endereco,Favorito,Avaliacao,Pedido}.cs`:
+- [x] **T025** `[P]` — `DocesCabana.Domain/Entities/{Endereco,Favorito,Avaliacao,Pedido}.cs`:
       acrescentar `Usuario? Usuario` sobre o `UsuarioId` que já existe. Remover
       o comentário que explicava por que a navegação não existia — ele deixa de
       ser verdade. **Encerra a RQ-02 da spec `003`.**
-- [ ] **T026** `[P]` — `.../Configurations/{Endereco,Favorito,Avaliacao,Pedido}Configuration.cs`:
+- [x] **T026** `[P]` — `.../Configurations/{Endereco,Favorito,Avaliacao,Pedido}Configuration.cs`:
       `HasOne<Usuario>()` (sem navegação, apontando para o Identity) vira
       `HasOne(x => x.Usuario)` apontando para o domínio.
-- [ ] **T027** — `.../Configurations/UsuarioConfiguration.cs`: reescrever para o
+- [x] **T027** — `.../Configurations/UsuarioConfiguration.cs`: reescrever para o
       `Usuario` do domínio — tabela `Usuario`, `Nome` (255), `CPF` (11) com
       índice único, `Celular` (11), `DataNascimento` como `date`, e a chave
       estrangeira 1:1 para `ContaDeAcesso` por chave compartilhada
       (`HasOne<ContaDeAcesso>().WithOne(c => c.Usuario).HasForeignKey<Usuario>(u => u.UsuarioId)`).
-- [ ] **T028** — `DocesCabana.Infrastructure/DatabaseContext/DocesCabanaDbContext.cs`:
+- [x] **T028** — `DocesCabana.Infrastructure/DatabaseContext/DocesCabanaDbContext.cs`:
       `DbSet<Usuario>` do domínio.
-- [ ] **T029** — Rodar `dotnet test`: T023 passa.
+- [x] **T029** — Rodar `dotnet test`: T023 passa.
 
 ---
 

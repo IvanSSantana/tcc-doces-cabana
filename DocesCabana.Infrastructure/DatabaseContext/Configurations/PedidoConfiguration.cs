@@ -1,5 +1,4 @@
 using DocesCabana.Domain.Entities;
-using DocesCabana.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -25,7 +24,7 @@ public class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
             .HasForeignKey(p => p.EnderecoEntregaId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne<Usuario>()
+        builder.HasOne(p => p.Usuario)
             .WithMany()
             .HasForeignKey(p => p.UsuarioId)
             .OnDelete(DeleteBehavior.Restrict);

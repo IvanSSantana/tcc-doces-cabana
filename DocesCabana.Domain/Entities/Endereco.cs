@@ -6,9 +6,11 @@ public class Endereco
 {
     public Guid EnderecoId { get; private set; }
 
-    // Sem navegação: Usuario vive na Infrastructure (herda IdentityUser<Guid>).
-    // Navegar até ele inverteria a direção de dependência (RQ-02 da spec 003).
     public Guid UsuarioId { get; private set; }
+
+    // Navegação filho -> pai. Usuario agora é do domínio (spec 004), então a
+    // navegação normal (RQ-10 da spec 003) se aplica também aqui.
+    public Usuario? Usuario { get; private set; }
 
     public string Estado { get; private set; } = default!;
 

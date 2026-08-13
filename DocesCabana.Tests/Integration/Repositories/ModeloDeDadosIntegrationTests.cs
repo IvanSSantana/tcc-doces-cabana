@@ -85,4 +85,36 @@ public class ModeloDeDadosIntegrationTests : InfraestruturaSqliteEmMemoria
         Assert.NotNull(encontrado.Subcategoria);
         Assert.Equal("Doces de Tacho", encontrado.Subcategoria!.Nome);
     }
+
+    [Fact]
+    public async Task Dado_EnderecoComUsuario_Quando_ConsultarSemInclude_Entao_NavegacaoDeveVirNula()
+    {
+        var usuarioId = await SemearUsuario();
+        var endereco = new Endereco(usuarioId, "São Paulo", "Barra Bonita", "Centro", "17340-000", "Rua das Flores", 123);
+        Contexto.Enderecos.Add(endereco);
+        await Contexto.SaveChangesAsync();
+
+        var encontrado = await Contexto.Enderecos
+            .AsNoTracking()
+            .FirstAsync(e => e.EnderecoId == endereco.EnderecoId);
+
+        Assert.Null(encontrado.Usuario);
+    }
+
+    [Fact]
+    public async Task Dado_EnderecoComUsuario_Quando_ConsultarComInclude_Entao_DeveTrazerONomeDoUsuario()
+    {
+        var usuarioId = await SemearUsuario();
+        var endereco = new Endereco(usuarioId, "São Paulo", "Barra Bonita", "Centro", "17340-000", "Rua das Flores", 123);
+        Contexto.Enderecos.Add(endereco);
+        await Contexto.SaveChangesAsync();
+
+        var encontrado = await Contexto.Enderecos
+            .AsNoTracking()
+            .Include(e => e.Usuario)
+            .FirstAsync(e => e.EnderecoId == endereco.EnderecoId);
+
+        Assert.NotNull(encontrado.Usuario);
+        Assert.Equal("Cliente Teste", encontrado.Usuario!.Nome);
+    }
 }

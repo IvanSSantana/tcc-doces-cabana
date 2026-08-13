@@ -1,5 +1,4 @@
 using DocesCabana.Domain.Entities;
-using DocesCabana.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -20,7 +19,7 @@ public class FavoritoConfiguration : IEntityTypeConfiguration<Favorito>
             .HasForeignKey(f => f.ProdutoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne<Usuario>()
+        builder.HasOne(f => f.Usuario)
             .WithMany()
             .HasForeignKey(f => f.UsuarioId)
             .OnDelete(DeleteBehavior.Restrict);

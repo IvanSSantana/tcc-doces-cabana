@@ -4,7 +4,6 @@ public class Avaliacao
 {
     public Guid AvaliacaoId { get; private set; }
 
-    // Sem navegação: Usuario vive na Infrastructure (RQ-02 da spec 003).
     public Guid UsuarioId { get; private set; }
 
     public Guid ProdutoId { get; private set; }
@@ -15,8 +14,10 @@ public class Avaliacao
 
     public bool UpVote { get; private set; }
 
-    // Navegação filho -> pai.
+    // Navegações filho -> pai. Usuario agora é do domínio (spec 004).
     public Produto? Produto { get; private set; }
+
+    public Usuario? Usuario { get; private set; }
 
     protected Avaliacao() { }
 

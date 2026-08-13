@@ -1,5 +1,4 @@
 using DocesCabana.Domain.Entities;
-using DocesCabana.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -21,9 +20,7 @@ public class EnderecoConfiguration : IEntityTypeConfiguration<Endereco>
         builder.Property(e => e.Numero).IsRequired();
         builder.Property(e => e.Complemento).HasMaxLength(100);
 
-        // A entidade não navega até Usuario (RQ-02), mas o relacionamento
-        // existe no banco: declarado aqui, só do lado da infraestrutura.
-        builder.HasOne<Usuario>()
+        builder.HasOne(e => e.Usuario)
             .WithMany()
             .HasForeignKey(e => e.UsuarioId)
             .OnDelete(DeleteBehavior.Restrict);

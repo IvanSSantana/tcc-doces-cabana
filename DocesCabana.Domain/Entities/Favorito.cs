@@ -4,11 +4,12 @@ public class Favorito
 {
     public Guid ProdutoId { get; private set; }
 
-    // Sem navegação: Usuario vive na Infrastructure (RQ-02 da spec 003).
     public Guid UsuarioId { get; private set; }
 
-    // Navegação filho -> pai. Ambas as pontas do produto vivem no domínio.
+    // Navegações filho -> pai. Usuario agora é do domínio (spec 004).
     public Produto? Produto { get; private set; }
+
+    public Usuario? Usuario { get; private set; }
 
     protected Favorito() { }
 

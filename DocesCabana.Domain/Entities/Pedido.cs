@@ -6,7 +6,6 @@ public class Pedido
 {
     public Guid PedidoId { get; private set; }
 
-    // Sem navegação: Usuario vive na Infrastructure (RQ-02 da spec 003).
     public Guid UsuarioId { get; private set; }
 
     public Guid EnderecoEntregaId { get; private set; }
@@ -19,10 +18,13 @@ public class Pedido
 
     public DateTime Data { get; private set; }
 
-    // Navegação filho -> pai. Sem coleção de itens nesta entrega — quem
+    // Navegações filho -> pai. Sem coleção de itens nesta entrega — quem
     // gerencia o agregado (calcula total, adiciona/remove item) é decisão da
-    // spec de carrinho, não desta (RQ-11 da spec 003).
+    // spec de carrinho, não desta (RQ-11 da spec 003). Usuario agora é do
+    // domínio (spec 004).
     public Endereco? EnderecoEntrega { get; private set; }
+
+    public Usuario? Usuario { get; private set; }
 
     protected Pedido() { }
 

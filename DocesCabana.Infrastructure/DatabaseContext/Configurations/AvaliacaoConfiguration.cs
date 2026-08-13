@@ -1,5 +1,4 @@
 using DocesCabana.Domain.Entities;
-using DocesCabana.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -22,7 +21,7 @@ public class AvaliacaoConfiguration : IEntityTypeConfiguration<Avaliacao>
             .HasForeignKey(a => a.ProdutoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne<Usuario>()
+        builder.HasOne(a => a.Usuario)
             .WithMany()
             .HasForeignKey(a => a.UsuarioId)
             .OnDelete(DeleteBehavior.Restrict);
