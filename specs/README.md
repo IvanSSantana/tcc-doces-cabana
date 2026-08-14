@@ -15,19 +15,26 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [003](./003-modelo-de-dados-completo/spec.md) | Modelo de dados completo | Implementada | spec · [plan](./003-modelo-de-dados-completo/plan.md) · [tasks](./003-modelo-de-dados-completo/tasks.md) · [checklist](./003-modelo-de-dados-completo/checklist.md) |
 | [004](./004-separar-pessoa-de-credencial/spec.md) | Separar pessoa de credencial | Rascunho | spec · [plan](./004-separar-pessoa-de-credencial/plan.md) · [tasks](./004-separar-pessoa-de-credencial/tasks.md) |
 | [005](./005-gestao-de-administradores/spec.md) | Gestão de administradores | Rascunho | spec · [plan](./005-gestao-de-administradores/plan.md) · [tasks](./005-gestao-de-administradores/tasks.md) |
-| 006 | Testes ponta a ponta em Playwright | A especificar | — |
+| [006](./006-pagina-do-produto/spec.md) | Página do produto | Rascunho | spec · [plan](./006-pagina-do-produto/plan.md) · [tasks](./006-pagina-do-produto/tasks.md) |
+| 007 | Testes ponta a ponta em Playwright | A especificar | — |
 
 > **Ordem executada:** `002` → `003` → `001`. A `001` originalmente esperava a
 > `004`/`005` para resolver papéis, mas a pendência foi resolvida com o mínimo
 > viável embutido nela própria (papel `Administrador` + admin semeado) — ver a
 > nota de atualização na spec `001`.
 >
-> **Ordem seguinte:** `004` → `005` → `006`. A `004` separa o dado de negócio do
-> usuário da credencial do Identity, encerrando a limitação de navegação que a
-> `003` registrou como RQ-02 e reescrevendo a exceção que a constituição abre ao
-> Princípio I. A `005` depende dela porque cadastrar administrador cria as duas
-> metades e reaproveita a compensação que a `004` introduz. A `006` valida tudo
-> pela interface.
+> **Ordem seguinte:** `004` → `005` → `006` → `007`. A `004` separa o dado de
+> negócio do usuário da credencial do Identity, encerrando a limitação de
+> navegação que a `003` registrou como RQ-02 e reescrevendo a exceção que a
+> constituição abre ao Princípio I. A `005` depende dela porque cadastrar
+> administrador cria as duas metades e reaproveita a compensação que a `004`
+> introduz. A `006` também depende da `004`: sem navegação da avaliação até o
+> usuário, a página do produto não tem como exibir o nome de quem avaliou. A
+> `007` valida tudo pela interface.
+>
+> A numeração da Playwright mudou de `006` para `007` quando a página do produto
+> recebeu a pasta `006` — o número é atribuído na criação da spec, e a Playwright
+> ainda não tinha a sua.
 
 ## Backlog
 
@@ -45,7 +52,8 @@ Ordem sugerida por dependência:
 | Endereço do usuário | 003 |
 | Carrinho e fechamento de pedido | estoque, endereço |
 | Pagamento | carrinho |
-| Avaliação de produto | carrinho |
+| Escrever avaliação de produto | 006, carrinho |
+| Galeria de imagens do produto | 006 |
 | Promoções na vitrine | 003 |
 
 ## Como criar a próxima
