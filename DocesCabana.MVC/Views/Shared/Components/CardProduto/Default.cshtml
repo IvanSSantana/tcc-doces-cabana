@@ -30,11 +30,11 @@
         <i class="@(Model.EstaFavorito ? "fa-solid fa-heart favoritado" : "fa-regular fa-heart")"></i>
     </button>
     
-    <div class="container-imagem-card">
+    <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="container-imagem-card">
         <img src="@ObterUrlImagem(Model.ImagemUrl)" alt="@Model.Nome" class="imagem-card" />
-    </div>
-    
-    <div class="nome-card">@Model.Nome.ToUpper()</div>
+    </a>
+
+    <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="nome-card">@Model.Nome.ToUpper()</a>
     
     <div class="preco-card">R$ @Model.Preco.ToString("N2")</div>
     

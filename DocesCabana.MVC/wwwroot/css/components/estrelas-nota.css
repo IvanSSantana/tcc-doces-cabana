@@ -1,0 +1,35 @@
+/* Fileira de estrelas com preenchimento fracionário (view component
+   EstrelasNota) — reaproveitada na média grande, na nota de cada avaliação
+   e, futuramente, no formulário de escrever avaliação. */
+
+.fileira-estrelas {
+  display: inline-flex;
+  align-items: center;
+}
+
+.fileira-estrelas__icones {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.fileira-estrelas__icone {
+  width: 18px;
+  height: 18px;
+}
+
+.fileira-estrelas--grande .fileira-estrelas__icone {
+  width: 32px;
+  height: 32px;
+}
+
+.somente-leitor-de-tela {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

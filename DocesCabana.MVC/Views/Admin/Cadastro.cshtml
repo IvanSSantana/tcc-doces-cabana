@@ -51,6 +51,14 @@
         <span asp-validation-for="SubcategoriaId" class="mensagem-erro"></span>
     </div>
 
+    <div class="campo-entrada">
+        <label asp-for="Descricao">Descrição (opcional)</label>
+        <textarea asp-for="Descricao" class="campo-texto" rows="5" maxlength="4000"
+            placeholder="Descreva o produto — aparece na página dele para o cliente."></textarea>
+
+        <span asp-validation-for="Descricao" class="mensagem-erro"></span>
+    </div>
+
     @if (TempData["Confirmacao"] is string confirmacao)
     {
         <div class="resumo-sucesso">

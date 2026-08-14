@@ -1,0 +1,96 @@
+@using System.Text.RegularExpressions
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Domain.Enums
+@model ProdutoDetalheDTO
+@{
+    ViewData["Title"] = Model.Nome;
+    Layout = "_Layout";
+
+    string ObterUrlImagem(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return url;
+
+        if (url.Contains("drive.google.com"))
+        {
+            var match = Regex.Match(url, @"/d/([a-zA-Z0-9_-]+)");
+            if (match.Success)
+                return $"https://drive.google.com/thumbnail?id={match.Groups[1].Value}&sz=w800";
+
+            match = Regex.Match(url, @"id=([a-zA-Z0-9_-]+)");
+            if (match.Success)
+                return $"https://drive.google.com/thumbnail?id={match.Groups[1].Value}&sz=w800";
+        }
+        return url;
+    }
+
+    var foraDeEstoque = Model.Status == ProdutoStatus.ForaDeEstoque;
+}
+
+<link rel="stylesheet" href="~/css/components/estrelas-nota.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/produto.css" asp-append-version="true">
+
+<main class="pagina-produto">
+    <nav class="caminho-navegacao" aria-label="Caminho de navegação">
+        <a asp-controller="Home" asp-action="Index">Home</a>
+        <span aria-hidden="true">&rsaquo;</span>
+        <span>@Model.SubcategoriaNome</span>
+    </nav>
+
+    <section class="bloco-compra">
+        <div class="bloco-compra__imagem">
+            <img src="@ObterUrlImagem(Model.ImagemUrl)" alt="@Model.Nome" />
+        </div>
+
+        <div class="bloco-compra__conteudo">
+            <h1 class="nome-produto">@Model.Nome.ToUpper()</h1>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Resumo))
+            {
+                <div class="resumo-produto">
+                    <p class="rotulo-secao">Características do Produto</p>
+                    <p class="texto-resumo">@Model.Resumo</p>
+                    <a href="#caracteristicas" class="atalho-ver-mais">Ver mais detalhes &darr;</a>
+                </div>
+            }
+
+            <div class="linha-preco-quantidade">
+                <span class="preco-produto">R$ @Model.Preco.ToString("N2")</span>
+
+                @if (foraDeEstoque)
+                {
+                    <span class="aviso-fora-de-estoque">Fora de estoque</span>
+                }
+                else
+                {
+                    <div class="seletor-quantidade" data-seletor-quantidade>
+                        <button type="button" class="botao-quantidade" data-quantidade-menos aria-label="Diminuir quantidade">&minus;</button>
+                        <span class="valor-quantidade" data-quantidade-valor>1</span>
+                        <button type="button" class="botao-quantidade" data-quantidade-mais aria-label="Aumentar quantidade">+</button>
+                    </div>
+                }
+            </div>
+
+            <button type="button" class="botao-adicionar-carrinho" disabled="@(foraDeEstoque ? "disabled" : null)">
+                ADICIONAR AO CARRINHO <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+            </button>
+        </div>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Descricao))
+    {
+        <hr class="regua" />
+
+        <section id="caracteristicas" class="secao-caracteristicas">
+            <h2 class="rotulo-secao">Características do @Model.Nome</h2>
+            <p class="texto-caracteristicas">@Model.Descricao</p>
+        </section>
+    }
+
+    <hr class="regua" />
+
+    <partial name="_BlocoAvaliacoes" model="Model" />
+</main>
+
+@section Scripts {
+    <script src="~/js/pages/produto.js" asp-append-version="true"></script>
+}

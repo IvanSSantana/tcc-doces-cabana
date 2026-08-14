@@ -1,0 +1,83 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Application.Enums
+@using DocesCabana.MVC.Models
+@model ProdutoDetalheDTO
+@{
+    var resumo = Model.ResumoAvaliacoes;
+    var pagina = Model.PaginaAvaliacoes;
+
+    string RotuloDaOrdenacao(OrdenacaoAvaliacao ordenacao) => ordenacao switch
+    {
+        OrdenacaoAvaliacao.Relevantes => "Relevantes",
+        OrdenacaoAvaliacao.MaisRecentes => "Mais recentes",
+        OrdenacaoAvaliacao.MaiorNota => "Maior nota",
+        OrdenacaoAvaliacao.MenorNota => "Menor nota",
+        _ => ordenacao.ToString()
+    };
+}
+
+<section id="avaliacoes" class="bloco-avaliacoes">
+    @if (resumo.Total == 0)
+    {
+        <p class="mensagem-sem-avaliacoes">Este produto ainda não tem avaliações.</p>
+    }
+    else
+    {
+        <div class="grade-avaliacoes">
+            <aside class="resumo-avaliacoes">
+                <div class="nota-media">
+                    <span class="valor-nota-media">@resumo.Media!.Value.ToString("0.0", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))</span>
+                    @await Component.InvokeAsync("EstrelasNota", new { nota = resumo.Media!.Value, tamanho = "grande" })
+                </div>
+                <p class="total-avaliacoes">@resumo.Total avaliações</p>
+
+                <ul class="histograma-notas">
+                    @for (byte nota = 5; nota >= 1; nota--)
+                    {
+                        var quantidade = resumo.Distribuicao.TryGetValue(nota, out var q) ? q : 0;
+                        var percentual = resumo.Total > 0 ? (decimal)quantidade / resumo.Total * 100 : 0;
+                        <li class="linha-histograma">
+                            <span class="rotulo-histograma">@nota&#9733;</span>
+                            <span class="barra-histograma-container">
+                                <span class="barra-histograma" style="width: @(percentual.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></span>
+                            </span>
+                            <span class="valor-histograma">@quantidade</span>
+                        </li>
+                    }
+                </ul>
+            </aside>
+
+            <div class="lista-avaliacoes-container">
+                <form method="get" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="formulario-ordenacao">
+                    <input type="hidden" name="exibir" value="@pagina.Exibindo" />
+                    <label for="ordenacao-avaliacoes">Ordenar por:</label>
+                    <select id="ordenacao-avaliacoes" name="ordenacao" onchange="this.form.submit()">
+                        @foreach (OrdenacaoAvaliacao opcao in Enum.GetValues<OrdenacaoAvaliacao>())
+                        {
+                            <option value="@opcao" selected="@(opcao == pagina.Ordenacao ? "selected" : null)">@RotuloDaOrdenacao(opcao)</option>
+                        }
+                    </select>
+                    <noscript>
+                        <button type="submit" class="botao-aplicar-ordenacao">Aplicar</button>
+                    </noscript>
+                </form>
+
+                <ul class="lista-avaliacoes">
+                    @foreach (var avaliacao in pagina.Itens)
+                    {
+                        <partial name="_CartaoAvaliacao" model="new AvaliacaoCartaoViewModel(avaliacao, Model.ProdutoId, pagina.Ordenacao, pagina.Exibindo)" />
+                    }
+                </ul>
+
+                @if (pagina.TemMais)
+                {
+                    <a class="atalho-ver-mais atalho-ver-mais--central"
+                       asp-action="Detalhes" asp-route-id="@Model.ProdutoId"
+                       asp-route-ordenacao="@pagina.Ordenacao" asp-route-exibir="@(pagina.Exibindo + 5)">
+                        Ver mais
+                    </a>
+                }
+            </div>
+        </div>
+    }
+</section>

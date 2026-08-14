@@ -1,0 +1,33 @@
+@model DocesCabana.MVC.ViewComponents.EstrelasNotaModel
+@{
+    var notaLimitada = Math.Clamp(Model.Nota, 0, 5);
+    var notaTexto = notaLimitada.ToString("0.0", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"));
+}
+
+<span class="fileira-estrelas fileira-estrelas--@Model.Tamanho">
+    <span class="fileira-estrelas__icones" aria-hidden="true">
+        @for (var i = 1; i <= 5; i++)
+        {
+            // Percentual da estrela "i" que fica pintado: 100% se a nota já
+            // cobre a estrela inteira, 0% se nem chega perto, e a fração
+            // exata quando ela é a estrela parcial (ex.: nota 4,5 -> a 5ª
+            // estrela fica 0%, e a 5ª... a 4ª fica 100%, a 5ª fica 0%; quem
+            // fica parcial é sempre a estrela seguinte à última inteira).
+            var preenchimento = Math.Clamp((notaLimitada - (i - 1)) * 100, 0, 100);
+            var gradienteId = $"estrela-{Guid.NewGuid():N}";
+
+            <svg viewBox="0 0 24 24" class="fileira-estrelas__icone">
+                <defs>
+                    <linearGradient id="@gradienteId">
+                        <stop offset="@(preenchimento.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%" stop-color="currentColor"></stop>
+                        <stop offset="@(preenchimento.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%" stop-color="transparent"></stop>
+                    </linearGradient>
+                </defs>
+                <path fill="url(#@gradienteId)" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"
+                    d="M12 2.5l2.97 6.02 6.65.97-4.81 4.69 1.14 6.62L12 17.7l-5.95 3.1 1.14-6.62-4.81-4.69 6.65-.97L12 2.5z" />
+            </svg>
+        }
+    </span>
+
+    <span class="somente-leitor-de-tela">@notaTexto de 5 estrelas</span>
+</span>

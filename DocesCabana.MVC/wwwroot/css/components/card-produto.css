@@ -67,6 +67,13 @@
     overflow: hidden;
 }
 
+/* .container-imagem-card e .nome-card viraram <a> (spec 008, RF-01) — os
+   dois reset abaixo mantêm a aparência que tinham como <div>/<span>. */
+a.container-imagem-card,
+a.nome-card {
+    text-decoration: none;
+}
+
 .imagem-card {
     margin-top: 12.5%;
     width: 85%;
@@ -86,6 +93,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     width: 100%;
+    display: block;
 }
 
 .preco-card {

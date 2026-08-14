@@ -75,17 +75,17 @@
 ## Fase 6 — Apresentação
 
 - [x] **T036** — `DocesCabana.MVC/Controllers/ProdutoController.cs`: `Detalhes` (GET público, saneando `ordenacao` e `exibir`) e `VotarUtil` (`[HttpPost]`, `[ValidateAntiForgeryToken]`, `[Authorize]`, redirecionando com a âncora `#avaliacoes`).
-- [ ] **T037** `[P]` — `DocesCabana.MVC/ViewComponents/EstrelasNota.cs` e `Views/Shared/Components/EstrelasNota/Default.cshtml`: fileira em SVG com preenchimento fracionário e a nota em texto para leitor de tela.
-- [ ] **T038** `[P]` — `DocesCabana.MVC/wwwroot/css/components/estrelas-nota.css`.
-- [ ] **T039** — `DocesCabana.MVC/Views/Produto/Detalhes.cshtml`: caminho de navegação, bloco de compra, aviso de fora de estoque e seção de descrição (omitida quando não houver).
-- [ ] **T040** `[P]` — `DocesCabana.MVC/Views/Produto/_BlocoAvaliacoes.cshtml`: média, histograma, seletor de ordenação, lista, "Ver mais" e o estado vazio.
-- [ ] **T041** `[P]` — `DocesCabana.MVC/Views/Produto/_CartaoAvaliacao.cshtml`: autor, data, estrelas, comentário e o formulário do voto com `aria-pressed`; para visitante, o botão abre o modal de login.
-- [ ] **T042** — `DocesCabana.MVC/wwwroot/css/pages/produto.css`: tokens escopados em `.pagina-produto`, as duas grades, as réguas e o colapso para coluna única abaixo de 900px.
-- [ ] **T043** `[P]` — `DocesCabana.MVC/wwwroot/js/pages/produto.js`: seletor de quantidade limitado a 1–99.
-- [ ] **T044** `[P]` — `DocesCabana.MVC/Views/Shared/Components/CardProduto/Default.cshtml`: imagem e nome viram link para `Produto/Detalhes`, sem engolir o clique dos botões do card.
-- [ ] **T045** `[P]` — `DocesCabana.MVC/Views/Admin/Cadastro.cshtml`: `textarea` de descrição com `asp-validation-for`.
-- [ ] **T046** — `DocesCabana.MVC/Helpers/DbInitializer.cs`: descrição nos produtos semeados e avaliações de exemplo com notas variadas e votos, para a tela ter conteúdo em desenvolvimento.
-- [ ] **T047** — Rodar `dotnet test`: T010 passa.
+- [x] **T037** `[P]` — `DocesCabana.MVC/ViewComponents/EstrelasNota.cs` e `Views/Shared/Components/EstrelasNota/Default.cshtml`: fileira em SVG com preenchimento fracionário e a nota em texto para leitor de tela.
+- [x] **T038** `[P]` — `DocesCabana.MVC/wwwroot/css/components/estrelas-nota.css`.
+- [x] **T039** — `DocesCabana.MVC/Views/Produto/Detalhes.cshtml`: caminho de navegação, bloco de compra, aviso de fora de estoque e seção de descrição (omitida quando não houver).
+- [x] **T040** `[P]` — `DocesCabana.MVC/Views/Produto/_BlocoAvaliacoes.cshtml`: média, histograma, seletor de ordenação, lista, "Ver mais" e o estado vazio.
+- [x] **T041** `[P]` — `DocesCabana.MVC/Views/Produto/_CartaoAvaliacao.cshtml`: autor, data, estrelas, comentário e o formulário do voto com `aria-pressed`; para visitante, o botão abre o modal de login.
+- [x] **T042** — `DocesCabana.MVC/wwwroot/css/pages/produto.css`: tokens escopados em `.pagina-produto`, as duas grades, as réguas e o colapso para coluna única abaixo de 900px.
+- [x] **T043** `[P]` — `DocesCabana.MVC/wwwroot/js/pages/produto.js`: seletor de quantidade limitado a 1–99.
+- [x] **T044** `[P]` — `DocesCabana.MVC/Views/Shared/Components/CardProduto/Default.cshtml`: imagem e nome viram link para `Produto/Detalhes`, sem engolir o clique dos botões do card.
+- [x] **T045** `[P]` — `DocesCabana.MVC/Views/Admin/Cadastro.cshtml`: `textarea` de descrição com `asp-validation-for`.
+- [x] **T046** — `DocesCabana.MVC/Helpers/DbInitializer.cs`: descrição nos produtos semeados e avaliações de exemplo com notas variadas e votos, para a tela ter conteúdo em desenvolvimento.
+- [x] **T047** — Rodar `dotnet test`: T010 passa.
 
 ## Fase 7 — Fechamento
 

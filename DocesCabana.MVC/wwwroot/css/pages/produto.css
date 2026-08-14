@@ -1,0 +1,394 @@
+/* Página do produto — spec 008. Tokens escopados em .pagina-produto para não
+   vazar para o resto do site (risco documentado no plano §8). */
+
+.pagina-produto {
+  --produto-fundo: #FDF5F1;
+  --produto-tinta: #1E1E1E;
+  --produto-tinta-suave: #4A4A4A;
+  --produto-verde: var(--cor-primaria);
+  --produto-vermelho: var(--cor-destaque);
+  --produto-regua: #D9704F;
+  --produto-borda-cartao: #DAD4CE;
+
+  background-color: var(--produto-fundo);
+  color: var(--produto-tinta);
+  font-family: 'Inter', sans-serif;
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.caminho-navegacao {
+  font-size: 14px;
+  color: var(--produto-tinta-suave);
+  margin-bottom: 1.5rem;
+}
+
+.caminho-navegacao a {
+  color: var(--produto-tinta-suave);
+  text-decoration: none;
+}
+
+.caminho-navegacao a:hover {
+  text-decoration: underline;
+}
+
+.regua {
+  border: none;
+  border-top: 1px solid var(--produto-regua);
+  margin: 2.5rem 0;
+}
+
+/* --- Bloco de compra: imagem + conteúdo, 1fr 1fr --- */
+
+.bloco-compra {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.bloco-compra__imagem {
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.bloco-compra__imagem img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.bloco-compra__conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.nome-produto {
+  font-weight: 300;
+  font-size: 34px;
+  line-height: 1.15;
+  text-align: center;
+  margin: 0;
+}
+
+.rotulo-secao {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--produto-verde);
+  margin: 0;
+}
+
+.texto-resumo {
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 68ch;
+  margin: 0.25rem 0;
+}
+
+.atalho-ver-mais {
+  color: var(--produto-verde);
+  font-weight: 600;
+  text-decoration: none;
+  scroll-behavior: smooth;
+}
+
+.atalho-ver-mais:hover {
+  text-decoration: underline;
+}
+
+.atalho-ver-mais--central {
+  display: block;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.linha-preco-quantidade {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.preco-produto {
+  font-weight: 800;
+  font-size: 28px;
+  color: var(--produto-vermelho);
+}
+
+.aviso-fora-de-estoque {
+  font-weight: 700;
+  color: var(--produto-vermelho);
+  background-color: #FDF2F2;
+  border: 1px solid #FDE8E8;
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+}
+
+.seletor-quantidade {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1.5px solid var(--produto-borda-cartao);
+  border-radius: 12px;
+  padding: 0.4rem 0.75rem;
+}
+
+.botao-quantidade {
+  background: none;
+  border: none;
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  color: var(--produto-tinta);
+}
+
+.valor-quantidade {
+  min-width: 1.5ch;
+  text-align: center;
+  font-weight: 600;
+}
+
+.botao-adicionar-carrinho {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  background-color: var(--produto-vermelho);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.botao-adicionar-carrinho:hover {
+  filter: brightness(1.1);
+}
+
+.botao-adicionar-carrinho:disabled {
+  background-color: var(--produto-borda-cartao);
+  cursor: not-allowed;
+}
+
+/* --- Seção de características --- */
+
+.secao-caracteristicas {
+  max-width: 68ch;
+  margin: 0 auto;
+}
+
+.texto-caracteristicas {
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* --- Bloco de avaliações: 280px + 1fr --- */
+
+.mensagem-sem-avaliacoes {
+  text-align: center;
+  color: var(--produto-tinta-suave);
+  padding: 2rem 0;
+}
+
+.grade-avaliacoes {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.resumo-avaliacoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nota-media {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.valor-nota-media {
+  font-weight: 800;
+  font-size: 64px;
+  color: var(--produto-vermelho);
+  line-height: 1;
+}
+
+.total-avaliacoes {
+  color: var(--produto-tinta-suave);
+  font-size: 13px;
+  margin: 0 0 0.5rem;
+}
+
+.histograma-notas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.linha-histograma {
+  display: grid;
+  grid-template-columns: 2.5em 1fr 2em;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 13px;
+  color: var(--produto-tinta-suave);
+}
+
+.barra-histograma-container {
+  background-color: var(--produto-borda-cartao);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.barra-histograma {
+  display: block;
+  height: 100%;
+  background-color: var(--produto-vermelho);
+}
+
+.formulario-ordenacao {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 14px;
+}
+
+.formulario-ordenacao select {
+  font-family: 'Inter', sans-serif;
+  border: 1.5px solid var(--produto-borda-cartao);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+}
+
+.botao-aplicar-ordenacao {
+  font-family: 'Inter', sans-serif;
+  border: 1.5px solid var(--produto-verde);
+  color: var(--produto-verde);
+  background: none;
+  border-radius: 8px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+
+.lista-avaliacoes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cartao-avaliacao {
+  border: 1.5px solid var(--produto-borda-cartao);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cabecalho-cartao-avaliacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.autor-avaliacao {
+  font-weight: 600;
+}
+
+.data-avaliacao {
+  font-size: 13px;
+  color: var(--produto-tinta-suave);
+}
+
+.comentario-avaliacao {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.formulario-voto-util {
+  align-self: flex-start;
+}
+
+.botao-util {
+  font-family: 'Inter', sans-serif;
+  background: none;
+  border: 1.5px solid var(--produto-borda-cartao);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 13px;
+  color: var(--produto-tinta-suave);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.botao-util:hover {
+  border-color: var(--produto-verde);
+  color: var(--produto-verde);
+}
+
+.botao-util--marcado {
+  border-color: var(--produto-verde);
+  color: var(--produto-verde);
+  background-color: #F6FDF2;
+}
+
+.contagem-util--indisponivel {
+  font-size: 13px;
+  color: var(--produto-tinta-suave);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: flex-start;
+}
+
+/* --- Coluna única abaixo de 900px (RF-22, CA-16) --- */
+
+@media (max-width: 900px) {
+  .bloco-compra,
+  .grade-avaliacoes {
+    grid-template-columns: 1fr;
+  }
+
+  .bloco-compra__imagem {
+    max-width: 320px;
+  }
+
+  .valor-nota-media {
+    font-size: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atalho-ver-mais {
+    scroll-behavior: auto;
+  }
+}

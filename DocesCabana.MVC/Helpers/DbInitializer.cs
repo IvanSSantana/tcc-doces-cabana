@@ -69,19 +69,69 @@ public static class DbInitializer
 
             var produtosSeed = new[]
             {
-                new Produto(SubcategoriaDocesDeTachoId, "Raspa Tacho", 19.99m, "https://drive.google.com/file/d/1q2pScc0aQL8V8w3PeffOQsAfo6_-YxYk/preview"),
-                new Produto(SubcategoriaDocesDeTachoId, "Pé de Moleque", 25.00m, "https://drive.google.com/file/d/1nqCmg7DPQQhUhFKQ12b21XMQSVTYWSuT/preview"),
+                new Produto(SubcategoriaDocesDeTachoId, "Raspa Tacho", 19.99m, "https://drive.google.com/file/d/1q2pScc0aQL8V8w3PeffOQsAfo6_-YxYk/preview",
+                    descricao: "Um clássico caramelizado no ponto certo, com aquele toque de queima que só o tacho de cobre dá. Feito artesanalmente em pequenos lotes, sem conservantes."),
+                new Produto(SubcategoriaDocesDeTachoId, "Pé de Moleque", 25.00m, "https://drive.google.com/file/d/1nqCmg7DPQQhUhFKQ12b21XMQSVTYWSuT/preview",
+                    descricao: "Amendoim torrado na hora, envolto em um caramelo crocante que quebra fácil e derrete na boca."),
                 new Produto(SubcategoriaDocesDeTachoId, "Pé de Moça", 27.00m, "https://drive.google.com/file/d/1YfVBWgDdQ4XVB1tsSY7yDOssljtJlIuZ/preview"),
-                new Produto(SubcategoriaDocesDeTachoId, "Doce de Leite", 15.99m, "https://drive.google.com/file/d/1jFKyz7UdjlYL6gRJbzi2N4Pm3IsIKrZ4/preview"),
+                new Produto(SubcategoriaDocesDeTachoId, "Doce de Leite", 15.99m, "https://drive.google.com/file/d/1jFKyz7UdjlYL6gRJbzi2N4Pm3IsIKrZ4/preview",
+                    descricao: "Leite e açúcar, cozidos devagar até virar o doce de leite cremoso de toda tarde de domingo."),
                 new Produto(SubcategoriaDocesDeTachoId, "Raspa Tacho", 19.99m, "https://drive.google.com/file/d/1Hq0GQ6axWc-iRPOheT4vBYa0s6MU-q6C/preview"),
                 new Produto(SubcategoriaDocesDeTachoId, "Pé de Moleque", 25.00m, "https://drive.google.com/file/d/1bfDl0VMyHkHzxOxluuho3-7EERjjdDa2/preview"),
             };
             context.Produtos.AddRange(produtosSeed);
 
             await context.SaveChangesAsync();
+
+            // Avaliações de exemplo no primeiro produto, com notas e votos
+            // variados — para a tela ter conteúdo real em desenvolvimento
+            // (spec 008), sem depender do administrador semeado existir.
+            await SemearAvaliacoesDeExemplo(scope.ServiceProvider, context, produtosSeed[0].ProdutoId);
         }
 
         await SemearAdministrador(scope.ServiceProvider);
+    }
+
+    private static async Task SemearAvaliacoesDeExemplo(IServiceProvider serviceProvider, DocesCabanaDbContext context, Guid produtoId)
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<ContaDeAcesso>>();
+
+        var clientes = new (string Email, string Nome, string Cpf)[]
+        {
+            ("cliente1.seed@docescabana.com.br", "Zeca Pagodinho", "52998224725"),
+            ("cliente2.seed@docescabana.com.br", "Marina Alves", "11144477735"),
+            ("cliente3.seed@docescabana.com.br", "João Pedro", "39053344705"),
+        };
+
+        var usuarioIds = new List<Guid>();
+        foreach (var (email, nome, cpf) in clientes)
+        {
+            var conta = new ContaDeAcesso(email);
+            var resultado = await userManager.CreateAsync(conta, "SenhaSeed@123");
+            if (!resultado.Succeeded)
+                continue;
+
+            var usuario = new Usuario(conta.Id, nome, cpf, "14999998888", new DateTime(1995, 5, 20));
+            context.Usuarios.Add(usuario);
+            usuarioIds.Add(conta.Id);
+        }
+        await context.SaveChangesAsync();
+
+        if (usuarioIds.Count < 3)
+            return;
+
+        var avaliacaoMaisVotada = new Avaliacao(usuarioIds[0], produtoId, 5,
+            "Simplesmente o melhor doce que já comi. Chegou rápido e bem embalado, recomendo demais!");
+        var avaliacaoMediana = new Avaliacao(usuarioIds[1], produtoId, 4, "Muito bom, só achei um pouco doce demais para o meu gosto.");
+        var avaliacaoSemVoto = new Avaliacao(usuarioIds[2], produtoId, 3, "Bom, mas esperava mais pelo preço.");
+
+        context.Avaliacoes.AddRange(avaliacaoMaisVotada, avaliacaoMediana, avaliacaoSemVoto);
+        await context.SaveChangesAsync();
+
+        context.VotosUteis.Add(new VotoUtil(avaliacaoMaisVotada.AvaliacaoId, usuarioIds[1]));
+        context.VotosUteis.Add(new VotoUtil(avaliacaoMaisVotada.AvaliacaoId, usuarioIds[2]));
+        context.VotosUteis.Add(new VotoUtil(avaliacaoMediana.AvaliacaoId, usuarioIds[2]));
+        await context.SaveChangesAsync();
     }
 
     private static async Task SemearAdministrador(IServiceProvider serviceProvider)

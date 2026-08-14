@@ -1,0 +1,46 @@
+@using DocesCabana.MVC.Models
+@model AvaliacaoCartaoViewModel
+@{
+    var avaliacao = Model.Avaliacao;
+    var dataFormatada = avaliacao.DataCriacao.ToString("d MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"));
+}
+
+<li class="cartao-avaliacao">
+    <div class="cabecalho-cartao-avaliacao">
+        <span class="autor-avaliacao">@avaliacao.AutorNome</span>
+        <span class="data-avaliacao">@dataFormatada</span>
+    </div>
+
+    @await Component.InvokeAsync("EstrelasNota", new { nota = (decimal)avaliacao.Nota, tamanho = "pequena" })
+
+    @if (!string.IsNullOrWhiteSpace(avaliacao.Comentario))
+    {
+        <p class="comentario-avaliacao">@avaliacao.Comentario</p>
+    }
+
+    @if (User.Identity!.IsAuthenticated && avaliacao.EhDoUsuarioAtual)
+    {
+        <span class="contagem-util contagem-util--indisponivel">
+            <i class="fa-regular fa-thumbs-up" aria-hidden="true"></i> Útil (@avaliacao.TotalUteis)
+        </span>
+    }
+    else if (User.Identity!.IsAuthenticated)
+    {
+        <form asp-controller="Produto" asp-action="VotarUtil" method="post" class="formulario-voto-util">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="avaliacaoId" value="@avaliacao.AvaliacaoId" />
+            <input type="hidden" name="ordenacao" value="@Model.Ordenacao" />
+            <input type="hidden" name="exibir" value="@Model.Exibir" />
+            <button type="submit" class="botao-util@(avaliacao.MarcadaPeloUsuarioAtual ? " botao-util--marcado" : "")"
+                aria-pressed="@(avaliacao.MarcadaPeloUsuarioAtual ? "true" : "false")">
+                <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i> Útil (@avaliacao.TotalUteis)
+            </button>
+        </form>
+    }
+    else
+    {
+        <button type="button" class="botao-util" onclick="abrirModal()">
+            <i class="fa-regular fa-thumbs-up" aria-hidden="true"></i> Útil (@avaliacao.TotalUteis)
+        </button>
+    }
+</li>
