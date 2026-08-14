@@ -10,11 +10,22 @@ public class AvaliacaoTests
     [Fact]
     public void Dado_DadosValidos_Quando_CriarAvaliacao_Entao_DeveRetornarAvaliacaoInstanciada()
     {
-        var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5, "Muito bom!", true);
+        var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5, "Muito bom!");
 
         Assert.Equal((byte)5, avaliacao.Nota);
         Assert.Equal("Muito bom!", avaliacao.Comentario);
-        Assert.True(avaliacao.UpVote);
+    }
+
+    [Fact]
+    public void Dado_AvaliacaoRecemCriada_Quando_CriarAvaliacao_Entao_DataCriacaoDeveSerPreenchida()
+    {
+        // RN-09: toda avaliação registra a data em que foi escrita.
+        var antes = DateTime.UtcNow;
+
+        var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5);
+
+        var depois = DateTime.UtcNow;
+        Assert.InRange(avaliacao.DataCriacao, antes, depois);
     }
 
     [Fact]
@@ -61,5 +72,61 @@ public class AvaliacaoTests
         var comentario = new string('a', 256);
 
         Assert.Throws<ArgumentException>(() => new Avaliacao(_usuarioValido, _produtoValido, 5, comentario));
+    }
+
+    [Fact]
+    public void Dado_AvaliacaoSemVotos_Quando_AlternarVotoUtil_Entao_DeveMarcarEIncrementarTotalUteis()
+    {
+        var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5);
+        var votante = Guid.NewGuid();
+
+        var marcou = avaliacao.AlternarVotoUtil(votante);
+
+        Assert.True(marcou);
+        Assert.Equal(1, avaliacao.TotalUteis);
+        Assert.True(avaliacao.MarcadaComoUtilPor(votante));
+    }
+
+    [Fact]
+    public void Dado_VotoJaMarcado_Quando_AlternarVotoUtil_Entao_DeveDesmarcarEDecrementarTotalUteis()
+    {
+        // RN-06: uma pessoa marca no máximo uma vez; marcar de novo desfaz.
+        var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5);
+        var votante = Guid.NewGuid();
+        avaliacao.AlternarVotoUtil(votante);
+
+        var marcou = avaliacao.AlternarVotoUtil(votante);
+
+        Assert.False(marcou);
+        Assert.Equal(0, avaliacao.TotalUteis);
+        Assert.False(avaliacao.MarcadaComoUtilPor(votante));
+    }
+
+    [Fact]
+    public void Dado_AutorDaAvaliacao_Quando_AlternarVotoUtil_Entao_DeveLancarInvalidOperationException()
+    {
+        // RN-07: ninguém marca como útil a própria avaliação.
+        var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5);
+
+        Assert.Throws<InvalidOperationException>(() => avaliacao.AlternarVotoUtil(_usuarioValido));
+    }
+
+    [Fact]
+    public void Dado_VariosVotantesDistintos_Quando_AlternarVotoUtil_Entao_TotalUteisContaCadaUmUmaVezENuncaFicaNegativo()
+    {
+        // RN-08: contagem de pessoas distintas, nunca negativa.
+        var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5);
+        var votanteUm = Guid.NewGuid();
+        var votanteDois = Guid.NewGuid();
+
+        avaliacao.AlternarVotoUtil(votanteUm);
+        avaliacao.AlternarVotoUtil(votanteDois);
+
+        Assert.Equal(2, avaliacao.TotalUteis);
+
+        avaliacao.AlternarVotoUtil(votanteUm);
+
+        Assert.Equal(1, avaliacao.TotalUteis);
+        Assert.True(avaliacao.TotalUteis >= 0);
     }
 }

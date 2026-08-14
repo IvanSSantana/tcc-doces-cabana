@@ -22,22 +22,22 @@
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Confirmar que a `004` está em `main` e criar a branch `008-pagina-do-produto` a partir dela.
-- [ ] **T002** — Rodar `dotnet build` e `dotnet test` e registrar o estado inicial (tudo verde antes de começar).
+- [x] **T001** — Confirmar que a `004` está em `main` e criar a branch `008-pagina-do-produto` a partir dela.
+- [x] **T002** — Rodar `dotnet build` e `dotnet test` e registrar o estado inicial (tudo verde antes de começar).
 
 ## Fase 2 — Testes (devem falhar)
 
 *Escreva, rode, veja vermelho. Só então passe para a Fase 3.*
 
-- [ ] **T003** `[P]` — `DocesCabana.Tests/Units/Entities/ProdutoTests.cs`: descrição nula aceita, descrição de 4000 caracteres aceita, 4001 lança (RN-01).
-- [ ] **T004** `[P]` — `DocesCabana.Tests/Units/Entities/AvaliacaoTests.cs`: `AlternarVotoUtil` marca, alterna e desmarca (RN-06); autor votando na própria avaliação lança (RN-07); `TotalUteis` conta pessoas distintas e nunca fica negativo (RN-08); `DataCriacao` é preenchida (RN-09).
-- [ ] **T005** `[P]` — `DocesCabana.Tests/Units/Entities/VotoUtilTests.cs`: `Guid.Empty` em avaliação ou usuário lança.
-- [ ] **T006** `[P]` — `DocesCabana.Tests/Units/Validators/ProdutoDTOValidatorTests.cs`: descrição vazia é válida, 4001 caracteres é inválido com a mensagem do RN-01.
-- [ ] **T007** `[P]` — `DocesCabana.Tests/Units/Mappings/ProdutoDetalheMapperTests.cs`: resumo corta em 160 no fim da palavra com reticências, texto curto sai inteiro sem reticências, descrição nula gera resumo nulo (RN-02, CA-03).
-- [ ] **T008** `[P]` — `DocesCabana.Tests/Units/Services/AvaliacaoServiceTests.cs`: média com uma casa e média nula sem avaliação (RN-03, CA-07, CA-08); distribuição com as cinco chaves (RN-04); ordenação por relevantes com desempate pela mais recente (RN-05) e por mais recentes (CA-10); `TemMais` e paginação de 5 em 5 (RF-14, RF-15, CA-09); voto marcando e desmarcando (CA-11, CA-12) e voto do próprio autor lançando (CA-14).
-- [ ] **T009** `[P]` — `DocesCabana.Tests/Units/Services/ProdutoServiceTests.cs`: detalhe de produto ativo traz nome, preço e resumo (CA-01); id inexistente lança `KeyNotFoundException` (CA-04); produto inativo lança o mesmo (CA-05).
-- [ ] **T010** `[P]` — `DocesCabana.Tests/Units/Controllers/ProdutoControllerTests.cs`: `Detalhes` devolve `ViewResult` com o DTO composto; `exibir` fora de faixa é saneado; `VotarUtil` redireciona preservando ordenação e quantidade (RF-17); voto do próprio autor não altera nada (RF-21).
-- [ ] **T011** — Confirmar que T003–T010 falham pelo motivo certo (e não por erro de compilação alheio).
+- [x] **T003** `[P]` — `DocesCabana.Tests/Units/Entities/ProdutoTests.cs`: descrição nula aceita, descrição de 4000 caracteres aceita, 4001 lança (RN-01).
+- [x] **T004** `[P]` — `DocesCabana.Tests/Units/Entities/AvaliacaoTests.cs`: `AlternarVotoUtil` marca, alterna e desmarca (RN-06); autor votando na própria avaliação lança (RN-07); `TotalUteis` conta pessoas distintas e nunca fica negativo (RN-08); `DataCriacao` é preenchida (RN-09).
+- [x] **T005** `[P]` — `DocesCabana.Tests/Units/Entities/VotoUtilTests.cs`: `Guid.Empty` em avaliação ou usuário lança.
+- [x] **T006** `[P]` — `DocesCabana.Tests/Units/Validators/ProdutoDTOValidatorTests.cs`: descrição vazia é válida, 4001 caracteres é inválido com a mensagem do RN-01.
+- [x] **T007** `[P]` — `DocesCabana.Tests/Units/Mappings/ProdutoDetalheMapperTests.cs`: resumo corta em 160 no fim da palavra com reticências, texto curto sai inteiro sem reticências, descrição nula gera resumo nulo (RN-02, CA-03).
+- [x] **T008** `[P]` — `DocesCabana.Tests/Units/Services/AvaliacaoServiceTests.cs`: média com uma casa e média nula sem avaliação (RN-03, CA-07, CA-08); distribuição com as cinco chaves (RN-04); ordenação por relevantes com desempate pela mais recente (RN-05) e por mais recentes (CA-10); `TemMais` e paginação de 5 em 5 (RF-14, RF-15, CA-09); voto marcando e desmarcando (CA-11, CA-12) e voto do próprio autor lançando (CA-14).
+- [x] **T009** `[P]` — `DocesCabana.Tests/Units/Services/ProdutoServiceTests.cs`: detalhe de produto ativo traz nome, preço e resumo (CA-01); id inexistente lança `KeyNotFoundException` (CA-04); produto inativo lança o mesmo (CA-05).
+- [x] **T010** `[P]` — `DocesCabana.Tests/Units/Controllers/ProdutoControllerTests.cs`: `Detalhes` devolve `ViewResult` com o DTO composto; `exibir` fora de faixa é saneado; `VotarUtil` redireciona preservando ordenação e quantidade (RF-17); voto do próprio autor não altera nada (RF-21).
+- [x] **T011** — Confirmar que T003–T010 falham pelo motivo certo (e não por erro de compilação alheio).
 
 ## Fase 3 — Domínio
 

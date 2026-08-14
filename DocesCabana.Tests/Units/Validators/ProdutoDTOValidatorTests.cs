@@ -106,17 +106,40 @@ public class ProdutoDTOValidatorTests
         Assert.Contains(resultado.Errors, e => e.PropertyName == "SubcategoriaId");
     }
 
+    [Fact]
+    public void Dado_DescricaoVazia_Quando_Validar_Entao_DeveSerValido()
+    {
+        var dto = CriarProdutoValido(descricao: "");
+
+        var resultado = _validator.Validate(dto);
+
+        Assert.True(resultado.IsValid);
+    }
+
+    [Fact]
+    public void Dado_DescricaoComQuatroMilEUmCaracteres_Quando_Validar_Entao_DeveSerInvalido()
+    {
+        var dto = CriarProdutoValido(descricao: new string('a', 4001));
+
+        var resultado = _validator.Validate(dto);
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "Descricao");
+    }
+
     private static ProdutoDTO CriarProdutoValido(
         string nome = "Brigadeiro Gourmet",
         decimal preco = 4.50m,
         string imagemUrl = "https://imagem.com/brigadeiro.jpg",
-        Guid? subcategoriaId = null) =>
+        Guid? subcategoriaId = null,
+        string? descricao = null) =>
         new()
         {
             Nome = nome,
             Preco = preco,
             Status = ProdutoStatus.Ativo,
             ImagemUrl = imagemUrl,
-            SubcategoriaId = subcategoriaId ?? Guid.NewGuid()
+            SubcategoriaId = subcategoriaId ?? Guid.NewGuid(),
+            Descricao = descricao
         };
 }

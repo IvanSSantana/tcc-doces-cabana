@@ -1,5 +1,7 @@
 using DocesCabana.Application.Contracts.Repositories;
+using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
+using DocesCabana.Application.Enums;
 using DocesCabana.Application.Services;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
@@ -11,14 +13,16 @@ namespace DocesCabana.Tests.Units.Services;
 public class ProdutoServiceTests
 {
     private readonly Mock<IProdutoRepository> _produtoRepositoryMock;
+    private readonly Mock<IAvaliacaoService> _avaliacaoServiceMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly ProdutoService _produtoService;
 
     public ProdutoServiceTests()
     {
         _produtoRepositoryMock = new Mock<IProdutoRepository>();
+        _avaliacaoServiceMock = new Mock<IAvaliacaoService>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
-        _produtoService = new ProdutoService(_produtoRepositoryMock.Object, _unitOfWorkMock.Object);
+        _produtoService = new ProdutoService(_produtoRepositoryMock.Object, _avaliacaoServiceMock.Object, _unitOfWorkMock.Object);
     }
 
     [Fact]
@@ -118,5 +122,52 @@ public class ProdutoServiceTests
 
         Assert.Equal(ProdutoStatus.Inativo, resultado.Status);
         Assert.NotEqual(Guid.Empty, resultado.ProdutoId);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoAtivo_Quando_BuscarDetalhe_Entao_DeveTrazerNomePrecoEResumo()
+    {
+        // CA-01
+        var produtoId = Guid.NewGuid();
+        var produto = new Produto(Guid.NewGuid(), "Pé de Moleque Doce de Matar", 29.99m,
+            "https://imagem.com/pe-de-moleque.jpg", id: produtoId, descricao: "Feito com amendoim torrado na hora.");
+
+        _produtoRepositoryMock.Setup(r => r.BuscarDetalhePorId(produtoId)).ReturnsAsync(produto);
+        _avaliacaoServiceMock.Setup(s => s.ResumirPorProduto(produtoId))
+            .ReturnsAsync(new ResumoAvaliacoesDTO { Media = null, Total = 0, Distribuicao = new Dictionary<byte, int>() });
+        _avaliacaoServiceMock
+            .Setup(s => s.ListarPorProduto(produtoId, OrdenacaoAvaliacao.Relevantes, 5, null))
+            .ReturnsAsync(new PaginaAvaliacoesDTO { Itens = [], Ordenacao = OrdenacaoAvaliacao.Relevantes, Exibindo = 0, Total = 0, TemMais = false });
+
+        var detalhe = await _produtoService.BuscarDetalhe(produtoId, OrdenacaoAvaliacao.Relevantes, 5, usuarioAtual: null);
+
+        Assert.Equal("Pé de Moleque Doce de Matar", detalhe.Nome);
+        Assert.Equal(29.99m, detalhe.Preco);
+        Assert.Equal("Feito com amendoim torrado na hora.", detalhe.Resumo);
+    }
+
+    [Fact]
+    public async Task Dado_IdInexistente_Quando_BuscarDetalhe_Entao_DeveLancarKeyNotFoundException()
+    {
+        // CA-04
+        var idInexistente = Guid.NewGuid();
+        _produtoRepositoryMock.Setup(r => r.BuscarDetalhePorId(idInexistente)).ReturnsAsync((Produto?)null);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            _produtoService.BuscarDetalhe(idInexistente, OrdenacaoAvaliacao.Relevantes, 5, usuarioAtual: null));
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoInativo_Quando_BuscarDetalhe_Entao_DeveLancarKeyNotFoundException()
+    {
+        // CA-05, RN-12: produto inativo não é visível ao cliente por nenhum caminho.
+        var produtoId = Guid.NewGuid();
+        var produto = new Produto(Guid.NewGuid(), "Bolo de Teste", 10.00m,
+            "https://imagem.com/bolo.jpg", ProdutoStatus.Inativo, produtoId);
+
+        _produtoRepositoryMock.Setup(r => r.BuscarDetalhePorId(produtoId)).ReturnsAsync(produto);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            _produtoService.BuscarDetalhe(produtoId, OrdenacaoAvaliacao.Relevantes, 5, usuarioAtual: null));
     }
 }

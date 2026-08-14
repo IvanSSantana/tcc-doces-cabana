@@ -180,6 +180,43 @@ public class ProdutoTests
         Assert.Null(produto.PromocaoId);
     }
 
+    [Fact]
+    public void Dado_DescricaoNula_Quando_CriarProduto_Entao_DeveAceitar()
+    {
+        var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida, descricao: null);
+
+        Assert.Null(produto.Descricao);
+    }
+
+    [Fact]
+    public void Dado_DescricaoComQuatroMilCaracteres_Quando_CriarProduto_Entao_DeveAceitar()
+    {
+        var descricao = new string('a', 4000);
+
+        var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida, descricao: descricao);
+
+        Assert.Equal(descricao, produto.Descricao);
+    }
+
+    [Fact]
+    public void Dado_DescricaoComQuatroMilEUmCaracteres_Quando_CriarProduto_Entao_DeveLancarArgumentException()
+    {
+        var descricao = new string('a', 4001);
+
+        Assert.Throws<ArgumentException>(() =>
+            new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida, descricao: descricao));
+    }
+
+    [Fact]
+    public void Dado_DescricaoValida_Quando_AlterarDescricao_Entao_DeveAtualizarDescricao()
+    {
+        var produto = CriarProduto();
+
+        produto.AlterarDescricao("Doce caseiro, feito com leite e açúcar.");
+
+        Assert.Equal("Doce caseiro, feito com leite e açúcar.", produto.Descricao);
+    }
+
     private Produto CriarProduto()
     {
         return new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida);
