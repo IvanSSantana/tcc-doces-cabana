@@ -1,6 +1,6 @@
 # Especificação — Página do produto
 
-**ID:** `006-pagina-do-produto` · **Branch:** `006-pagina-do-produto`
+**ID:** `008-pagina-do-produto` · **Branch:** `008-pagina-do-produto`
 **Criada em:** 2026-08-14 · **Status:** Rascunho
 
 ---
@@ -249,10 +249,9 @@ preço e as avaliações de quem já comprou.
     preenchida;
   - `003-modelo-de-dados-completo` (implementada) — `Avaliacao`, `Subcategoria`
     e `Categoria` já existem;
-  - `004-separar-pessoa-de-credencial` (rascunho) — **bloqueante**. Exibir o
-    nome de quem avaliou exige que a avaliação alcance o usuário, e hoje ela
-    guarda só um identificador solto, pela limitação que a `003` registrou como
-    RQ-02. A `004` é justamente quem resolve isso.
+  - `004-separar-pessoa-de-credencial` (implementada) — exibir o nome de quem
+    avaliou exige que a avaliação alcance o usuário; a `004` resolveu a
+    limitação que a `003` registrou como RQ-02, que impedia isso.
 - **Bloqueia:** a feature de escrever avaliação (reaproveita o bloco de
   avaliações desta tela) e a página de carrinho (herda o seletor de quantidade
   e o botão desta tela).

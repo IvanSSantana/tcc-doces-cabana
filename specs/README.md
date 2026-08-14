@@ -17,6 +17,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [005](./005-gestao-de-administradores/spec.md) | Gestão de administradores | Implementada | spec · [plan](./005-gestao-de-administradores/plan.md) · [tasks](./005-gestao-de-administradores/tasks.md) · [checklist](./005-gestao-de-administradores/checklist.md) |
 | [006](./006-duplicidade-unificada-no-cadastro/spec.md) | Duplicidade unificada no cadastro | Implementada | spec · [plan](./006-duplicidade-unificada-no-cadastro/plan.md) · [tasks](./006-duplicidade-unificada-no-cadastro/tasks.md) · [checklist](./006-duplicidade-unificada-no-cadastro/checklist.md) |
 | [007](./007-testes-e2e-com-playwright/spec.md) | Testes E2E com Playwright | Implementada | spec · [plan](./007-testes-e2e-com-playwright/plan.md) · [tasks](./007-testes-e2e-com-playwright/tasks.md) · [checklist](./007-testes-e2e-com-playwright/checklist.md) |
+| [008](./008-pagina-do-produto/spec.md) | Página do produto | Rascunho | spec · [plan](./008-pagina-do-produto/plan.md) · [tasks](./008-pagina-do-produto/tasks.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
@@ -36,7 +37,15 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > runner único. Encontrou e corrigiu, de passagem, a ausência de qualquer
 > caminho de "Sair" na interface.
 >
-> **Backlog:** sem próxima feature planejada. Ver seção abaixo.
+> **Nota de numeração:** a pasta `008-pagina-do-produto` nasceu como `006`,
+> criada por uma sessão em paralelo a partir de um `main` mais antigo (antes
+> da `004`/`005` fecharem). Como o número `006` já tinha sido atribuído nesta
+> linha à `duplicidade-unificada-no-cadastro` — implementada e mergeada —,
+> a `pagina-do-produto` foi renumerada para `008` por ser a que ainda não
+> tinha código nenhum. Nenhuma emenda de constituição associada; é
+> reorganização de numeração, não decisão técnica.
+>
+> **Próxima:** `008`, ainda em rascunho.
 
 ## Backlog
 
@@ -54,8 +63,8 @@ Ordem sugerida por dependência:
 | Endereço do usuário | 003 |
 | Carrinho e fechamento de pedido | estoque, endereço |
 | Pagamento | carrinho |
-| Escrever avaliação de produto | 006, carrinho |
-| Galeria de imagens do produto | 006 |
+| Escrever avaliação de produto | 008, carrinho |
+| Galeria de imagens do produto | 008 |
 | Promoções na vitrine | 003 |
 
 ## Como criar a próxima

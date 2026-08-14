@@ -22,7 +22,7 @@
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Confirmar que a `004` está em `main` e criar a branch `006-pagina-do-produto` a partir dela.
+- [ ] **T001** — Confirmar que a `004` está em `main` e criar a branch `008-pagina-do-produto` a partir dela.
 - [ ] **T002** — Rodar `dotnet build` e `dotnet test` e registrar o estado inicial (tudo verde antes de começar).
 
 ## Fase 2 — Testes (devem falhar)
@@ -93,7 +93,8 @@
 - [ ] **T049** — Executar a aplicação e percorrer manualmente CA-01 a CA-15, com atenção a CA-02 (âncora), CA-06 (fora de estoque) e CA-13 (visitante clicando em "Útil").
 - [ ] **T050** — Conferir CA-16 e o piso de qualidade: 375px sem rolagem horizontal, navegação inteira por teclado com foco visível, e `prefers-reduced-motion` desligando a rolagem suave.
 - [ ] **T051** — Preencher o checklist em `checklist.md`.
-- [ ] **T052** — Atualizar o status da spec para *Implementada* e a linha da feature em `specs/README.md` — incluindo mover "Testes ponta a ponta em Playwright" de `006` para `007`, já que o número `006` foi atribuído a esta feature na criação da pasta.
+- [ ] **T052** — Atualizar o status da spec para *Implementada*, o plano para
+      *Executado*, e a linha da `008` em `specs/README.md`.
 
 ---
 
