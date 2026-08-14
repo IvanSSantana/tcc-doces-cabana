@@ -63,14 +63,14 @@
 
 ## Fase 5 — Infraestrutura
 
-- [ ] **T028** — `DocesCabana.Infrastructure/Repositories/AvaliacaoRepository.cs`: consulta paginada com `Include` de usuário e votos, contagem total e contagem por nota.
-- [ ] **T029** `[P]` — `DocesCabana.Infrastructure/Repositories/ProdutoRepository.cs`: `BuscarDetalhePorId` com `Include(p => p.Subcategoria)`.
-- [ ] **T030** — `DatabaseContext/Configurations/VotoUtilConfiguration.cs` novo, `AvaliacaoConfiguration.cs` e `ProdutoConfiguration.cs` alterados, e `DbSet<VotoUtil>` em `DocesCabanaDbContext.cs`.
-- [ ] **T031** — Migration: `dotnet ef migrations add AddProdutoDescricaoAndAvaliacaoVotes --project DocesCabana.Infrastructure --startup-project DocesCabana.MVC`.
-- [ ] **T032** `[P]` — `DependencyInjections/ApplicationDependencyInjection.cs`: registrar `IAvaliacaoRepository` e `IAvaliacaoService`.
-- [ ] **T033** `[P]` — `DocesCabana.Tests/Integration/InfraestruturaSqliteEmMemoria.cs`: `SemearAvaliacao`.
-- [ ] **T034** — `DocesCabana.Tests/Integration/Repositories/AvaliacaoRepositoryIntegrationTests.cs`: ordenação e contagem por nota rodando em SQLite.
-- [ ] **T035** `[P]` — `ModelagemBancoTCC.dbml`: coluna `Descricao` em `Produto`, `DataCriacao` em `Avaliacao`, remoção de `UpVote` e a tabela `VotoUtil` com sua chave composta e as duas referências.
+- [x] **T028** — `DocesCabana.Infrastructure/Repositories/AvaliacaoRepository.cs`: consulta paginada com `Include` de usuário e votos, contagem total e contagem por nota.
+- [x] **T029** `[P]` — `DocesCabana.Infrastructure/Repositories/ProdutoRepository.cs`: `BuscarDetalhePorId` com `Include(p => p.Subcategoria)`.
+- [x] **T030** — `DatabaseContext/Configurations/VotoUtilConfiguration.cs` novo, `AvaliacaoConfiguration.cs` e `ProdutoConfiguration.cs` alterados, e `DbSet<VotoUtil>` em `DocesCabanaDbContext.cs`.
+- [x] **T031** — Migration: `dotnet ef migrations add AddProdutoDescricaoAndAvaliacaoVotes --project DocesCabana.Infrastructure --startup-project DocesCabana.MVC`.
+- [x] **T032** `[P]` — `DependencyInjections/ApplicationDependencyInjection.cs`: registrar `IAvaliacaoRepository` e `IAvaliacaoService`.
+- [x] **T033** `[P]` — `DocesCabana.Tests/Integration/InfraestruturaSqliteEmMemoria.cs`: `SemearAvaliacao`.
+- [x] **T034** — `DocesCabana.Tests/Integration/Repositories/AvaliacaoRepositoryIntegrationTests.cs`: ordenação e contagem por nota rodando em SQLite.
+- [x] **T035** `[P]` — `ModelagemBancoTCC.dbml`: coluna `Descricao` em `Produto`, `DataCriacao` em `Avaliacao`, remoção de `UpVote` e a tabela `VotoUtil` com sua chave composta e as duas referências.
 
 ## Fase 6 — Apresentação
 

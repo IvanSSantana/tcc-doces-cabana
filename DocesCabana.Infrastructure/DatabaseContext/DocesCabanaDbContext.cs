@@ -31,6 +31,8 @@ public class DocesCabanaDbContext : IdentityDbContext<ContaDeAcesso, IdentityRol
 
     public DbSet<Avaliacao> Avaliacoes { get; set; }
 
+    public DbSet<VotoUtil> VotosUteis { get; set; }
+
     public DbSet<Pedido> Pedidos { get; set; }
 
     public DbSet<ItemPedido> ItensPedido { get; set; }

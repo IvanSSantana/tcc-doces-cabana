@@ -14,7 +14,7 @@ public class AvaliacaoConfiguration : IEntityTypeConfiguration<Avaliacao>
 
         builder.Property(a => a.Comentario).HasMaxLength(255);
         builder.Property(a => a.Nota).IsRequired();
-        builder.Property(a => a.UpVote).IsRequired();
+        builder.Property(a => a.DataCriacao).IsRequired();
 
         builder.HasOne(a => a.Produto)
             .WithMany()

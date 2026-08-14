@@ -54,16 +54,41 @@ public abstract class InfraestruturaSqliteEmMemoria : IAsyncLifetime
     /// compartilhado, para testes que precisam de uma entidade com FK real
     /// para Usuario (Endereco, Favorito, Avaliacao, Pedido).
     /// </summary>
-    protected async Task<Guid> SemearUsuario()
+    protected async Task<Guid> SemearUsuario(string nome = "Cliente Teste", string cpf = "52998224725")
     {
         var conta = new ContaDeAcesso($"{Guid.NewGuid():N}@teste.com");
         Contexto.Users.Add(conta);
         await Contexto.SaveChangesAsync();
 
-        var usuario = new Usuario(conta.Id, "Cliente Teste", "52998224725", "11987654321", new DateTime(1990, 1, 1));
+        var usuario = new Usuario(conta.Id, nome, cpf, "11987654321", new DateTime(1990, 1, 1));
         Contexto.Usuarios.Add(usuario);
         await Contexto.SaveChangesAsync();
 
         return conta.Id;
+    }
+
+    /// <summary>
+    /// Persiste uma avaliação. <paramref name="dataCriacao"/> permite
+    /// controlar a data para testes de ordenação — sem isso, avaliações
+    /// criadas na mesma passagem de teste podem cair no mesmo instante e
+    /// tornar a ordenação por "mais recentes" indeterminística. O construtor
+    /// público não expõe esse parâmetro de propósito (RN-09: a data é sempre
+    /// "agora"); aqui é reflection, o mesmo backdoor de teste já usado em
+    /// outras entidades desta base.
+    /// </summary>
+    protected async Task<Avaliacao> SemearAvaliacao(
+        Guid produtoId, Guid usuarioId, byte nota, string? comentario = null, DateTime? dataCriacao = null)
+    {
+        var avaliacao = new Avaliacao(usuarioId, produtoId, nota, comentario);
+
+        if (dataCriacao.HasValue)
+        {
+            typeof(Avaliacao).GetProperty(nameof(Avaliacao.DataCriacao))!.SetValue(avaliacao, dataCriacao.Value);
+        }
+
+        Contexto.Avaliacoes.Add(avaliacao);
+        await Contexto.SaveChangesAsync();
+
+        return avaliacao;
     }
 }

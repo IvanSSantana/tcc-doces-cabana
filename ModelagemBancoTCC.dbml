@@ -6,6 +6,7 @@ Table Produto [headercolor: #175e7a] {
 	Preco decimal(18,2) [ not null ]
 	Status tinyint [ not null ]
 	ImagemUrl nvarchar(255) [ not null ]
+	Descricao nvarchar(4000) [ note: 'Opcional — produtos cadastrados antes da spec 008 ficam nulos até recadastro' ]
 }
 
 // Usuario e ContaDeAcesso são as duas metades de uma mesma pessoa, separadas
@@ -81,7 +82,19 @@ Table Avaliacao [headercolor: #175e7a] {
 	ProdutoId uniqueidentifier [ not null ]
 	Comentario varchar(255)
 	Nota tinyint
-	UpVote bit
+	DataCriacao datetime2 [ not null, note: 'Gravada em UTC (spec 008)' ]
+}
+
+// Substitui o antigo Avaliacao.UpVote (bit solto, spec 008): um bool não
+// conta votos nem sabe de quem é o voto. Chave composta é o que garante
+// "uma pessoa vota no máximo uma vez por avaliação" no próprio banco.
+Table VotoUtil [headercolor: #175e7a] {
+	AvaliacaoId uniqueidentifier [ not null ]
+	UsuarioId uniqueidentifier [ not null ]
+
+	indexes {
+		(AvaliacaoId, UsuarioId) [ pk ]
+	}
 }
 
 Table Pedido [headercolor: #175e7a] {
@@ -173,4 +186,12 @@ Ref fk_Produto_PromocaoId_Promocao {
 
 Ref fk_Usuario_UsuarioId_ContaDeAcesso {
 	Usuario.UsuarioId - ContaDeAcesso.Id [ delete: cascade, update: no action ]
+}
+
+Ref fk_VotoUtil_AvaliacaoId_Avaliacao {
+	VotoUtil.AvaliacaoId > Avaliacao.AvaliacaoId [ delete: cascade, update: no action ]
+}
+
+Ref fk_VotoUtil_UsuarioId_Usuario {
+	VotoUtil.UsuarioId > Usuario.UsuarioId [ delete: no action, update: no action ]
 }
