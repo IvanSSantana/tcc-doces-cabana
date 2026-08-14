@@ -41,6 +41,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Qualquer 404 (produto inexistente ou inativo, rota sem correspondência)
+// reexecuta em /Home/NaoEncontrado — CA-04/CA-05 da spec 008. O NotFoundResult
+// que o FilterException devolve para KeyNotFoundException é justamente o
+// gatilho: sem isso, o visitante veria um 404 em branco do servidor.
+app.UseStatusCodePagesWithReExecute("/Home/NaoEncontrado");
+
 app.UseRouting();
 
 app.UseAuthentication();

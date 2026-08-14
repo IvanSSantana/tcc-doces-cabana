@@ -74,7 +74,7 @@
 
 ## Fase 6 — Apresentação
 
-- [ ] **T036** — `DocesCabana.MVC/Controllers/ProdutoController.cs`: `Detalhes` (GET público, saneando `ordenacao` e `exibir`) e `VotarUtil` (`[HttpPost]`, `[ValidateAntiForgeryToken]`, `[Authorize]`, redirecionando com a âncora `#avaliacoes`).
+- [x] **T036** — `DocesCabana.MVC/Controllers/ProdutoController.cs`: `Detalhes` (GET público, saneando `ordenacao` e `exibir`) e `VotarUtil` (`[HttpPost]`, `[ValidateAntiForgeryToken]`, `[Authorize]`, redirecionando com a âncora `#avaliacoes`).
 - [ ] **T037** `[P]` — `DocesCabana.MVC/ViewComponents/EstrelasNota.cs` e `Views/Shared/Components/EstrelasNota/Default.cshtml`: fileira em SVG com preenchimento fracionário e a nota em texto para leitor de tela.
 - [ ] **T038** `[P]` — `DocesCabana.MVC/wwwroot/css/components/estrelas-nota.css`.
 - [ ] **T039** — `DocesCabana.MVC/Views/Produto/Detalhes.cshtml`: caminho de navegação, bloco de compra, aviso de fora de estoque e seção de descrição (omitida quando não houver).

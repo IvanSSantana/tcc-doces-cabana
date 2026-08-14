@@ -20,7 +20,12 @@ public class ProdutoControllerTests
     {
         _produtoServiceMock = new Mock<IProdutoService>();
         _avaliacaoServiceMock = new Mock<IAvaliacaoService>();
-        _controller = new ProdutoController(_produtoServiceMock.Object, _avaliacaoServiceMock.Object);
+        _controller = new ProdutoController(_produtoServiceMock.Object, _avaliacaoServiceMock.Object)
+        {
+            // Visitante anônimo por padrão; ConfigurarUsuarioAutenticado
+            // substitui isto nos testes que precisam de um usuário logado.
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
     }
 
     [Fact]

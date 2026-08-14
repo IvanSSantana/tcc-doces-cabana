@@ -34,11 +34,35 @@ public class FilterException : IActionFilter
             _logger.LogError(context.Exception, "Erro tratado pelo FilterException na ação: {Action}", context.RouteData.Values["action"]);
             _logger.LogError(context.Exception.Message);
 
+            var actionName = context.RouteData.Values["action"]?.ToString();
+
+            // Recurso ausente ou inativo (spec 008, RF-03/RF-04): 404 em
+            // qualquer método, não só POST. app.UseStatusCodePagesWithReExecute
+            // reexecuta em /Home/NaoEncontrado por cima do resultado vazio.
+            if (context.Exception is KeyNotFoundException)
+            {
+                context.Result = new NotFoundResult();
+                context.ExceptionHandled = true;
+                return;
+            }
+
+            // ProdutoController.VotarUtil não tem view própria — sempre
+            // redireciona no sucesso. Se o voto for recusado (RF-21: autor
+            // votando na própria avaliação), não há para onde a lógica
+            // genérica abaixo redesenhar; volta para de onde veio.
+            if (context.Exception is InvalidOperationException && actionName == "VotarUtil")
+            {
+                var referer = context.HttpContext.Request.Headers.Referer.ToString();
+                context.Result = string.IsNullOrEmpty(referer)
+                    ? new RedirectToActionResult("Index", "Home", null)
+                    : new RedirectResult(referer);
+                context.ExceptionHandled = true;
+                return;
+            }
+
             // Trata apenas requisições POST (submissão de formulário)
             if (HttpMethods.IsPost(context.HttpContext.Request.Method))
             {
-                var actionName = context.RouteData.Values["action"]?.ToString();
-
                 // Adiciona a mensagem amigável da exceção ao ModelState
                 if (context.Exception is InvalidOperationException ex)
                 {
