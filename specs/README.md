@@ -54,7 +54,8 @@ Ordem sugerida por dependência:
 | Endereço do usuário | 003 |
 | Carrinho e fechamento de pedido | estoque, endereço |
 | Pagamento | carrinho |
-| Avaliação de produto | carrinho |
+| Escrever avaliação de produto | 006, carrinho |
+| Galeria de imagens do produto | 006 |
 | Promoções na vitrine | 003 |
 
 ## Como criar a próxima
