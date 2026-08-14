@@ -18,6 +18,10 @@ public class Produto
 
     public string ImagemUrl { get; private set; } = default!;
 
+    // Opcional: produtos cadastrados antes desta feature ficam sem descrição
+    // até serem recadastrados (spec 008, fora de escopo editar os antigos).
+    public string? Descricao { get; private set; }
+
     // Navegações filho -> pai, anuláveis (vêm null sem Include). Ambas as
     // pontas vivem no domínio, então são navegação normal (RQ-10 da spec 003).
     public Subcategoria? Subcategoria { get; private set; }
@@ -32,12 +36,14 @@ public class Produto
         decimal preco,
         string imagemUrl,
         ProdutoStatus status = ProdutoStatus.Ativo,
-        Guid id = default)
+        Guid id = default,
+        string? descricao = null)
     {
         ValidarSubcategoria(subcategoriaId);
         ValidarNome(nome);
         ValidarPreco(preco);
         ValidarImagem(imagemUrl);
+        ValidarDescricao(descricao);
 
         ProdutoId = id == Guid.Empty
             ? Guid.NewGuid()
@@ -48,6 +54,7 @@ public class Produto
         Nome = nome;
         Preco = preco;
         ImagemUrl = imagemUrl;
+        Descricao = descricao;
     }
 
     public void AlterarNome(string nome)
@@ -77,7 +84,14 @@ public class Produto
 
         ImagemUrl = url;
     }
-    
+
+    public void AlterarDescricao(string? descricao)
+    {
+        ValidarDescricao(descricao);
+
+        Descricao = descricao;
+    }
+
     public void AlterarStatus(ProdutoStatus novoStatus) => Status = novoStatus;
 
     public void AplicarPromocao(Guid promocaoId)
@@ -115,6 +129,12 @@ public class Produto
     {
         if (preco <= 0)
             throw new ArgumentException("Preço deve ser maior que zero.", nameof(preco));
+    }
+
+    private static void ValidarDescricao(string? descricao)
+    {
+        if (descricao is not null && descricao.Length > 4000)
+            throw new ArgumentException("Descrição deve ter no máximo 4000 caracteres.", nameof(descricao));
     }
 
     private void ValidarImagem(string url)

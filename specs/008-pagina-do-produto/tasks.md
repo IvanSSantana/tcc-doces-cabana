@@ -48,18 +48,18 @@
 
 ## Fase 4 — Aplicação
 
-- [ ] **T016** `[P]` — `DocesCabana.Application/Enums/OrdenacaoAvaliacao.cs`.
-- [ ] **T017** `[P]` — `DocesCabana.Application/DTOs/AvaliacaoDTO.cs`, `DTOs/ResumoAvaliacoesDTO.cs` e `DTOs/PaginaAvaliacoesDTO.cs`.
-- [ ] **T018** — `DocesCabana.Application/DTOs/ProdutoDetalheDTO.cs` e `Descricao` em `DTOs/ProdutoDTO.cs`.
-- [ ] **T019** `[P]` — `DocesCabana.Application/Contracts/Repositories/IAvaliacaoRepository.cs` e `BuscarDetalhePorId` em `Contracts/Repositories/IProdutoRepository.cs`.
-- [ ] **T020** `[P]` — `DocesCabana.Application/Contracts/Services/IAvaliacaoService.cs` e `BuscarDetalhe` em `Contracts/Services/IProdutoService.cs`.
-- [ ] **T021** `[P]` — `DocesCabana.Application/Mappings/AvaliacaoMapper.cs`: `ToDTO(Avaliacao, Guid? usuarioAtual)`, resolvendo `MarcadaPeloUsuarioAtual` e `EhDoUsuarioAtual`.
-- [ ] **T022** — `DocesCabana.Application/Mappings/ProdutoDetalheMapper.cs`: montagem do DTO composto e o resumo de 160 caracteres.
-- [ ] **T023** `[P]` — `DocesCabana.Application/Mappings/ProdutoMapper.cs`: mapear `Descricao` nos dois sentidos.
-- [ ] **T024** `[P]` — `DocesCabana.Application/Validators/ProdutoDTOValidator.cs`: `MaximumLength(4000)` na descrição.
-- [ ] **T025** — `DocesCabana.Application/Services/AvaliacaoService.cs`: resumo, listagem ordenada e `AlternarVotoUtil` com commit via `IUnitOfWork`.
-- [ ] **T026** — `DocesCabana.Application/Services/ProdutoService.cs`: `BuscarDetalhe`, com `KeyNotFoundException` para inexistente e para inativo.
-- [ ] **T027** — Rodar `dotnet test`: T006, T007, T008 e T009 passam.
+- [x] **T016** `[P]` — `DocesCabana.Application/Enums/OrdenacaoAvaliacao.cs`.
+- [x] **T017** `[P]` — `DocesCabana.Application/DTOs/AvaliacaoDTO.cs`, `DTOs/ResumoAvaliacoesDTO.cs` e `DTOs/PaginaAvaliacoesDTO.cs`.
+- [x] **T018** — `DocesCabana.Application/DTOs/ProdutoDetalheDTO.cs` e `Descricao` em `DTOs/ProdutoDTO.cs`.
+- [x] **T019** `[P]` — `DocesCabana.Application/Contracts/Repositories/IAvaliacaoRepository.cs` e `BuscarDetalhePorId` em `Contracts/Repositories/IProdutoRepository.cs`.
+- [x] **T020** `[P]` — `DocesCabana.Application/Contracts/Services/IAvaliacaoService.cs` e `BuscarDetalhe` em `Contracts/Services/IProdutoService.cs`.
+- [x] **T021** `[P]` — `DocesCabana.Application/Mappings/AvaliacaoMapper.cs`: `ToDTO(Avaliacao, Guid? usuarioAtual)`, resolvendo `MarcadaPeloUsuarioAtual` e `EhDoUsuarioAtual`.
+- [x] **T022** — `DocesCabana.Application/Mappings/ProdutoDetalheMapper.cs`: montagem do DTO composto e o resumo de 160 caracteres.
+- [x] **T023** `[P]` — `DocesCabana.Application/Mappings/ProdutoMapper.cs`: mapear `Descricao` nos dois sentidos.
+- [x] **T024** `[P]` — `DocesCabana.Application/Validators/ProdutoDTOValidator.cs`: `MaximumLength(4000)` na descrição.
+- [x] **T025** — `DocesCabana.Application/Services/AvaliacaoService.cs`: resumo, listagem ordenada e `AlternarVotoUtil` com commit via `IUnitOfWork`.
+- [x] **T026** — `DocesCabana.Application/Services/ProdutoService.cs`: `BuscarDetalhe`, com `KeyNotFoundException` para inexistente e para inativo.
+- [x] **T027** — Rodar `dotnet test`: T006, T007, T008 e T009 passam.
 
 ## Fase 5 — Infraestrutura
 

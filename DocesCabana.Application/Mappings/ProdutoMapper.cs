@@ -13,6 +13,7 @@ public static class ProdutoMapper
             Preco = produto.Preco,
             Status = produto.Status,
             ImagemUrl = produto.ImagemUrl,
+            Descricao = produto.Descricao,
             SubcategoriaId = produto.SubcategoriaId,
             PromocaoId = produto.PromocaoId
         };
@@ -21,7 +22,7 @@ public static class ProdutoMapper
         produtos.Select(ToDTO).ToList();
 
     public static Produto ToEntity(ProdutoDTO dto) =>
-        new(dto.SubcategoriaId, dto.Nome, dto.Preco, dto.ImagemUrl, dto.Status, dto.ProdutoId);
+        new(dto.SubcategoriaId, dto.Nome, dto.Preco, dto.ImagemUrl, dto.Status, dto.ProdutoId, dto.Descricao);
 
     public static List<Produto> ToEntity(IEnumerable<ProdutoDTO> dtos) =>
         dtos.Select(ToEntity).ToList();

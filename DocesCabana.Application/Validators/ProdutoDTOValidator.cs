@@ -20,6 +20,10 @@ public class ProdutoDTOValidator : AbstractValidator<ProdutoDTO>
 
         RuleFor(x => x.SubcategoriaId)
             .NotEqual(Guid.Empty).WithMessage("Subcategoria inválida.");
+
+        // RN-01: descrição é opcional, por isso sem NotEmpty — só o limite.
+        RuleFor(x => x.Descricao)
+            .MaximumLength(4000).WithMessage("Descrição deve ter no máximo 4000 caracteres.");
     }
 
     private static bool SerUrlAbsolutaHttp(string url)

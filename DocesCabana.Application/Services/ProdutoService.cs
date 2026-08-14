@@ -1,19 +1,23 @@
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
+using DocesCabana.Application.Enums;
 using DocesCabana.Application.Mappings;
 using DocesCabana.Domain.Contracts;
+using DocesCabana.Domain.Enums;
 
 namespace DocesCabana.Application.Services;
 
 public class ProdutoService : IProdutoService
 {
     private readonly IProdutoRepository _produtoRepository;
+    private readonly IAvaliacaoService _avaliacaoService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ProdutoService(IProdutoRepository produtoRepository, IUnitOfWork unitOfWork)
+    public ProdutoService(IProdutoRepository produtoRepository, IAvaliacaoService avaliacaoService, IUnitOfWork unitOfWork)
     {
         _produtoRepository = produtoRepository;
+        _avaliacaoService = avaliacaoService;
         _unitOfWork = unitOfWork;
     }
 
@@ -41,5 +45,21 @@ public class ProdutoService : IProdutoService
         await _unitOfWork.SalvarAlteracoes();
 
         return ProdutoMapper.ToDTO(produto);
+    }
+
+    public async Task<ProdutoDetalheDTO> BuscarDetalhe(
+        Guid id, OrdenacaoAvaliacao ordenacao, int avaliacoesExibidas, Guid? usuarioAtual)
+    {
+        var produto = await _produtoRepository.BuscarDetalhePorId(id);
+
+        // RF-04/RN-12: produto inativo responde "não encontrado", como se
+        // não existisse — mesma exceção do id que não corresponde a nada.
+        if (produto is null || produto.Status == ProdutoStatus.Inativo)
+            throw new KeyNotFoundException($"Produto com ID {id} não encontrado.");
+
+        var resumoAvaliacoes = await _avaliacaoService.ResumirPorProduto(id);
+        var paginaAvaliacoes = await _avaliacaoService.ListarPorProduto(id, ordenacao, avaliacoesExibidas, usuarioAtual);
+
+        return ProdutoDetalheMapper.ToDTO(produto, resumoAvaliacoes, paginaAvaliacoes);
     }
 }

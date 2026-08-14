@@ -15,6 +15,8 @@ public class ProdutoDTO
 
     public string ImagemUrl { get; init; } = string.Empty;
 
+    public string? Descricao { get; init; }
+
     public Guid SubcategoriaId { get; init; }
 
     public Guid? PromocaoId { get; init; }
