@@ -41,10 +41,10 @@
 
 ## Fase 3 — Domínio
 
-- [ ] **T012** `[P]` — `DocesCabana.Domain/Entities/VotoUtil.cs`: chave composta, construtor validante, `protected Ctor()`, navegação `Avaliacao?`.
-- [ ] **T013** — `DocesCabana.Domain/Entities/Avaliacao.cs`: acrescentar `DataCriacao`, remover `UpVote`, expor `Votos`, `TotalUteis`, `MarcadaComoUtilPor` e `AlternarVotoUtil` com a guarda de autoria.
-- [ ] **T014** `[P]` — `DocesCabana.Domain/Entities/Produto.cs`: `Descricao` opcional, parâmetro no construtor, `AlterarDescricao` e `ValidarDescricao`.
-- [ ] **T015** — Rodar `dotnet test`: T003, T004 e T005 passam.
+- [x] **T012** `[P]` — `DocesCabana.Domain/Entities/VotoUtil.cs`: chave composta, construtor validante, `protected Ctor()`, navegação `Avaliacao?`.
+- [x] **T013** — `DocesCabana.Domain/Entities/Avaliacao.cs`: acrescentar `DataCriacao`, remover `UpVote`, expor `Votos`, `TotalUteis`, `MarcadaComoUtilPor` e `AlternarVotoUtil` com a guarda de autoria.
+- [x] **T014** `[P]` — `DocesCabana.Domain/Entities/Produto.cs`: `Descricao` opcional, parâmetro no construtor, `AlterarDescricao` e `ValidarDescricao`.
+- [x] **T015** — Rodar `dotnet test`: T003, T004 e T005 passam.
 
 ## Fase 4 — Aplicação
 
@@ -89,11 +89,11 @@
 
 ## Fase 7 — Fechamento
 
-- [ ] **T048** — `dotnet test` inteiro verde.
-- [ ] **T049** — Executar a aplicação e percorrer manualmente CA-01 a CA-15, com atenção a CA-02 (âncora), CA-06 (fora de estoque) e CA-13 (visitante clicando em "Útil").
-- [ ] **T050** — Conferir CA-16 e o piso de qualidade: 375px sem rolagem horizontal, navegação inteira por teclado com foco visível, e `prefers-reduced-motion` desligando a rolagem suave.
-- [ ] **T051** — Preencher o checklist em `checklist.md`.
-- [ ] **T052** — Atualizar o status da spec para *Implementada*, o plano para
+- [x] **T048** — `dotnet test` inteiro verde.
+- [x] **T049** — Executar a aplicação e percorrer manualmente CA-01 a CA-15, com atenção a CA-02 (âncora), CA-06 (fora de estoque) e CA-13 (visitante clicando em "Útil").
+- [x] **T050** — Conferir CA-16 e o piso de qualidade: 375px sem rolagem horizontal, navegação inteira por teclado com foco visível, e `prefers-reduced-motion` desligando a rolagem suave.
+- [x] **T051** — Preencher o checklist em `checklist.md`.
+- [x] **T052** — Atualizar o status da spec para *Implementada*, o plano para
       *Executado*, e a linha da `008` em `specs/README.md`.
 
 ---

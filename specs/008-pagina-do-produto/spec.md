@@ -1,7 +1,7 @@
 # Especificação — Página do produto
 
 **ID:** `008-pagina-do-produto` · **Branch:** `008-pagina-do-produto`
-**Criada em:** 2026-08-14 · **Status:** Rascunho
+**Criada em:** 2026-08-14 · **Status:** Implementada
 
 ---
 

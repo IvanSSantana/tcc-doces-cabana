@@ -17,9 +17,9 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [005](./005-gestao-de-administradores/spec.md) | Gestão de administradores | Implementada | spec · [plan](./005-gestao-de-administradores/plan.md) · [tasks](./005-gestao-de-administradores/tasks.md) · [checklist](./005-gestao-de-administradores/checklist.md) |
 | [006](./006-duplicidade-unificada-no-cadastro/spec.md) | Duplicidade unificada no cadastro | Implementada | spec · [plan](./006-duplicidade-unificada-no-cadastro/plan.md) · [tasks](./006-duplicidade-unificada-no-cadastro/tasks.md) · [checklist](./006-duplicidade-unificada-no-cadastro/checklist.md) |
 | [007](./007-testes-e2e-com-playwright/spec.md) | Testes E2E com Playwright | Implementada | spec · [plan](./007-testes-e2e-com-playwright/plan.md) · [tasks](./007-testes-e2e-com-playwright/tasks.md) · [checklist](./007-testes-e2e-com-playwright/checklist.md) |
-| [008](./008-pagina-do-produto/spec.md) | Página do produto | Rascunho | spec · [plan](./008-pagina-do-produto/plan.md) · [tasks](./008-pagina-do-produto/tasks.md) |
+| [008](./008-pagina-do-produto/spec.md) | Página do produto | Implementada | spec · [plan](./008-pagina-do-produto/plan.md) · [tasks](./008-pagina-do-produto/tasks.md) · [checklist](./008-pagina-do-produto/checklist.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -45,7 +45,14 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > tinha código nenhum. Nenhuma emenda de constituição associada; é
 > reorganização de numeração, não decisão técnica.
 >
-> **Próxima:** `008`, ainda em rascunho.
+> A `008` deu a cada produto uma página própria — imagem, descrição,
+> avaliações com nota média, histograma e voto de útil. De passagem, fechou
+> uma lacuna que a `007` não tinha como ver: `FilterException` só tratava
+> exceção em requisições `POST`, e produto inexistente ou inativo é lido por
+> `GET` — sem o ajuste, os dois critérios mais básicos da spec (CA-04, CA-05)
+> eram inatingíveis.
+>
+> **Backlog:** sem próxima feature planejada.
 
 ## Backlog
 

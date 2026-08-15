@@ -98,7 +98,7 @@ public static class DbInitializer
 
         var clientes = new (string Email, string Nome, string Cpf)[]
         {
-            ("cliente1.seed@docescabana.com.br", "Zeca Pagodinho", "52998224725"),
+            ("cliente1.seed@docescabana.com.br", "Zeca Pagodinho", "87654321937"),
             ("cliente2.seed@docescabana.com.br", "Marina Alves", "11144477735"),
             ("cliente3.seed@docescabana.com.br", "João Pedro", "39053344705"),
         };

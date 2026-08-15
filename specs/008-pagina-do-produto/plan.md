@@ -1,7 +1,7 @@
 # Plano Técnico — Página do produto
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-14
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 
@@ -96,6 +96,11 @@ gravado — assim ela não diverge.
 | `wwwroot/css/components/estrelas-nota.css` | **criar** | Estilo da fileira de estrelas, reaproveitável |
 | `wwwroot/js/pages/produto.js` | **criar** | Seletor de quantidade (RN-10) |
 | `Helpers/DbInitializer.cs` | alterar | Descrição nos produtos semeados e avaliações de exemplo, para a tela ter conteúdo em desenvolvimento |
+| `Filters/FilterException.cs` | alterar | **Não previsto originalmente** — achado durante a implementação (T036). `KeyNotFoundException` só era tratada em `POST`; sem tratar em `GET`, CA-04/CA-05 eram inatingíveis. Ganhou também o caso `InvalidOperationException` de `VotarUtil` (RF-21), que não tem view própria para redesenhar |
+| `Program.cs` | alterar | **Não previsto originalmente** — `app.UseStatusCodePagesWithReExecute("/Home/NaoEncontrado")`, para o 404 acima virar tela e não erro cru |
+| `Controllers/HomeController.cs` | alterar | **Não previsto originalmente** — ação `NaoEncontrado()` |
+| `Views/Home/NaoEncontrado.cshtml` | **criar (não previsto originalmente)** | Mesmo estilo mínimo de `AcessoNegado.cshtml` |
+| `Models/AvaliacaoCartaoViewModel.cs` | **criar (não previsto originalmente)** | Avaliação + contexto (produto, ordenação, exibir) que o cartão precisa para montar o formulário de voto preservando RF-17 |
 
 ### `DocesCabana.Tests`
 
