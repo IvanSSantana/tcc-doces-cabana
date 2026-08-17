@@ -18,6 +18,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [006](./006-duplicidade-unificada-no-cadastro/spec.md) | Duplicidade unificada no cadastro | Implementada | spec · [plan](./006-duplicidade-unificada-no-cadastro/plan.md) · [tasks](./006-duplicidade-unificada-no-cadastro/tasks.md) · [checklist](./006-duplicidade-unificada-no-cadastro/checklist.md) |
 | [007](./007-testes-e2e-com-playwright/spec.md) | Testes E2E com Playwright | Implementada | spec · [plan](./007-testes-e2e-com-playwright/plan.md) · [tasks](./007-testes-e2e-com-playwright/tasks.md) · [checklist](./007-testes-e2e-com-playwright/checklist.md) |
 | [008](./008-pagina-do-produto/spec.md) | Página do produto | Implementada | spec · [plan](./008-pagina-do-produto/plan.md) · [tasks](./008-pagina-do-produto/tasks.md) · [checklist](./008-pagina-do-produto/checklist.md) |
+| [009](./009-paginas-institucionais/spec.md) | Páginas institucionais | Rascunho | spec · [plan](./009-paginas-institucionais/plan.md) · [tasks](./009-paginas-institucionais/tasks.md) · [conteúdo](./009-paginas-institucionais/conteudo-politica.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
@@ -52,7 +53,15 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > `GET` — sem o ajuste, os dois critérios mais básicos da spec (CA-04, CA-05)
 > eram inatingíveis.
 >
-> **Backlog:** sem próxima feature planejada.
+> A `009` publica as duas páginas institucionais — Quem Somos e Política de
+> Privacidade — e liga os três links mortos que apontavam para `#` (dois no
+> rodapé, um no modal de login). É a primeira feature do projeto inteiramente
+> contida na `DocesCabana.MVC`: sem entidade, sem migration, sem repositório.
+> Duas pendências de conteúdo abertas na spec (texto de Missão/Propósito/Visão
+> e as quatro imagens) bloqueiam duas tarefas do Quem Somos, e nenhuma da
+> Política.
+>
+> **Backlog:** `009` especificada, aguardando aprovação para implementar.
 
 ## Backlog
 
