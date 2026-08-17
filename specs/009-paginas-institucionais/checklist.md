@@ -93,6 +93,22 @@ entrega num defeito alheio a ela; a medição no documento inteiro teria dado
 falso-negativo nesta feature e falso-positivo em qualquer outra página do site
 que já existe hoje.
 
+**`header.css` vaza um seletor de elemento sem escopo para qualquer `<section>`
+do site.** Corrigido depois do primeiro merge, ao ajustar a faixa de destaque
+do Quem Somos para tela cheia. `header.css` declara
+`section { padding: 0 40px; max-width: 1400px; margin: 0 auto; width: 100%; }`
+sem nenhuma classe na frente — a regra vale para todo `<section>` da página,
+não só as do cabeçalho. Isso deu à faixa de destaque (que era um `<section>`)
+uma margem de 40px de cada lado que impedia o "tela cheia" pedido, e também
+vazava — de forma mais discreta, só um `padding-right` extra de 40px — para
+cada uma das 11 `<section>` da Política de Privacidade. Resolvido em duas
+frentes: a faixa de destaque virou `<div>` (não precisa ser landmark), e
+`institucional.css` ganhou um reset explícito (`.pagina-institucional section
+{ width: auto; max-width: none; margin: 0; padding: 0; }`) para que nenhuma
+`<section>` futura desta página herde o vazamento por acidente. `header.css`
+em si não foi tocado — é arquivo compartilhado, fora do escopo desta spec, e
+o reset aqui resolve o sintoma sem precisar mexer na causa alheia.
+
 **Conteúdo de preenchimento no Quem Somos é decisão explícita, não pendência.**
 A versão inicial desta spec listava duas pendências de
 `[NECESSITA ESCLARECIMENTO]`: o texto real de Missão/Propósito/Visão e as

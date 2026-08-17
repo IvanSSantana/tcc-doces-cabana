@@ -21,6 +21,20 @@
   outline-offset: 2px;
 }
 
+/* header.css declara "section { padding: 0 40px; max-width: 1400px;
+   margin: 0 auto; width: 100%; }" sem escopo — vaza para qualquer <section>
+   da página, não só as do cabeçalho (achado ao implementar a faixa de
+   destaque em tela cheia). Reset aqui para que as <section> da política
+   (uma por tópico) não herdem isso por acidente; a especificidade igual e a
+   ordem no arquivo garantem que as regras mais específicas abaixo continuam
+   valendo para o que quiserem sobrescrever. */
+.pagina-institucional section {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 .palavra-manuscrita {
   font-family: 'Nothing You Could Do', cursive;
   color: var(--institucional-coral);
@@ -95,23 +109,40 @@
   background-color: var(--institucional-fundo);
 }
 
+/* Full-bleed: nada no layout acima desta página restringe a largura (o
+   ".container" do _Layout não carrega Bootstrap aqui, é só uma div sem
+   estilo), então 100% já alcança a borda da tela dos dois lados — sem
+   truque de 100vw, que arrisca reintroduzir rolagem horizontal pela
+   barra de rolagem (mesmo risco documentado no achado do cabeçalho). O
+   "margin-top" é o respiro entre o cabeçalho do site e a faixa. */
 .faixa-destaque {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 2rem;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 3rem 1.5rem;
+  position: relative;
+  width: 100%;
+  margin-top: 2rem;
 }
 
 .faixa-destaque__imagem {
-  aspect-ratio: 4 / 3;
   width: 100%;
+  height: clamp(260px, 32vw, 460px);
+}
+
+/* O slogan fica sobreposto à imagem, alinhado à mesma largura de leitura
+   do restante da página (1100px) — a centralização de um elemento
+   absoluto com inset:0 e margin:auto funciona porque max-width limita a
+   caixa antes do margin:auto entrar em ação. */
+.faixa-destaque__conteudo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
 
 .faixa-destaque__frase {
-  font-size: 2rem;
+  max-width: 420px;
+  font-size: clamp(1.5rem, 1.1rem + 2vw, 2rem);
   font-weight: 700;
   line-height: 1.2;
 }
@@ -178,7 +209,6 @@
 /* --- Coluna única abaixo de 900px (RF-16, CA-10) --- */
 
 @media (max-width: 900px) {
-  .faixa-destaque,
   .bloco-institucional {
     grid-template-columns: 1fr;
   }

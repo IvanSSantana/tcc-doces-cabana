@@ -19,13 +19,21 @@
 <link rel="stylesheet" href="~/css/pages/institucional.css" asp-append-version="true">
 
 <main class="pagina-institucional pagina-institucional--quem-somos">
-    @* Faixa de destaque — imagem de lugar reservado, pendente de foto real da loja (spec 009, §8). *@
-    <section class="faixa-destaque">
+    @* Faixa de destaque — full-bleed, com o slogan sobreposto à imagem.
+       Imagem de lugar reservado, pendente de foto real da loja (spec 009, §8);
+       quando a foto real entrar, reavaliar se o slogan precisa de um véu de
+       contraste por trás do texto. *@
+    @* É <div>, não <section>: o seletor global "section { padding: 0 40px;
+       max-width: 1400px; ... }" de header.css vaza para qualquer <section>
+       da página (achado nesta correção — ver institucional.css). *@
+    <div class="faixa-destaque">
         <div class="faixa-destaque__imagem imagem-reservada" role="img" aria-label="Espaço reservado para foto de destaque da loja"></div>
-        <p class="faixa-destaque__frase">
-            Revivendo os sabores da nossa <span class="palavra-manuscrita">infância</span>.
-        </p>
-    </section>
+        <div class="faixa-destaque__conteudo">
+            <p class="faixa-destaque__frase">
+                Revivendo os sabores da nossa <span class="palavra-manuscrita">infância</span>.
+            </p>
+        </div>
+    </div>
 
     <div class="ziguezague-institucional">
         @foreach (var bloco in blocos)

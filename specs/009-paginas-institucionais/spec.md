@@ -93,7 +93,10 @@ lugar nenhum.
 
 - **RF-12** — O sistema DEVE abrir a página com uma faixa de destaque contendo
   uma imagem da loja e a frase "Revivendo os sabores da nossa infância.", com a
-  palavra final grafada à mão, em destaque do restante da frase.
+  palavra final grafada à mão, em destaque do restante da frase. A imagem
+  ocupa toda a largura da tela, de borda a borda, e a frase fica sobreposta a
+  ela — não ao lado. A faixa tem um respiro visível entre ela e o cabeçalho do
+  site, não encosta nele.
 - **RF-13** — O sistema DEVE exibir três blocos — Missão, Propósito e Visão —
   cada um com um título grafado à mão, um texto curto e uma imagem. Nesta
   entrega, texto e imagem de cada bloco são conteúdo de preenchimento (texto
