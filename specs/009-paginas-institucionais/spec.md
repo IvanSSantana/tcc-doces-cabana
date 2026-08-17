@@ -95,7 +95,11 @@ lugar nenhum.
   uma imagem da loja e a frase "Revivendo os sabores da nossa infância.", com a
   palavra final grafada à mão, em destaque do restante da frase.
 - **RF-13** — O sistema DEVE exibir três blocos — Missão, Propósito e Visão —
-  cada um com um título grafado à mão, um texto curto e uma imagem.
+  cada um com um título grafado à mão, um texto curto e uma imagem. Nesta
+  entrega, texto e imagem de cada bloco são conteúdo de preenchimento (texto
+  padrão de amostra e retângulo de lugar reservado), como a referência visual
+  os define — RF-13 pede a estrutura dos três blocos, não o texto final da
+  loja, que é entrega futura (seção 8).
 - **RF-14** — O sistema DEVE alternar o lado da imagem e do texto a cada bloco,
   de modo que a leitura desça em ziguezague em torno de um eixo vertical
   contínuo.
@@ -204,6 +208,10 @@ lugar nenhum.
   não entra de carona.
 - **Edição do conteúdo pelo administrador.** Nenhuma tela de gestão de texto
   institucional. Mudar o texto é entrega nova.
+- **Texto definitivo e fotos reais de Missão, Propósito e Visão.** Publicados
+  como conteúdo de preenchimento nesta entrega (RF-13), exatamente como a
+  referência visual os define. Substituir por texto e fotos da loja é entrega
+  futura.
 - **Banner de consentimento de cookies.** A política *descreve* o uso de
   cookies; o mecanismo de consentimento é outro assunto, com regra e tela
   próprias.
@@ -225,17 +233,15 @@ lugar nenhum.
 
 ## 10. Pendências
 
-- [ ] `[NECESSITA ESCLARECIMENTO: qual é o texto real de Missão, Propósito e
-      Visão? A referência visual traz "lorem ipsum" nos três blocos. Sem o texto
-      da loja, RF-13 não pode ser implementado — e inventar a missão de um
-      negócio real é justamente o tipo de conteúdo que não se adivinha.]`
-- [ ] `[NECESSITA ESCLARECIMENTO: quais são as quatro imagens (a da faixa de
-      destaque e as três dos blocos)? A referência mostra retângulos cinza de
-      lugar reservado. Ficam disponíveis fotos da loja, ou a entrega deve
-      publicar com imagem de lugar reservado até que cheguem?]`
-
-Nenhuma das duas bloqueia a página de Política de Privacidade, que tem conteúdo
-completo no Anexo A. Elas bloqueiam apenas as tarefas de conteúdo do Quem Somos.
+Nenhuma. As duas questões abertas na versão anterior desta spec — texto real de
+Missão/Propósito/Visão e as quatro imagens — foram resolvidas por decisão
+explícita: **esta entrega publica o esqueleto exatamente como a referência
+visual o mostra**, texto de preenchimento (`Lorem ipsum dolor sit amet,
+consectetur adipiscing elit. Phasellus tortor ipsum dolor sit.`) e retângulo
+cinza de lugar reservado no lugar de cada imagem, com um comentário no código
+identificando cada ponto como pendente de conteúdo real. Trocar o texto e as
+imagens por conteúdo definitivo da loja é entrega futura, fora do escopo desta
+feature (ver seção 8).
 
 ---
 
@@ -247,6 +253,5 @@ completo no Anexo A. Elas bloqueiam apenas as tarefas de conteúdo do Quem Somos
 - [x] Os caminhos de erro estão especificados, não só o caminho feliz
 - [x] Mensagens visíveis ao usuário estão escritas em português, no texto final
 - [x] A seção "Fora de escopo" foi preenchida de verdade
-- [ ] Não restam marcações `[NECESSITA ESCLARECIMENTO]` — **duas pendências
-      abertas na seção 10**, ambas de conteúdo do Quem Somos
+- [x] Não restam marcações `[NECESSITA ESCLARECIMENTO]`
 - [x] Nada aqui conflita com `.specify/memory/constitution.md`

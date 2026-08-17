@@ -8,7 +8,6 @@
 
 - `T001`, `T002`... — ordem de execução. Uma tarefa por commit lógico.
 - `[P]` — pode rodar em paralelo com as `[P]` vizinhas (arquivos distintos).
-- `⛔` — bloqueada por pendência aberta na spec §10.
 - Toda tarefa nomeia o arquivo exato que cria ou altera.
 - Implementação sempre depois do teste que a cobre, e o teste precisa ter
   falhado antes (Princípio V).
@@ -55,8 +54,8 @@
 - [ ] **T017** — `DocesCabana.MVC/Models/BlocoInstitucionalViewModel.cs`: o `record` do plano §5.
 - [ ] **T018** — `DocesCabana.MVC/Views/Institucional/_BlocoInstitucional.cshtml`: um bloco, com título, texto e imagem. **Ordem no DOM é sempre título → texto → imagem**; quem inverte o lado é a grade, não a marcação — para que a leitura por leitor de tela não dependa do ziguezague visual.
 - [ ] **T019** — `DocesCabana.MVC/Views/Institucional/QuemSomos.cshtml`: faixa de destaque com a frase e a palavra "infância" em elemento próprio (RF-12), e o contêiner do ziguezague invocando a partial três vezes com `Invertido` em `false, true, false` (RF-13, RF-14, RF-15).
-- [ ] **T020** ⛔ — Substituir o texto de lugar reservado de Missão, Propósito e Visão pelo texto real da loja. *Bloqueada pela primeira pendência da spec §10.*
-- [ ] **T021** ⛔ `[P]` — `DocesCabana.MVC/wwwroot/images/institucional/`: as quatro imagens definitivas, com `alt` descritivo em cada uso. *Bloqueada pela segunda pendência da spec §10.* Até lá, lugar reservado de proporção fixa, para que a grade feche igual.
+- [ ] **T020** — Texto de cada bloco: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus tortor ipsum dolor sit.`, igual à referência (RF-13). Comentário no `.cshtml` marcando o ponto como conteúdo de preenchimento, pendente de texto real da loja (spec §8).
+- [ ] **T021** — Imagem de cada bloco (e da faixa de destaque): retângulo cinza de lugar reservado, sem arquivo de imagem — um `div` com fundo sólido e proporção fixa via CSS, com `alt`/rótulo indicando que é espaço reservado. Comentário marcando o ponto como pendente de foto real (spec §8).
 - [ ] **T022** — Rodar os E2E: CA-03 e CA-06 passam.
 
 ## Fase 6 — Estilo

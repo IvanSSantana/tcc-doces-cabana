@@ -149,8 +149,7 @@ Nenhum arquivo. Nenhum `.csproj` alterado.
 | `Models/BlocoInstitucionalViewModel.cs` | criar | `record` de apresentação do bloco |
 | `Views/Shared/_Footer.cshtml` | alterar | ligar "Quem Somos" e "Política de Privacidade" (RF-03, RF-04) |
 | `Views/Shared/_ModalLogin.cshtml` | alterar | ligar "Política de Privacidade" (RF-05) |
-| `wwwroot/css/pages/institucional.css` | criar | tokens escopados, as duas páginas, colapso em coluna única |
-| `wwwroot/images/institucional/` | criar | 4 imagens (faixa + 3 blocos) — pendente da spec §10 |
+| `wwwroot/css/pages/institucional.css` | criar | tokens escopados, as duas páginas, colapso em coluna única, retângulos cinza de lugar reservado no lugar das 4 imagens (RF-13) |
 
 ### `DocesCabana.Tests` / `DocesCabana.Tests.E2E`
 
@@ -243,7 +242,7 @@ Fica como verificação manual declarada, e não marcada como automatizada.
 | **Vazamento de token CSS.** `produto.css` já teve esse risco registrado | Média | Médio | Tokens declarados em `.pagina-institucional`, nunca em `:root` |
 | **Sem `RenderSection("Styles")` no layout.** `_Layout.cshtml` não tem seção de estilos | Certa | Baixo | Declarar o `<link>` no corpo da view, exatamente como `Views/Produto/Detalhes.cshtml` já faz. Não é o ideal, mas é o padrão vigente — mudar o layout é feature de outra spec |
 | **Erro de transcrição do texto legal.** 11 seções copiadas à mão | Média | Alto | O Anexo A é a fonte; a conferência é tarefa própria (T0nn), lida lado a lado, e CA-04 trava a ordem das seções |
-| **Imagens ausentes** (spec §10) | Alta | Baixo | O ziguezague é definido pela grade, não pela imagem: com lugar reservado de proporção fixa o layout fecha igual. A troca depois é substituição de arquivo |
+| **Imagens de preenchimento no lugar de fotos reais** | Certa (decisão explícita) | Baixo | O ziguezague é definido pela grade, não pela imagem: retângulo cinza de proporção fixa via CSS (`background-color`, sem `<img>`) fecha o layout igual a uma foto. A troca por imagem real é troca de marcação localizada, sem tocar layout |
 | **Eixo verde sobrando no colapso** | Média | Médio | RN-05 vira regra explícita de CSS e a inspeção entra no checklist |
 
 ## 10. Desvios constitucionais justificados

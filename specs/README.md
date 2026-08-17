@@ -57,11 +57,11 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > Privacidade — e liga os três links mortos que apontavam para `#` (dois no
 > rodapé, um no modal de login). É a primeira feature do projeto inteiramente
 > contida na `DocesCabana.MVC`: sem entidade, sem migration, sem repositório.
-> Duas pendências de conteúdo abertas na spec (texto de Missão/Propósito/Visão
-> e as quatro imagens) bloqueiam duas tarefas do Quem Somos, e nenhuma da
-> Política.
+> Os blocos de Missão/Propósito/Visão do Quem Somos entram com texto e imagem
+> de preenchimento, exatamente como a referência visual os define — trocar por
+> conteúdo real da loja é entrega futura.
 >
-> **Backlog:** `009` especificada, aguardando aprovação para implementar.
+> **Backlog:** sem próxima feature planejada.
 
 ## Backlog
 
