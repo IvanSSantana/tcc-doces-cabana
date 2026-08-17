@@ -1,0 +1,208 @@
+/* Páginas institucionais — spec 009. Tokens escopados em .pagina-institucional
+   para não vazar para o resto do site (mesmo risco documentado pela 008). */
+
+.pagina-institucional {
+  --institucional-verde: var(--cor-primaria);
+  --institucional-coral: var(--cor-destaque);
+  --institucional-fundo: #FDF6F4;
+  --institucional-tinta: #1E1E1E;
+  --institucional-regua: #E8A79A;
+
+  color: var(--institucional-tinta);
+  font-family: 'Inter', sans-serif;
+}
+
+.pagina-institucional a {
+  color: inherit;
+}
+
+.pagina-institucional a:focus-visible {
+  outline: 2px solid var(--institucional-verde);
+  outline-offset: 2px;
+}
+
+.palavra-manuscrita {
+  font-family: 'Nothing You Could Do', cursive;
+  color: var(--institucional-coral);
+}
+
+.imagem-reservada {
+  background-color: #D9D9D9;
+  border-radius: 4px;
+}
+
+/* --- Política de Privacidade: coluna de leitura, título de seção na margem --- */
+
+.pagina-institucional--politica {
+  max-width: 720px;
+  margin: 2.5rem auto;
+  padding: 0 1.5rem 3rem;
+}
+
+.pagina-institucional--politica h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.pagina-institucional--politica > p {
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.pagina-institucional--politica section {
+  padding-left: 1.25rem;
+}
+
+.pagina-institucional--politica h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--institucional-coral);
+  margin-left: -1.25rem;
+  margin-bottom: 1rem;
+}
+
+.pagina-institucional--politica h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.pagina-institucional--politica p,
+.pagina-institucional--politica li {
+  line-height: 1.7;
+  color: var(--institucional-tinta);
+}
+
+.pagina-institucional--politica ul {
+  margin: 0 0 1rem 1.25rem;
+}
+
+.pagina-institucional--politica a {
+  color: var(--institucional-verde);
+  text-decoration: underline;
+}
+
+.regua-institucional {
+  border: none;
+  border-top: 1px solid var(--institucional-regua);
+  margin: 2rem 0;
+}
+
+/* --- Quem Somos: faixa de destaque + ziguezague em torno de um eixo --- */
+
+.pagina-institucional--quem-somos {
+  background-color: var(--institucional-fundo);
+}
+
+.faixa-destaque {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.faixa-destaque__imagem {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+}
+
+.faixa-destaque__frase {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ziguezague-institucional {
+  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 4rem;
+}
+
+/* O eixo é estrutura do ziguezague (RN-05), não enfeite: um único fio
+   contínuo atrás dos três blocos, retirado no colapso responsivo abaixo. */
+.ziguezague-institucional::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background-color: var(--institucional-verde);
+}
+
+.bloco-institucional {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 2rem;
+  padding: 2.5rem 0;
+  position: relative;
+}
+
+.bloco-institucional__conteudo {
+  grid-column: 2;
+}
+
+.bloco-institucional__imagem {
+  grid-column: 1;
+  grid-row: 1;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+}
+
+.bloco-institucional--invertido .bloco-institucional__conteudo {
+  grid-column: 1;
+}
+
+.bloco-institucional--invertido .bloco-institucional__imagem {
+  grid-column: 2;
+}
+
+.bloco-institucional__titulo {
+  font-family: 'Nothing You Could Do', cursive;
+  font-size: 2rem;
+  color: var(--institucional-tinta);
+  margin-bottom: 0.75rem;
+}
+
+.bloco-institucional__texto {
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* --- Coluna única abaixo de 900px (RF-16, CA-10) --- */
+
+@media (max-width: 900px) {
+  .faixa-destaque,
+  .bloco-institucional {
+    grid-template-columns: 1fr;
+  }
+
+  .bloco-institucional__conteudo,
+  .bloco-institucional--invertido .bloco-institucional__conteudo,
+  .bloco-institucional__imagem,
+  .bloco-institucional--invertido .bloco-institucional__imagem {
+    grid-column: 1;
+  }
+
+  .bloco-institucional__imagem {
+    grid-row: 2;
+  }
+
+  /* Sem duas colunas não há ziguezague: o eixo perde a função e some
+     (RN-05) em vez de virar uma linha decorativa à esquerda. */
+  .ziguezague-institucional::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagina-institucional * {
+    scroll-behavior: auto;
+  }
+}

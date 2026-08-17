@@ -1,7 +1,7 @@
 # Especificação — Páginas institucionais
 
 **ID:** `009-paginas-institucionais` · **Branch:** `009-paginas-institucionais`
-**Criada em:** 2026-08-17 · **Status:** Rascunho
+**Criada em:** 2026-08-17 · **Status:** Implementada
 
 > As "páginas estáticas" do pedido original estão aqui sob o nome
 > **institucionais** — é o termo que o resto do documento usa para o grupo

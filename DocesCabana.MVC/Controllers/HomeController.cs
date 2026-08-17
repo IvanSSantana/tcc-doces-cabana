@@ -20,11 +20,6 @@ public class HomeController : Controller
         return View(produtos);
     }
 
-    public IActionResult Privacidade()
-    {
-        return View();
-    }
-
     public IActionResult AcessoNegado()
     {
         return View();

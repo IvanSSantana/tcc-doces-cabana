@@ -18,9 +18,9 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [006](./006-duplicidade-unificada-no-cadastro/spec.md) | Duplicidade unificada no cadastro | Implementada | spec · [plan](./006-duplicidade-unificada-no-cadastro/plan.md) · [tasks](./006-duplicidade-unificada-no-cadastro/tasks.md) · [checklist](./006-duplicidade-unificada-no-cadastro/checklist.md) |
 | [007](./007-testes-e2e-com-playwright/spec.md) | Testes E2E com Playwright | Implementada | spec · [plan](./007-testes-e2e-com-playwright/plan.md) · [tasks](./007-testes-e2e-com-playwright/tasks.md) · [checklist](./007-testes-e2e-com-playwright/checklist.md) |
 | [008](./008-pagina-do-produto/spec.md) | Página do produto | Implementada | spec · [plan](./008-pagina-do-produto/plan.md) · [tasks](./008-pagina-do-produto/tasks.md) · [checklist](./008-pagina-do-produto/checklist.md) |
-| [009](./009-paginas-institucionais/spec.md) | Páginas institucionais | Rascunho | spec · [plan](./009-paginas-institucionais/plan.md) · [tasks](./009-paginas-institucionais/tasks.md) · [conteúdo](./009-paginas-institucionais/conteudo-politica.md) |
+| [009](./009-paginas-institucionais/spec.md) | Páginas institucionais | Implementada | spec · [plan](./009-paginas-institucionais/plan.md) · [tasks](./009-paginas-institucionais/tasks.md) · [checklist](./009-paginas-institucionais/checklist.md) · [conteúdo](./009-paginas-institucionais/conteudo-politica.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -55,11 +55,15 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 >
 > A `009` publica as duas páginas institucionais — Quem Somos e Política de
 > Privacidade — e liga os três links mortos que apontavam para `#` (dois no
-> rodapé, um no modal de login). É a primeira feature do projeto inteiramente
-> contida na `DocesCabana.MVC`: sem entidade, sem migration, sem repositório.
-> Os blocos de Missão/Propósito/Visão do Quem Somos entram com texto e imagem
-> de preenchimento, exatamente como a referência visual os define — trocar por
-> conteúdo real da loja é entrega futura.
+> rodapé, um no modal de login), e removeu a página de privacidade de andaime
+> em inglês que veio do template do ASP.NET. É a primeira feature do projeto
+> inteiramente contida na `DocesCabana.MVC`: sem entidade, sem migration, sem
+> repositório. Os blocos de Missão/Propósito/Visão do Quem Somos entram com
+> texto e imagem de preenchimento, exatamente como a referência visual os
+> define — trocar por conteúdo real da loja é entrega futura. De passagem,
+> encontrou (sem corrigir, por estar fora do escopo declarado) um estouro
+> horizontal pré-existente do cabeçalho a 375px, presente em toda página do
+> site, não só nas duas desta feature.
 >
 > **Backlog:** sem próxima feature planejada.
 

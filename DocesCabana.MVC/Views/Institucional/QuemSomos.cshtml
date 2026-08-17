@@ -1,0 +1,36 @@
+@using DocesCabana.MVC.Models
+@{
+    ViewData["Title"] = "Quem Somos";
+    Layout = "_Layout";
+
+    var loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus tortor ipsum dolor sit.";
+
+    // Ordem fixa da spec (RF-15). O eixo central é uma propriedade da grade
+    // (plano §3): existe enquanto os blocos alternam de lado e some no
+    // colapso para coluna única (RN-05, RF-16).
+    var blocos = new[]
+    {
+        new BlocoInstitucionalViewModel("Missão", loremIpsum, "Espaço reservado para foto da Missão", Invertido: false),
+        new BlocoInstitucionalViewModel("Propósito", loremIpsum, "Espaço reservado para foto do Propósito", Invertido: true),
+        new BlocoInstitucionalViewModel("Visão", loremIpsum, "Espaço reservado para foto da Visão", Invertido: false),
+    };
+}
+
+<link rel="stylesheet" href="~/css/pages/institucional.css" asp-append-version="true">
+
+<main class="pagina-institucional pagina-institucional--quem-somos">
+    @* Faixa de destaque — imagem de lugar reservado, pendente de foto real da loja (spec 009, §8). *@
+    <section class="faixa-destaque">
+        <div class="faixa-destaque__imagem imagem-reservada" role="img" aria-label="Espaço reservado para foto de destaque da loja"></div>
+        <p class="faixa-destaque__frase">
+            Revivendo os sabores da nossa <span class="palavra-manuscrita">infância</span>.
+        </p>
+    </section>
+
+    <div class="ziguezague-institucional">
+        @foreach (var bloco in blocos)
+        {
+            <partial name="_BlocoInstitucional" model="bloco" />
+        }
+    </div>
+</main>

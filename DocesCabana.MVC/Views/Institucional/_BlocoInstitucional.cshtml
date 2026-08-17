@@ -1,0 +1,14 @@
+@model DocesCabana.MVC.Models.BlocoInstitucionalViewModel
+
+@* Ordem no DOM é sempre título -> texto -> imagem: quem inverte o lado
+   visual é a classe "bloco-institucional--invertido" na grade, não a
+   marcação. Leitura por leitor de tela não depende do ziguezague. *@
+<article class="bloco-institucional @(Model.Invertido ? "bloco-institucional--invertido" : "")">
+    <div class="bloco-institucional__conteudo">
+        <h2 class="bloco-institucional__titulo">@Model.Titulo</h2>
+        <p class="bloco-institucional__texto">@Model.Texto</p>
+    </div>
+
+    @* Imagem de lugar reservado — pendente de foto real da loja (spec 009, §8). *@
+    <div class="bloco-institucional__imagem imagem-reservada" role="img" aria-label="@Model.ImagemRotulo"></div>
+</article>
