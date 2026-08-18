@@ -19,6 +19,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [007](./007-testes-e2e-com-playwright/spec.md) | Testes E2E com Playwright | Implementada | spec · [plan](./007-testes-e2e-com-playwright/plan.md) · [tasks](./007-testes-e2e-com-playwright/tasks.md) · [checklist](./007-testes-e2e-com-playwright/checklist.md) |
 | [008](./008-pagina-do-produto/spec.md) | Página do produto | Implementada | spec · [plan](./008-pagina-do-produto/plan.md) · [tasks](./008-pagina-do-produto/tasks.md) · [checklist](./008-pagina-do-produto/checklist.md) |
 | [009](./009-paginas-institucionais/spec.md) | Páginas institucionais | Implementada | spec · [plan](./009-paginas-institucionais/plan.md) · [tasks](./009-paginas-institucionais/tasks.md) · [checklist](./009-paginas-institucionais/checklist.md) · [conteúdo](./009-paginas-institucionais/conteudo-politica.md) |
+| [010](./010-organizacao-de-nomenclatura/spec.md) | Organização de nomenclatura | Rascunho | spec · [plan](./010-organizacao-de-nomenclatura/plan.md) · [tasks](./010-organizacao-de-nomenclatura/tasks.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
