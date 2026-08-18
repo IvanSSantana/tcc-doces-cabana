@@ -1,7 +1,7 @@
 # Especificação — Organização de nomenclatura
 
 **ID:** `010-organizacao-de-nomenclatura` · **Branch:** `010-organizacao-de-nomenclatura`
-**Criada em:** 2026-08-18 · **Status:** Rascunho
+**Criada em:** 2026-08-18 · **Status:** Implementada
 
 ---
 

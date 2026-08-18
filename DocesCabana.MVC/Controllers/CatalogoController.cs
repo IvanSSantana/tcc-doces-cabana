@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace DocesCabana.MVC.Controllers;
 
 [Authorize(Roles = Papeis.Administrador)]
-public class AdminController : Controller
+public class CatalogoController : Controller
 {
     private readonly IProdutoService _produtoService;
     private readonly ISubcategoriaService _subcategoriaService;
 
-    public AdminController(IProdutoService produtoService, ISubcategoriaService subcategoriaService)
+    public CatalogoController(IProdutoService produtoService, ISubcategoriaService subcategoriaService)
     {
         _produtoService = produtoService;
         _subcategoriaService = subcategoriaService;

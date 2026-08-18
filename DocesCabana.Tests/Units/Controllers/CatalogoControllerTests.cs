@@ -9,17 +9,17 @@ using Moq;
 
 namespace DocesCabana.Tests.Units.Controllers;
 
-public class AdminControllerTests
+public class CatalogoControllerTests
 {
     private readonly Mock<IProdutoService> _produtoServiceMock;
     private readonly Mock<ISubcategoriaService> _subcategoriaServiceMock;
-    private readonly AdminController _controller;
+    private readonly CatalogoController _controller;
 
-    public AdminControllerTests()
+    public CatalogoControllerTests()
     {
         _produtoServiceMock = new Mock<IProdutoService>();
         _subcategoriaServiceMock = new Mock<ISubcategoriaService>();
-        _controller = new AdminController(_produtoServiceMock.Object, _subcategoriaServiceMock.Object);
+        _controller = new CatalogoController(_produtoServiceMock.Object, _subcategoriaServiceMock.Object);
     }
 
     [Fact]

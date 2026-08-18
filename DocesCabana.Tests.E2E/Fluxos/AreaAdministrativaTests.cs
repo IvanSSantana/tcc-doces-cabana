@@ -14,7 +14,7 @@ public class AreaAdministrativaTests : TesteE2E
     public async Task Dado_Visitante_Quando_AbrirAreaAdministrativa_Entao_DeveLevarAoLogin() =>
         await Executar(async () =>
         {
-            await Pagina.GotoAsync($"{UrlBase}/Admin/Cadastro");
+            await Pagina.GotoAsync($"{UrlBase}/Catalogo/Cadastro");
             Assert.Contains("/Autenticacao/Login", Pagina.Url);
 
             await Pagina.GotoAsync($"{UrlBase}/Administrador");
@@ -27,7 +27,7 @@ public class AreaAdministrativaTests : TesteE2E
         {
             await CadastrarEEntrarComoClienteComum();
 
-            await Pagina.GotoAsync($"{UrlBase}/Admin/Cadastro");
+            await Pagina.GotoAsync($"{UrlBase}/Catalogo/Cadastro");
             Assert.Contains("/Home/AcessoNegado", Pagina.Url);
 
             await Pagina.GotoAsync($"{UrlBase}/Administrador");
@@ -81,6 +81,24 @@ public class AreaAdministrativaTests : TesteE2E
             await paginaAdmins.AbrirIndice(UrlBase);
             Assert.Contains("/Administrador", Pagina.Url);
             Assert.DoesNotContain("AcessoNegado", Pagina.Url);
+        });
+
+    [Fact]
+    public async Task Dado_EnderecoAntigoDeCadastroDeProduto_Quando_Acessado_Entao_DeveResponder404() =>
+        await Executar(async () =>
+        {
+            // O endereço antigo (`AdminController`, renomeado para
+            // `CatalogoController` na 010) não existe mais — nem para quem
+            // está autenticado como administrador, que é quem tinha motivo
+            // para acessá-lo.
+            var paginaLogin = new PaginaLogin(Pagina);
+            await paginaLogin.Abrir(UrlBase);
+            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
+            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/");
+
+            var resposta = await Pagina.GotoAsync($"{UrlBase}/Admin/Cadastro");
+
+            Assert.Equal(404, resposta!.Status);
         });
 
     private async Task Sair() =>

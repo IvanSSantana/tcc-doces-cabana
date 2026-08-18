@@ -1,6 +1,6 @@
 # Constituição — Doces Cabana
 
-**Versão:** 1.3.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-08-13
+**Versão:** 1.4.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-08-18
 
 Este documento define os princípios inegociáveis do projeto. Toda `spec`, `plan` e
 `tasks` é validada contra ele antes de virar código. Quando uma decisão técnica
@@ -100,6 +100,20 @@ O nome do arquivo coincide com o nome do tipo que ele declara, e a pasta em que
 o arquivo vive coincide com o namespace declarado. `TransactionEf.cs` que
 declara `TransactionEF`, ou uma classe `EsqueceuSenhaDTOValidator` num arquivo
 `EsqueceuSenhaValidator.cs`, são o defeito que esta regra existe para evitar.
+
+Nome de classe é único por conceito de negócio na base inteira: dois
+controladores cujos nomes são sinônimos ou quase-sinônimos (`AdminController`
+ao lado de `AdministradorController`, por exemplo) são o mesmo defeito de
+`RQ-04` da `002` aplicado a classe em vez de a campo — quem lê o nome sozinho,
+sem abrir o arquivo, precisa saber o que ele faz.
+
+Uma tela parcial (`_Prefixada.cshtml`, sem ser um `ViewComponent`) usada por
+uma única página mora na pasta do controlador dono dessa página —
+`Views/Home/_Carrossel.cshtml`, não `Views/Shared/_Carrossel.cshtml`, se só
+`Home/Index` a inclui. `Views/Shared/` é reservado para o que é reaproveitado
+por mais de uma página (`_Footer`, `_ModalLogin`, os layouts). `ViewComponent`
+segue a convenção que o próprio ASP.NET Core impõe
+(`Views/Shared/Components/{Nome}/Default.cshtml`), que já não tem essa escolha.
 
 A cultura da aplicação é fixada em `pt-BR` no
 [`Program.cs`](../../DocesCabana.MVC/Program.cs) — decimais usam vírgula, datas usam
@@ -212,3 +226,4 @@ justificativa escrita na `spec`:
 | 1.1.0 | 2026-08-11 | Feature `002-revisao-tecnica`. Princípio IV ganha a regra de que nome de arquivo, nome de tipo e pasta/namespace coincidem (RQ-03). Princípio VI perde a menção a transação explícita: `IUnitOfWork` fica só com `SalvarAlteracoes` — a abstração de transação manual foi removida por não ter consumidor e por duplicar a atomicidade que `SaveChangesAsync` já garante (RQ-02). |
 | 1.2.0 | 2026-08-13 | Feature `004-separar-pessoa-de-credencial`. A exceção do Princípio I é reescrita: o motivo deixa de ser "a entidade `Usuario` herda de `IdentityUser<Guid>`" (deixou de ser verdade — `Usuario` passou a ser do domínio) e passa a ser a dependência de `UserManager`/`SignInManager`. Acrescentado que entidades de domínio referenciam `Usuario` por navegação normal, encerrando a limitação que a `003` havia registrado como RQ-02. |
 | 1.3.0 | 2026-08-13 | Feature `007-testes-e2e-com-playwright`. Princípio V passa a distinguir camada de teste: xUnit + Moq + coverlet continuam fixos para unidade e integração; `Microsoft.Playwright` entra como driver de navegador para teste de ponta a ponta, com o xUnit seguindo como runner único — não introduzido um segundo runner, só um driver para uma camada que a stack anterior não alcançava. |
+| 1.4.0 | 2026-08-18 | Feature `010-organizacao-de-nomenclatura`. Princípio IV ganha duas regras normativas novas, mesmo padrão da 1.1.0: nome de classe é único por conceito de negócio (motivada pela colisão `AdminController`/`AdministradorController`, corrigida por esta feature) e tela parcial de uso único mora com o controlador dono, `Views/Shared/` reservado ao que é reaproveitado (regra que a base já praticava desde a `008`, agora escrita). MINOR — expansão material do princípio, não correção de texto. |

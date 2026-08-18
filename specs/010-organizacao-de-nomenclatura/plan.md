@@ -1,7 +1,7 @@
 # Plano Técnico — Organização de nomenclatura
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-18
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 
@@ -19,7 +19,7 @@ do C# são os dois endereços hardcoded dos testes E2E. A segunda: `_Carrossel`
 e `_Categorias`, hoje em `Views/Shared/`, mudam para `Views/Home/`, que é o
 único lugar que os usa — mesmo padrão que `Views/Produto/_BlocoAvaliacoes.cshtml`
 e `Views/Institucional/_BlocoInstitucional.cshtml` já seguem. Por fim, uma
-emenda **PATCH** ao Princípio IV da constituição registra por escrito a regra
+emenda **MINOR** ao Princípio IV da constituição registra por escrito a regra
 que a base já pratica desde a `008`: tela parcial de uso único mora com o
 controlador dono; `Views/Shared/` é só para o que é reaproveitado.
 
@@ -68,7 +68,7 @@ Nenhum arquivo.
 
 | Seção | Ação | O quê |
 |---|---|---|
-| Princípio IV | alterar (emenda PATCH) | Acrescenta a regra de RQ-02: tela parcial de uso único mora com o controlador dono; `Views/Shared/` é reservado ao que é reaproveitado por mais de uma página. Registrada no histórico de emendas (Governança) |
+| Princípio IV | alterar (emenda MINOR) | Acrescenta a regra de RQ-01 (nome de classe único por conceito) e a de RQ-02 (tela parcial de uso único mora com o controlador dono; `Views/Shared/` reservado ao que é reaproveitado). Duas regras normativas novas — mesmo padrão da emenda 1.1.0, não correção de texto. Registrada no histórico de emendas (Governança) |
 
 ## 4. Contratos
 
