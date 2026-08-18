@@ -20,6 +20,8 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [008](./008-pagina-do-produto/spec.md) | Página do produto | Implementada | spec · [plan](./008-pagina-do-produto/plan.md) · [tasks](./008-pagina-do-produto/tasks.md) · [checklist](./008-pagina-do-produto/checklist.md) |
 | [009](./009-paginas-institucionais/spec.md) | Páginas institucionais | Implementada | spec · [plan](./009-paginas-institucionais/plan.md) · [tasks](./009-paginas-institucionais/tasks.md) · [checklist](./009-paginas-institucionais/checklist.md) · [conteúdo](./009-paginas-institucionais/conteudo-politica.md) |
 | [010](./010-organizacao-de-nomenclatura/spec.md) | Organização de nomenclatura | Implementada | spec · [plan](./010-organizacao-de-nomenclatura/plan.md) · [tasks](./010-organizacao-de-nomenclatura/tasks.md) · [checklist](./010-organizacao-de-nomenclatura/checklist.md) |
+| [011](./011-area-administrativa/spec.md) | Área administrativa | Rascunho | spec · [plan](./011-area-administrativa/plan.md) · [tasks](./011-area-administrativa/tasks.md) |
+| [012](./012-catalogo/spec.md) | Catálogo | Rascunho | spec · [plan](./012-catalogo/plan.md) · [tasks](./012-catalogo/tasks.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
@@ -76,27 +78,56 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > chegou a prever: duas regras normativas novas são expansão material do
 > princípio, mesmo padrão da emenda 1.1.0, achado corrigido antes do commit).
 >
-> **Backlog:** sem próxima feature planejada.
+> **Próximas:** `011` e `012` especificadas, aguardando implementação — ver
+> "A cadeia da loja" abaixo. A `012` carrega cinco decisões tomadas sem
+> confirmação do responsável, listadas na seção 11 da spec dela.
 
-## Backlog
+## A cadeia da loja (011 → 017)
+
+Traçada em 2026-08-18, a partir de três referências visuais — catálogo filtrado,
+catálogo completo e carrinho com fechamento. As três telas parecem duas
+entregas e são sete: o mockup do carrinho sozinho encosta em estoque, endereço,
+pedido, pagamento e promoção. A ordem abaixo é de dependência, não de
+preferência — cada uma só é construível depois da anterior.
+
+| # | Entrega | Estado | O que destrava |
+|---|---|---|---|
+| [011](./011-area-administrativa/spec.md) | Área administrativa | Rascunho | libera o nome "catálogo" para o cliente |
+| [012](./012-catalogo/spec.md) | Catálogo | Rascunho | os 4 atalhos mortos do cabeçalho e o bloco de categorias da home |
+| 013 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
+| 014 | Carrinho | não especificada | os três controles do card, hoje desabilitados pela `012` |
+| 015 | Endereço do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
+| 016 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
+| 017 | Pagamento | não especificada | — |
+
+**Perguntas em aberto, a resolver na spec de cada uma** — nenhuma tem resposta
+ainda, e por isso `013` em diante não foram especificadas:
+
+- **Frete** (`014`): valor fixo, por região, ou calculado? O mockup mostra
+  `R$ 11,94` no resumo do pedido **antes** de o cliente informar endereço.
+- **Cupom de desconto** (`016` ou spec própria): a entidade `Promocao` existe
+  desde a `003` e nunca foi usada. Cupom por código é a mesma coisa que
+  promoção na vitrine, ou são dois conceitos?
+- **Carrinho de visitante** (`014`): quem não está logado pode montar carrinho,
+  ou o botão leva ao login?
+- **Reserva de estoque** (`013`/`014`): item no carrinho segura estoque, ou só
+  no fechamento?
+
+## Backlog fora da cadeia
 
 Derivado das tabelas do [`ModelagemBancoTCC.dbml`](../ModelagemBancoTCC.dbml) que
 ainda não têm comportamento. **Sem número** — o número é atribuído quando a spec
 é criada, para que a chegada de uma feature nova não renumere a lista inteira.
-Ordem sugerida por dependência:
 
 | Feature | Depende de |
 |---|---|
-| Listagem, edição e exclusão de produto (admin) | 001 |
-| Navegação por categoria e subcategoria | 003 |
-| Controle de estoque | 003 |
-| Lista de favoritos | 003 |
-| Endereço do usuário | 003 |
-| Carrinho e fechamento de pedido | estoque, endereço |
-| Pagamento | carrinho |
+| Listagem, edição e exclusão de produto (admin) | 001, 011 |
+| Lista de favoritos | 003 — o coração do card está desabilitado desde a `012` |
+| Busca por texto | 012 — o campo do cabeçalho segue sem função |
 | Escrever avaliação de produto | 008, carrinho |
 | Galeria de imagens do produto | 008 |
 | Promoções na vitrine | 003 |
+| Paginação do catálogo | 012 — hoje carrega tudo |
 
 ## Como criar a próxima
 
