@@ -20,10 +20,10 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [008](./008-pagina-do-produto/spec.md) | Página do produto | Implementada | spec · [plan](./008-pagina-do-produto/plan.md) · [tasks](./008-pagina-do-produto/tasks.md) · [checklist](./008-pagina-do-produto/checklist.md) |
 | [009](./009-paginas-institucionais/spec.md) | Páginas institucionais | Implementada | spec · [plan](./009-paginas-institucionais/plan.md) · [tasks](./009-paginas-institucionais/tasks.md) · [checklist](./009-paginas-institucionais/checklist.md) · [conteúdo](./009-paginas-institucionais/conteudo-politica.md) |
 | [010](./010-organizacao-de-nomenclatura/spec.md) | Organização de nomenclatura | Implementada | spec · [plan](./010-organizacao-de-nomenclatura/plan.md) · [tasks](./010-organizacao-de-nomenclatura/tasks.md) · [checklist](./010-organizacao-de-nomenclatura/checklist.md) |
-| [011](./011-area-administrativa/spec.md) | Área administrativa | Rascunho | spec · [plan](./011-area-administrativa/plan.md) · [tasks](./011-area-administrativa/tasks.md) |
+| [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | spec · [plan](./011-area-administrativa/plan.md) · [tasks](./011-area-administrativa/tasks.md) · [checklist](./011-area-administrativa/checklist.md) |
 | [012](./012-catalogo/spec.md) | Catálogo | Rascunho | spec · [plan](./012-catalogo/plan.md) · [tasks](./012-catalogo/tasks.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -78,9 +78,22 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > chegou a prever: duas regras normativas novas são expansão material do
 > princípio, mesmo padrão da emenda 1.1.0, achado corrigido antes do commit).
 >
-> **Próximas:** `011` e `012` especificadas, aguardando implementação — ver
-> "A cadeia da loja" abaixo. A `012` carrega cinco decisões tomadas sem
-> confirmação do responsável, listadas na seção 11 da spec dela.
+> A `011` juntou as duas telas administrativas (cadastro de produto e gestão
+> de administradores) numa *Area* `Admin` do ASP.NET Core, liberando o nome
+> "catálogo" na raiz para a `012`. Foi a segunda renomeação do mesmo arquivo em
+> duas specs seguidas — `AdminController` → `CatalogoController` na `010`,
+> `CatalogoController` → `Areas.Admin.ProdutoController` aqui — justificada na
+> seção 11 da spec: o arquivo já ia ser movido de qualquer jeito, e a `010` não
+> tinha como prever a colisão com a entrega seguinte. Emenda constitucional
+> 1.4.0 → 1.4.1 (**PATCH**, dessa vez de fato): ressalva de que a unicidade de
+> nome de classe do Princípio IV é escopada por *area*, não pela solução
+> inteira — `Admin/Produto` e `/Produto` são públicos diferentes.
+>
+> **Próxima:** `012` especificada, aguardando implementação — ver "A cadeia da
+> loja" abaixo. Foi reescrita em 2026-08-19 sobre a taxonomia real da loja,
+> depois que o catálogo real (390 produtos, categorias e subcategorias
+> verdadeiras) derrubou cinco decisões da versão original. Ver a nota de
+> revisão no topo de `012/spec.md`.
 
 ## A cadeia da loja (011 → 017)
 
@@ -92,7 +105,7 @@ preferência — cada uma só é construível depois da anterior.
 
 | # | Entrega | Estado | O que destrava |
 |---|---|---|---|
-| [011](./011-area-administrativa/spec.md) | Área administrativa | Rascunho | libera o nome "catálogo" para o cliente |
+| [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | libera o nome "catálogo" para o cliente |
 | [012](./012-catalogo/spec.md) | Catálogo | Rascunho | os 4 atalhos mortos do cabeçalho e o bloco de categorias da home |
 | 013 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
 | 014 | Carrinho | não especificada | os três controles do card, hoje desabilitados pela `012` |

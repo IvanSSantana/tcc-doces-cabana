@@ -5,8 +5,9 @@ using DocesCabana.Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DocesCabana.MVC.Controllers;
+namespace DocesCabana.MVC.Areas.Admin.Controllers;
 
+[Area("Admin")]
 [Authorize(Roles = Papeis.Administrador)]
 public class AdministradorController : Controller
 {

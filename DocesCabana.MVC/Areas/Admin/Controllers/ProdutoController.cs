@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace DocesCabana.MVC.Controllers;
+namespace DocesCabana.MVC.Areas.Admin.Controllers;
 
+// Era Controllers/CatalogoController.cs (010). Renomeado por RQ-04 da 011:
+// gerencia produto, não catálogo — "catálogo" é a coleção que o cliente
+// percorre (spec 012), e precisava do nome livre.
+[Area("Admin")]
 [Authorize(Roles = Papeis.Administrador)]
-public class CatalogoController : Controller
+public class ProdutoController : Controller
 {
     private readonly IProdutoService _produtoService;
     private readonly ISubcategoriaService _subcategoriaService;
 
-    public CatalogoController(IProdutoService produtoService, ISubcategoriaService subcategoriaService)
+    public ProdutoController(IProdutoService produtoService, ISubcategoriaService subcategoriaService)
     {
         _produtoService = produtoService;
         _subcategoriaService = subcategoriaService;

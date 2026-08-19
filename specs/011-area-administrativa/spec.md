@@ -1,7 +1,7 @@
 # Especificação — Área administrativa
 
 **ID:** `011-area-administrativa` · **Branch:** `011-area-administrativa`
-**Criada em:** 2026-08-18 · **Status:** Rascunho
+**Criada em:** 2026-08-18 · **Status:** Implementada
 
 ---
 

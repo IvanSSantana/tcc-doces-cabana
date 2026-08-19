@@ -15,7 +15,7 @@ public class PaginaCadastroProduto
     public PaginaCadastroProduto(IPage pagina) => _pagina = pagina;
 
     public async Task Abrir(string urlBase) =>
-        await _pagina.GotoAsync($"{urlBase}/Catalogo/Cadastro");
+        await _pagina.GotoAsync($"{urlBase}/Admin/Produto/Cadastro");
 
     public async Task Preencher(string nome, decimal preco, string imagemUrl, string subcategoria = SubcategoriaConhecida)
     {

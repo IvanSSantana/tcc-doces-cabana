@@ -54,8 +54,8 @@ public class LoginTests : TesteE2E
 
             await Sair();
 
-            await Pagina.GotoAsync($"{UrlBase}/Administrador");
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Autenticacao/Login?ReturnUrl=%2FAdministrador");
+            await Pagina.GotoAsync($"{UrlBase}/Admin/Administrador");
+            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Autenticacao/Login?ReturnUrl=%2FAdmin%2FAdministrador");
         });
 
     private async Task Sair() =>

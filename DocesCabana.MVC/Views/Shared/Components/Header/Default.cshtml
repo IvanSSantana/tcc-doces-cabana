@@ -9,7 +9,7 @@
   <div class="cabecalho-superior">
     <section>
 
-      <a asp-action="Index" asp-controller="Home" class="logo">
+      <a asp-area="" asp-action="Index" asp-controller="Home" class="logo">
         <img
           src="~/images/logo.webp"
           alt="Logo Doce Cabana">
@@ -29,7 +29,7 @@
       <div class="acoes-usuario">
         @if (User.Identity!.IsAuthenticated)
         {
-          <a class="botao-acao" asp-controller="Home" asp-action="Conta">
+          <a class="botao-acao" asp-area="" asp-controller="Home" asp-action="Conta">
             <i class="fa-solid fa-user icone-acao"></i>
 
             <span>Conta</span>
@@ -37,14 +37,14 @@
 
           @if (User.IsInRole(Papeis.Administrador))
           {
-            <a class="botao-acao" asp-controller="Administrador" asp-action="Index">
+            <a class="botao-acao" asp-area="Admin" asp-controller="Administrador" asp-action="Index">
               <i class="fa-solid fa-user-shield icone-acao"></i>
 
               <span>Administradores</span>
             </a>
           }
 
-          <form asp-controller="Autenticacao" asp-action="Logout" method="post" class="formulario-sair">
+          <form asp-area="" asp-controller="Autenticacao" asp-action="Logout" method="post" class="formulario-sair">
             @Html.AntiForgeryToken()
             <button type="submit" class="botao-acao botao-sair" aria-label="Sair">
               <i class="fa-solid fa-right-from-bracket icone-acao"></i>

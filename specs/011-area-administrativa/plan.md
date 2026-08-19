@@ -1,7 +1,7 @@
 # Plano Técnico — Área administrativa
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-18
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 

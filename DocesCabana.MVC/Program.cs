@@ -62,6 +62,13 @@ app.UseRequestLocalization(localizationOptions);
 
 app.MapStaticAssets();
 
+// Rota de area — precisa vir antes da padrão, senão "/Admin/Produto" seria
+// interpretado pela padrão como controller "Admin", ação "Produto" (spec 011).
+app.MapControllerRoute(
+    name: "area",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
+    .WithStaticAssets();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")

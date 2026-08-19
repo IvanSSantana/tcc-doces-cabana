@@ -2,7 +2,7 @@ using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
 using DocesCabana.Application.Mensagens;
 using DocesCabana.Infrastructure.Identity.Services;
-using DocesCabana.MVC.Controllers;
+using DocesCabana.MVC.Areas.Admin.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DocesCabana.Tests.Units.Controllers;
+namespace DocesCabana.Tests.Units.Controllers.Admin;
 
 public class AdministradorControllerTests
 {

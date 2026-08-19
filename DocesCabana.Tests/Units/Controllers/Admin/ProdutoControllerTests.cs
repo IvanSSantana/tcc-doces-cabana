@@ -1,25 +1,29 @@
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Domain.Enums;
-using DocesCabana.MVC.Controllers;
+using AdminProdutoController = DocesCabana.MVC.Areas.Admin.Controllers.ProdutoController;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 
-namespace DocesCabana.Tests.Units.Controllers;
+namespace DocesCabana.Tests.Units.Controllers.Admin;
 
-public class CatalogoControllerTests
+// Era CatalogoControllerTests (010). Renomeado para acompanhar
+// Areas/Admin/Controllers/ProdutoController (011, RQ-04). O alias evita
+// colidir com o DocesCabana.MVC.Controllers.ProdutoController público, que
+// já tem teste próprio em Units/Controllers/ProdutoControllerTests.cs.
+public class ProdutoControllerTests
 {
     private readonly Mock<IProdutoService> _produtoServiceMock;
     private readonly Mock<ISubcategoriaService> _subcategoriaServiceMock;
-    private readonly CatalogoController _controller;
+    private readonly AdminProdutoController _controller;
 
-    public CatalogoControllerTests()
+    public ProdutoControllerTests()
     {
         _produtoServiceMock = new Mock<IProdutoService>();
         _subcategoriaServiceMock = new Mock<ISubcategoriaService>();
-        _controller = new CatalogoController(_produtoServiceMock.Object, _subcategoriaServiceMock.Object);
+        _controller = new AdminProdutoController(_produtoServiceMock.Object, _subcategoriaServiceMock.Object);
     }
 
     [Fact]

@@ -13,10 +13,10 @@ public class PaginaAdministradores
     public PaginaAdministradores(IPage pagina) => _pagina = pagina;
 
     public async Task AbrirIndice(string urlBase) =>
-        await _pagina.GotoAsync($"{urlBase}/Administrador");
+        await _pagina.GotoAsync($"{urlBase}/Admin/Administrador");
 
     public async Task AbrirCadastro(string urlBase) =>
-        await _pagina.GotoAsync($"{urlBase}/Administrador/Cadastro");
+        await _pagina.GotoAsync($"{urlBase}/Admin/Administrador/Cadastro");
 
     public async Task IrParaCadastro() =>
         await ContainerIndice.GetByRole(AriaRole.Link, new() { Name = "Novo administrador" }).ClickAsync();
