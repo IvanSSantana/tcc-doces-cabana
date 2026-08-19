@@ -1,7 +1,7 @@
 # Plano Técnico — Catálogo
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-18
-**Revisado em:** 2026-08-19 · **Status:** Rascunho
+**Revisado em:** 2026-08-19 · **Status:** Executado
 
 ---
 

@@ -1,0 +1,50 @@
+@using DocesCabana.Application.DTOs
+@model CatalogoDTO
+@{
+    // Links comuns, não botões de formulário — cada página precisa de
+    // endereço próprio para poder ser compartilhada e voltar no histórico
+    // (RF-20/RF-22). Preserva categoria, subcategorias, "sem açúcar" e
+    // ordenação; só a página muda.
+    string ConstruirEndereco(int pagina)
+    {
+        var caminhoBase = Model.CategoriaAtual is null
+            ? Url.Action("Index", "Catalogo")!
+            : Url.Action("Index", "Catalogo", new { apelido = Model.CategoriaAtual.Apelido })!;
+
+        var partesDaConsulta = new List<string> { $"ordenacao={Model.Ordenacao}", $"pagina={pagina}" };
+
+        if (Model.ApenasSemAcucar)
+            partesDaConsulta.Add("semAcucar=true");
+
+        foreach (var subcategoriaId in Model.SubcategoriasMarcadas)
+            partesDaConsulta.Add($"subcategorias={subcategoriaId}");
+
+        return $"{caminhoBase}?{string.Join("&", partesDaConsulta)}";
+    }
+}
+
+@if (Model.Pagina.TotalDePaginas > 1)
+{
+    <nav class="paginacao-catalogo" aria-label="Páginas do catálogo">
+        <a href="@ConstruirEndereco(Math.Max(1, Model.Pagina.PaginaAtual - 1))"
+           class="link-paginacao link-paginacao--seta @(Model.Pagina.PaginaAtual == 1 ? "link-paginacao--desabilitada" : "")"
+           aria-label="Página anterior">
+            &lsaquo;
+        </a>
+
+        @for (var pagina = 1; pagina <= Model.Pagina.TotalDePaginas; pagina++)
+        {
+            <a href="@ConstruirEndereco(pagina)"
+               class="link-paginacao @(pagina == Model.Pagina.PaginaAtual ? "link-paginacao--atual" : "")"
+               aria-current="@(pagina == Model.Pagina.PaginaAtual ? "page" : null)">
+                @pagina
+            </a>
+        }
+
+        <a href="@ConstruirEndereco(Math.Min(Model.Pagina.TotalDePaginas, Model.Pagina.PaginaAtual + 1))"
+           class="link-paginacao link-paginacao--seta @(Model.Pagina.PaginaAtual == Model.Pagina.TotalDePaginas ? "link-paginacao--desabilitada" : "")"
+           aria-label="Próxima página">
+            &rsaquo;
+        </a>
+    </nav>
+}

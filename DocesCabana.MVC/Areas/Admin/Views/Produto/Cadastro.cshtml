@@ -59,6 +59,13 @@
         <span asp-validation-for="Descricao" class="mensagem-erro"></span>
     </div>
 
+    <div class="campo-entrada campo-caixa-selecao">
+        <label asp-for="SemAcucar">
+            <input asp-for="SemAcucar" type="checkbox" />
+            Sem açúcar
+        </label>
+    </div>
+
     @if (TempData["Confirmacao"] is string confirmacao)
     {
         <div class="resumo-sucesso">

@@ -198,4 +198,78 @@ nav {
 
 .seta-header {
   margin-top: 10%;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Menu suspenso das categorias (spec 012, plano §3). Abre por :hover e por
+   :focus-within — o segundo é o que faz o teclado alcançar o mesmo que o
+   mouse, sem JavaScript nenhum. */
+.item-categoria-nav {
+  position: relative;
+}
+
+.item-categoria-nav:hover .link-nav,
+.item-categoria-nav:focus-within .link-nav {
+  color: var(--cor-destaque);
+}
+
+.item-categoria-nav:hover .seta-header,
+.item-categoria-nav:focus-within .seta-header {
+  transform: rotate(180deg);
+}
+
+.submenu-categoria {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  background-color: #EAE3D8;
+  border-radius: 0 12px 12px 12px;
+  padding: 12px;
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+}
+
+.item-categoria-nav:hover .submenu-categoria,
+.item-categoria-nav:focus-within .submenu-categoria {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.submenu-categoria ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: var(--cor-destaque);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.submenu-categoria a {
+  display: block;
+  color: var(--cor-texto);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 4px 0;
+}
+
+.submenu-categoria a:hover,
+.submenu-categoria a:focus-visible {
+  text-decoration: underline;
+}
+
+/* Abaixo de 900px o menu suspenso por :hover é hostil ao toque — o link da
+   categoria continua levando ao catálogo dela, que tem a mesma lista de
+   subcategorias na barra lateral (RF-10), então nada fica inalcançável. */
+@media (max-width: 900px) {
+  .submenu-categoria {
+    display: none;
+  }
 }

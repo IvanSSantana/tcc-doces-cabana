@@ -1,5 +1,7 @@
 @using Microsoft.AspNetCore.Identity;
 @using DocesCabana.Domain;
+@using DocesCabana.Application.DTOs;
+@model List<CategoriaDTO>
 
 <head>
   <link rel="stylesheet" href="~/css/components/header.css">
@@ -79,29 +81,41 @@
     <section>
       <nav>
 
-        <a href="#" class="link-nav">
-          <p>Doce</p>
+        @foreach (var categoria in Model)
+        {
+          @* Menu suspenso por CSS puro (:hover/:focus-within), sem
+             JavaScript — abre ao passar o mouse ou ao tabular até o link
+             (spec 012, plano §3/§9). Só as 8 subcategorias com mais produto
+             disponível aparecem aqui (RF-04/RN-06); a lista completa mora na
+             barra lateral do catálogo. *@
+          <div class="item-categoria-nav">
+            <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="@categoria.Apelido" class="link-nav">
+              <p>@categoria.Nome</p>
 
-          <i class="fa-solid fa-chevron-down icone-nav seta-header"></i>
-        </a>
+              @if (categoria.Subcategorias.Count > 0)
+              {
+                <i class="fa-solid fa-chevron-down icone-nav seta-header" aria-hidden="true"></i>
+              }
+            </a>
 
-        <a href="#" class="link-nav">
-          <p>Salgado</p>
-
-          <i class="fa-solid fa-chevron-down icone-nav seta-header"></i>
-        </a>
-
-        <a href="#" class="link-nav">
-          <p>Adega</p>
-
-          <i class="fa-solid fa-chevron-down icone-nav seta-header"></i>
-        </a>
-
-        <a href="#" class="link-nav">
-          <p>Outros</p>
-
-          <i class="fa-solid fa-chevron-down icone-nav seta-header"></i>
-        </a>
+            @if (categoria.Subcategorias.Count > 0)
+            {
+              <div class="submenu-categoria">
+                <ul>
+                  @foreach (var subcategoria in categoria.Subcategorias.Take(8))
+                  {
+                    <li>
+                      <a asp-area="" asp-controller="Catalogo" asp-action="Index"
+                         asp-route-apelido="@categoria.Apelido" asp-route-subcategorias="@subcategoria.SubcategoriaId">
+                        @subcategoria.Nome
+                      </a>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        }
 
       </nav>
 

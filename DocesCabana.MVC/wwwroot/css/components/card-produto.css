@@ -57,6 +57,44 @@
     transform: scale(1.15) !important;
 }
 
+/* Favoritar, quantidade e adicionar ao carrinho desabilitados até essas
+   features existirem de verdade (spec 012, RF-24). Mantidos visíveis com
+   opacidade reduzida — desabilitado não é escondido, é "ainda não". */
+.card-produto button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.card-produto:hover .botao-favorito-card:disabled {
+    opacity: 0.45;
+    transform: none;
+}
+
+.botao-favorito-card:disabled:hover {
+    transform: scale(1) !important;
+}
+
+/* RF-26 (spec 012): produto fora de estoque continua na grade, sinalizado —
+   etiqueta sobre a imagem e imagem esmaecida, não escondido. */
+.etiqueta-fora-de-estoque {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.container-imagem-card--fora-de-estoque .imagem-card {
+    opacity: 0.5;
+}
+
 .container-imagem-card {
     height: 180px;
     width: 100%;
@@ -175,7 +213,7 @@ a.nome-card {
     box-sizing: border-box;
 }
 
-.botao-adicionar-card:hover {
+.botao-adicionar-card:hover:not(:disabled) {
     background-color: #008B6B;
     color: #FFFFFF;
 }

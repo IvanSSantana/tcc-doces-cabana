@@ -7,6 +7,7 @@ Table Produto [headercolor: #175e7a] {
 	Status tinyint [ not null ]
 	ImagemUrl nvarchar(255) [ not null ]
 	Descricao nvarchar(4000) [ note: 'Opcional — produtos cadastrados antes da spec 008 ficam nulos até recadastro' ]
+	SemAcucar bit [ not null, note: 'Característica do produto, não subcategoria (spec 012) — permitiu fundir Doces Caseiros e Doces Zero em uma única categoria sem perder a distinção' ]
 }
 
 // Usuario e ContaDeAcesso são as duas metades de uma mesma pessoa, separadas

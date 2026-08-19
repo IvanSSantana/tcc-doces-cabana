@@ -16,30 +16,62 @@ namespace DocesCabana.Tests.Units.Controllers.Admin;
 public class ProdutoControllerTests
 {
     private readonly Mock<IProdutoService> _produtoServiceMock;
-    private readonly Mock<ISubcategoriaService> _subcategoriaServiceMock;
+    private readonly Mock<ICategoriaService> _categoriaServiceMock;
     private readonly AdminProdutoController _controller;
 
     public ProdutoControllerTests()
     {
         _produtoServiceMock = new Mock<IProdutoService>();
-        _subcategoriaServiceMock = new Mock<ISubcategoriaService>();
-        _controller = new AdminProdutoController(_produtoServiceMock.Object, _subcategoriaServiceMock.Object);
+        _categoriaServiceMock = new Mock<ICategoriaService>();
+        _controller = new AdminProdutoController(_produtoServiceMock.Object, _categoriaServiceMock.Object);
     }
 
     [Fact]
     public async Task Dado_RequisicaoValida_Quando_CadastroGet_Entao_DeveCarregarSubcategoriasERetornarView()
     {
-        var subcategorias = new List<SubcategoriaDTO>
+        var categorias = new List<CategoriaDTO>
         {
-            new() { SubcategoriaId = Guid.NewGuid(), Nome = "Doces de Tacho" }
+            new()
+            {
+                CategoriaId = Guid.NewGuid(),
+                Nome = "Doces",
+                Apelido = "doces",
+                Subcategorias = [new() { SubcategoriaId = Guid.NewGuid(), Nome = "Barras" }]
+            }
         };
-        _subcategoriaServiceMock.Setup(s => s.BuscarTodasSubcategorias())
-            .ReturnsAsync(subcategorias);
+        _categoriaServiceMock.Setup(s => s.ListarComSubcategorias())
+            .ReturnsAsync(categorias);
 
         var resultado = await _controller.Cadastro();
 
         Assert.IsType<ViewResult>(resultado);
-        _subcategoriaServiceMock.Verify(s => s.BuscarTodasSubcategorias(), Times.Once);
+        _categoriaServiceMock.Verify(s => s.ListarComSubcategorias(), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_SubcategoriaComMesmoNomeEmDuasCategorias_Quando_CadastroGet_Entao_DeveQualificarPelaCategoria()
+    {
+        // RF-28/CA-24: "Cappuccino" existe em Doces e em Empório. O seletor
+        // precisa distinguir as duas, não listar "Cappuccino" duas vezes.
+        var idCappuccinoDoces = Guid.NewGuid();
+        var idCappuccinoEmporio = Guid.NewGuid();
+        var categorias = new List<CategoriaDTO>
+        {
+            new() { CategoriaId = Guid.NewGuid(), Nome = "Doces", Apelido = "doces",
+                Subcategorias = [new() { SubcategoriaId = idCappuccinoDoces, Nome = "Cappuccino" }] },
+            new() { CategoriaId = Guid.NewGuid(), Nome = "Empório", Apelido = "emporio",
+                Subcategorias = [new() { SubcategoriaId = idCappuccinoEmporio, Nome = "Cappuccino" }] },
+        };
+        _categoriaServiceMock.Setup(s => s.ListarComSubcategorias()).ReturnsAsync(categorias);
+
+        var resultado = await _controller.Cadastro();
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        var opcoes = Assert.IsAssignableFrom<Microsoft.AspNetCore.Mvc.Rendering.SelectList>(viewResult.ViewData["Subcategorias"]);
+        var rotulos = opcoes.Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>().Select(i => i.Text).ToList();
+
+        Assert.Contains("Doces › Cappuccino", rotulos);
+        Assert.Contains("Empório › Cappuccino", rotulos);
     }
 
     [Fact]
@@ -47,8 +79,8 @@ public class ProdutoControllerTests
     {
         _controller.ModelState.AddModelError("Nome", "Nome é obrigatório");
         var dto = new ProdutoDTO();
-        _subcategoriaServiceMock.Setup(s => s.BuscarTodasSubcategorias())
-            .ReturnsAsync(new List<SubcategoriaDTO>());
+        _categoriaServiceMock.Setup(s => s.ListarComSubcategorias())
+            .ReturnsAsync(new List<CategoriaDTO>());
 
         var resultado = await _controller.Cadastro(dto);
 

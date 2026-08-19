@@ -46,6 +46,30 @@ public class ProdutoServiceTests
     }
 
     [Fact]
+    public async Task Dado_ProdutoInativo_Quando_BuscarTodosProdutos_Entao_NaoDeveIncluiLo()
+    {
+        // Defeito encontrado na spec 012 §10: a vitrine da home listava
+        // produto inativo, que ao ser clicado devolvia 404 (a 008 já bloqueia
+        // inativo na página do produto). RF-25/RN-01 corrigem aqui.
+        var produtos = new List<Produto>
+        {
+            new Produto(Guid.NewGuid(), "Bolo Ativo", 15.00m, "https://imagem.com/bolo.jpg", ProdutoStatus.Ativo),
+            new Produto(Guid.NewGuid(), "Doce Inativo", 8.50m, "https://imagem.com/doce.jpg", ProdutoStatus.Inativo),
+            new Produto(Guid.NewGuid(), "Bala Fora de Estoque", 5.00m, "https://imagem.com/bala.jpg", ProdutoStatus.ForaDeEstoque),
+        };
+
+        _produtoRepositoryMock.Setup(r => r.BuscarTodos())
+            .ReturnsAsync(produtos);
+
+        var resultado = await _produtoService.BuscarTodosProdutos();
+
+        Assert.Equal(2, resultado.Count);
+        Assert.DoesNotContain(resultado, p => p.Nome == "Doce Inativo");
+        Assert.Contains(resultado, p => p.Nome == "Bolo Ativo");
+        Assert.Contains(resultado, p => p.Nome == "Bala Fora de Estoque");
+    }
+
+    [Fact]
     public async Task Dado_IdInexistente_Quando_BuscarProdutoPorId_Entao_DeveLancarKeyNotFoundException()
     {
         var idInexistente = Guid.NewGuid();

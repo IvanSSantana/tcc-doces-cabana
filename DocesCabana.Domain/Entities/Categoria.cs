@@ -6,6 +6,14 @@ public class Categoria
 
     public string Nome { get; private set; } = default!;
 
+    // Navegação pai -> filhos, só leitura por fora (spec 012): quem cria uma
+    // subcategoria é o construtor de Subcategoria, não este agregado. Mesmo
+    // padrão de coleção rastreada pelo EF Core via campo privado que
+    // Avaliacao.Votos já usa desde a spec 008.
+    private readonly List<Subcategoria> _subcategorias = [];
+
+    public IReadOnlyCollection<Subcategoria> Subcategorias => _subcategorias.AsReadOnly();
+
     protected Categoria() { }
 
     public Categoria(string nome, Guid id = default)

@@ -255,6 +255,11 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.Property<Guid?>("PromocaoId")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("SemAcucar")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
                     b.Property<byte>("Status")
                         .HasColumnType("INTEGER");
 
@@ -693,7 +698,7 @@ namespace DocesCabana.Infrastructure.Migrations
             modelBuilder.Entity("DocesCabana.Domain.Entities.Subcategoria", b =>
                 {
                     b.HasOne("DocesCabana.Domain.Entities.Categoria", "Categoria")
-                        .WithMany()
+                        .WithMany("Subcategorias")
                         .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -781,6 +786,11 @@ namespace DocesCabana.Infrastructure.Migrations
             modelBuilder.Entity("DocesCabana.Domain.Entities.Avaliacao", b =>
                 {
                     b.Navigation("Votos");
+                });
+
+            modelBuilder.Entity("DocesCabana.Domain.Entities.Categoria", b =>
+                {
+                    b.Navigation("Subcategorias");
                 });
 
             modelBuilder.Entity("DocesCabana.Infrastructure.Identity.ContaDeAcesso", b =>

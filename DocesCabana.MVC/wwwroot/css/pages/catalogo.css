@@ -1,0 +1,264 @@
+/* Página do catálogo — spec 012. Tokens escopados em .pagina-catalogo para
+   não vazar para o resto do site (mesmo risco documentado pela 008/009). */
+
+.pagina-catalogo {
+  --catalogo-fundo: #FDFBF8;
+  --catalogo-tinta: #1E1E1E;
+  --catalogo-tinta-suave: #5A5A5A;
+  --catalogo-verde: var(--cor-primaria);
+  --catalogo-coral: var(--cor-destaque);
+  --catalogo-borda: #DAD4CE;
+
+  background-color: var(--catalogo-fundo);
+  color: var(--catalogo-tinta);
+  font-family: 'Inter', sans-serif;
+  max-width: 1300px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+}
+
+/* header.css declara "section { padding: 0 40px; max-width: 1400px; ... }"
+   sem escopo — vaza para qualquer <section> da página (achado da 009,
+   repetido aqui: .conteudo-catalogo é <section>). Reset explícito. */
+.pagina-catalogo section {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.trilha-catalogo {
+  font-size: 14px;
+  color: var(--catalogo-tinta-suave);
+  margin-bottom: 1.5rem;
+}
+
+.trilha-catalogo a {
+  color: var(--catalogo-tinta-suave);
+  text-decoration: none;
+}
+
+.trilha-catalogo a:hover {
+  text-decoration: underline;
+}
+
+.grade-catalogo {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* --- Barra lateral --- */
+
+.barra-lateral-catalogo {
+  background-color: #FFFFFF;
+  border: 1px solid var(--catalogo-borda);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.titulo-barra-lateral {
+  font-size: 1.1rem;
+  color: var(--catalogo-verde);
+  margin-bottom: 0.75rem;
+}
+
+.lista-categorias-catalogo {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.link-categoria-catalogo {
+  display: block;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  color: var(--catalogo-tinta);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.link-categoria-catalogo:hover {
+  background-color: #F2EFE9;
+}
+
+.link-categoria-catalogo--ativa {
+  background-color: var(--catalogo-verde);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.link-categoria-catalogo--ativa:hover {
+  background-color: var(--catalogo-verde);
+}
+
+.filtro-subcategorias {
+  border: none;
+  border-top: 1px solid var(--catalogo-borda);
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filtro-subcategorias legend {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--catalogo-tinta-suave);
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.opcao-filtro-catalogo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.opcao-filtro-catalogo input {
+  accent-color: var(--catalogo-verde);
+  width: 1rem;
+  height: 1rem;
+}
+
+.ver-todas-subcategorias summary {
+  color: var(--catalogo-verde);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.4rem;
+}
+
+.filtro-sem-acucar {
+  border-top: 1px solid var(--catalogo-borda);
+  padding-top: 1rem;
+}
+
+/* --- Conteúdo: cabeçalho, grade, estado vazio --- */
+
+.cabecalho-conteudo-catalogo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.contagem-catalogo {
+  font-size: 0.9rem;
+  color: var(--catalogo-tinta-suave);
+}
+
+.controle-ordenacao {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.controle-ordenacao label {
+  color: var(--catalogo-verde);
+  font-weight: 600;
+}
+
+.controle-ordenacao select {
+  border: 1px solid var(--catalogo-borda);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--catalogo-tinta);
+  background-color: #FFFFFF;
+}
+
+.botao-aplicar-filtro {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--catalogo-verde);
+  color: #FFFFFF;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.grade-produtos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.catalogo-vazio {
+  color: var(--catalogo-tinta-suave);
+  padding: 3rem 1rem;
+  text-align: center;
+  border: 1px dashed var(--catalogo-borda);
+  border-radius: 12px;
+}
+
+/* --- Paginação --- */
+
+.paginacao-catalogo {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 2rem;
+}
+
+.link-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--catalogo-tinta);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.link-paginacao:hover {
+  background-color: #F2EFE9;
+}
+
+.link-paginacao--atual {
+  background-color: var(--catalogo-coral);
+  color: #FFFFFF;
+}
+
+.link-paginacao--atual:hover {
+  background-color: var(--catalogo-coral);
+}
+
+.link-paginacao--desabilitada {
+  visibility: hidden;
+}
+
+/* --- Coluna única abaixo de 900px --- */
+
+@media (max-width: 900px) {
+  .grade-catalogo {
+    grid-template-columns: 1fr;
+  }
+
+  .grade-produtos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .grade-produtos {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagina-catalogo * {
+    scroll-behavior: auto;
+  }
+}

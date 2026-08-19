@@ -1,6 +1,9 @@
 @using System.Text.RegularExpressions
+@using DocesCabana.Domain.Enums
 @model DocesCabana.Application.DTOs.ProdutoDTO
 @{
+    var foraDeEstoque = Model.Status == ProdutoStatus.ForaDeEstoque;
+
     string ObterUrlImagem(string url)
     {
         if (string.IsNullOrEmpty(url)) return url;
@@ -26,24 +29,33 @@
 }
 
 <div class="card-produto" data-produto-id="@Model.ProdutoId">
-    <button class="botao-favorito-card" aria-label="Favoritar" onclick="alternarFavorito(this)">
+    @* Favoritar, quantidade e adicionar ao carrinho ficam desabilitados até
+       essas features existirem de verdade (spec 012, RF-24) — antes, os três
+       fingiam funcionar sem gravar nada (ver spec 012 §10). *@
+    <button class="botao-favorito-card" aria-label="Favoritar — ainda não disponível" title="Ainda não disponível" disabled>
         <i class="@(Model.EstaFavorito ? "fa-solid fa-heart favoritado" : "fa-regular fa-heart")"></i>
     </button>
-    
-    <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="container-imagem-card">
+
+    @* RF-26: produto fora de estoque continua listado, só sinalizado. *@
+    @if (foraDeEstoque)
+    {
+        <span class="etiqueta-fora-de-estoque">Fora de estoque</span>
+    }
+
+    <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="container-imagem-card @(foraDeEstoque ? "container-imagem-card--fora-de-estoque" : "")">
         <img src="@ObterUrlImagem(Model.ImagemUrl)" alt="@Model.Nome" class="imagem-card" />
     </a>
 
     <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="nome-card">@Model.Nome.ToUpper()</a>
-    
+
     <div class="preco-card">R$ @Model.Preco.ToString("N2")</div>
-    
+
     <div class="acoes-card">
         <div class="controles-card">
-            <button class="botao-quantidade-card menos" onclick="alterarQuantidade(this, -1)">−</button>
+            <button class="botao-quantidade-card menos" aria-label="Diminuir quantidade — ainda não disponível" disabled>−</button>
             <span class="valor-quantidade-card">1</span>
-            <button class="botao-quantidade-card mais" onclick="alterarQuantidade(this, 1)">+</button>
+            <button class="botao-quantidade-card mais" aria-label="Aumentar quantidade — ainda não disponível" disabled>+</button>
         </div>
-        <button class="botao-adicionar-card" onclick="adicionarAoCarrinho('@Model.ProdutoId', this)">Adicionar</button>
+        <button class="botao-adicionar-card" aria-label="Adicionar ao carrinho — ainda não disponível" title="Carrinho ainda não disponível" disabled>Adicionar</button>
     </div>
 </div>

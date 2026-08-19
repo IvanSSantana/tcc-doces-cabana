@@ -1,7 +1,7 @@
 # Especificação — Catálogo
 
 **ID:** `012-catalogo` · **Branch:** `012-catalogo`
-**Criada em:** 2026-08-18 · **Revisada em:** 2026-08-19 · **Status:** Rascunho
+**Criada em:** 2026-08-18 · **Revisada em:** 2026-08-19 · **Status:** Implementada
 
 ---
 

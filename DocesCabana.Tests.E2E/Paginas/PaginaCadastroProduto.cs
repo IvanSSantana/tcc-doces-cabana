@@ -4,10 +4,11 @@ namespace DocesCabana.Tests.E2E.Paginas;
 
 public class PaginaCadastroProduto
 {
-    // Nome da subcategoria semeada pelo DbInitializer desde a spec 003 —
-    // "para que testes e E2E possam referenciar uma categoria/subcategoria
-    // conhecida" (comentário original do próprio seed).
-    public const string SubcategoriaConhecida = "Doces de Tacho";
+    // Rótulo exato da opção no seletor de subcategoria, qualificado por
+    // categoria desde a spec 012 (RF-28) — "Categoria › Subcategoria", não
+    // só o nome da subcategoria. É a mesma subcategoria do produto curado
+    // que o DbInitializer semeia ("Raspa Tacho").
+    public const string SubcategoriaConhecida = "Doces › Raspa de Tachos";
 
     private readonly IPage _pagina;
     private ILocator Formulario => _pagina.Locator("form.formulario-autenticacao");

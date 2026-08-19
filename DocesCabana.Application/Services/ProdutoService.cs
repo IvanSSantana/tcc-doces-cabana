@@ -25,7 +25,12 @@ public class ProdutoService : IProdutoService
     {
         var produtos = await _produtoRepository.BuscarTodos();
 
-        return ProdutoMapper.ToDTO(produtos);
+        // RN-01/RF-25 (spec 012): produto inativo não existe do lado de fora
+        // em nenhuma listagem — defeito encontrado durante a especificação,
+        // a vitrine da home levava a um 404 ao clicar num produto inativo.
+        var disponiveis = produtos.Where(p => p.Status != ProdutoStatus.Inativo);
+
+        return ProdutoMapper.ToDTO(disponiveis);
     }
 
     public async Task<ProdutoDTO> BuscarProdutoPorId(Guid id)

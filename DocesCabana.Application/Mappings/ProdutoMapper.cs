@@ -15,14 +15,15 @@ public static class ProdutoMapper
             ImagemUrl = produto.ImagemUrl,
             Descricao = produto.Descricao,
             SubcategoriaId = produto.SubcategoriaId,
-            PromocaoId = produto.PromocaoId
+            PromocaoId = produto.PromocaoId,
+            SemAcucar = produto.SemAcucar
         };
 
     public static List<ProdutoDTO> ToDTO(IEnumerable<Produto> produtos) =>
         produtos.Select(ToDTO).ToList();
 
     public static Produto ToEntity(ProdutoDTO dto) =>
-        new(dto.SubcategoriaId, dto.Nome, dto.Preco, dto.ImagemUrl, dto.Status, dto.ProdutoId, dto.Descricao);
+        new(dto.SubcategoriaId, dto.Nome, dto.Preco, dto.ImagemUrl, dto.Status, dto.ProdutoId, dto.Descricao, dto.SemAcucar);
 
     public static List<Produto> ToEntity(IEnumerable<ProdutoDTO> dtos) =>
         dtos.Select(ToEntity).ToList();

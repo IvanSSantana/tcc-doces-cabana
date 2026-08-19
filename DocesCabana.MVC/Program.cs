@@ -69,6 +69,15 @@ app.MapControllerRoute(
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+// O segundo segmento é o apelido da categoria, não uma ação (spec 012,
+// RF-02) — sem esta rota, a padrão abaixo interpretaria "/Catalogo/doces"
+// como controller "Catalogo", ação "doces".
+app.MapControllerRoute(
+    name: "catalogo",
+    pattern: "Catalogo/{apelido?}",
+    defaults: new { controller = "Catalogo", action = "Index" })
+    .WithStaticAssets();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")

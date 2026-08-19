@@ -22,6 +22,11 @@ public class Produto
     // até serem recadastrados (spec 008, fora de escopo editar os antigos).
     public string? Descricao { get; private set; }
 
+    // Característica do produto, não lugar na hierarquia (spec 012, RN-04):
+    // "Doces Caseiros" e "Doces Zero" se fundiram em "Doces", e é esta
+    // marcação que preserva a distinção que a fusão apagaria.
+    public bool SemAcucar { get; private set; }
+
     // Navegações filho -> pai, anuláveis (vêm null sem Include). Ambas as
     // pontas vivem no domínio, então são navegação normal (RQ-10 da spec 003).
     public Subcategoria? Subcategoria { get; private set; }
@@ -37,7 +42,8 @@ public class Produto
         string imagemUrl,
         ProdutoStatus status = ProdutoStatus.Ativo,
         Guid id = default,
-        string? descricao = null)
+        string? descricao = null,
+        bool semAcucar = false)
     {
         ValidarSubcategoria(subcategoriaId);
         ValidarNome(nome);
@@ -55,6 +61,7 @@ public class Produto
         Preco = preco;
         ImagemUrl = imagemUrl;
         Descricao = descricao;
+        SemAcucar = semAcucar;
     }
 
     public void AlterarNome(string nome)
@@ -93,6 +100,10 @@ public class Produto
     }
 
     public void AlterarStatus(ProdutoStatus novoStatus) => Status = novoStatus;
+
+    public void MarcarComoSemAcucar() => SemAcucar = true;
+
+    public void DesmarcarSemAcucar() => SemAcucar = false;
 
     public void AplicarPromocao(Guid promocaoId)
     {

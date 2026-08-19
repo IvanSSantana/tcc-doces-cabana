@@ -17,12 +17,12 @@ namespace DocesCabana.MVC.Areas.Admin.Controllers;
 public class ProdutoController : Controller
 {
     private readonly IProdutoService _produtoService;
-    private readonly ISubcategoriaService _subcategoriaService;
+    private readonly ICategoriaService _categoriaService;
 
-    public ProdutoController(IProdutoService produtoService, ISubcategoriaService subcategoriaService)
+    public ProdutoController(IProdutoService produtoService, ICategoriaService categoriaService)
     {
         _produtoService = produtoService;
-        _subcategoriaService = subcategoriaService;
+        _categoriaService = categoriaService;
     }
 
     [HttpGet]
@@ -48,10 +48,22 @@ public class ProdutoController : Controller
         return RedirectToAction(nameof(Cadastro));
     }
 
+    // RF-28: cada opção mostra a categoria dona da subcategoria — sem isso,
+    // "Cappuccino" aparece duas vezes no seletor sem nenhuma forma de saber
+    // qual é a de Doces e qual é a de Empório (spec 012 §10).
     private async Task CarregarSubcategorias()
     {
-        var subcategorias = await _subcategoriaService.BuscarTodasSubcategorias();
-        ViewBag.Subcategorias = new SelectList(subcategorias, nameof(SubcategoriaDTO.SubcategoriaId), nameof(SubcategoriaDTO.Nome));
+        var categorias = await _categoriaService.ListarComSubcategorias();
+
+        var opcoes = categorias
+            .SelectMany(categoria => categoria.Subcategorias.Select(subcategoria => new
+            {
+                subcategoria.SubcategoriaId,
+                Rotulo = $"{categoria.Nome} › {subcategoria.Nome}"
+            }))
+            .OrderBy(o => o.Rotulo);
+
+        ViewBag.Subcategorias = new SelectList(opcoes, "SubcategoriaId", "Rotulo");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

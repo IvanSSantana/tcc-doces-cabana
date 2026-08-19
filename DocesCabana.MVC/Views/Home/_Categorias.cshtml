@@ -2,18 +2,13 @@
     <link rel="stylesheet" href="~/css/components/categorias.css" asp-append-version="true" />
 </head>
 
+@* Links e rótulos alinhados à taxonomia real da loja (spec 012). As imagens
+   continuam as mesmas de antes — não correspondem mais às categorias reais,
+   mas trocá-las é backlog explícito (spec 012 §8), não escopo desta feature. *@
 <div class="categorias-container">
     <div class="area-categorias">
-        
-        <a asp-controller="Produto" asp-action="Categoria" asp-route-id="salgados" class="item-categoria">
-            <div class="area-imagem-categoria">
-                <img src="~/images/shapes/hexagono.svg" alt="Forma Hexágono" class="forma-fundo" />
-                <img src="~/images/categoria_salgados.png" alt="Salgados" class="imagem-categoria" />
-            </div>
-            <span class="nome-categoria">SALGADOS</span>
-        </a>
 
-        <a asp-controller="Produto" asp-action="Categoria" asp-route-id="doces" class="item-categoria">
+        <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="doces" class="item-categoria">
             <div class="area-imagem-categoria">
                 <img src="~/images/shapes/estrela_invertida.svg" alt="Forma Estrela" class="forma-fundo estrela" />
                 <img src="~/images/categoria_doces.png" alt="Doces" class="imagem-categoria" />
@@ -21,7 +16,15 @@
             <span class="nome-categoria">DOCES</span>
         </a>
 
-        <a asp-controller="Produto" asp-action="Categoria" asp-route-id="adega" class="item-categoria terceira-categoria">
+        <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="emporio" class="item-categoria">
+            <div class="area-imagem-categoria">
+                <img src="~/images/shapes/hexagono.svg" alt="Forma Hexágono" class="forma-fundo" />
+                <img src="~/images/categoria_salgados.png" alt="Empório" class="imagem-categoria" />
+            </div>
+            <span class="nome-categoria">EMPÓRIO</span>
+        </a>
+
+        <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="adega" class="item-categoria terceira-categoria">
             <div class="area-imagem-categoria">
                 <img src="~/images/shapes/hexagono.svg" alt="Forma Hexágono" class="forma-fundo" />
                 <img src="~/images/categoria_adega.png" alt="Adega" class="imagem-categoria" />
@@ -29,12 +32,12 @@
             <span class="nome-categoria">ADEGA</span>
         </a>
 
-        <a asp-controller="Produto" asp-action="Categoria" asp-route-id="outros" class="item-categoria">
+        <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="souvenir" class="item-categoria">
             <div class="area-imagem-categoria">
                 <img src="~/images/shapes/estrela.svg" alt="Forma Estrela" class="forma-fundo estrela" />
-                <img src="~/images/categoria_outros.png" alt="Outros" class="imagem-categoria" />
+                <img src="~/images/categoria_outros.png" alt="Souvenir" class="imagem-categoria" />
             </div>
-            <span class="nome-categoria">OUTROS</span>
+            <span class="nome-categoria">SOUVENIR</span>
         </a>
 
     </div>

@@ -20,7 +20,7 @@ public class SubcategoriaConfiguration : IEntityTypeConfiguration<Subcategoria>
             .IsRequired();
 
         builder.HasOne(s => s.Categoria)
-            .WithMany()
+            .WithMany(c => c.Subcategorias)
             .HasForeignKey(s => s.CategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
     }

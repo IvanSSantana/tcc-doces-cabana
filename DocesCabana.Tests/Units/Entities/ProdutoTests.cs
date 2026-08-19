@@ -217,6 +217,42 @@ public class ProdutoTests
         Assert.Equal("Doce caseiro, feito com leite e açúcar.", produto.Descricao);
     }
 
+    [Fact]
+    public void Dado_SemAcucarOmitido_Quando_CriarProduto_Entao_DeveNascerFalse()
+    {
+        var produto = CriarProduto();
+
+        Assert.False(produto.SemAcucar);
+    }
+
+    [Fact]
+    public void Dado_SemAcucarExplicito_Quando_CriarProduto_Entao_DevePreservarValor()
+    {
+        var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida, semAcucar: true);
+
+        Assert.True(produto.SemAcucar);
+    }
+
+    [Fact]
+    public void Dado_ProdutoComAcucar_Quando_MarcarComoSemAcucar_Entao_DeveAtualizarParaTrue()
+    {
+        var produto = CriarProduto();
+
+        produto.MarcarComoSemAcucar();
+
+        Assert.True(produto.SemAcucar);
+    }
+
+    [Fact]
+    public void Dado_ProdutoSemAcucar_Quando_DesmarcarSemAcucar_Entao_DeveAtualizarParaFalse()
+    {
+        var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida, semAcucar: true);
+
+        produto.DesmarcarSemAcucar();
+
+        Assert.False(produto.SemAcucar);
+    }
+
     private Produto CriarProduto()
     {
         return new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida);

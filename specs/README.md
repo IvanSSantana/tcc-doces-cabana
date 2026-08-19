@@ -21,9 +21,9 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [009](./009-paginas-institucionais/spec.md) | Páginas institucionais | Implementada | spec · [plan](./009-paginas-institucionais/plan.md) · [tasks](./009-paginas-institucionais/tasks.md) · [checklist](./009-paginas-institucionais/checklist.md) · [conteúdo](./009-paginas-institucionais/conteudo-politica.md) |
 | [010](./010-organizacao-de-nomenclatura/spec.md) | Organização de nomenclatura | Implementada | spec · [plan](./010-organizacao-de-nomenclatura/plan.md) · [tasks](./010-organizacao-de-nomenclatura/tasks.md) · [checklist](./010-organizacao-de-nomenclatura/checklist.md) |
 | [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | spec · [plan](./011-area-administrativa/plan.md) · [tasks](./011-area-administrativa/tasks.md) · [checklist](./011-area-administrativa/checklist.md) |
-| [012](./012-catalogo/spec.md) | Catálogo | Rascunho | spec · [plan](./012-catalogo/plan.md) · [tasks](./012-catalogo/tasks.md) |
+| [012](./012-catalogo/spec.md) | Catálogo | Implementada | spec · [plan](./012-catalogo/plan.md) · [tasks](./012-catalogo/tasks.md) · [checklist](./012-catalogo/checklist.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -89,11 +89,21 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > nome de classe do Princípio IV é escopada por *area*, não pela solução
 > inteira — `Admin/Produto` e `/Produto` são públicos diferentes.
 >
-> **Próxima:** `012` especificada, aguardando implementação — ver "A cadeia da
-> loja" abaixo. Foi reescrita em 2026-08-19 sobre a taxonomia real da loja,
-> depois que o catálogo real (390 produtos, categorias e subcategorias
-> verdadeiras) derrubou cinco decisões da versão original. Ver a nota de
-> revisão no topo de `012/spec.md`.
+> A `012` deu à loja a página de catálogo — barra lateral de categorias, filtro
+> por subcategoria, "sem açúcar", ordenação e paginação — sobre a taxonomia
+> real: 4 categorias, 31 subcategorias. "Doces Caseiros" e "Doces Zero" se
+> fundiram em "Doces"; a distinção virou `Produto.SemAcucar`, característica do
+> produto em vez de lugar na hierarquia (uma migration, `AddProdutoSemAcucar`).
+> Matou os 4 atalhos mortos do cabeçalho, que ganhou menu suspenso por
+> subcategoria, e o bloco de categorias da home. Cem produtos de mock,
+> proporcionais à distribuição real — o catálogo verdadeiro de 390 produtos
+> fica no backlog, esperando a loja exportar os dados. Dois achados fechados
+> durante a execução: `RF-26` (produto fora de estoque sinalizado) tinha
+> ficado sem implementação — o produto aparecia, mas indistinguível de
+> qualquer outro —, corrigido com uma etiqueta no card; e um teste E2E que
+> marcava duas subcategorias em sequência falhava de forma intermitente
+> porque `CheckAsync()` não espera a navegação que o `onchange` do formulário
+> dispara — corrigido no objeto de página, não na aplicação.
 
 ## A cadeia da loja (011 → 017)
 
@@ -106,9 +116,9 @@ preferência — cada uma só é construível depois da anterior.
 | # | Entrega | Estado | O que destrava |
 |---|---|---|---|
 | [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | libera o nome "catálogo" para o cliente |
-| [012](./012-catalogo/spec.md) | Catálogo | Rascunho | os 4 atalhos mortos do cabeçalho e o bloco de categorias da home |
+| [012](./012-catalogo/spec.md) | Catálogo | Implementada | os 4 atalhos mortos do cabeçalho e o bloco de categorias da home |
 | 013 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
-| 014 | Carrinho | não especificada | os três controles do card, hoje desabilitados pela `012` |
+| 014 | Carrinho | não especificada | os três controles do card, desabilitados pela `012` |
 | 015 | Endereço do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
 | 016 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
 | 017 | Pagamento | não especificada | — |
@@ -140,7 +150,10 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Escrever avaliação de produto | 008, carrinho |
 | Galeria de imagens do produto | 008 |
 | Promoções na vitrine | 003 |
-| Paginação do catálogo | 012 — hoje carrega tudo |
+| Sem glúten e sem lactose | 012 — mesma porta que `Produto.SemAcucar` abriu |
+| Catálogo real da loja (390 produtos) | 012 — hoje é mock proporcional, 100 produtos |
+| Imagens novas do bloco de categorias da home | 012 — as atuais não correspondem mais às categorias |
+| Revisão da ordenação inicial do catálogo | 012 — "Nome (A-Z)" por não empatar; "Mais vendidos" é o alvo natural quando a `016` existir |
 
 ## Como criar a próxima
 

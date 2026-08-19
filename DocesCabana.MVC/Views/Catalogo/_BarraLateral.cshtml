@@ -1,0 +1,73 @@
+@using DocesCabana.Application.DTOs
+@model CatalogoDTO
+
+<h2 class="titulo-barra-lateral">Categorias</h2>
+
+<ul class="lista-categorias-catalogo">
+    <li>
+        <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-ordenacao="@Model.Ordenacao"
+           class="link-categoria-catalogo @(Model.CategoriaAtual is null ? "link-categoria-catalogo--ativa" : "")">
+            Todos
+        </a>
+    </li>
+    @foreach (var categoria in Model.Categorias)
+    {
+        <li>
+            <a asp-area="" asp-controller="Catalogo" asp-action="Index"
+               asp-route-apelido="@categoria.Apelido" asp-route-ordenacao="@Model.Ordenacao"
+               class="link-categoria-catalogo @(Model.CategoriaAtual?.CategoriaId == categoria.CategoriaId ? "link-categoria-catalogo--ativa" : "")">
+                @categoria.Nome
+            </a>
+        </li>
+    }
+</ul>
+
+@* RF-11: nenhuma caixa de subcategoria no catálogo completo. *@
+@if (Model.CategoriaAtual is not null && Model.CategoriaAtual.Subcategorias.Count > 0)
+{
+    var principais = Model.CategoriaAtual.Subcategorias.Take(8).ToList();
+    var restantes = Model.CategoriaAtual.Subcategorias.Skip(8).ToList();
+
+    <fieldset class="filtro-subcategorias">
+        <legend>Subcategorias</legend>
+
+        @foreach (var subcategoria in principais)
+        {
+            <label class="opcao-filtro-catalogo">
+                <input type="checkbox" name="subcategorias" value="@subcategoria.SubcategoriaId"
+                       checked="@(Model.SubcategoriasMarcadas.Contains(subcategoria.SubcategoriaId) ? "checked" : null)"
+                       onchange="this.form.submit()" />
+                @subcategoria.Nome
+            </label>
+        }
+
+        @* RF-10: as demais ficam sob um "Ver todas" que revela sem
+           recarregar — <details> é nativo, sem JavaScript nenhum. *@
+        @if (restantes.Count > 0)
+        {
+            <details class="ver-todas-subcategorias">
+                <summary>Ver todas</summary>
+                @foreach (var subcategoria in restantes)
+                {
+                    <label class="opcao-filtro-catalogo">
+                        <input type="checkbox" name="subcategorias" value="@subcategoria.SubcategoriaId"
+                               checked="@(Model.SubcategoriasMarcadas.Contains(subcategoria.SubcategoriaId) ? "checked" : null)"
+                               onchange="this.form.submit()" />
+                        @subcategoria.Nome
+                    </label>
+                }
+            </details>
+        }
+    </fieldset>
+
+    @* RN-04: filtro à parte — "sem açúcar" é característica do produto,
+       não subcategoria; combina com elas em vez de competir. *@
+    <div class="filtro-sem-acucar">
+        <label class="opcao-filtro-catalogo">
+            <input type="checkbox" name="semAcucar" value="true"
+                   checked="@(Model.ApenasSemAcucar ? "checked" : null)"
+                   onchange="this.form.submit()" />
+            Sem açúcar
+        </label>
+    </div>
+}

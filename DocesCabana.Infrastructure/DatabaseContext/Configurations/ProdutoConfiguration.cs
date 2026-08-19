@@ -34,6 +34,10 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
         builder.Property(p => p.Descricao)
             .HasMaxLength(4000);
 
+        builder.Property(p => p.SemAcucar)
+            .IsRequired()
+            .HasDefaultValue(false);
+
 
         builder.Property(p => p.SubcategoriaId)
             .IsRequired();

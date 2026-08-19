@@ -19,12 +19,15 @@ public static class ApplicationDependencyInjection
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
         services.AddScoped<ISubcategoriaRepository, SubcategoriaRepository>();
+        services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IAvaliacaoRepository, AvaliacaoRepository>();
         services.AddScoped<IUsuarioService, UsuarioService>();
         services.AddScoped<IAdministradorService, AdministradorService>();
         services.AddScoped<IProdutoService, ProdutoService>();
         services.AddScoped<ISubcategoriaService, SubcategoriaService>();
+        services.AddScoped<ICategoriaService, CategoriaService>();
+        services.AddScoped<ICatalogoService, CatalogoService>();
         services.AddScoped<IAvaliacaoService, AvaliacaoService>();
         services.AddEmailService(configuration);
 

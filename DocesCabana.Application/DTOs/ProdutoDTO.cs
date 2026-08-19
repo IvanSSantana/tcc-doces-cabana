@@ -22,4 +22,6 @@ public class ProdutoDTO
     public Guid? PromocaoId { get; init; }
 
     public bool EstaFavorito { get; init; }
+
+    public bool SemAcucar { get; init; }
 }
