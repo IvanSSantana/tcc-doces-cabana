@@ -29,7 +29,7 @@ tela inteira. A causa direta é que a vitrine gera um ponto por produto, e a
 página inicial passa para ela todos os 99 produtos disponíveis da loja. Mas o
 número de pontos é sintoma: a página inicial carrega 99 cards de produto de uma
 vez, sob uma seção intitulada "Mais Vendidos" — que é exatamente a ordenação
-que a `012` declarou impossível até a `016` registrar pedidos, e que aparece
+que a `012` declarou impossível até a `018` registrar pedidos, e que aparece
 desabilitada no seletor do catálogo por esse motivo.
 
 ## 2. Objetivo
@@ -89,7 +89,7 @@ Fazer o menu suspenso do cabeçalho corresponder à referência visual, e devolv
 - **RN-01** — Todo ponto de navegação visível corresponde a uma posição que a
   vitrine alcança. Ponto que não leva a lugar nenhum é defeito, não decoração.
 - **RN-02** — Um título de seção só afirma o que o sistema sabe. "Mais
-  vendidos" volta a ser um título possível quando a `016` registrar pedidos —
+  vendidos" volta a ser um título possível quando a `018` registrar pedidos —
   é a mesma regra que mantém a opção desabilitada no seletor do catálogo
   (RN-07 da `012`).
 
@@ -139,7 +139,7 @@ Fazer o menu suspenso do cabeçalho corresponder à referência visual, e devolv
 
 ## 8. Fora de escopo
 
-- **Fazer "Mais vendidos" funcionar.** Depende da `016`, que registra pedidos.
+- **Fazer "Mais vendidos" funcionar.** Depende da `018`, que registra pedidos.
   Aqui a seção só deixa de prometer o que não entrega.
 - **Curadoria da vitrine.** Quais produtos aparecem na página inicial continua
   sendo o que a consulta devolve, agora limitado. Escolher a dedo é entrega
