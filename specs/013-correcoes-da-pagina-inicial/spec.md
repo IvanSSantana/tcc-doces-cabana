@@ -1,7 +1,7 @@
 # Especificação — Correções da página inicial
 
 **ID:** `013-correcoes-da-pagina-inicial` · **Branch:** `013-correcoes-da-pagina-inicial`
-**Criada em:** 2026-08-19 · **Status:** Rascunho
+**Criada em:** 2026-08-19 · **Status:** Implementada
 
 ---
 

@@ -22,7 +22,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [010](./010-organizacao-de-nomenclatura/spec.md) | Organização de nomenclatura | Implementada | spec · [plan](./010-organizacao-de-nomenclatura/plan.md) · [tasks](./010-organizacao-de-nomenclatura/tasks.md) · [checklist](./010-organizacao-de-nomenclatura/checklist.md) |
 | [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | spec · [plan](./011-area-administrativa/plan.md) · [tasks](./011-area-administrativa/tasks.md) · [checklist](./011-area-administrativa/checklist.md) |
 | [012](./012-catalogo/spec.md) | Catálogo | Implementada | spec · [plan](./012-catalogo/plan.md) · [tasks](./012-catalogo/tasks.md) · [checklist](./012-catalogo/checklist.md) |
-| [013](./013-correcoes-da-pagina-inicial/spec.md) | Correções da página inicial | Rascunho | spec · [plan](./013-correcoes-da-pagina-inicial/plan.md) · [tasks](./013-correcoes-da-pagina-inicial/tasks.md) |
+| [013](./013-correcoes-da-pagina-inicial/spec.md) | Correções da página inicial | Implementada | spec · [plan](./013-correcoes-da-pagina-inicial/plan.md) · [tasks](./013-correcoes-da-pagina-inicial/tasks.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
