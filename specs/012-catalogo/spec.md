@@ -309,9 +309,9 @@ categoria, refina por subcategoria e percorre o resultado em páginas.
 - **Busca por texto.** O campo de busca do cabeçalho continua sem função — é
   entrega própria.
 - **Adicionar ao carrinho, favoritar e o seletor de quantidade funcionarem.**
-  São a spec `014` (carrinho) e a de favoritos; aqui os controles aparecem
+  São a spec `015` (carrinho) e a de favoritos; aqui os controles aparecem
   desabilitados.
-- **"Mais vendidos" funcionando.** Depende de pedidos existirem (spec `016`).
+- **"Mais vendidos" funcionando.** Depende de pedidos existirem (spec `017`).
 - **Filtro por preço, por avaliação ou por promoção.** Nenhum aparece na
   referência visual.
 - **Sem glúten e sem lactose.** A marcação de "sem açúcar" abre a porta para

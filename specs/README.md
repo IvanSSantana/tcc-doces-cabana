@@ -22,6 +22,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [010](./010-organizacao-de-nomenclatura/spec.md) | Organização de nomenclatura | Implementada | spec · [plan](./010-organizacao-de-nomenclatura/plan.md) · [tasks](./010-organizacao-de-nomenclatura/tasks.md) · [checklist](./010-organizacao-de-nomenclatura/checklist.md) |
 | [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | spec · [plan](./011-area-administrativa/plan.md) · [tasks](./011-area-administrativa/tasks.md) · [checklist](./011-area-administrativa/checklist.md) |
 | [012](./012-catalogo/spec.md) | Catálogo | Implementada | spec · [plan](./012-catalogo/plan.md) · [tasks](./012-catalogo/tasks.md) · [checklist](./012-catalogo/checklist.md) |
+| [013](./013-correcoes-da-pagina-inicial/spec.md) | Correções da página inicial | Rascunho | spec · [plan](./013-correcoes-da-pagina-inicial/plan.md) · [tasks](./013-correcoes-da-pagina-inicial/tasks.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
@@ -105,7 +106,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > porque `CheckAsync()` não espera a navegação que o `onchange` do formulário
 > dispara — corrigido no objeto de página, não na aplicação.
 
-## A cadeia da loja (011 → 017)
+## A cadeia da loja (011 → 018)
 
 Traçada em 2026-08-18, a partir de três referências visuais — catálogo filtrado,
 catálogo completo e carrinho com fechamento. As três telas parecem duas
@@ -117,24 +118,30 @@ preferência — cada uma só é construível depois da anterior.
 |---|---|---|---|
 | [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | libera o nome "catálogo" para o cliente |
 | [012](./012-catalogo/spec.md) | Catálogo | Implementada | os 4 atalhos mortos do cabeçalho e o bloco de categorias da home |
-| 013 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
-| 014 | Carrinho | não especificada | os três controles do card, desabilitados pela `012` |
-| 015 | Endereço do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
-| 016 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
-| 017 | Pagamento | não especificada | — |
+| 014 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
+| 015 | Carrinho | não especificada | os três controles do card, desabilitados pela `012` |
+| 016 | Endereço do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
+| 017 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
+| 018 | Pagamento | não especificada | — |
 
 **Perguntas em aberto, a resolver na spec de cada uma** — nenhuma tem resposta
-ainda, e por isso `013` em diante não foram especificadas:
+ainda, e por isso `014` em diante não foram especificadas:
 
-- **Frete** (`014`): valor fixo, por região, ou calculado? O mockup mostra
+- **Frete** (`015`): valor fixo, por região, ou calculado? O mockup mostra
   `R$ 11,94` no resumo do pedido **antes** de o cliente informar endereço.
-- **Cupom de desconto** (`016` ou spec própria): a entidade `Promocao` existe
+- **Cupom de desconto** (`017` ou spec própria): a entidade `Promocao` existe
   desde a `003` e nunca foi usada. Cupom por código é a mesma coisa que
   promoção na vitrine, ou são dois conceitos?
-- **Carrinho de visitante** (`014`): quem não está logado pode montar carrinho,
+- **Carrinho de visitante** (`015`): quem não está logado pode montar carrinho,
   ou o botão leva ao login?
-- **Reserva de estoque** (`013`/`014`): item no carrinho segura estoque, ou só
+- **Reserva de estoque** (`014`/`015`): item no carrinho segura estoque, ou só
   no fechamento?
+
+> **Nota de numeração:** a cadeia era `013`–`017` quando foi traçada. A
+> `013` foi tomada pelas correções da página inicial — defeitos da `012` que
+> não davam para deixar para depois — e a cadeia deslocou em um. Segue a regra
+> do topo deste arquivo: o número é atribuído quando a spec é criada, e as
+> entradas abaixo ainda não têm spec.
 
 ## Backlog fora da cadeia
 
@@ -153,7 +160,7 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Sem glúten e sem lactose | 012 — mesma porta que `Produto.SemAcucar` abriu |
 | Catálogo real da loja (390 produtos) | 012 — hoje é mock proporcional, 100 produtos |
 | Imagens novas do bloco de categorias da home | 012 — as atuais não correspondem mais às categorias |
-| Revisão da ordenação inicial do catálogo | 012 — "Nome (A-Z)" por não empatar; "Mais vendidos" é o alvo natural quando a `016` existir |
+| Revisão da ordenação inicial do catálogo | 012 — "Nome (A-Z)" por não empatar; "Mais vendidos" é o alvo natural quando a `017` existir |
 
 ## Como criar a próxima
 
