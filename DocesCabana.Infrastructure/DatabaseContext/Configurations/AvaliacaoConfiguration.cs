@@ -25,5 +25,10 @@ public class AvaliacaoConfiguration : IEntityTypeConfiguration<Avaliacao>
             .WithMany()
             .HasForeignKey(a => a.UsuarioId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // RF-15/RN-01 (spec 014): uma pessoa avalia um mesmo produto no
+        // máximo uma vez. É a barreira de dado — não há barreira de entrada
+        // porque a tela de escrever avaliação ainda não existe (plano §10).
+        builder.HasIndex(a => new { a.UsuarioId, a.ProdutoId }).IsUnique();
     }
 }

@@ -6,6 +6,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Expõe só o necessário para testar o gerador de avaliações do seed
+         (spec 014, GerarAvaliacoesMock) sem torná-lo público — nenhum
+         controller ou view depende dele. -->
+    <InternalsVisibleTo Include="DocesCabana.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

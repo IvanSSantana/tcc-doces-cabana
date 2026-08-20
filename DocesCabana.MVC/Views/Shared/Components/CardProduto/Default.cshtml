@@ -36,13 +36,16 @@
         <i class="@(Model.EstaFavorito ? "fa-solid fa-heart favoritado" : "fa-regular fa-heart")"></i>
     </button>
 
-    @* RF-26: produto fora de estoque continua listado, só sinalizado. *@
-    @if (foraDeEstoque)
-    {
-        <span class="etiqueta-fora-de-estoque">Fora de estoque</span>
-    }
-
     <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="container-imagem-card @(foraDeEstoque ? "container-imagem-card--fora-de-estoque" : "")">
+        @* RF-26 (spec 012) / RF-10 (spec 014): produto fora de estoque
+           continua listado, sinalizado sobre a própria imagem — dentro do
+           link da imagem, não irmã dele, para que o posicionamento absoluto
+           se ancore nela e não no cartão inteiro. *@
+        @if (foraDeEstoque)
+        {
+            <span class="etiqueta-fora-de-estoque">Fora de estoque</span>
+        }
+
         <img src="@ObterUrlImagem(Model.ImagemUrl)" alt="@Model.Nome" class="imagem-card" />
     </a>
 

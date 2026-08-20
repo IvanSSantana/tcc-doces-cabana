@@ -23,9 +23,9 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | spec · [plan](./011-area-administrativa/plan.md) · [tasks](./011-area-administrativa/tasks.md) · [checklist](./011-area-administrativa/checklist.md) |
 | [012](./012-catalogo/spec.md) | Catálogo | Implementada | spec · [plan](./012-catalogo/plan.md) · [tasks](./012-catalogo/tasks.md) · [checklist](./012-catalogo/checklist.md) |
 | [013](./013-correcoes-da-pagina-inicial/spec.md) | Correções da página inicial | Implementada | spec · [plan](./013-correcoes-da-pagina-inicial/plan.md) · [tasks](./013-correcoes-da-pagina-inicial/tasks.md) · [checklist](./013-correcoes-da-pagina-inicial/checklist.md) |
-| [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Rascunho | spec · [plan](./014-refinamento-do-catalogo/plan.md) · [tasks](./014-refinamento-do-catalogo/tasks.md) |
+| [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Implementada | spec · [plan](./014-refinamento-do-catalogo/plan.md) · [tasks](./014-refinamento-do-catalogo/tasks.md) · [checklist](./014-refinamento-do-catalogo/checklist.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -119,7 +119,7 @@ preferência — cada uma só é construível depois da anterior.
 |---|---|---|---|
 | [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | libera o nome "catálogo" para o cliente |
 | [012](./012-catalogo/spec.md) | Catálogo | Implementada | os 4 atalhos mortos do cabeçalho e o bloco de categorias da home |
-| [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Rascunho | tira do caminho as pendências do catálogo antes da cadeia seguir |
+| [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Implementada | tira do caminho as pendências do catálogo antes da cadeia seguir |
 | 015 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
 | 016 | Carrinho | não especificada | os três controles do card, desabilitados pela `012` |
 | 017 | Endereço do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |

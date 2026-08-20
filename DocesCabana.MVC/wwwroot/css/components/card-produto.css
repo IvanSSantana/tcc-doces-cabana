@@ -10,7 +10,14 @@
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
-    width: 85%;
+    /* Largura é responsabilidade de quem contém o cartão, não dele mesmo
+       (spec 014, plano §1) — na grade do catálogo ele preenche a coluna
+       (RF-08); no carrossel, quem dá a folga de 85% é vitrine-produtos.css. */
+    width: 100%;
+    /* Itens de grade esticam por padrão: isso é o que faz os botões de uma
+       linha ficarem na mesma altura mesmo quando o nome de um produto ocupa
+       duas linhas e o de outro só uma (RF-09) — nenhuma altura fixa. */
+    height: 100%;
 }
 
 .card-produto:hover {
@@ -75,11 +82,14 @@
 }
 
 /* RF-26 (spec 012): produto fora de estoque continua na grade, sinalizado —
-   etiqueta sobre a imagem e imagem esmaecida, não escondido. */
+   etiqueta sobre a imagem e imagem esmaecida, não escondido. RF-10
+   (spec 014): a etiqueta é filha do container da imagem (não mais irmã),
+   ancorada nele — antes ficava presa ao topo do cartão inteiro, acima da
+   imagem, porque não havia ancestral posicionado mais próximo. */
 .etiqueta-fora-de-estoque {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 12px;
+    left: 12px;
     z-index: 10;
     background-color: #1E1E1E;
     color: #FFFFFF;
@@ -96,6 +106,7 @@
 }
 
 .container-imagem-card {
+    position: relative;
     height: 180px;
     width: 100%;
     display: flex;
@@ -149,6 +160,11 @@ a.nome-card {
     gap: 12px;
     align-items: center;
     justify-content: center;
+    /* RF-09 (spec 014): encosta na base do cartão — como o cartão estica até
+       a altura da linha da grade, isto alinha as ações de todos os produtos
+       de uma mesma linha, com nome de uma ou de duas linhas. Nenhuma altura
+       fixa: quem decide é o conteúdo dos vizinhos. */
+    margin-top: auto;
 }
 
 .controles-card {

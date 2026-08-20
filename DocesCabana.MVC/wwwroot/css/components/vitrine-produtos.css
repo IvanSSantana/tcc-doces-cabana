@@ -41,6 +41,14 @@
     box-sizing: border-box;
 }
 
+/* O cartão de produto passou a ocupar 100% de quem o contém (spec 014,
+   plano §1) — largura é responsabilidade do container, não do componente.
+   Aqui, no carrossel, essa responsabilidade é do item do slide (RF-11):
+   85% preserva a folga que o carrossel sempre teve ao redor do cartão. */
+.item-carrossel .card-produto {
+    width: 85%;
+}
+
 @media (max-width: 1024px) {
     .item-carrossel {
         /* 3 cards no tablet */

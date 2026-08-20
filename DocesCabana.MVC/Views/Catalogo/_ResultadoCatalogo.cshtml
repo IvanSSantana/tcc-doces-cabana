@@ -1,0 +1,75 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Application.Enums
+@model CatalogoDTO
+@{
+    static string RotuloOrdenacao(OrdenacaoCatalogo ordenacao) => ordenacao switch
+    {
+        OrdenacaoCatalogo.MaisVendidos => "Mais vendidos",
+        OrdenacaoCatalogo.MelhorAvaliados => "Melhor avaliados",
+        OrdenacaoCatalogo.MenorPreco => "Menor preço",
+        OrdenacaoCatalogo.MaiorPreco => "Maior preço",
+        OrdenacaoCatalogo.NomeAZ => "Nome (A-Z)",
+        _ => ordenacao.ToString(),
+    };
+}
+
+@* Bloco que a atualização sem recarga substitui inteiro (spec 014, RF-01):
+   contagem, ordenação, grade (ou mensagem vazia) e paginação. O filtro de
+   subcategoria e o "sem açúcar" ficam de fora de propósito — vivem na barra
+   lateral, que não recarrega ao trocar filtro (só ao trocar de categoria,
+   spec §10).
+
+   tabindex="-1" é o alvo do foco depois da troca (RF-18) — sem isso, quem
+   navega por teclado é jogado para o início do documento a cada filtro ou
+   página nova. Não é focável por Tab, só programaticamente. *@
+<div id="resultado-catalogo" tabindex="-1">
+    <div class="cabecalho-conteudo-catalogo">
+        @* aria-live (RF-04): quem usa leitor de tela ouve a nova contagem
+           assim que ela troca, sem precisar navegar até aqui de novo. *@
+        <span class="contagem-catalogo" aria-live="polite">
+            @Model.Pagina.TotalDeItens produto@(Model.Pagina.TotalDeItens == 1 ? "" : "s")
+        </span>
+
+        <div class="controle-ordenacao">
+            <label for="select-ordenacao">Ordenar por</label>
+            @* requestSubmit() (não submit()) é o que permite ao script
+               interceptar via evento "submit" sem quebrar quem não tem
+               JavaScript — sem ele, chamar submit() no elemento pula o
+               evento e a interceptação nunca aconteceria (spec 014, plano §1). *@
+            <select id="select-ordenacao" name="ordenacao" onchange="this.form.requestSubmit()">
+                @foreach (var opcao in Enum.GetValues<OrdenacaoCatalogo>())
+                {
+                    var indisponivel = opcao == OrdenacaoCatalogo.MaisVendidos;
+                    <option value="@opcao"
+                            selected="@(Model.Ordenacao == opcao ? "selected" : null)"
+                            disabled="@(indisponivel ? "disabled" : null)">
+                        @RotuloOrdenacao(opcao)@(indisponivel ? " (em breve)" : "")
+                    </option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <noscript>
+        <button type="submit" class="botao-aplicar-filtro">Aplicar</button>
+    </noscript>
+
+    @if (Model.Pagina.Itens.Count == 0)
+    {
+        <p class="catalogo-vazio">
+            Nenhum produto encontrado com esses filtros. Tente desmarcar
+            alguma subcategoria ou o filtro "sem açúcar".
+        </p>
+    }
+    else
+    {
+        <div class="grade-produtos">
+            @foreach (var produto in Model.Pagina.Itens)
+            {
+                @await Component.InvokeAsync("CardProduto", new { produto })
+            }
+        </div>
+
+        <partial name="_Paginacao" model="Model" />
+    }
+</div>

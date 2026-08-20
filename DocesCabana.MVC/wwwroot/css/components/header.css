@@ -111,6 +111,18 @@ header {
   cursor: pointer;
 }
 
+/* RF-17 (spec 014): "Conta" sem tela para levar ainda — esmaecido e sem
+   cursor de clique, para não anunciar uma ação que não existe. */
+.botao-acao--desabilitado {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.botao-acao--desabilitado:hover {
+  opacity: 0.55;
+  cursor: default;
+}
+
 .botao-acao svg {
   width: 26px;
   height: 26px;

@@ -31,11 +31,15 @@
       <div class="acoes-usuario">
         @if (User.Identity!.IsAuthenticated)
         {
-          <a class="botao-acao" asp-area="" asp-controller="Home" asp-action="Conta">
+          @* RF-17 (spec 014): a página de conta ainda não existe — o atalho
+             levava a Home/Conta, que não é uma ação e cai no 404. Desabilitado
+             em vez de escondido, mesmo padrão dos controles do card (spec
+             012, RF-24), até a tela existir de verdade. *@
+          <span class="botao-acao botao-acao--desabilitado" aria-disabled="true" title="Ainda não disponível">
             <i class="fa-solid fa-user icone-acao"></i>
 
             <span>Conta</span>
-          </a>
+          </span>
 
           @if (User.IsInRole(Papeis.Administrador))
           {

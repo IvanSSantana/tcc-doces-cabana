@@ -21,7 +21,7 @@ public class CatalogoController : Controller
         string? apelido = null,
         [FromQuery] Guid[]? subcategorias = null,
         [FromQuery] bool semAcucar = false,
-        OrdenacaoCatalogo ordenacao = OrdenacaoCatalogo.NomeAZ,
+        OrdenacaoCatalogo ordenacao = OrdenacaoCatalogo.MelhorAvaliados,
         int pagina = 1)
     {
         var filtro = new FiltroCatalogoDTO(
@@ -32,6 +32,14 @@ public class CatalogoController : Controller
 
         var catalogo = await _catalogoService.Montar(apelido, filtro, pagina);
 
+        // Um endereço, duas representações (spec 014, plano §5): a mesma
+        // rota devolve só o bloco que mudou para quem pediu via catalogo.js,
+        // e a página inteira para quem navegou por link, F5 ou sem
+        // JavaScript algum. Nenhuma rota nova, nenhuma duplicação de regra
+        // de filtro/ordenação/paginação entre as duas.
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            return PartialView("_ResultadoCatalogo", catalogo);
+
         return View(catalogo);
     }
 
@@ -40,6 +48,6 @@ public class CatalogoController : Controller
     // recusa executar essa ordenação até a spec 018 dar sentido a ela.
     private static OrdenacaoCatalogo SanearOrdenacao(OrdenacaoCatalogo ordenacao) =>
         ordenacao == OrdenacaoCatalogo.MaisVendidos
-            ? OrdenacaoCatalogo.NomeAZ
+            ? OrdenacaoCatalogo.MelhorAvaliados
             : ordenacao;
 }

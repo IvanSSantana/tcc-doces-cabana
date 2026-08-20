@@ -35,6 +35,30 @@ public static class DbInitializer
 
     private const int ProdutosPorCategoria = 25;
 
+    // Semente padrão do gerador de avaliações (spec 014, RF-14) — fixa para
+    // que recriar a base produza sempre as mesmas notas, nos mesmos
+    // produtos (CA-16). É só um número arbitrário, não uma data especial.
+    private const int SementeAvaliacoesMock = 20260820;
+
+    // Cerca de 30% dos produtos ficam sem avaliação nenhuma (RF-13) — é o
+    // único jeito de exercitar, em demonstração, o ramo do repositório que
+    // joga produto sem nota para o fim da ordenação por avaliação
+    // (ProdutoRepository.AplicarOrdenacao, "?? -1").
+    private const double ProbabilidadeDeReceberAvaliacao = 0.70;
+
+    private static readonly string?[] ComentariosDeExemplo =
+    [
+        "Simplesmente maravilhoso, super recomendo!",
+        "Muito bom, só achei um pouco doce demais para o meu gosto.",
+        "Bom, mas esperava mais pelo preço.",
+        "Chegou rápido e bem embalado.",
+        "Já é a segunda vez que compro, não decepciona.",
+        "Gostei bastante, vou comprar de novo.",
+        "Dentro do esperado.",
+        null,
+        null,
+    ];
+
     // Reaproveitadas em ciclo para as 100 linhas do mock — não há 100 fotos
     // reais disponíveis; a taxonomia é que precisa ser real (spec 012 §11).
     private static readonly string[] ImagensDeExemplo =
@@ -93,8 +117,21 @@ public static class DbInitializer
             // Avaliações de exemplo no primeiro produto (Raspa Tacho, com
             // descrição curada), para a tela ter conteúdo real em
             // desenvolvimento (spec 008), sem depender do administrador
-            // semeado existir.
-            await SemearAvaliacoesDeExemplo(scope.ServiceProvider, context, produtosSeed[0].ProdutoId);
+            // semeado existir. Devolve o elenco de clientes fictícios, para
+            // o restante do catálogo ser avaliado por eles a seguir (spec 014).
+            var usuarioIds = await SemearAvaliacoesDeExemplo(scope.ServiceProvider, context, produtosSeed[0].ProdutoId);
+
+            // O resto do catálogo (spec 014, RF-12/RF-13) — o primeiro
+            // produto fica de fora porque já recebeu as avaliações curadas
+            // acima; gerar de novo para ele colidiria com o índice único de
+            // Avaliacao(UsuarioId, ProdutoId) sempre que sorteasse um dos
+            // três autores que já o avaliaram.
+            if (usuarioIds.Count > 0)
+            {
+                var avaliacoesGeradas = GerarAvaliacoesMock(produtosSeed.Skip(1).ToList(), usuarioIds);
+                context.Avaliacoes.AddRange(avaliacoesGeradas);
+                await context.SaveChangesAsync();
+            }
         }
 
         await SemearAdministrador(scope.ServiceProvider);
@@ -156,15 +193,78 @@ public static class DbInitializer
         return produtos;
     }
 
-    private static async Task SemearAvaliacoesDeExemplo(IServiceProvider serviceProvider, DocesCabanaDbContext context, Guid produtoId)
+    // Gera avaliações para a maior parte dos produtos, deixando parte sem
+    // nenhuma (spec 014, RF-12/RF-13). Sem acesso a banco de propósito — é o
+    // que permite chamar duas vezes com a mesma semente e comparar o
+    // resultado (RF-14, CA-16), sem precisar de um SQLite em memória para
+    // testar geração pura.
+    //
+    // RN-01 (uma avaliação por pessoa por produto) é respeitada por
+    // construção: os avaliadores de um produto vêm de um embaralhamento sem
+    // reposição da lista de usuários, nunca da mesma pessoa duas vezes no
+    // mesmo produto.
+    internal static List<Avaliacao> GerarAvaliacoesMock(
+        IReadOnlyList<Produto> produtos,
+        IReadOnlyList<Guid> usuarioIds,
+        int semente = SementeAvaliacoesMock)
+    {
+        var aleatorio = new Random(semente);
+        var avaliacoes = new List<Avaliacao>();
+
+        foreach (var produto in produtos)
+        {
+            if (aleatorio.NextDouble() >= ProbabilidadeDeReceberAvaliacao)
+                continue;
+
+            var quantidade = Math.Min(aleatorio.Next(1, 5), usuarioIds.Count);
+            var avaliadores = usuarioIds
+                .OrderBy(_ => aleatorio.Next())
+                .Take(quantidade);
+
+            foreach (var usuarioId in avaliadores)
+            {
+                var nota = SortearNotaEnviesada(aleatorio);
+                var comentario = ComentariosDeExemplo[aleatorio.Next(ComentariosDeExemplo.Length)];
+                avaliacoes.Add(new Avaliacao(usuarioId, produto.ProdutoId, nota, comentario));
+            }
+        }
+
+        return avaliacoes;
+    }
+
+    // Enviesada para cima — loja real tem média perto de 4, não distribuição
+    // uniforme entre 1 e 5 (spec 014, plano §1).
+    private static byte SortearNotaEnviesada(Random aleatorio) =>
+        aleatorio.NextDouble() switch
+        {
+            < 0.45 => 5,
+            < 0.75 => 4,
+            < 0.90 => 3,
+            < 0.97 => 2,
+            _ => 1,
+        };
+
+    private static async Task<List<Guid>> SemearAvaliacoesDeExemplo(IServiceProvider serviceProvider, DocesCabanaDbContext context, Guid produtoId)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ContaDeAcesso>>();
 
+        // Elenco de 8 (spec 014, RF-12): com só 3 pessoas, nenhum produto
+        // podia ter mais de 3 avaliações, e a regra de "ninguém avalia duas
+        // vezes" (RN-01) mais a de "ninguém vota na própria avaliação"
+        // (RN-07 da 008) estreitavam demais as combinações possíveis.
         var clientes = new (string Email, string Nome, string Cpf)[]
         {
             ("cliente1.seed@docescabana.com.br", "Zeca Pagodinho", "87654321937"),
             ("cliente2.seed@docescabana.com.br", "Marina Alves", "11144477735"),
             ("cliente3.seed@docescabana.com.br", "João Pedro", "39053344705"),
+            // Não "52998224725" — é o CPF do administrador semeado
+            // (SemearAdministrador), e o índice único de Usuario.CPF não
+            // aceita repetição.
+            ("cliente4.seed@docescabana.com.br", "Fernanda Lima", "45678912364"),
+            ("cliente5.seed@docescabana.com.br", "Carlos Eduardo", "01234567890"),
+            ("cliente6.seed@docescabana.com.br", "Beatriz Souza", "12345678909"),
+            ("cliente7.seed@docescabana.com.br", "Rafael Mendes", "98765432100"),
+            ("cliente8.seed@docescabana.com.br", "Larissa Costa", "11223344517"),
         };
 
         var usuarioIds = new List<Guid>();
@@ -182,7 +282,7 @@ public static class DbInitializer
         await context.SaveChangesAsync();
 
         if (usuarioIds.Count < 3)
-            return;
+            return usuarioIds;
 
         var avaliacaoMaisVotada = new Avaliacao(usuarioIds[0], produtoId, 5,
             "Simplesmente o melhor doce que já comi. Chegou rápido e bem embalado, recomendo demais!");
@@ -196,6 +296,8 @@ public static class DbInitializer
         context.VotosUteis.Add(new VotoUtil(avaliacaoMaisVotada.AvaliacaoId, usuarioIds[2]));
         context.VotosUteis.Add(new VotoUtil(avaliacaoMediana.AvaliacaoId, usuarioIds[2]));
         await context.SaveChangesAsync();
+
+        return usuarioIds;
     }
 
     private static async Task SemearAdministrador(IServiceProvider serviceProvider)

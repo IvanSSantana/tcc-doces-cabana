@@ -107,6 +107,37 @@ public class CatalogoTests : TesteE2E
         });
 
     [Fact]
+    public async Task Dado_CatalogoSemOrdenacaoEscolhida_Quando_Abrir_Entao_DeveOrdenarPorMelhorAvaliados() =>
+        await Executar(async () =>
+        {
+            // RF-16: o padrão deixou de ser "Nome (A-Z)" — a spec 014 semeou
+            // avaliação suficiente para "melhor avaliados" fazer sentido.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase);
+
+            await Expect(pagina.SeletorDeOrdenacao).ToHaveValueAsync("MelhorAvaliados");
+        });
+
+    [Fact]
+    public async Task Dado_OrdenacaoInicial_Quando_PercorrerDuasPaginas_Entao_NenhumProdutoDeveSeRepetir() =>
+        await Executar(async () =>
+        {
+            // RN-04/CA-19: o desempate por Nome garante paginação
+            // determinística mesmo quando o critério principal (nota média)
+            // empata entre muitos produtos sem avaliação.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            var nomesPagina1 = await Pagina.Locator(".nome-card").AllTextContentsAsync();
+            await pagina.IrParaPagina(2);
+            var nomesPagina2 = await Pagina.Locator(".nome-card").AllTextContentsAsync();
+
+            Assert.Empty(nomesPagina1.Intersect(nomesPagina2));
+            Assert.NotEmpty(nomesPagina1);
+            Assert.NotEmpty(nomesPagina2);
+        });
+
+    [Fact]
     public async Task Dado_SeletorDeOrdenacao_Quando_TentarEscolherMaisVendidos_Entao_DeveEstarIndisponivel() =>
         await Executar(async () =>
         {
@@ -189,9 +220,13 @@ public class CatalogoTests : TesteE2E
         await Executar(async () =>
         {
             // "Box 3" é o produto que o seed marca como fora de estoque em
-            // Doces (DbInitializer.GerarProdutosMock).
+            // Doces (DbInitializer.GerarProdutosMock). Ordenação fixada em
+            // Nome (A-Z): o padrão do catálogo virou "melhor avaliados" na
+            // spec 014, e a posição de "Box 3" nessa ordem depende da nota
+            // aleatória que o seed sorteou para ele — o teste quer achar o
+            // produto pelo nome, não exercitar a ordenação padrão.
             var pagina = new PaginaCatalogo(Pagina);
-            await pagina.Abrir(UrlBase, "doces");
+            await Pagina.GotoAsync($"{UrlBase}/Catalogo/doces?ordenacao=NomeAZ");
 
             var card = Pagina.Locator(".card-produto", new() { HasText = "BOX 3" });
             await Expect(card).ToBeVisibleAsync();
@@ -222,17 +257,296 @@ public class CatalogoTests : TesteE2E
         });
 
     [Fact]
+    public async Task Dado_CatalogoAberto_Quando_MarcarSubcategoria_Entao_NaoDeveRecarregarAPagina() =>
+        await Executar(async () =>
+        {
+            // RF-01/CA-01: marca a página com uma variável em memória antes
+            // do filtro — uma recarga de verdade reinicia o contexto de
+            // JavaScript e a apaga; a troca parcial não.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+            await Pagina.EvaluateAsync("() => { window.__marcadorDeRecarga = true; }");
+
+            await pagina.MarcarSubcategoriaPeloNome("Barras");
+
+            var marcadorSobreviveu = await Pagina.EvaluateAsync<bool>("() => window.__marcadorDeRecarga === true");
+            Assert.True(marcadorSobreviveu, "A página recarregou — o marcador de memória não sobreviveu ao filtro.");
+        });
+
+    [Fact]
+    public async Task Dado_FiltroAplicado_Quando_OlharOEndereco_Entao_DeveConterOFiltro() =>
+        await Executar(async () =>
+        {
+            // RF-02/CA-02.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            await pagina.MarcarSubcategoriaPeloNome("Barras");
+
+            Assert.Contains("subcategorias=", Pagina.Url);
+
+            var enderecoDepoisDoFiltro = Pagina.Url;
+            await Pagina.GotoAsync(enderecoDepoisDoFiltro);
+            await Expect(pagina.CaixaDeSubcategoriaPeloNome("Barras")).ToBeCheckedAsync();
+        });
+
+    [Fact]
+    public async Task Dado_FiltroAplicado_Quando_VoltarNoNavegador_Entao_DeveRestaurarAListaAnterior() =>
+        await Executar(async () =>
+        {
+            // RF-02/CA-03: o botão voltar precisa desfazer a filtragem —
+            // aqui, ativada via history.pushState, não navegação comum.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+            var enderecoOriginal = Pagina.Url;
+
+            await pagina.MarcarSubcategoriaPeloNome("Barras");
+            Assert.NotEqual(enderecoOriginal, Pagina.Url);
+
+            await Pagina.GoBackAsync();
+            await Pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            Assert.Equal(enderecoOriginal, Pagina.Url);
+            await Expect(pagina.CaixaDeSubcategoriaPeloNome("Barras")).Not.ToBeCheckedAsync();
+        });
+
+    [Fact]
+    public async Task Dado_PaginaRolada_Quando_TrocarAOrdenacao_Entao_DevePreservarARolagem() =>
+        await Executar(async () =>
+        {
+            // RF-03/CA-04.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+            await Pagina.EvaluateAsync("() => window.scrollTo(0, 400)");
+            var rolagemAntes = await Pagina.EvaluateAsync<double>("() => window.scrollY");
+
+            await pagina.SeletorDeOrdenacao.SelectOptionAsync(new SelectOptionValue { Label = "Maior preço" });
+            await Pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            var rolagemDepois = await Pagina.EvaluateAsync<double>("() => window.scrollY");
+            Assert.True(Math.Abs(rolagemAntes - rolagemDepois) < 50,
+                $"Rolagem antes: {rolagemAntes}, depois: {rolagemDepois} — deveria continuar aproximadamente no mesmo lugar.");
+        });
+
+    [Fact]
+    public async Task Dado_FimDaPrimeiraPagina_Quando_IrParaASegunda_Entao_DeveMostrarOInicioDaLista() =>
+        await Executar(async () =>
+        {
+            // RF-03/CA-05: "início da lista", não do documento — o resultado
+            // fica abaixo da trilha de navegação, então o alvo é o topo do
+            // próprio bloco de resultado ficar visível, não scrollY = 0.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+            await Pagina.EvaluateAsync("() => window.scrollTo(0, document.body.scrollHeight)");
+
+            await pagina.IrParaPagina(2);
+
+            var distanciaDoTopoDaTela = await pagina.ResultadoCatalogo.EvaluateAsync<double>(
+                "el => el.getBoundingClientRect().top");
+            Assert.True(distanciaDoTopoDaTela is >= -50 and <= 150,
+                $"Topo do resultado a {distanciaDoTopoDaTela}px do topo da tela — esperado próximo do topo visível.");
+        });
+
+    [Fact]
+    public async Task Dado_FiltroAplicado_Quando_OResultadoMuda_Entao_DeveSerAnunciado() =>
+        await Executar(async () =>
+        {
+            // RF-04/CA-06: a contagem é a região viva — sem isso, quem usa
+            // leitor de tela filtra e não recebe aviso nenhum de mudança.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            await Expect(pagina.Contagem).ToHaveAttributeAsync("aria-live", "polite");
+
+            var contagemAntes = await pagina.Contagem.InnerTextAsync();
+            await pagina.MarcarSubcategoriaPeloNome("Barras");
+            var contagemDepois = await pagina.Contagem.InnerTextAsync();
+
+            Assert.NotEqual(contagemAntes, contagemDepois);
+        });
+
+    [Fact]
+    public async Task Dado_AtualizacaoParcialFalha_Quando_Filtrar_Entao_DeveCarregarAPaginaCompleta() =>
+        await Executar(async () =>
+        {
+            // RF-06/CA-08: interrompe a requisição assíncrona e confirma que
+            // o navegador cai para a navegação completa, não uma tela presa.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            await Pagina.RouteAsync("**/Catalogo/doces?*", async rota =>
+            {
+                if (rota.Request.Headers.TryGetValue("x-requested-with", out var valor) && valor == "XMLHttpRequest")
+                    await rota.AbortAsync();
+                else
+                    await rota.ContinueAsync();
+            });
+
+            await pagina.MarcarSubcategoriaPeloNome("Barras");
+            await Pagina.WaitForURLAsync(url => url.Contains("subcategorias="));
+
+            await Expect(pagina.CaixaDeSubcategoriaPeloNome("Barras")).ToBeCheckedAsync();
+        });
+
+    [Fact]
+    public async Task Dado_CategoriaAberta_Quando_TrocarDeCategoria_Entao_DeveTrocarAsSubcategorias() =>
+        await Executar(async () =>
+        {
+            // RF-07/CA-09: trocar de categoria continua navegação comum
+            // (spec 014 §10) — a barra lateral inteira é reconstruída. A
+            // ordem das subcategorias depende da contagem de produtos do
+            // seed, então o teste checa presença por nome, não posição.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+            await Expect(pagina.CaixaDeSubcategoriaPeloNome("Barras")).ToBeVisibleAsync();
+
+            await pagina.LinkDeCategoria("Adega").ClickAsync();
+
+            // O link de categoria carrega a ordenação atual na URL desde a
+            // 012 (preserva o estado entre categorias) — o teste checa o
+            // caminho, não a query inteira.
+            await Expect(Pagina).ToHaveURLAsync(new System.Text.RegularExpressions.Regex(
+                System.Text.RegularExpressions.Regex.Escape($"{UrlBase}/Catalogo/adega")));
+            await Expect(pagina.CaixaDeSubcategoriaPeloNome("Barras")).Not.ToBeVisibleAsync();
+            await Expect(pagina.CaixaDeSubcategoriaPeloNome("Vinhos")).ToBeVisibleAsync();
+        });
+
+    [Fact]
+    public async Task Dado_NavegacaoPorTeclado_Quando_TrocarDePaginaPelaPaginacao_Entao_OFocoDeveFicarNoResultado() =>
+        await Executar(async () =>
+        {
+            // RF-18/CA-21: sem isso, o foco é jogado para o início do
+            // documento a cada troca de página — hostil a quem usa teclado.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            await pagina.IrParaPagina(2);
+
+            var focoDentroDoResultado = await pagina.ResultadoCatalogo.EvaluateAsync<bool>(
+                "el => el.contains(document.activeElement) || el === document.activeElement");
+            Assert.True(focoDentroDoResultado, "O foco não ficou junto do resultado depois de paginar.");
+        });
+
+    [Fact]
     public async Task Dado_JavaScriptDesligado_Quando_FiltrarOrdenarEPaginar_Entao_TudoDeveFuncionar() =>
         await Executar(async () =>
         {
-            // Navega direto pelas URLs que os formulários e links produzem —
-            // prova que o resultado funciona sem depender de onchange/JS
-            // (RF-22, CA-25), sem precisar desligar JS no contexto inteiro.
-            var pagina = new PaginaCatalogo(Pagina);
-            await Pagina.GotoAsync($"{UrlBase}/Catalogo/doces?ordenacao=MenorPreco&pagina=2");
+            // RF-05/CA-07: contexto com JavaScript de verdade desligado — o
+            // teste anterior só navegava direto pela URL com script ligado
+            // e não provava a degradação (spec 014, plano §7).
+            await using var contextoSemScript = await Navegador.NewContextAsync(new() { JavaScriptEnabled = false });
+            var paginaSemScript = await contextoSemScript.NewPageAsync();
+            var pagina = new PaginaCatalogo(paginaSemScript);
 
+            await pagina.Abrir(UrlBase, "doces");
+            await pagina.CaixasDeSubcategoria.First.CheckAsync();
+            await paginaSemScript.Locator(".botao-aplicar-filtro").ClickAsync();
+
+            await Expect(paginaSemScript).ToHaveURLAsync(new System.Text.RegularExpressions.Regex("subcategorias="));
+
+            await paginaSemScript.GotoAsync($"{UrlBase}/Catalogo/doces?ordenacao=MenorPreco&pagina=2");
             await Expect(pagina.LinkPaginaAtual).ToHaveTextAsync("2");
             await Expect(pagina.Cards).ToHaveCountAsync(12);
+        });
+
+    [Fact]
+    public async Task Dado_CatalogoAberto_Quando_MedirOCartao_Entao_DevePreencherAColuna() =>
+        await Executar(async () =>
+        {
+            // RF-08/CA-10: o cartão foi desenhado para o carrossel e
+            // reaproveitado na grade sem revisão — width:85% deixava faixa
+            // vazia ao lado (spec 014, plano §3).
+            await Pagina.SetViewportSizeAsync(1440, 1000);
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            var larguraCartao = await pagina.Cards.First.EvaluateAsync<double>("el => el.getBoundingClientRect().width");
+            // Largura de uma coluna descontando o gap entre elas — sem isso
+            // a medição confunde "gap da grade" com "faixa vazia no cartão".
+            var larguraColuna = await pagina.Grade.EvaluateAsync<double>(@"el => {
+                const estilo = getComputedStyle(el);
+                const colunas = estilo.gridTemplateColumns.split(' ').length;
+                const gap = parseFloat(estilo.columnGap) || 0;
+                return (el.getBoundingClientRect().width - gap * (colunas - 1)) / colunas;
+            }");
+
+            Assert.True(larguraCartao >= larguraColuna - 2,
+                $"Cartão com {larguraCartao}px numa coluna de {larguraColuna}px — sobra faixa vazia.");
+        });
+
+    [Fact]
+    public async Task Dado_LinhaComNomeCurtoENomeLongo_Quando_CompararOsBotoes_Entao_DevemEstarNaMesmaAltura() =>
+        await Executar(async () =>
+        {
+            // RF-09/CA-11: "Bolachas / Rosquinhas 14" quebra em duas linhas e
+            // empurra o botão do card para baixo — sem altura reservada para
+            // o nome, produtos da mesma linha desalinham (spec 014, plano §3).
+            await Pagina.SetViewportSizeAsync(1440, 1000);
+            var pagina = new PaginaCatalogo(Pagina);
+            await Pagina.GotoAsync($"{UrlBase}/Catalogo/doces?ordenacao=NomeAZ");
+
+            var topos = await Pagina.EvaluateAsync<double[]>(@"() => {
+                const botoes = Array.from(document.querySelectorAll('.grade-produtos .botao-adicionar-card'));
+                return botoes.slice(0, 3).map(b => Math.round(b.getBoundingClientRect().top));
+            }");
+
+            Assert.True(topos.Max() - topos.Min() <= 2,
+                $"Botões da mesma linha em alturas diferentes: {string.Join(",", topos)}");
+        });
+
+    [Fact]
+    public async Task Dado_ProdutoForaDeEstoque_Quando_OlharAEtiqueta_Entao_DeveEstarSobreAImagem() =>
+        await Executar(async () =>
+        {
+            // RF-10/CA-12: a etiqueta aparecia solta, acima da imagem, no
+            // vão entre as linhas da grade (spec 014, plano §3).
+            var pagina = new PaginaCatalogo(Pagina);
+            await Pagina.GotoAsync($"{UrlBase}/Catalogo/doces?ordenacao=NomeAZ");
+
+            var card = Pagina.Locator(".card-produto", new() { HasText = "BOX 3" });
+            var caixaImagem = await card.Locator(".container-imagem-card").BoundingBoxAsync();
+            var caixaEtiqueta = await card.Locator(".etiqueta-fora-de-estoque").BoundingBoxAsync();
+
+            Assert.NotNull(caixaImagem);
+            Assert.NotNull(caixaEtiqueta);
+            Assert.True(caixaEtiqueta!.Y >= caixaImagem!.Y - 1, "Etiqueta acima do topo da imagem.");
+            Assert.True(caixaEtiqueta.Y + caixaEtiqueta.Height <= caixaImagem.Y + caixaImagem.Height + 1, "Etiqueta abaixo do fim da imagem.");
+        });
+
+    [Fact]
+    public async Task Dado_PaginaInicial_Quando_OlharOCarrossel_Entao_NaoDeveTerRegredido() =>
+        await Executar(async () =>
+        {
+            // RF-11/CA-13: o ajuste do cartão para a grade do catálogo não
+            // pode mudar a aparência dele no carrossel da página inicial.
+            await Pagina.SetViewportSizeAsync(1440, 1000);
+            await Pagina.GotoAsync(UrlBase);
+
+            var larguraCartao = await Pagina.Locator(".vitrine-carrossel .card-produto").First
+                .EvaluateAsync<double>("el => el.getBoundingClientRect().width");
+            var larguraItem = await Pagina.Locator(".item-carrossel").First
+                .EvaluateAsync<double>("el => el.getBoundingClientRect().width");
+
+            // O cartão continua menor que o item que o envolve — é a folga
+            // que o carrossel sempre teve (spec 014, plano §4).
+            Assert.True(larguraCartao < larguraItem - 10,
+                $"Cartão do carrossel com {larguraCartao}px, item com {larguraItem}px — folga esperada não apareceu.");
+        });
+
+    [Fact]
+    public async Task Dado_ClienteAutenticado_Quando_OlharOCabecalho_Entao_NaoDeveOferecerContaClicavel() =>
+        await Executar(async () =>
+        {
+            // RF-17/CA-20: o atalho "Conta" levava a Home/Conta, ação que
+            // não existe — quem clicava caía no 404. Mesmo padrão da 012
+            // para controle sem função ainda: desabilitado, não escondido.
+            var paginaLogin = new PaginaLogin(Pagina);
+            await paginaLogin.Abrir(UrlBase);
+            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
+
+            var atalhoConta = Pagina.Locator("header").GetByText("Conta", new() { Exact = true });
+            await Expect(atalhoConta).ToBeVisibleAsync();
+            await Expect(atalhoConta.Locator("xpath=ancestor-or-self::a")).ToHaveCountAsync(0);
         });
 
     [Fact]

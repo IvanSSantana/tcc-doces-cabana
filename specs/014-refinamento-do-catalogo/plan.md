@@ -1,7 +1,7 @@
 # Plano Técnico — Refinamento do catálogo
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-20
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 

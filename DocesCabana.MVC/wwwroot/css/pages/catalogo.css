@@ -140,6 +140,23 @@
 
 /* --- Conteúdo: cabeçalho, grade, estado vazio --- */
 
+/* Alvo do foco depois da troca parcial (spec 014, RF-18) — não é interativo,
+   então não ganha um contorno de foco visível como um link ou botão
+   ganhariam; só precisa ser alcançável por script, não por Tab. */
+#resultado-catalogo:focus {
+  outline: none;
+}
+
+/* Estado de carregamento da troca parcial (spec 014, RF-01) — só aparece
+   depois de um atraso curto (catalogo.js), para não piscar numa resposta
+   rápida. Esmaece em vez de esconder: o resultado anterior continua visível
+   como referência até o novo chegar. */
+.resultado-catalogo--carregando {
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
 .cabecalho-conteudo-catalogo {
   display: flex;
   align-items: center;

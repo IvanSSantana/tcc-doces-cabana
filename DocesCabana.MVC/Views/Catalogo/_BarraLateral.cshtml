@@ -36,7 +36,7 @@
             <label class="opcao-filtro-catalogo">
                 <input type="checkbox" name="subcategorias" value="@subcategoria.SubcategoriaId"
                        checked="@(Model.SubcategoriasMarcadas.Contains(subcategoria.SubcategoriaId) ? "checked" : null)"
-                       onchange="this.form.submit()" />
+                       onchange="this.form.requestSubmit()" />
                 @subcategoria.Nome
             </label>
         }
@@ -52,7 +52,7 @@
                     <label class="opcao-filtro-catalogo">
                         <input type="checkbox" name="subcategorias" value="@subcategoria.SubcategoriaId"
                                checked="@(Model.SubcategoriasMarcadas.Contains(subcategoria.SubcategoriaId) ? "checked" : null)"
-                               onchange="this.form.submit()" />
+                               onchange="this.form.requestSubmit()" />
                         @subcategoria.Nome
                     </label>
                 }
@@ -66,7 +66,7 @@
         <label class="opcao-filtro-catalogo">
             <input type="checkbox" name="semAcucar" value="true"
                    checked="@(Model.ApenasSemAcucar ? "checked" : null)"
-                   onchange="this.form.submit()" />
+                   onchange="this.form.requestSubmit()" />
             Sem açúcar
         </label>
     </div>

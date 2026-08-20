@@ -1,7 +1,7 @@
 # Especificação — Refinamento do catálogo
 
 **ID:** `014-refinamento-do-catalogo` · **Branch:** `014-refinamento-do-catalogo`
-**Criada em:** 2026-08-20 · **Status:** Rascunho
+**Criada em:** 2026-08-20 · **Status:** Implementada
 
 ---
 

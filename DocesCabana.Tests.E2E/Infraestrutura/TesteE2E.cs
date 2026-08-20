@@ -17,6 +17,10 @@ public abstract class TesteE2E : IAsyncLifetime
     protected IPage Pagina { get; private set; } = null!;
     protected AplicacaoEmExecucao Aplicacao => _fixture.Aplicacao;
     protected string UrlBase => Aplicacao.UrlBase;
+    // Exposto para o teste que precisa de um segundo contexto com opções
+    // diferentes das do contexto padrão — hoje só o de JavaScript desligado
+    // (spec 014, CA-07). O navegador é compartilhado pela suíte inteira.
+    protected IBrowser Navegador => _fixture.Navegador;
 
     protected TesteE2E(FixtureE2E fixture)
     {
