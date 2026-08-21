@@ -48,6 +48,15 @@
 
               <span>Administradores</span>
             </a>
+
+            @* RF-26 (spec 015): a tela de cadastro de produto sempre
+               existiu, protegida por [Authorize], mas só era alcançável
+               digitando o endereço — nenhuma view tinha link para ela. *@
+            <a class="botao-acao" asp-area="Admin" asp-controller="Produto" asp-action="Cadastro">
+              <i class="fa-solid fa-plus icone-acao"></i>
+
+              <span>Cadastrar produto</span>
+            </a>
           }
 
           <form asp-area="" asp-controller="Autenticacao" asp-action="Logout" method="post" class="formulario-sair">
@@ -123,7 +132,10 @@
 
       </nav>
 
-      <a href="#" class="botao-favoritos">
+      @* Levava a lugar nenhum (href="#") até a lista existir de verdade
+         (spec 015) — o mesmo defeito que o cadastro de produto sem link
+         tinha, ao contrário: aqui a tela existia e faltava o caminho. *@
+      <a asp-area="" asp-controller="Favorito" asp-action="Index" class="botao-favoritos">
         <span>Favoritos</span>
 
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -138,10 +150,3 @@
 
   </div>
 </header>
-
-
-<dialog id="dropdown-header">
-  
-</dialog>
-
-<script src="~/js/modal-login.js"></script>

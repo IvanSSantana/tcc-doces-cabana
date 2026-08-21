@@ -16,6 +16,12 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
     public const string CpfAdministrador = "52998224725";
     public const string SenhaAdministrador = "SenhaE2E@2026";
 
+    // Elenco de clientes fictícios do seed (DbInitializer, spec 014) — usado
+    // pelos testes que precisam de um cliente autenticado sem criar conta
+    // nova a cada execução.
+    public const string EmailClienteSeed = "cliente1.seed@docescabana.com.br";
+    public const string SenhaClienteSeed = "SenhaSeed@123";
+
     private const int TimeoutDeSubidaSegundos = 60;
 
     private readonly string _pastaTemporaria;

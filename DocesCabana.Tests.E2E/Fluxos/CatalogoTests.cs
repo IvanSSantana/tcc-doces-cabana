@@ -191,14 +191,17 @@ public class CatalogoTests : TesteE2E
         });
 
     [Fact]
-    public async Task Dado_Catalogo_Quando_OlharOsControlesDoCard_Entao_DevemEstarDesabilitados() =>
+    public async Task Dado_Catalogo_Quando_OlharOsControlesDoCard_Entao_QuantidadeECarrinhoDevemEstarDesabilitados() =>
         await Executar(async () =>
         {
+            // O favorito passou a funcionar de verdade na spec 015 — só
+            // quantidade e carrinho seguem indisponíveis até o carrinho
+            // existir (RF-18 da 015).
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase);
 
             await Expect(pagina.Cards.First.Locator(".botao-adicionar-card")).ToBeDisabledAsync();
-            await Expect(pagina.Cards.First.Locator(".botao-favorito-card")).ToBeDisabledAsync();
+            await Expect(pagina.Cards.First.Locator(".botao-quantidade-card").First).ToBeDisabledAsync();
         });
 
     [Fact]
@@ -531,6 +534,13 @@ public class CatalogoTests : TesteE2E
             // que o carrossel sempre teve (spec 014, plano §4).
             Assert.True(larguraCartao < larguraItem - 10,
                 $"Cartão do carrossel com {larguraCartao}px, item com {larguraItem}px — folga esperada não apareceu.");
+
+            // RF-16 tirou o text-transform da base do cartão — o carrossel
+            // precisa continuar em caixa alta por conta própria, ou regride
+            // visualmente mesmo com a largura certa (spec 015, plano §1).
+            var transformacaoDoNome = await Pagina.Locator(".vitrine-carrossel .nome-card").First
+                .EvaluateAsync<string>("el => getComputedStyle(el).textTransform");
+            Assert.Equal("uppercase", transformacaoDoNome);
         });
 
     [Fact]
@@ -547,6 +557,146 @@ public class CatalogoTests : TesteE2E
             var atalhoConta = Pagina.Locator("header").GetByText("Conta", new() { Exact = true });
             await Expect(atalhoConta).ToBeVisibleAsync();
             await Expect(atalhoConta.Locator("xpath=ancestor-or-self::a")).ToHaveCountAsync(0);
+        });
+
+    [Fact]
+    public async Task Dado_CatalogoAberto_Quando_MedirOArranjoDoCartao_Entao_DeveSeguirAReferencia() =>
+        await Executar(async () =>
+        {
+            // RF-15/CA-16 (spec 015): imagem com fundo próprio, preço e
+            // seletor de quantidade na mesma linha, botão de carrinho
+            // ocupando a largura na base.
+            await Pagina.SetViewportSizeAsync(1440, 1000);
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            var card = pagina.Cards.First;
+
+            var fundoDaImagem = await card.Locator(".container-imagem-card")
+                .EvaluateAsync<string>("el => getComputedStyle(el).backgroundColor");
+            Assert.NotEqual("rgba(0, 0, 0, 0)", fundoDaImagem);
+
+            var caixaDoPreco = await card.Locator(".preco-card").BoundingBoxAsync();
+            var caixaDoSeletor = await card.Locator(".controles-card").BoundingBoxAsync();
+            Assert.NotNull(caixaDoPreco);
+            Assert.NotNull(caixaDoSeletor);
+            // Mesma linha: os centros verticais ficam a poucos pixels um do
+            // outro, bem menos que a altura de qualquer um dos dois.
+            Assert.True(System.Math.Abs(caixaDoPreco!.Y - caixaDoSeletor!.Y) < caixaDoPreco.Height,
+                $"Preço (y={caixaDoPreco.Y}) e seletor (y={caixaDoSeletor.Y}) não estão na mesma linha.");
+
+            var caixaDoCartao = await card.BoundingBoxAsync();
+            var caixaDoBotao = await card.Locator(".botao-adicionar-card").BoundingBoxAsync();
+            Assert.NotNull(caixaDoCartao);
+            Assert.NotNull(caixaDoBotao);
+            // "Ocupa a largura na base": bem mais largo que alto, e
+            // preenchendo a maior parte da largura do cartão.
+            Assert.True(caixaDoBotao!.Width > caixaDoCartao!.Width * 0.7,
+                $"Botão com {caixaDoBotao.Width}px num cartão de {caixaDoCartao.Width}px — não parece uma faixa larga.");
+        });
+
+    [Fact]
+    public async Task Dado_CatalogoAberto_Quando_LerONomeDoProduto_Entao_NaoDeveEstarTodoEmMaiusculas() =>
+        await Executar(async () =>
+        {
+            // RF-16/CA-17: a referência mostra o nome em caixa normal — o
+            // .ToUpper() saiu da view (spec 012 fazia isso na marcação).
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            var nomeElemento = pagina.Cards.First.Locator(".nome-card");
+            var nome = (await nomeElemento.TextContentAsync())!.Trim();
+
+            // TextContent não é afetado por CSS — por si só, não prova nada
+            // sobre a aparência. text-transform: uppercase na base do
+            // cartão (existia desde antes da 015) fazia o nome renderizar
+            // maiúsculo mesmo com o texto certo no DOM; só a transformação
+            // computada prova o que a pessoa realmente vê.
+            var transformacaoComputada = await nomeElemento.EvaluateAsync<string>("el => getComputedStyle(el).textTransform");
+
+            Assert.NotEqual(nome.ToUpperInvariant(), nome);
+            Assert.NotEqual("uppercase", transformacaoComputada);
+        });
+
+    [Fact]
+    public async Task Dado_CatalogoDeCategoria_Quando_OlharATrilha_Entao_DeveEstarEmCaixaAltaComUltimoDestacado() =>
+        await Executar(async () =>
+        {
+            // RF-19/RF-20/CA-20 (spec 015): a referência mostra a trilha em
+            // caixa alta, com o último item na cor de destaque do tema.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            var transformacao = await pagina.Trilha.EvaluateAsync<string>("el => getComputedStyle(el).textTransform");
+            Assert.Equal("uppercase", transformacao);
+
+            var ultimoItem = pagina.Trilha.Locator(":scope > *").Last;
+            var textoDoUltimo = (await ultimoItem.TextContentAsync())!.Trim();
+            Assert.Equal("Doces", textoDoUltimo);
+
+            var corDoUltimo = await ultimoItem.EvaluateAsync<string>("el => getComputedStyle(el).color");
+            var corDosAnteriores = await pagina.Trilha.Locator("a").First
+                .EvaluateAsync<string>("el => getComputedStyle(el).color");
+            Assert.NotEqual(corDosAnteriores, corDoUltimo);
+        });
+
+    [Fact]
+    public async Task Dado_CategoriaComMaisDeOitoSubcategorias_Quando_Revelar_Entao_OControleDeveIrParaOFimEOferecerRecolher() =>
+        await Executar(async () =>
+        {
+            // RF-21/RF-22/CA-21: fechado, o controle vem logo depois das
+            // oito principais; revelado, ele desce para depois das
+            // subcategorias restantes e passa a oferecer "Ver menos".
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            var detalhes = Pagina.Locator(".ver-todas-subcategorias");
+            // Os dois rótulos vivem na marcação o tempo todo (RF-21/RF-22) —
+            // só um fica visível por vez, alternado pelo [open] do próprio
+            // <details>. Checar visibilidade em vez de texto porque
+            // textContent enxerga os dois rótulos juntos, escondido ou não.
+            await Expect(detalhes.Locator(".rotulo-fechado")).ToBeVisibleAsync();
+            await Expect(detalhes.Locator(".rotulo-aberto")).Not.ToBeVisibleAsync();
+
+            var ultimaOpcaoPrincipal = pagina.CaixasDeSubcategoria.Last.Locator("xpath=ancestor::label");
+
+            var topoDoControleFechado = (await detalhes.BoundingBoxAsync())!.Y;
+            var topoDaUltimaPrincipal = (await ultimaOpcaoPrincipal.BoundingBoxAsync())!.Y;
+            Assert.True(topoDoControleFechado > topoDaUltimaPrincipal,
+                "Fechado, o controle deveria vir depois das oito principais.");
+
+            await pagina.VerTodas.ClickAsync();
+
+            var opcoesReveladas = detalhes.Locator(".opcao-filtro-catalogo");
+            var topoDaPrimeiraRevelada = (await opcoesReveladas.First.BoundingBoxAsync())!.Y;
+            var topoDoControleAberto = (await detalhes.Locator("summary").BoundingBoxAsync())!.Y;
+
+            // O ponto que prova o requisito: aberto, o controle desce para
+            // depois das subcategorias que ele mesmo revelou, em vez de
+            // ficar preso acima delas como hoje.
+            Assert.True(topoDoControleAberto > topoDaPrimeiraRevelada,
+                "Aberto, o controle deveria estar abaixo das subcategorias reveladas, não continuar acima delas.");
+
+            await Expect(detalhes.Locator(".rotulo-aberto")).ToBeVisibleAsync();
+            await Expect(detalhes.Locator(".rotulo-fechado")).Not.ToBeVisibleAsync();
+        });
+
+    [Fact]
+    public async Task Dado_JavaScriptDesligado_Quando_RevelarERecolherSubcategorias_Entao_DeveFuncionarNosDoisSentidos() =>
+        await Executar(async () =>
+        {
+            // RF-23/CA-22: o <details> nativo não depende de script — só a
+            // posição (CSS order) e o rótulo (dois <summary>) mudam com ele.
+            await using var contextoSemScript = await Navegador.NewContextAsync(new() { JavaScriptEnabled = false });
+            var paginaSemScript = await contextoSemScript.NewPageAsync();
+            var pagina = new PaginaCatalogo(paginaSemScript);
+            await pagina.Abrir(UrlBase, "doces");
+
+            await pagina.VerTodas.ClickAsync();
+            await Expect(paginaSemScript.Locator(".ver-todas-subcategorias")).ToHaveAttributeAsync("open", "");
+
+            await pagina.VerTodas.ClickAsync();
+            await Expect(paginaSemScript.Locator(".ver-todas-subcategorias")).Not.ToHaveAttributeAsync("open", "");
         });
 
     [Fact]

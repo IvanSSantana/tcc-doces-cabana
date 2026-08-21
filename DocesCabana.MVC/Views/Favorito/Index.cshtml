@@ -1,0 +1,29 @@
+@using DocesCabana.Application.DTOs
+@model List<ProdutoDTO>
+@{
+    ViewData["Title"] = "Favoritos";
+}
+
+<link rel="stylesheet" href="~/css/pages/favoritos.css" asp-append-version="true">
+
+<main class="pagina-favoritos">
+    <h1 class="titulo-favoritos">Meus favoritos</h1>
+
+    @* RF-11: lista vazia convida, não fica em branco. Os dois blocos vivem
+       na marcação o tempo todo — favorito.js alterna o hidden quando
+       desfavoritar o último item esvazia a grade sem recarregar a página
+       (achado de verificação ao vivo: antes, a mensagem só existia quando o
+       servidor já renderizava a lista vazia, então nunca aparecia depois de
+       um esvaziamento feito pelo próprio script). *@
+    <p class="favoritos-vazio" hidden="@(Model.Count == 0 ? null : "hidden")">
+        Você ainda não favoritou nenhum produto.
+        <a asp-area="" asp-controller="Catalogo" asp-action="Index">Ver o catálogo</a>
+    </p>
+
+    <div class="grade-produtos" hidden="@(Model.Count == 0 ? "hidden" : null)">
+        @foreach (var produto in Model)
+        {
+            @await Component.InvokeAsync("CardProduto", new { produto, rotuloBotaoCarrinho = "Adicionar ao carrinho" })
+        }
+    </div>
+</main>

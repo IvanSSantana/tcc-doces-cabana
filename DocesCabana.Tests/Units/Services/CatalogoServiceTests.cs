@@ -12,6 +12,7 @@ public class CatalogoServiceTests
 {
     private readonly Mock<ICategoriaService> _categoriaServiceMock;
     private readonly Mock<IProdutoRepository> _produtoRepositoryMock;
+    private readonly Mock<IFavoritoRepository> _favoritoRepositoryMock;
     private readonly CatalogoService _catalogoService;
 
     private readonly Guid _categoriaDocesId = Guid.NewGuid();
@@ -20,7 +21,8 @@ public class CatalogoServiceTests
     {
         _categoriaServiceMock = new Mock<ICategoriaService>();
         _produtoRepositoryMock = new Mock<IProdutoRepository>();
-        _catalogoService = new CatalogoService(_categoriaServiceMock.Object, _produtoRepositoryMock.Object);
+        _favoritoRepositoryMock = new Mock<IFavoritoRepository>();
+        _catalogoService = new CatalogoService(_categoriaServiceMock.Object, _produtoRepositoryMock.Object, _favoritoRepositoryMock.Object);
 
         _categoriaServiceMock.Setup(s => s.ListarComSubcategorias())
             .ReturnsAsync(new List<CategoriaDTO>
@@ -140,6 +142,46 @@ public class CatalogoServiceTests
         var resultado = await _catalogoService.Montar("doces", FiltroPadrao(), 0);
 
         Assert.Equal(1, resultado.Pagina.PaginaAtual);
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioAutenticado_Quando_Montar_Entao_DeveMarcarOsProdutosFavoritados()
+    {
+        // RF-02 (spec 015): o cartão precisa saber se o produto já está
+        // favoritado por quem está vendo.
+        var produtoFavoritado = CriarProduto("Favoritado");
+        var produtoNaoFavoritado = CriarProduto("Não favoritado");
+        var usuarioId = Guid.NewGuid();
+
+        _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(2);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync([produtoFavoritado, produtoNaoFavoritado]);
+        _favoritoRepositoryMock.Setup(r => r.IdsPorUsuario(usuarioId, It.IsAny<IEnumerable<Guid>>()))
+            .ReturnsAsync(new HashSet<Guid> { produtoFavoritado.ProdutoId });
+
+        var resultado = await _catalogoService.Montar("doces", FiltroPadrao(), 1, usuarioId);
+
+        var dtoFavoritado = resultado.Pagina.Itens.Single(p => p.ProdutoId == produtoFavoritado.ProdutoId);
+        var dtoNaoFavoritado = resultado.Pagina.Itens.Single(p => p.ProdutoId == produtoNaoFavoritado.ProdutoId);
+        Assert.True(dtoFavoritado.EstaFavorito);
+        Assert.False(dtoNaoFavoritado.EstaFavorito);
+
+        // Uma consulta para a página inteira, não uma por produto (plano §5).
+        _favoritoRepositoryMock.Verify(r => r.IdsPorUsuario(usuarioId, It.IsAny<IEnumerable<Guid>>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_Visitante_Quando_Montar_Entao_NenhumProdutoDeveVirMarcadoENaoDeveConsultarFavoritos()
+    {
+        var produto = CriarProduto("Produto");
+        _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(1);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync([produto]);
+
+        var resultado = await _catalogoService.Montar("doces", FiltroPadrao(), 1, usuarioId: null);
+
+        Assert.False(resultado.Pagina.Itens.Single().EstaFavorito);
+        _favoritoRepositoryMock.Verify(r => r.IdsPorUsuario(It.IsAny<Guid>(), It.IsAny<IEnumerable<Guid>>()), Times.Never);
     }
 
     private static FiltroCatalogoDTO FiltroPadrao() =>

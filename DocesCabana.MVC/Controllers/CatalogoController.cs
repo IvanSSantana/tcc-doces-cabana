@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
@@ -30,7 +31,7 @@ public class CatalogoController : Controller
             ApenasSemAcucar: semAcucar,
             Ordenacao: SanearOrdenacao(ordenacao));
 
-        var catalogo = await _catalogoService.Montar(apelido, filtro, pagina);
+        var catalogo = await _catalogoService.Montar(apelido, filtro, pagina, UsuarioAtualId);
 
         // Um endereço, duas representações (spec 014, plano §5): a mesma
         // rota devolve só o bloco que mudou para quem pediu via catalogo.js,
@@ -50,4 +51,16 @@ public class CatalogoController : Controller
         ordenacao == OrdenacaoCatalogo.MaisVendidos
             ? OrdenacaoCatalogo.MelhorAvaliados
             : ordenacao;
+
+    private Guid? UsuarioAtualId
+    {
+        get
+        {
+            if (User.Identity is not { IsAuthenticated: true })
+                return null;
+
+            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return id is null ? null : Guid.Parse(id);
+        }
+    }
 }

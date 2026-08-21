@@ -26,34 +26,52 @@
     background-color: #FFFFFF;
 }
 
-.botao-favorito-card {
+.acao-favoritar-card {
     position: absolute;
     top: 20px;
     right: 20px;
+    z-index: 10;
+}
+
+.botao-favorito-card {
     background: none;
     border: none;
     cursor: pointer;
     outline: none;
     font-size: 22px;
     color: #D33C1A;
-    opacity: 0;
     transform: scale(0.9);
     transition: all 0.25s ease-in-out;
     padding: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
 }
 
-.card-produto:hover .botao-favorito-card {
-    opacity: 1;
-    transform: scale(1);
+/* Onde existe ponteiro fino (mouse), o coração só aparece ao passar por
+   cima — fiel à referência em repouso (spec 015, plano §3). Onde não existe
+   (toque), ele fica sempre visível: sem isso, favoritar seria inalcançável
+   em celular (RF-05). A condição é a capacidade do dispositivo, não a
+   largura da tela — um tablet largo também não tem :hover. */
+@media (hover: hover) {
+    .botao-favorito-card {
+        opacity: 0;
+    }
+
+    .card-produto:hover .botao-favorito-card {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
+/* O fundo sólido que existia aqui era de quando o coração era decorativo
+   (spec 012) e EstaFavorito nunca era true de verdade — inofensivo então,
+   virou um bloco colorido atrás do próprio coração assim que favoritar
+   passou a funcionar (spec 015, achado de verificação ao vivo). A opacidade
+   de espreitar continua: dá para notar o que já está favoritado sem
+   precisar passar o mouse. */
 .botao-favorito-card:has(.favoritado) {
     opacity: 0.6;
-    background-color: #D93B26;
 }
 
 .card-produto:hover .botao-favorito-card:has(.favoritado) {
@@ -139,7 +157,11 @@ a.nome-card {
     color: #000000;
     text-align: center;
     margin-bottom: 8px;
-    text-transform: uppercase;
+    /* text-transform: uppercase saiu daqui (spec 015, RF-16) — vivia na
+       base desde antes desta feature. Quem ainda quer caixa alta
+       (o carrossel) aplica sobre si mesmo em vitrine-produtos.css; o
+       catálogo e a lista de favoritos não aplicam nada e mostram a caixa
+       normal do nome de verdade (RF-17). */
     letter-spacing: 0.5px;
     width: 100%;
     display: block;

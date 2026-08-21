@@ -16,28 +16,41 @@ public class AutenticacaoController : Controller
     }
 
     [HttpGet]
-    public IActionResult Login()
+    public IActionResult Login(string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginDTO dto)
+    public async Task<IActionResult> Login(LoginDTO dto, string? returnUrl = null)
     {
         if (!ModelState.IsValid)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
             return View(dto);
+        }
 
         var resultado = await _usuarioService.RealizarLogin(dto.Login!, dto.Senha!, dto.LembrarMe ?? false);
 
         if (resultado.Succeeded)
+        {
+            // RF-13/RF-14 (spec 015): só honra retorno para dentro do
+            // próprio site — Url.IsLocalUrl é a guarda contra a tela de
+            // login virar trampolim para outro domínio (RN-04).
+            if (returnUrl is not null && Url.IsLocalUrl(returnUrl))
+                return LocalRedirect(returnUrl);
+
             return RedirectToAction("Index", "Home");
+        }
 
         if (resultado.IsLockedOut)
             ModelState.AddModelError(string.Empty, "Conta bloqueada. Tente novamente mais tarde.");
         else
             ModelState.AddModelError(string.Empty, "E-mail ou senha incorreto(s).");
 
+        ViewData["ReturnUrl"] = returnUrl;
         return View(dto);
     }
 

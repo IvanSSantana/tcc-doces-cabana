@@ -134,3 +134,11 @@
 .ponto-indicador.ativo:hover {
     background-color: var(--cor-primaria);
 }
+
+/* O .ToUpper() saiu da view do cartão (spec 015, RF-16) — sem isso, o
+   carrossel voltaria a mostrar caixa normal, quando sempre mostrou caixa
+   alta (RF-17). Escopado aqui, e não na base, porque é só o carrossel que
+   precisa disso agora — o catálogo é quem queria a caixa normal. */
+.vitrine-carrossel .nome-card {
+    text-transform: uppercase;
+}

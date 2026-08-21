@@ -11,14 +11,16 @@ public class CatalogoService : ICatalogoService
 
     private readonly ICategoriaService _categoriaService;
     private readonly IProdutoRepository _produtoRepository;
+    private readonly IFavoritoRepository _favoritoRepository;
 
-    public CatalogoService(ICategoriaService categoriaService, IProdutoRepository produtoRepository)
+    public CatalogoService(ICategoriaService categoriaService, IProdutoRepository produtoRepository, IFavoritoRepository favoritoRepository)
     {
         _categoriaService = categoriaService;
         _produtoRepository = produtoRepository;
+        _favoritoRepository = favoritoRepository;
     }
 
-    public async Task<CatalogoDTO> Montar(string? apelidoDaCategoria, FiltroCatalogoDTO filtro, int pagina)
+    public async Task<CatalogoDTO> Montar(string? apelidoDaCategoria, FiltroCatalogoDTO filtro, int pagina, Guid? usuarioId = null)
     {
         var categorias = await _categoriaService.ListarComSubcategorias();
 
@@ -44,6 +46,12 @@ public class CatalogoService : ICatalogoService
 
         var produtos = await _produtoRepository.BuscarPaginaDoCatalogo(filtroComCategoria, paginaSaneada, TamanhoDaPagina);
 
+        // RF-02: sem usuário (visitante), nenhum produto vem marcado — nem
+        // consultamos favoritos, que ninguém tem quando não está logado.
+        var idsFavoritados = usuarioId.HasValue
+            ? await _favoritoRepository.IdsPorUsuario(usuarioId.Value, produtos.Select(p => p.ProdutoId))
+            : [];
+
         return new CatalogoDTO
         {
             Categorias = categorias,
@@ -53,7 +61,7 @@ public class CatalogoService : ICatalogoService
             Ordenacao = filtro.Ordenacao,
             Pagina = new PaginaDeProdutosDTO
             {
-                Itens = ProdutoMapper.ToDTO(produtos),
+                Itens = ProdutoMapper.ToDTO(produtos, idsFavoritados),
                 PaginaAtual = paginaSaneada,
                 TotalDePaginas = totalDePaginas,
                 TotalDeItens = total

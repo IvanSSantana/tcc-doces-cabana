@@ -11,6 +11,10 @@
     <h1 class="titulo-tela">Iniciar Sessão</h1>
 
     <form asp-action="Login" method="post" class="formulario-autenticacao">
+        @* RF-13 (spec 015): o retorno sobrevive ao POST através deste campo
+           oculto, para o login devolver a pessoa à página de onde ela partiu. *@
+        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
         <div class="campo-entrada">
             <label asp-for="Login">E-mail ou CPF</label>
             <input asp-for="Login" type="text" placeholder="Digite seu login..." class="campo-texto" />

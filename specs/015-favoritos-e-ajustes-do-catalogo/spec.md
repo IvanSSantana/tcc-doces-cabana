@@ -1,7 +1,7 @@
 # Especificação — Favoritos e ajustes do catálogo
 
 **ID:** `015-favoritos-e-ajustes-do-catalogo` · **Branch:** `015-favoritos-e-ajustes-do-catalogo`
-**Criada em:** 2026-08-21 · **Status:** Rascunho
+**Criada em:** 2026-08-21 · **Status:** Implementada
 
 ---
 

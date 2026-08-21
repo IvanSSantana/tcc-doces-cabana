@@ -24,7 +24,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [012](./012-catalogo/spec.md) | Catálogo | Implementada | spec · [plan](./012-catalogo/plan.md) · [tasks](./012-catalogo/tasks.md) · [checklist](./012-catalogo/checklist.md) |
 | [013](./013-correcoes-da-pagina-inicial/spec.md) | Correções da página inicial | Implementada | spec · [plan](./013-correcoes-da-pagina-inicial/plan.md) · [tasks](./013-correcoes-da-pagina-inicial/tasks.md) · [checklist](./013-correcoes-da-pagina-inicial/checklist.md) |
 | [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Implementada | spec · [plan](./014-refinamento-do-catalogo/plan.md) · [tasks](./014-refinamento-do-catalogo/tasks.md) · [checklist](./014-refinamento-do-catalogo/checklist.md) |
-| [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Rascunho | spec · [plan](./015-favoritos-e-ajustes-do-catalogo/plan.md) · [tasks](./015-favoritos-e-ajustes-do-catalogo/tasks.md) |
+| [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Implementada | spec · [plan](./015-favoritos-e-ajustes-do-catalogo/plan.md) · [tasks](./015-favoritos-e-ajustes-do-catalogo/tasks.md) · [checklist](./015-favoritos-e-ajustes-do-catalogo/checklist.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
@@ -121,7 +121,7 @@ preferência — cada uma só é construível depois da anterior.
 | [011](./011-area-administrativa/spec.md) | Área administrativa | Implementada | libera o nome "catálogo" para o cliente |
 | [012](./012-catalogo/spec.md) | Catálogo | Implementada | os 4 atalhos mortos do cabeçalho e o bloco de categorias da home |
 | [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Implementada | tira do caminho as pendências do catálogo antes da cadeia seguir |
-| [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Rascunho | liga o coração do card e fecha o desenho do catálogo |
+| [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Implementada | liga o coração do card e fecha o desenho do catálogo |
 | 016 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
 | 017 | Carrinho | não especificada | os dois controles do card que sobraram, desabilitados pela `012` |
 | 018 | Endereço do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
@@ -172,6 +172,7 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Página de conta do cliente | 004 — o atalho do cabeçalho foi desabilitado pela `014` por levar a erro |
 | Favoritar da página do produto | 015 — o cartão ganhou o coração; a tela de detalhe ainda não |
 | Editar ou apagar avaliação | 014 — a RN-01 recusa a segunda avaliação; corrigir a primeira exige tela própria |
+| Carrossel da home refletir o favorito real | 015 — favoritar ali já funciona, mas o coração sempre nasce vazio (HomeController não busca o favorito de quem vê) |
 
 ## Como criar a próxima
 

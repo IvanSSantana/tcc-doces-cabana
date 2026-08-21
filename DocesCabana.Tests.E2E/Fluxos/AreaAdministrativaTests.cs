@@ -134,6 +134,61 @@ public class AreaAdministrativaTests : TesteE2E
             await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Institucional/Privacidade");
         });
 
+    [Fact]
+    public async Task Dado_Administrador_Quando_ProcurarOCadastroDeProduto_Entao_DeveHaverCaminhoDeNavegacao() =>
+        await Executar(async () =>
+        {
+            // RF-26 (spec 015): a tela sempre existiu, mas só era alcançável
+            // digitando o endereço — sem link em lugar nenhum do site.
+            var paginaLogin = new PaginaLogin(Pagina);
+            await paginaLogin.Abrir(UrlBase);
+            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
+            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/");
+
+            await Pagina.Locator("header").GetByRole(Microsoft.Playwright.AriaRole.Link, new() { Name = "Cadastrar produto" }).ClickAsync();
+
+            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Admin/Produto/Cadastro");
+        });
+
+    [Fact]
+    public async Task Dado_TelasDaLoja_Quando_ObservarAsRequisicoes_Entao_NenhumaDeveTerminarEmNaoEncontrado() =>
+        await Executar(async () =>
+        {
+            // RF-24/RF-25 (spec 015): o cabeçalho pedia um script inexistente
+            // (~/js/modal-login.js) em toda página — 404 silencioso que
+            // ninguém via, porque não quebrava nada visualmente.
+            var requisicoesComFalha = new List<string>();
+            Pagina.Response += (_, resposta) =>
+            {
+                if (resposta.Status == 404) requisicoesComFalha.Add(resposta.Url);
+            };
+
+            await Pagina.GotoAsync(UrlBase);
+            await Pagina.GotoAsync($"{UrlBase}/Catalogo");
+
+            var paginaLogin = new PaginaLogin(Pagina);
+            await paginaLogin.Abrir(UrlBase);
+            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
+
+            Assert.Empty(requisicoesComFalha);
+        });
+
+    [Fact]
+    public async Task Dado_ModalDeLogin_Quando_Abrir_Entao_DeveContinuarFuncionando() =>
+        await Executar(async () =>
+        {
+            // Confirma que remover o <script> morto e o <dialog> vazio (RF-24,
+            // RF-25) não levou junto o modal de verdade — abrirModal() vem de
+            // ~/js/components/modal-login.js, que o layout já carregava.
+            await Pagina.GotoAsync(UrlBase);
+
+            // O <a onclick="abrirModal()"> não tem href — sem href, um <a>
+            // não expõe papel ARIA "link", por isso o locator é por texto.
+            await Pagina.Locator("header").GetByText("Entrar", new() { Exact = true }).ClickAsync();
+
+            await Expect(Pagina.Locator("#modal-login")).ToBeVisibleAsync();
+        });
+
     private async Task Sair() =>
         await Pagina.Locator("header").GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Sair" }).ClickAsync();
 

@@ -2,6 +2,11 @@
 @using DocesCabana.Domain.Enums
 @model DocesCabana.Application.DTOs.ProdutoDTO
 @{
+    // Rótulo do botão de carrinho, parametrizado pela invocação (spec 015,
+    // RF-15): o catálogo pede "Adicionar ao carrinho", fiel à referência; o
+    // carrossel não passa nada e mantém "Adicionar", que sempre teve, no seu
+    // cartão mais estreito (RF-17).
+    var rotuloBotaoCarrinho = ViewData["RotuloBotaoCarrinho"] as string ?? "Adicionar";
     var foraDeEstoque = Model.Status == ProdutoStatus.ForaDeEstoque;
 
     string ObterUrlImagem(string url)
@@ -29,12 +34,25 @@
 }
 
 <div class="card-produto" data-produto-id="@Model.ProdutoId">
-    @* Favoritar, quantidade e adicionar ao carrinho ficam desabilitados até
-       essas features existirem de verdade (spec 012, RF-24) — antes, os três
-       fingiam funcionar sem gravar nada (ver spec 012 §10). *@
-    <button class="botao-favorito-card" aria-label="Favoritar — ainda não disponível" title="Ainda não disponível" disabled>
-        <i class="@(Model.EstaFavorito ? "fa-solid fa-heart favoritado" : "fa-regular fa-heart")"></i>
-    </button>
+    @* Quantidade e adicionar ao carrinho continuam desabilitados até o
+       carrinho existir de verdade (spec 012, RF-24; spec 015, RF-18) — mas o
+       favorito, que não depende de carrinho nenhum, passou a funcionar
+       (spec 015). O botão não fica dentro de um <form> próprio — o cartão
+       pode estar dentro do <form method="get"> do catálogo, e HTML não
+       aceita form dentro de form (o navegador ignora o aninhamento e
+       submete o de fora). Em vez disso, ele se associa ao
+       #formulario-favorito do layout pelo atributo form= do HTML5, que
+       funciona não importa onde o botão esteja no documento — inclusive
+       sem JavaScript nenhum. O produtoId vai no próprio botão (name/value),
+       não num <input> hidden à parte: um hidden com form= levaria o
+       produtoId de TODOS os cartões da página na mesma submissão; o do
+       botão só vai junto quando é ele o acionado. *@
+    <div class="acao-favoritar-card">
+        <button type="submit" form="formulario-favorito" name="produtoId" value="@Model.ProdutoId"
+                class="botao-favorito-card" aria-label="@(Model.EstaFavorito ? "Desfavoritar" : "Favoritar")">
+            <i class="@(Model.EstaFavorito ? "fa-solid fa-heart favoritado" : "fa-regular fa-heart")"></i>
+        </button>
+    </div>
 
     <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="container-imagem-card @(foraDeEstoque ? "container-imagem-card--fora-de-estoque" : "")">
         @* RF-26 (spec 012) / RF-10 (spec 014): produto fora de estoque
@@ -49,7 +67,12 @@
         <img src="@ObterUrlImagem(Model.ImagemUrl)" alt="@Model.Nome" class="imagem-card" />
     </a>
 
-    <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="nome-card">@Model.Nome.ToUpper()</a>
+    @* Caixa alta saiu daqui (spec 015, RF-16): era o .ToUpper() que fazia o
+       catálogo mostrar tudo maiúsculo, contra a referência visual. Quem
+       decide agora é o CSS — o carrossel aplica text-transform: uppercase
+       sobre si mesmo (vitrine-produtos.css); o catálogo não aplica nada,
+       então mostra a caixa normal do nome de verdade (RF-17). *@
+    <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="nome-card">@Model.Nome</a>
 
     <div class="preco-card">R$ @Model.Preco.ToString("N2")</div>
 
@@ -59,6 +82,6 @@
             <span class="valor-quantidade-card">1</span>
             <button class="botao-quantidade-card mais" aria-label="Aumentar quantidade — ainda não disponível" disabled>+</button>
         </div>
-        <button class="botao-adicionar-card" aria-label="Adicionar ao carrinho — ainda não disponível" title="Carrinho ainda não disponível" disabled>Adicionar</button>
+        <button class="botao-adicionar-card" aria-label="Adicionar ao carrinho — ainda não disponível" title="Carrinho ainda não disponível" disabled>@rotuloBotaoCarrinho</button>
     </div>
 </div>

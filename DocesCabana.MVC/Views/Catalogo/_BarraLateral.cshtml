@@ -45,8 +45,14 @@
            recarregar — <details> é nativo, sem JavaScript nenhum. *@
         @if (restantes.Count > 0)
         {
+            @* RF-21/RF-22 (spec 015): os dois rótulos vivem na marcação —
+               o CSS alterna qual aparece pelo estado [open] do próprio
+               <details>, sem precisar de script para trocar texto. *@
             <details class="ver-todas-subcategorias">
-                <summary>Ver todas</summary>
+                <summary>
+                    <span class="rotulo-fechado">Ver todas</span>
+                    <span class="rotulo-aberto">Ver menos</span>
+                </summary>
                 @foreach (var subcategoria in restantes)
                 {
                     <label class="opcao-filtro-catalogo">

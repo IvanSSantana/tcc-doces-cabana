@@ -12,7 +12,10 @@
                 @foreach (var produto in Model)
                 {
                     <div class="item-carrossel">
-                        @await Component.InvokeAsync("CardProduto", new { produto = produto, estaFavorito = false })
+                        @* estaFavorito não existe como parâmetro do
+                           componente desde sempre — era descartado
+                           silenciosamente (spec 015, RF-27). *@
+                        @await Component.InvokeAsync("CardProduto", new { produto = produto })
                     </div>
                 }
             </div>

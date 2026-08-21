@@ -1,0 +1,102 @@
+.pagina-favoritos {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 40px;
+}
+
+.titulo-favoritos {
+  font-family: var(--fonte-principal);
+  color: var(--cor-primaria);
+  margin-bottom: 1.5rem;
+}
+
+/* Mesma grade do catálogo (wwwroot/css/pages/catalogo.css) — o cartão é o
+   mesmo componente (spec 015), só o container muda de página. */
+.pagina-favoritos .grade-produtos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .pagina-favoritos .grade-produtos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .pagina-favoritos .grade-produtos {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mesmo arranjo do cartão do catálogo (spec 015, RF-15) — duplicado aqui
+   porque catalogo.css não é carregado nesta página; os tokens
+   --catalogo-* são escopados em .pagina-catalogo (catalogo.css) e não
+   vazam para cá, então usa as variáveis globais do tema diretamente. */
+.grade-produtos .card-produto {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  background-color: #FFFFFF;
+  border-color: #DAD4CE;
+}
+
+.grade-produtos .acao-favoritar-card,
+.grade-produtos .container-imagem-card,
+.grade-produtos .nome-card {
+  grid-column: 1 / -1;
+}
+
+.grade-produtos .container-imagem-card {
+  background-color: #FDFBF8;
+  border-radius: 20px 20px 0 0;
+  margin-bottom: 0;
+}
+
+.grade-produtos .acoes-card {
+  display: contents;
+}
+
+.grade-produtos .preco-card {
+  grid-column: 1;
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.grade-produtos .controles-card {
+  grid-column: 2;
+  justify-self: end;
+}
+
+.grade-produtos .botao-adicionar-card {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 44px;
+  background-color: var(--cor-destaque);
+  color: #FFFFFF;
+}
+
+.grade-produtos .botao-adicionar-card:disabled {
+  background-color: var(--cor-destaque);
+}
+
+.favoritos-vazio {
+  color: #6b6b6b;
+  padding: 3rem 1rem;
+  text-align: center;
+  border: 1px dashed #d8d3c8;
+  border-radius: 12px;
+}
+
+.favoritos-vazio a {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--cor-destaque);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.favoritos-vazio a:hover {
+  text-decoration: underline;
+}

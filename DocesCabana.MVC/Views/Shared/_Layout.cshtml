@@ -25,9 +25,21 @@
     <partial name="_Footer" />
     <partial name="_ModalLogin" />
 
+    @* Alvo de submissão do coração de favoritar (spec 015) — vive fora de
+       qualquer form da página de propósito, porque o cartão de produto pode
+       estar dentro do <form method="get"> do catálogo, e HTML não aceita
+       form aninhado. Cada botão se associa a este pelo atributo form= do
+       HTML5; o returnUrl é o mesmo para todo cartão desta página, porque
+       todos vêm da mesma requisição. *@
+    <form id="formulario-favorito" asp-area="" asp-controller="Favorito" asp-action="Alternar" method="post" hidden>
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+    </form>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/components/vitrine-produtos.js" asp-append-version="true"></script>
     <script src="~/js/components/modal-login.js" asp-append-version="true"></script>
+    <script src="~/js/components/favorito.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>
