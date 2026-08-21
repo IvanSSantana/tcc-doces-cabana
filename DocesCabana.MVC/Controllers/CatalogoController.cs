@@ -45,7 +45,7 @@ public class CatalogoController : Controller
 
     // RN-07: "Mais vendidos" é anunciada, não oferecida — o ligador de
     // modelo aceita o valor por vir de um enum válido, mas o controller
-    // recusa executar essa ordenação até a spec 018 dar sentido a ela.
+    // recusa executar essa ordenação até a spec 019 dar sentido a ela.
     private static OrdenacaoCatalogo SanearOrdenacao(OrdenacaoCatalogo ordenacao) =>
         ordenacao == OrdenacaoCatalogo.MaisVendidos
             ? OrdenacaoCatalogo.MelhorAvaliados

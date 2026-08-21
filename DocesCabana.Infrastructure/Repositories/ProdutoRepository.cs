@@ -84,7 +84,7 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
 
             // NomeAZ é o padrão (RF-17); MaisVendidos nunca chega aqui — o
             // controller saneia para NomeAZ antes de montar o filtro, porque
-            // RN-07 a mantém indisponível até a spec 018.
+            // RN-07 a mantém indisponível até a spec 019.
             _ => consulta.OrderBy(p => p.Nome),
         };
 }

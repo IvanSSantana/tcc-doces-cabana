@@ -3,7 +3,7 @@ namespace DocesCabana.Application.Enums;
 // Ordenação é escolha de consulta, não invariante do domínio (spec 012).
 public enum OrdenacaoCatalogo
 {
-    // Anunciada, não oferecida (RF-16/RN-07) — indisponível até a spec 018
+    // Anunciada, não oferecida (RF-16/RN-07) — indisponível até a spec 019
     // dar sentido a "venda" no sistema.
     MaisVendidos,
     MelhorAvaliados,
