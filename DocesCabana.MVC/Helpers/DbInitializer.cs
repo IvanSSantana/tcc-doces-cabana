@@ -79,6 +79,37 @@ public static class DbInitializer
         context.Database.Migrate();
     }
 
+    // Corrige, em C# e não em SQL (o SQLite não tem função para remover
+    // acento — é justamente por isso que a coluna existe), as linhas de
+    // Produto gravadas antes da migration AddProdutoNomeNormalizado (spec
+    // 016, plano §6). Idempotente: numa base recém-criada, ou já corrigida,
+    // não encontra nenhuma linha e não faz nada.
+    public static async Task PreencherNomesNormalizados(IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<DocesCabanaDbContext>();
+
+        await PreencherNomesNormalizados(context);
+    }
+
+    internal static async Task PreencherNomesNormalizados(DocesCabanaDbContext context)
+    {
+        var produtosSemNormalizacao = await context.Produtos
+            .Where(p => p.NomeNormalizado == "")
+            .ToListAsync();
+
+        if (produtosSemNormalizacao.Count == 0)
+            return;
+
+        // AlterarNome(Nome) recalcula o derivado pelo mesmo caminho que
+        // qualquer outra alteração de nome usa — sem API própria só para
+        // esta migração.
+        foreach (var produto in produtosSemNormalizacao)
+            produto.AlterarNome(produto.Nome);
+
+        await context.SaveChangesAsync();
+    }
+
     public static async Task Semear(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();

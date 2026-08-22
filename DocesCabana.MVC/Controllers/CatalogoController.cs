@@ -20,18 +20,23 @@ public class CatalogoController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(
         string? apelido = null,
-        [FromQuery] Guid[]? subcategorias = null,
+        // Apelido, não Guid (spec 016): o valor que chega pela URL é
+        // legível — "barras", "potes" — e é CatalogoService.Montar quem
+        // resolve isso contra a categoria atual.
+        [FromQuery] string[]? subcategorias = null,
         [FromQuery] bool semAcucar = false,
         OrdenacaoCatalogo ordenacao = OrdenacaoCatalogo.MelhorAvaliados,
+        string? termo = null,
         int pagina = 1)
     {
-        var filtro = new FiltroCatalogoDTO(
-            CategoriaId: null,
-            SubcategoriaIds: subcategorias ?? [],
+        var criterios = new CriteriosDoCatalogoDTO(
+            ApelidoDaCategoria: apelido,
+            ApelidosDeSubcategoria: subcategorias ?? [],
             ApenasSemAcucar: semAcucar,
-            Ordenacao: SanearOrdenacao(ordenacao));
+            Ordenacao: SanearOrdenacao(ordenacao),
+            Termo: termo);
 
-        var catalogo = await _catalogoService.Montar(apelido, filtro, pagina, UsuarioAtualId);
+        var catalogo = await _catalogoService.Montar(criterios, pagina, UsuarioAtualId);
 
         // Um endereço, duas representações (spec 014, plano §5): a mesma
         // rota devolve só o bloco que mudou para quem pediu via catalogo.js,
@@ -46,7 +51,7 @@ public class CatalogoController : Controller
 
     // RN-07: "Mais vendidos" é anunciada, não oferecida — o ligador de
     // modelo aceita o valor por vir de um enum válido, mas o controller
-    // recusa executar essa ordenação até a spec 019 dar sentido a ela.
+    // recusa executar essa ordenação até a spec 020 dar sentido a ela.
     private static OrdenacaoCatalogo SanearOrdenacao(OrdenacaoCatalogo ordenacao) =>
         ordenacao == OrdenacaoCatalogo.MaisVendidos
             ? OrdenacaoCatalogo.MelhorAvaliados

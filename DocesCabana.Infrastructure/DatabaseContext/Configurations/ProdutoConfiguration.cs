@@ -16,6 +16,15 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             .IsRequired()
             .HasMaxLength(255);
 
+        // Derivado de Nome (spec 016) — sem acento, sem caixa. Linhas
+        // gravadas antes desta migration nascem com '' (plano §6); é o
+        // DbInitializer.PreencherNomesNormalizados que as corrige, não o
+        // banco: SQLite não tem função para remover acento.
+        builder.Property(p => p.NomeNormalizado)
+            .IsRequired()
+            .HasMaxLength(255)
+            .HasDefaultValue("");
+
         builder.Property(p => p.Preco)
             .IsRequired()
             .HasColumnType("decimal(18,2)");

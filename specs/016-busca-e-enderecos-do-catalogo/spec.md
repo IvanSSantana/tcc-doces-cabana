@@ -1,7 +1,7 @@
 # Especificação — Busca e endereços do catálogo
 
 **ID:** `016-busca-e-enderecos-do-catalogo` · **Branch:** `016-busca-e-enderecos-do-catalogo`
-**Criada em:** 2026-08-22 · **Status:** Rascunho
+**Criada em:** 2026-08-22 · **Status:** Implementada
 
 ---
 

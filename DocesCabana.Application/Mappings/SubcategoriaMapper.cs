@@ -1,4 +1,5 @@
 using DocesCabana.Application.DTOs;
+using DocesCabana.Application.Servicos;
 using DocesCabana.Domain.Entities;
 
 namespace DocesCabana.Application.Mappings;
@@ -9,7 +10,8 @@ public static class SubcategoriaMapper
         new()
         {
             SubcategoriaId = subcategoria.SubcategoriaId,
-            Nome = subcategoria.Nome
+            Nome = subcategoria.Nome,
+            Apelido = Apelido.De(subcategoria.Nome)
         };
 
     public static List<SubcategoriaDTO> ToDTO(IEnumerable<Subcategoria> subcategorias) =>

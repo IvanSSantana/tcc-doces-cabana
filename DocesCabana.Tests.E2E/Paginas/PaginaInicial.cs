@@ -30,4 +30,15 @@ public class PaginaInicial
 
     public async Task<string?> CorDeFundoDoPainel() =>
         await PainelDoMenu.EvaluateAsync<string>("el => getComputedStyle(el).backgroundColor");
+
+    // Busca por nome de produto (spec 016) — presente no cabeçalho de
+    // qualquer página, não só da home.
+    public ILocator BarraDePesquisa => _pagina.Locator(".barra-pesquisa input[name='termo']");
+    public ILocator BotaoPesquisar => _pagina.Locator(".botao-pesquisar");
+
+    public async Task Buscar(string termo)
+    {
+        await BarraDePesquisa.FillAsync(termo);
+        await BotaoPesquisar.ClickAsync();
+    }
 }

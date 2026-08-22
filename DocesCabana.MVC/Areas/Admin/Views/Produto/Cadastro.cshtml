@@ -7,7 +7,15 @@
     Layout = "_Layout";
 }
 
+<link rel="stylesheet" href="~/css/components/formulario.css" asp-append-version="true">
 <link rel="stylesheet" href="~/css/pages/cadastro_produto.css" asp-append-version="true">
+
+@* pagina-cadastro-produto escopa o empilhamento em tela estreita (RF-17)
+   só a esta tela — .linha-dupla em si não empilha em nenhuma largura
+   (achado ao verificar, plano previa que já empilhava; não é regressão
+   desta feature, então as outras duas telas que a usam não são tocadas). *@
+<main class="container-autenticacao pagina-cadastro-produto">
+<h1 class="titulo-tela">Cadastrar Produto</h1>
 
 <form asp-action="Cadastro" method="post" class="formulario-autenticacao">
     @Html.AntiForgeryToken()
@@ -19,20 +27,25 @@
         <span asp-validation-for="Nome" class="mensagem-erro"></span>
     </div>
 
-    <div class="campo-entrada">
-        <label asp-for="Preco">Preço</label>
-        <input asp-for="Preco" type="number" min="0" step="0.01" class="campo-texto" placeholder="Digite o preço do produto..." required />
+    @* Preço e Status dividem a linha em tela larga, empilham na estreita
+       (spec 016, RF-17) — mesmo .linha-dupla que o cadastro de
+       administrador já usa. *@
+    <div class="linha-dupla">
+        <div class="campo-entrada">
+            <label asp-for="Preco">Preço</label>
+            <input asp-for="Preco" type="number" min="0" step="0.01" class="campo-texto" placeholder="Digite o preço do produto..." required />
 
-        <span asp-validation-for="Preco" class="mensagem-erro"></span>
-    </div>
+            <span asp-validation-for="Preco" class="mensagem-erro"></span>
+        </div>
 
-    <div class="campo-entrada">
-        <label asp-for="Status">Status</label>
-        <select asp-for="Status" asp-items="Html.GetEnumSelectList<ProdutoStatus>()" class="campo-texto">
-            <option value="">Selecione...</option>
-        </select>
+        <div class="campo-entrada">
+            <label asp-for="Status">Status</label>
+            <select asp-for="Status" asp-items="Html.GetEnumSelectList<ProdutoStatus>()" class="campo-texto">
+                <option value="">Selecione...</option>
+            </select>
 
-        <span asp-validation-for="Status" class="mensagem-erro"></span>
+            <span asp-validation-for="Status" class="mensagem-erro"></span>
+        </div>
     </div>
 
     <div class="campo-entrada">
@@ -42,13 +55,22 @@
         <span asp-validation-for="ImagemUrl" class="mensagem-erro"></span>
     </div>
 
-    <div class="campo-entrada">
-        <label asp-for="SubcategoriaId">Subcategoria</label>
-        <select asp-for="SubcategoriaId" asp-items="ViewBag.Subcategorias" class="campo-texto">
-            <option value="">Selecione...</option>
-        </select>
+    <div class="linha-dupla">
+        <div class="campo-entrada">
+            <label asp-for="SubcategoriaId">Subcategoria</label>
+            <select asp-for="SubcategoriaId" asp-items="ViewBag.Subcategorias" class="campo-texto">
+                <option value="">Selecione...</option>
+            </select>
 
-        <span asp-validation-for="SubcategoriaId" class="mensagem-erro"></span>
+            <span asp-validation-for="SubcategoriaId" class="mensagem-erro"></span>
+        </div>
+
+        <div class="campo-entrada campo-caixa-selecao">
+            <label asp-for="SemAcucar">
+                <input asp-for="SemAcucar" type="checkbox" />
+                Sem açúcar
+            </label>
+        </div>
     </div>
 
     <div class="campo-entrada">
@@ -57,13 +79,6 @@
             placeholder="Descreva o produto — aparece na página dele para o cliente."></textarea>
 
         <span asp-validation-for="Descricao" class="mensagem-erro"></span>
-    </div>
-
-    <div class="campo-entrada campo-caixa-selecao">
-        <label asp-for="SemAcucar">
-            <input asp-for="SemAcucar" type="checkbox" />
-            Sem açúcar
-        </label>
     </div>
 
     @if (TempData["Confirmacao"] is string confirmacao)
@@ -93,6 +108,7 @@
     </div>
 
 </form>
+</main>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

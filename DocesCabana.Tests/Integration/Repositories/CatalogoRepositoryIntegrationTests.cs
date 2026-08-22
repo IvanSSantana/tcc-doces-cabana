@@ -3,11 +3,55 @@ using DocesCabana.Application.Enums;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Enums;
 using DocesCabana.Infrastructure.Repositories;
+using DocesCabana.MVC.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
 public class CatalogoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
 {
+    [Fact]
+    public async Task Dado_ProdutoComNomeNormalizadoVazio_Quando_PreencherRetroativamente_Entao_DeveFicarEncontravel()
+    {
+        // Simula uma linha gravada antes desta migration: NomeNormalizado
+        // vazio, exatamente o que a migration deixa nas linhas antigas
+        // (spec 016, plano §6). Grava direto no contexto, sem passar pelo
+        // construtor de Produto, para não preencher o campo de propósito.
+        var (_, subId, _) = await SemearCategoriaDoces();
+        var produto = new Produto(subId, "Café Especial", 15m, "https://imagem.com/produto.jpg");
+        Contexto.Produtos.Add(produto);
+        await Contexto.SaveChangesAsync();
+
+        // "Apaga" o derivado via SQL cru — Produto não expõe um jeito de
+        // deixá-lo divergente do nome por fora do construtor (RN-02), então
+        // simular a base antiga exige contornar a entidade.
+        await Contexto.Database.ExecuteSqlRawAsync(
+            "UPDATE Produto SET NomeNormalizado = '' WHERE ProdutoId = {0}", produto.ProdutoId);
+        Contexto.ChangeTracker.Clear();
+
+        await DbInitializer.PreencherNomesNormalizados(Contexto);
+
+        var produtoAtualizado = await Contexto.Produtos.AsNoTracking()
+            .SingleAsync(p => p.ProdutoId == produto.ProdutoId);
+        Assert.Equal("cafe especial", produtoAtualizado.NomeNormalizado);
+    }
+
+    [Fact]
+    public async Task Dado_BaseComTudoPreenchido_Quando_PreencherRetroativamente_Entao_NaoDeveAlterarNada()
+    {
+        var (_, subId, _) = await SemearCategoriaDoces();
+        await SemearProduto(subId, "Brigadeiro", 5m);
+
+        // Idempotente: rodar sobre uma base já correta (como a recém-criada,
+        // onde o construtor já preencheu tudo) não pode falhar nem duplicar
+        // nada — só não encontra ninguém para corrigir.
+        await DbInitializer.PreencherNomesNormalizados(Contexto);
+        await DbInitializer.PreencherNomesNormalizados(Contexto);
+
+        var produto = await Contexto.Produtos.AsNoTracking().SingleAsync();
+        Assert.Equal("brigadeiro", produto.NomeNormalizado);
+    }
+
     [Fact]
     public async Task Dado_ProdutosDeDuasSubcategorias_Quando_FiltrarPorCategoria_Entao_DeveTrazerSoOsDaCategoria()
     {
@@ -155,6 +199,89 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
         Assert.Equal(25, total);
         Assert.Equal(nomesEsperados.OrderBy(n => n), nomesVistos.OrderBy(n => n));
         Assert.Equal(nomesVistos.Count, nomesVistos.Distinct().Count());
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoComAcento_Quando_BuscarSemAcentoEEmOutraCaixa_Entao_DeveEncontrar()
+    {
+        var (categoriaId, subId, _) = await SemearCategoriaDoces();
+        await SemearProduto(subId, "Café Especial", 10m);
+
+        var repositorio = new ProdutoRepository(Contexto);
+        // TermoNormalizado chega já normalizado do CatalogoService (RN-02)
+        // — o repositório só compara, não normaliza. "cafe" é o que
+        // TextoHelper.Normalizar("CAFÉ") produziria.
+        var filtro = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.NomeAZ, "cafe");
+
+        var pagina = await repositorio.BuscarPaginaDoCatalogo(filtro, 1, 12);
+
+        Assert.Single(pagina);
+        Assert.Equal("Café Especial", pagina[0].Nome);
+    }
+
+    [Fact]
+    public async Task Dado_TermoNoMeioDoNome_Quando_Buscar_Entao_DeveEncontrar()
+    {
+        var (categoriaId, subId, _) = await SemearCategoriaDoces();
+        await SemearProduto(subId, "Barra de Chocolate", 10m);
+
+        var repositorio = new ProdutoRepository(Contexto);
+        var filtro = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.NomeAZ, "chocolate");
+
+        var pagina = await repositorio.BuscarPaginaDoCatalogo(filtro, 1, 12);
+
+        Assert.Single(pagina);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoInativo_Quando_BuscarPeloNomeExato_Entao_NaoDeveEncontrar()
+    {
+        // RN-06: produto fora do catálogo público não existe do lado de
+        // fora em nenhum caminho — inclusive na busca.
+        var (categoriaId, subId, _) = await SemearCategoriaDoces();
+        await SemearProduto(subId, "Produto Escondido", 10m, status: ProdutoStatus.Inativo);
+
+        var repositorio = new ProdutoRepository(Contexto);
+        var filtro = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.NomeAZ, "produto escondido");
+
+        var pagina = await repositorio.BuscarPaginaDoCatalogo(filtro, 1, 12);
+
+        Assert.Empty(pagina);
+    }
+
+    [Fact]
+    public async Task Dado_TermoComCaracteresDeCuringaSql_Quando_Buscar_Entao_NaoDeveTratarComoCuringa()
+    {
+        // No SQLite, Contains vira instr — literal, sem interpretar % ou _
+        // como curinga (plano §9). Um produto chamado "100% Cacau" só casa
+        // com o termo "100% cacau" digitado por inteiro, não com "100" mais
+        // qualquer coisa.
+        var (categoriaId, subId, _) = await SemearCategoriaDoces();
+        await SemearProduto(subId, "100% Cacau", 10m);
+        await SemearProduto(subId, "1000 Cacau", 12m);
+
+        var repositorio = new ProdutoRepository(Contexto);
+        var filtro = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.NomeAZ, "100% cacau");
+
+        var pagina = await repositorio.BuscarPaginaDoCatalogo(filtro, 1, 12);
+
+        Assert.Single(pagina);
+        Assert.Equal("100% Cacau", pagina[0].Nome);
+    }
+
+    [Fact]
+    public async Task Dado_TermoNuloOuVazio_Quando_Buscar_Entao_NaoDeveFiltrarPorNome()
+    {
+        var (categoriaId, subId, _) = await SemearCategoriaDoces();
+        await SemearProduto(subId, "Primeiro", 10m);
+        await SemearProduto(subId, "Segundo", 12m);
+
+        var repositorio = new ProdutoRepository(Contexto);
+        var filtroNulo = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.NomeAZ, null);
+        var filtroVazio = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.NomeAZ, "");
+
+        Assert.Equal(2, await repositorio.ContarNoCatalogo(filtroNulo));
+        Assert.Equal(2, await repositorio.ContarNoCatalogo(filtroVazio));
     }
 
     private async Task<(Guid CategoriaId, Guid SubBarrasId, Guid SubPotesId)> SemearCategoriaDoces()

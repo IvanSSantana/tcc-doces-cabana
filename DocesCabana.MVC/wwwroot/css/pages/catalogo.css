@@ -190,6 +190,40 @@
   pointer-events: none;
 }
 
+/* Etiqueta removível do termo de busca (spec 016, RF-07) — mesmo verde do
+   resto do desenho de formulário, não o coral (esse é ação de carrinho). */
+.etiqueta-busca-catalogo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.4rem 0.5rem 0.4rem 0.9rem;
+  border: 1.5px solid var(--catalogo-verde);
+  border-radius: 20px;
+  color: var(--catalogo-verde);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.botao-remover-busca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: var(--catalogo-verde);
+  text-decoration: none;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.botao-remover-busca:hover,
+.botao-remover-busca:focus-visible {
+  background-color: var(--catalogo-verde);
+  color: #FFFFFF;
+}
+
 .cabecalho-conteudo-catalogo {
   display: flex;
   align-items: center;

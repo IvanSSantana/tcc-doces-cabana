@@ -18,6 +18,11 @@
             <span aria-hidden="true">&rsaquo;</span>
             <span>@Model.CategoriaAtual.Nome</span>
         }
+        @if (!string.IsNullOrWhiteSpace(Model.Termo))
+        {
+            <span aria-hidden="true">&rsaquo;</span>
+            <span>Resultados para &ldquo;@Model.Termo&rdquo;</span>
+        }
     </nav>
 
     @* Uma única <form method="get">: caixas de subcategoria, "sem açúcar" e
@@ -28,6 +33,13 @@
        carregar; sem ele, o requestSubmit() dos controles internos funciona
        exatamente como um submit comum (spec 014, RF-05). *@
     <form method="get" class="formulario-catalogo" id="formulario-catalogo">
+        @* Campo oculto do termo (spec 016, RF-05): sem ele, a submissão GET
+           deste formulário — disparada ao trocar ordenação, subcategoria ou
+           "sem açúcar" — reescreveria o endereço só com os próprios campos,
+           perdendo o termo que veio de fora dele (a barra de pesquisa do
+           cabeçalho). *@
+        <input type="hidden" name="termo" value="@Model.Termo" />
+
         <div class="grade-catalogo">
             <aside class="barra-lateral-catalogo">
                 <partial name="_BarraLateral" model="Model" />

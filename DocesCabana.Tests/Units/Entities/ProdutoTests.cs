@@ -253,6 +253,27 @@ public class ProdutoTests
         Assert.False(produto.SemAcucar);
     }
 
+    // spec 016: NomeNormalizado é derivado, nunca atribuído — os dois únicos
+    // pontos que mudam o nome (construtor e AlterarNome) têm de produzir o
+    // mesmo derivado que TextoHelper.Normalizar produziria.
+    [Fact]
+    public void Dado_NomeComAcentoECaixaAlta_Quando_CriarProduto_Entao_NomeNormalizadoDeveSairSemAcentoEEmCaixaBaixa()
+    {
+        var produto = new Produto(_subcategoriaValida, "Café Especial", _precoValido, _imagemValida);
+
+        Assert.Equal("cafe especial", produto.NomeNormalizado);
+    }
+
+    [Fact]
+    public void Dado_ProdutoExistente_Quando_AlterarNome_Entao_NomeNormalizadoDeveAcompanhar()
+    {
+        var produto = CriarProduto();
+
+        produto.AlterarNome("Cachaça Envelhecida");
+
+        Assert.Equal("cachaca envelhecida", produto.NomeNormalizado);
+    }
+
     private Produto CriarProduto()
     {
         return new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida);

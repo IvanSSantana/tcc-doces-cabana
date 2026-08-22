@@ -1,4 +1,5 @@
 using DocesCabana.Domain.Enums;
+using DocesCabana.Domain.Helpers;
 
 namespace DocesCabana.Domain.Entities;
 
@@ -9,6 +10,13 @@ public class Produto
     public Guid SubcategoriaId { get; private set; }
 
     public string Nome { get; private set; } = default!;
+
+    // Derivado de Nome nos dois únicos pontos que o alteram — construtor e
+    // AlterarNome — nunca atribuído por fora (spec 016, RN-02). É o que a
+    // busca por texto compara, sem acento e sem caixa: sem esta coluna,
+    // "cafe" não encontraria "Café" no SQLite (Contains vira instr,
+    // sensível aos dois).
+    public string NomeNormalizado { get; private set; } = default!;
 
     public decimal Preco { get; private set; }
 
@@ -58,6 +66,7 @@ public class Produto
         Status = status;
         SubcategoriaId = subcategoriaId;
         Nome = nome;
+        NomeNormalizado = TextoHelper.Normalizar(nome);
         Preco = preco;
         ImagemUrl = imagemUrl;
         Descricao = descricao;
@@ -69,6 +78,7 @@ public class Produto
         ValidarNome(nome);
 
         Nome = nome;
+        NomeNormalizado = TextoHelper.Normalizar(nome);
     }
 
     public void AlterarSubcategoriaId(Guid subcategoriaId)

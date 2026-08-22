@@ -1,5 +1,6 @@
 @using DocesCabana.Application.DTOs
 @using DocesCabana.Application.Enums
+@using DocesCabana.MVC.Helpers
 @model CatalogoDTO
 @{
     static string RotuloOrdenacao(OrdenacaoCatalogo ordenacao) => ordenacao switch
@@ -23,6 +24,20 @@
    navega por teclado é jogado para o início do documento a cada filtro ou
    página nova. Não é focável por Tab, só programaticamente. *@
 <div id="resultado-catalogo" tabindex="-1">
+    @if (!string.IsNullOrWhiteSpace(Model.Termo))
+    {
+        @* Etiqueta removível (RF-07): um link comum para o mesmo endereço
+           sem o termo, preservando os demais filtros — não script, então
+           continua funcionando sem JavaScript. *@
+        <div class="etiqueta-busca-catalogo">
+            <span>@Model.Termo</span>
+            <a href="@EnderecoDoCatalogo.Montar(Url, Model.CategoriaAtual?.Apelido, Model.SubcategoriasMarcadas, Model.ApenasSemAcucar, Model.Ordenacao)"
+               class="botao-remover-busca" aria-label="Remover busca por &quot;@Model.Termo&quot;">
+                &times;
+            </a>
+        </div>
+    }
+
     <div class="cabecalho-conteudo-catalogo">
         @* aria-live (RF-04): quem usa leitor de tela ouve a nova contagem
            assim que ela troca, sem precisar navegar até aqui de novo. *@
@@ -56,10 +71,21 @@
 
     @if (Model.Pagina.Itens.Count == 0)
     {
-        <p class="catalogo-vazio">
-            Nenhum produto encontrado com esses filtros. Tente desmarcar
-            alguma subcategoria ou o filtro "sem açúcar".
-        </p>
+        @* RF-08: quem chegou buscando recebe uma explicação sobre a busca,
+           não um conselho sobre filtro que não marcou. *@
+        if (!string.IsNullOrWhiteSpace(Model.Termo))
+        {
+            <p class="catalogo-vazio">
+                Nenhum produto encontrado para &ldquo;@Model.Termo&rdquo;.
+            </p>
+        }
+        else
+        {
+            <p class="catalogo-vazio">
+                Nenhum produto encontrado com esses filtros. Tente desmarcar
+                alguma subcategoria ou o filtro "sem açúcar".
+            </p>
+        }
     }
     else
     {

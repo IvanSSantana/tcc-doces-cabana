@@ -32,6 +32,12 @@ public class PaginaCatalogo
     public ILocator ResultadoCatalogo => Container.Locator("#resultado-catalogo");
     public ILocator SeletorDeOrdenacaoNoResultado => ResultadoCatalogo.Locator("#select-ordenacao");
     public ILocator LinkDeCategoria(string nome) => Container.Locator(".link-categoria-catalogo", new() { HasText = nome });
+
+    // Busca por nome de produto (spec 016) — a barra vive no cabeçalho,
+    // reexibindo o termo vigente; a etiqueta e a remoção vivem no resultado.
+    public ILocator BarraDePesquisa => _pagina.Locator(".barra-pesquisa input[name='termo']");
+    public ILocator EtiquetaDeBusca => ResultadoCatalogo.Locator(".etiqueta-busca-catalogo");
+    public ILocator BotaoRemoverBusca => ResultadoCatalogo.Locator(".botao-remover-busca");
     // A caixa em si não tem texto (é um <input>) — para achar por nome é
     // preciso passar pelo rótulo que a envolve, mesmo caminho que
     // MarcarSubcategoriaPeloNome já usa.
@@ -46,6 +52,15 @@ public class PaginaCatalogo
     {
         await Container.Locator(".opcao-filtro-catalogo", new() { HasText = nome }).Locator("input").CheckAsync();
         await _pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
+    }
+
+    // A subcategoria pode estar nas 8 principais ou atrás do "Ver todas"
+    // (RF-10 da 012) — abre o <details> se for o caso, antes de marcar
+    // (spec 016, CA-15).
+    public async Task GarantirSubcategoriaVisivel(string nome)
+    {
+        if (!await CaixaDeSubcategoriaPeloNome(nome).IsVisibleAsync())
+            await VerTodas.ClickAsync();
     }
 
     public async Task MarcarSemAcucar()

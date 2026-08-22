@@ -9,4 +9,7 @@ public record FiltroCatalogoDTO(
     Guid? CategoriaId,
     IReadOnlyCollection<Guid> SubcategoriaIds,
     bool ApenasSemAcucar,
-    OrdenacaoCatalogo Ordenacao);
+    OrdenacaoCatalogo Ordenacao,
+    // Já normalizado (spec 016) — comparado direto contra Produto.NomeNormalizado.
+    // Nulo/vazio não filtra por nome (RF-09).
+    string? TermoNormalizado = null);

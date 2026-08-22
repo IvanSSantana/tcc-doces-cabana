@@ -1,26 +1,19 @@
 @using DocesCabana.Application.DTOs
+@using DocesCabana.MVC.Helpers
 @model CatalogoDTO
 @{
     // Links comuns, não botões de formulário — cada página precisa de
     // endereço próprio para poder ser compartilhada e voltar no histórico
-    // (RF-20/RF-22). Preserva categoria, subcategorias, "sem açúcar" e
-    // ordenação; só a página muda.
-    string ConstruirEndereco(int pagina)
-    {
-        var caminhoBase = Model.CategoriaAtual is null
-            ? Url.Action("Index", "Catalogo")!
-            : Url.Action("Index", "Catalogo", new { apelido = Model.CategoriaAtual.Apelido })!;
-
-        var partesDaConsulta = new List<string> { $"ordenacao={Model.Ordenacao}", $"pagina={pagina}" };
-
-        if (Model.ApenasSemAcucar)
-            partesDaConsulta.Add("semAcucar=true");
-
-        foreach (var subcategoriaId in Model.SubcategoriasMarcadas)
-            partesDaConsulta.Add($"subcategorias={subcategoriaId}");
-
-        return $"{caminhoBase}?{string.Join("&", partesDaConsulta)}";
-    }
+    // (RF-20/RF-22). Preserva categoria, subcategorias, "sem açúcar",
+    // ordenação e termo de busca; só a página muda (spec 016).
+    string ConstruirEndereco(int pagina) => EnderecoDoCatalogo.Montar(
+        Url,
+        Model.CategoriaAtual?.Apelido,
+        Model.SubcategoriasMarcadas,
+        Model.ApenasSemAcucar,
+        Model.Ordenacao,
+        Model.Termo,
+        pagina);
 }
 
 @if (Model.Pagina.TotalDePaginas > 1)

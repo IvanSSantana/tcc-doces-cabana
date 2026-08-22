@@ -1,0 +1,217 @@
+/* Desenho compartilhado de formulário (spec 016) — extraído de
+   pages/autenticacao.css, literalmente, sem alterar valor nenhum: nome de
+   arquivo errado (Princípio IV) era o defeito, não o CSS em si. Usado por
+   login, cadastro de cliente, esqueceu senha, redefinir senha, cadastro de
+   administrador e cadastro de produto — a única tela do grupo que ainda não
+   o linkava, e por isso ficava sem título nem contenção. */
+
+.container-autenticacao {
+    max-width: 680px;
+    margin: 7rem auto;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.titulo-tela {
+    color: #055C40;
+    font-size: 2.3rem;
+    font-weight: 600;
+    margin-bottom: 2.5rem;
+    text-align: left;
+}
+
+.formulario-autenticacao {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.campo-entrada {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.campo-entrada label {
+    font-family: 'Inter', sans-serif;
+    color: #055C40;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.campo-texto {
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    height: 54px;
+    padding: 0.75rem 1.5rem;
+    border: 1.5px solid #A2C4B9;
+    border-radius: 20px;
+    background-color: #FFFFFF;
+    color: #333333;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.campo-texto::placeholder {
+    color: #9CAFA6;
+    font-weight: 400;
+}
+
+.campo-texto:focus {
+    border-color: #055C40;
+    box-shadow: 0 0 0 1px rgba(5, 92, 64, 0.15);
+}
+
+/* Password wrapper and toggle button */
+.campo-senha-container {
+    position: relative;
+    width: 100%;
+}
+
+.campo-senha-container .campo-texto {
+    padding-right: 3.5rem;
+    /* Space for the eye icon */
+}
+
+.botao-mostrar-senha {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    color: #7A8F85;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.botao-mostrar-senha:hover {
+    color: #055C40;
+}
+
+.botao-mostrar-senha .icone-olho {
+    display: block;
+    color: #7A8F85;
+    transition: color 0.2s ease;
+}
+
+.botao-mostrar-senha:hover .icone-olho {
+    color: #055C40;
+}
+
+.linha-dupla {
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.linha-dupla .campo-entrada {
+    flex: 1;
+}
+
+.container-link {
+    display: flex;
+    justify-content: space-between; /* era flex-end */
+    margin-top: 0.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.link-navegacao {
+    font-family: 'Inter', sans-serif;
+    color: #055C40;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+}
+
+.link-navegacao:hover {
+    text-decoration: underline !important;
+}
+
+.container-botao {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.botao-acao {
+    font-family: 'Inter', sans-serif;
+    background-color: #055C40;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 16px;
+    width: 25vw;
+    min-width: 200px;
+    height: 52px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: filter 0.2s ease;
+}
+
+.botao-acao:hover {
+    filter: brightness(1.2);
+}
+
+.mensagem-erro {
+    font-family: 'Inter', sans-serif;
+    color: #D93B26;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    padding-left: 1rem;
+}
+
+.resumo-erros {
+    background-color: #FDF2F2;
+    border: 1.5px solid #FDE8E8;
+    border-radius: 16px;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.resumo-erros span {
+    padding-left: 0;
+    margin-top: 0;
+    font-weight: 500;
+}
+
+.resumo-sucesso {
+    background-color: #f6fdf2;
+    border: 1.5px solid #c3e6c1;
+    border-radius: 16px;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.resumo-sucesso span {
+    padding-left: 0;
+    margin-top: 0;
+    font-weight: 500;
+}
+
+.mensagem-sucesso {
+    font-family: 'Inter', sans-serif;
+    color: #188d3d;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    padding-left: 1rem;
+}
+
+.exibicao-bloco {
+    display: block;
+}
+
+.esconder {
+    display: none !important;
+}

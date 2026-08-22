@@ -28,6 +28,12 @@ var app = builder.Build();
 
 DbInitializer.Migrar(app.Services);
 
+// Corrige, em toda base (inclusive produção), a coluna que a migration
+// AddProdutoNomeNormalizado deixou vazia em linhas gravadas antes dela
+// (spec 016, plano §6) — não é dado de demonstração, então não fica atrás
+// do mesmo gate de "fora de produção" do seed abaixo.
+await DbInitializer.PreencherNomesNormalizados(app.Services);
+
 // Massa inicial de dados só fora de produção
 if (!app.Environment.IsProduction())
     await DbInitializer.Semear(app.Services);

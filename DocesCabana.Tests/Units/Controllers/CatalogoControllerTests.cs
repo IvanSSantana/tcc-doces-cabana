@@ -25,7 +25,7 @@ public class CatalogoControllerTests
         };
 
         _catalogoServiceMock
-            .Setup(s => s.Montar(It.IsAny<string?>(), It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>()))
+            .Setup(s => s.Montar(It.IsAny<CriteriosDoCatalogoDTO>(), It.IsAny<int>(), It.IsAny<Guid?>()))
             .ReturnsAsync(new CatalogoDTO());
     }
 
@@ -58,9 +58,9 @@ public class CatalogoControllerTests
         await _controller.Index();
 
         _catalogoServiceMock.Verify(s => s.Montar(
-            null,
-            It.Is<FiltroCatalogoDTO>(f => f.Ordenacao == OrdenacaoCatalogo.MelhorAvaliados),
-            1), Times.Once);
+            It.Is<CriteriosDoCatalogoDTO>(c => c.ApelidoDaCategoria == null && c.Ordenacao == OrdenacaoCatalogo.MelhorAvaliados),
+            1,
+            It.IsAny<Guid?>()), Times.Once);
     }
 
     [Fact]
@@ -72,9 +72,9 @@ public class CatalogoControllerTests
         await _controller.Index(ordenacao: OrdenacaoCatalogo.MaisVendidos);
 
         _catalogoServiceMock.Verify(s => s.Montar(
-            It.IsAny<string?>(),
-            It.Is<FiltroCatalogoDTO>(f => f.Ordenacao == OrdenacaoCatalogo.MelhorAvaliados),
-            It.IsAny<int>()), Times.Once);
+            It.Is<CriteriosDoCatalogoDTO>(c => c.Ordenacao == OrdenacaoCatalogo.MelhorAvaliados),
+            It.IsAny<int>(),
+            It.IsAny<Guid?>()), Times.Once);
     }
 
     [Fact]
@@ -83,6 +83,37 @@ public class CatalogoControllerTests
         await _controller.Index(apelido: "doces");
 
         _catalogoServiceMock.Verify(s => s.Montar(
-            "doces", It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>()), Times.Once);
+            It.Is<CriteriosDoCatalogoDTO>(c => c.ApelidoDaCategoria == "doces"),
+            It.IsAny<int>(),
+            It.IsAny<Guid?>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_TermoNaQuery_Quando_Index_Entao_DeveChegarAoServicoSemDeformacao()
+    {
+        // spec 016: o controller repassa o termo cru — normalizar é
+        // trabalho do CatalogoService, não do controller.
+        await _controller.Index(termo: "Café");
+
+        _catalogoServiceMock.Verify(s => s.Montar(
+            It.Is<CriteriosDoCatalogoDTO>(c => c.Termo == "Café"),
+            It.IsAny<int>(),
+            It.IsAny<Guid?>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_ApelidosDeSubcategoria_Quando_Index_Entao_DevemChegarAoServicoSemDeformacao()
+    {
+        // spec 016: subcategorias chegam pela URL como texto legível, não
+        // como Guid — este teste prova que o controller repassa o que
+        // recebeu, sem tentar resolver nada por conta própria.
+        await _controller.Index(apelido: "doces", subcategorias: ["barras", "potes"]);
+
+        _catalogoServiceMock.Verify(s => s.Montar(
+            It.Is<CriteriosDoCatalogoDTO>(c => c.ApelidosDeSubcategoria.Count == 2
+                && c.ApelidosDeSubcategoria.Contains("barras")
+                && c.ApelidosDeSubcategoria.Contains("potes")),
+            It.IsAny<int>(),
+            It.IsAny<Guid?>()), Times.Once);
     }
 }

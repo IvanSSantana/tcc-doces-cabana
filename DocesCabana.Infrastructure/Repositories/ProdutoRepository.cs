@@ -63,6 +63,13 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
         if (filtro.ApenasSemAcucar)
             consulta = consulta.Where(p => p.SemAcucar);
 
+        // Busca por texto (spec 016) — mais um filtro, não um caminho à
+        // parte (RN-01). Contains sobre NomeNormalizado vira instr no
+        // SQLite: literal, sem interpretar %/_ como curinga, e comparado
+        // contra um texto já sem acento e sem caixa dos dois lados (RN-02).
+        if (!string.IsNullOrWhiteSpace(filtro.TermoNormalizado))
+            consulta = consulta.Where(p => p.NomeNormalizado.Contains(filtro.TermoNormalizado));
+
         return consulta;
     }
 
@@ -84,7 +91,7 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
 
             // NomeAZ é o padrão (RF-17); MaisVendidos nunca chega aqui — o
             // controller saneia para NomeAZ antes de montar o filtro, porque
-            // RN-07 a mantém indisponível até a spec 019.
+            // RN-07 a mantém indisponível até a spec 020.
             _ => consulta.OrderBy(p => p.Nome),
         };
 }

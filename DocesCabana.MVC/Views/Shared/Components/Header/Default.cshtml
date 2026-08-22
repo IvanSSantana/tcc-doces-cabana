@@ -17,16 +17,30 @@
           alt="Logo Doce Cabana">
       </a>
 
-      <div class="barra-pesquisa">
-        <input type="text" placeholder="Buscar produto...">
+      @* Busca por nome de produto (spec 016, RF-01/RF-02): varre a loja
+         inteira, sempre no catálogo, sem categoria — a barra vive aqui, no
+         cabeçalho, presente inclusive na home, onde não há categoria
+         nenhuma. Formulário comum, GET, sem interceptação — sempre navega
+         de verdade para /Catalogo, com ou sem JavaScript (RF-10). É só a
+         partir daí, já dentro do catálogo, que #formulario-catalogo (com o
+         termo como campo oculto) assume o refinamento sem recarga. *@
+      @* asp-route-apelido="null" explícito (não omitido) é o que impede o
+         gerador de endereço de herdar o apelido de categoria da página
+         atual como valor ambiente — sem isso, buscar de dentro de
+         /Catalogo/doces submeteria para /Catalogo/doces, não para o
+         catálogo inteiro (RF-02). *@
+      <form asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="@((string?)null)"
+            method="get" class="barra-pesquisa">
+        <input type="text" name="termo" value="@ViewData["TermoDeBusca"]"
+               placeholder="Buscar produto..." aria-label="Buscar produto">
 
         <div class="separador-pesquisa"></div>
 
-        <button class="botao-pesquisar" aria-label="Buscar">
+        <button type="submit" class="botao-pesquisar" aria-label="Buscar">
           <i class="fa-solid fa-magnifying-glass icone-pesquisa"></i>
         </button>
 
-      </div>
+      </form>
 
       <div class="acoes-usuario">
         @if (User.Identity!.IsAuthenticated)
@@ -119,7 +133,7 @@
                   {
                     <li>
                       <a asp-area="" asp-controller="Catalogo" asp-action="Index"
-                         asp-route-apelido="@categoria.Apelido" asp-route-subcategorias="@subcategoria.SubcategoriaId">
+                         asp-route-apelido="@categoria.Apelido" asp-route-subcategorias="@subcategoria.Apelido">
                         @subcategoria.Nome
                       </a>
                     </li>

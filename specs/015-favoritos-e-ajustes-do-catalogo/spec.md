@@ -291,7 +291,7 @@ que apareceram no caminho.
 ## 8. Fora de escopo
 
 - **Carrinho.** O seletor de quantidade e o botão continuam indisponíveis. É a
-  `016` da cadeia da loja.
+  `018` da cadeia da loja.
 - **Favoritar da página do produto.** Esta entrega cobre o cartão, no catálogo
   e na lista de favoritos. A tela de detalhe é entrega própria.
 - **Ordenar ou filtrar a lista de favoritos.** A lista mostra o que foi
@@ -312,7 +312,7 @@ que apareceram no caminho.
 - **Depende de:** `003`, que criou a entidade e a tabela de favorito; `012`,
   que entregou o catálogo e o cartão; `014`, que corrigiu a geometria do cartão
   e estabeleceu o padrão de atualização sem recarga.
-- **Bloqueia:** nada. A `016` (carrinho) reaproveitará o padrão de POST com
+- **Bloqueia:** nada. A `018` (carrinho) reaproveitará o padrão de POST com
   atualização no lugar que esta feature estabelece para o coração.
 
 ## 10. Decisões e pendências

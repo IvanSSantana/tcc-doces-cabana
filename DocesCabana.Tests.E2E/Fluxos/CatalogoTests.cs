@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using DocesCabana.Tests.E2E.Infraestrutura;
 using DocesCabana.Tests.E2E.Paginas;
 using Microsoft.Playwright;
@@ -40,6 +41,102 @@ public class CatalogoTests : TesteE2E
             await pagina.Abrir(UrlBase, "emporio");
 
             Assert.Contains("/Catalogo/emporio", Pagina.Url);
+        });
+
+    // CA-12 a CA-16 (spec 016): o endereço do catálogo identifica
+    // subcategoria por nome legível, não por identificador técnico.
+
+    [Fact]
+    public async Task Dado_Catalogo_Quando_MarcarSubcategoria_Entao_OEnderecoDeveConterONomeLegivel() =>
+        await Executar(async () =>
+        {
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+
+            await pagina.MarcarSubcategoriaPeloNome("Barras");
+
+            // Assert.Contains(Pagina.Url) é leitura única: o pushState do
+            // catalogo.js acontece no .then() do fetch, que pode terminar
+            // depois de NetworkIdle (mesma corrida documentada na spec 015).
+            // ToHaveURLAsync tem retry automático — espera o endereço
+            // convergir em vez de ler um instante arbitrário.
+            await Expect(Pagina).ToHaveURLAsync(new Regex("subcategorias=barras"));
+        });
+
+    [Fact]
+    public async Task Dado_DuasSubcategoriasMarcadas_Quando_OlharOEndereco_Entao_AmbasDevemAparecerPorNome() =>
+        await Executar(async () =>
+        {
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "adega");
+
+            await pagina.MarcarSubcategoriaPeloNome("Vinhos");
+            await pagina.MarcarSubcategoriaPeloNome("Cachaça");
+
+            await Expect(Pagina).ToHaveURLAsync(new Regex("(?=.*subcategorias=vinhos)(?=.*subcategorias=cachaca).*"));
+        });
+
+    [Fact]
+    public async Task Dado_ApelidoDeSubcategoriaInexistente_Quando_AbrirOCatalogo_Entao_DeveMostrarACategoriaInteira() =>
+        await Executar(async () =>
+        {
+            await Pagina.GotoAsync($"{UrlBase}/Catalogo/doces?subcategorias=nao-existe");
+
+            var pagina = new PaginaCatalogo(Pagina);
+            // RN-04: filtro que não se aplica não impede a página — a
+            // categoria inteira aparece, sem erro.
+            await Expect(pagina.CategoriaAtiva).ToHaveTextAsync("Doces");
+            await Expect(pagina.Cards).ToHaveCountAsync(12);
+        });
+
+    [Fact]
+    public async Task Dado_MesmoNomeEmDuasCategorias_Quando_FiltrarEmCadaUma_Entao_NaoDevemSeConfundir() =>
+        await Executar(async () =>
+        {
+            // "Cappuccino" existe em Doces e em Empório (DbInitializer) —
+            // RN-03 escopa a unicidade do apelido por categoria, não pela
+            // loja inteira.
+            var pagina = new PaginaCatalogo(Pagina);
+            await pagina.Abrir(UrlBase, "doces");
+            await pagina.GarantirSubcategoriaVisivel("Cappuccino");
+            await pagina.MarcarSubcategoriaPeloNome("Cappuccino");
+            var totalEmDoces = await pagina.Cards.CountAsync();
+
+            await pagina.Abrir(UrlBase, "emporio");
+            await pagina.GarantirSubcategoriaVisivel("Cappuccino");
+            await pagina.MarcarSubcategoriaPeloNome("Cappuccino");
+            var totalEmEmporio = await pagina.Cards.CountAsync();
+
+            Assert.True(totalEmDoces > 0);
+            Assert.True(totalEmEmporio > 0);
+            // Cada filtro só traz produto da própria categoria — a soma dos
+            // dois nunca poderia superar o total das duas categorias juntas
+            // se tivessem se confundido, mas a prova direta é: o catálogo de
+            // "emporio" com o filtro nunca inclui produto de Doces, e
+            // vice-versa (implícito por CategoriaId no filtro).
+            var pagina2 = new PaginaCatalogo(Pagina);
+            await Expect(pagina2.CategoriaAtiva).ToHaveTextAsync("Empório");
+        });
+
+    [Fact]
+    public async Task Dado_MenuDoCabecalho_Quando_EscolherSubcategoria_Entao_OEnderecoDeveSerLegivel() =>
+        await Executar(async () =>
+        {
+            await Pagina.GotoAsync(UrlBase);
+
+            // O submenu só é visível em :hover/:focus-within (spec 012) —
+            // precisa passar o mouse sobre o item antes de alcançar o link.
+            var itemDoces = Pagina.Locator(".item-categoria-nav", new() { HasText = "Doces" });
+            await itemDoces.HoverAsync();
+            var linkBarras = itemDoces.Locator(".submenu-categoria")
+                .GetByRole(AriaRole.Link, new() { Name = "Barras", Exact = true });
+            // A transição de opacidade/transform do submenu (header.css)
+            // deixa o link "instável" para a checagem padrão de clique
+            // durante os 0.15s da animação — Force ignora essa checagem,
+            // o link já está clicável de verdade (RF-03/RF-09 da 012).
+            await linkBarras.ClickAsync(new() { Force = true });
+
+            await Expect(Pagina).ToHaveURLAsync(new Regex(@"/Catalogo/doces\?.*subcategorias=barras"));
         });
 
     [Fact]

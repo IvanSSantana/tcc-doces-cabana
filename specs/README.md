@@ -25,8 +25,9 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [013](./013-correcoes-da-pagina-inicial/spec.md) | Correções da página inicial | Implementada | spec · [plan](./013-correcoes-da-pagina-inicial/plan.md) · [tasks](./013-correcoes-da-pagina-inicial/tasks.md) · [checklist](./013-correcoes-da-pagina-inicial/checklist.md) |
 | [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Implementada | spec · [plan](./014-refinamento-do-catalogo/plan.md) · [tasks](./014-refinamento-do-catalogo/tasks.md) · [checklist](./014-refinamento-do-catalogo/checklist.md) |
 | [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Implementada | spec · [plan](./015-favoritos-e-ajustes-do-catalogo/plan.md) · [tasks](./015-favoritos-e-ajustes-do-catalogo/tasks.md) · [checklist](./015-favoritos-e-ajustes-do-catalogo/checklist.md) |
+| [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | spec · [plan](./016-busca-e-enderecos-do-catalogo/plan.md) · [tasks](./016-busca-e-enderecos-do-catalogo/tasks.md) · [checklist](./016-busca-e-enderecos-do-catalogo/checklist.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -107,8 +108,23 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > marcava duas subcategorias em sequência falhava de forma intermitente
 > porque `CheckAsync()` não espera a navegação que o `onchange` do formulário
 > dispara — corrigido no objeto de página, não na aplicação.
+>
+> A `016` deu à barra de pesquisa do cabeçalho a função que ela nunca teve,
+> trocou o identificador técnico do endereço de subcategoria por um nome
+> legível (mesmo truque de apelido que a `012` já usava para categoria,
+> agora escopado por categoria — "Cappuccino" existe em Doces e em Empório) e
+> vestiu o cadastro de produto no mesmo desenho de formulário que as outras
+> cinco telas do sistema. `Produto` ganhou `NomeNormalizado` (migration
+> `AddProdutoNomeNormalizado`), porque o SQLite não tem função para remover
+> acento e a busca precisa ignorá-lo. Dois achados corrigidos durante a
+> execução: o formulário de busca do cabeçalho herdava o apelido de
+> categoria **ambiente** da página atual quando não o anulava explicitamente
+> (`asp-route-apelido="@((string?)null)"`), fazendo a busca de dentro de uma
+> categoria ficar presa a ela; e `.linha-dupla` (compartilhado por seis
+> telas) nunca empilhava em tela estreita — corrigido só para o cadastro de
+> produto, para não mudar a aparência das outras cinco por conta própria.
 
-## A cadeia da loja (011 → 020)
+## A cadeia da loja (011 → 021)
 
 Traçada em 2026-08-18, a partir de três referências visuais — catálogo filtrado,
 catálogo completo e carrinho com fechamento. As três telas parecem duas
@@ -122,34 +138,36 @@ preferência — cada uma só é construível depois da anterior.
 | [012](./012-catalogo/spec.md) | Catálogo | Implementada | os 4 atalhos mortos do cabeçalho e o bloco de categorias da home |
 | [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Implementada | tira do caminho as pendências do catálogo antes da cadeia seguir |
 | [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Implementada | liga o coração do card e fecha o desenho do catálogo |
-| 016 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
-| 017 | Carrinho | não especificada | os dois controles do card que sobraram, desabilitados pela `012` |
-| 018 | Endereço do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
-| 019 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
-| 020 | Pagamento | não especificada | — |
+| [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | busca por nome, endereço legível de subcategoria e o cadastro de produto vestido — acabamento antes do carrinho |
+| 017 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
+| 018 | Carrinho | não especificada | os dois controles do card que sobraram, desabilitados pela `012` |
+| 019 | Endereço do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
+| 020 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
+| 021 | Pagamento | não especificada | — |
 
 **Perguntas em aberto, a resolver na spec de cada uma** — nenhuma tem resposta
-ainda, e por isso `016` em diante não foram especificadas:
+ainda, e por isso `017` em diante não foram especificadas:
 
-- **Frete** (`017`): valor fixo, por região, ou calculado? O mockup mostra
+- **Frete** (`018`): valor fixo, por região, ou calculado? O mockup mostra
   `R$ 11,94` no resumo do pedido **antes** de o cliente informar endereço.
-- **Cupom de desconto** (`019` ou spec própria): a entidade `Promocao` existe
+- **Cupom de desconto** (`020` ou spec própria): a entidade `Promocao` existe
   desde a `003` e nunca foi usada. Cupom por código é a mesma coisa que
   promoção na vitrine, ou são dois conceitos?
-- **Carrinho de visitante** (`017`): quem não está logado pode montar carrinho,
+- **Carrinho de visitante** (`018`): quem não está logado pode montar carrinho,
   ou o botão leva ao login?
-- **Reserva de estoque** (`016`/`017`): item no carrinho segura estoque, ou só
+- **Reserva de estoque** (`017`/`018`): item no carrinho segura estoque, ou só
   no fechamento?
 
 > **Nota de numeração:** a cadeia era `013`–`017` quando foi traçada, e já
-> deslocou três vezes — `013` (correções da página inicial), `014`
-> (refinamento do catálogo) e `015` (favoritos e ajustes do catálogo). Nos três
-> casos, pendências conhecidas que não valia a pena carregar para dentro de uma
-> feature nova. Segue a regra do topo deste arquivo: o número é atribuído
-> quando a spec é criada, e as entradas sem link acima ainda não têm spec.
+> deslocou quatro vezes — `013` (correções da página inicial), `014`
+> (refinamento do catálogo), `015` (favoritos e ajustes do catálogo) e `016`
+> (busca e endereços do catálogo). Nos quatro casos, pendências conhecidas ou
+> acabamento que não valia a pena carregar para dentro de uma feature de
+> carrinho. Segue a regra do topo deste arquivo: o número é atribuído quando a
+> spec é criada, e as entradas sem link acima ainda não têm spec.
 >
 > Cada deslocamento deixa referências obsoletas em comentário de código e em
-> specs antigas. As duas rodadas já cobradas estão corrigidas; **quem deslocar
+> specs antigas. As três rodadas já cobradas estão corrigidas; **quem deslocar
 > a cadeia de novo precisa varrer `spec 0NN` na base inteira**, inclusive na
 > spec que estiver escrevendo — foi exatamente ela que escapou da primeira vez.
 
@@ -162,7 +180,6 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Feature | Depende de |
 |---|---|
 | Listagem, edição e exclusão de produto (admin) | 001, 011 |
-| Busca por texto | 012 — o campo do cabeçalho segue sem função |
 | Escrever avaliação de produto | 008, carrinho — a `014` fechou a barreira de dados (índice único); falta a verificação no serviço, ver `014` plano §10 |
 | Galeria de imagens do produto | 008 |
 | Promoções na vitrine | 003 |

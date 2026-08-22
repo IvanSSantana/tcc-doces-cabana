@@ -1,7 +1,7 @@
 # Plano Técnico — Busca e endereços do catálogo
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-22
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 

@@ -16,6 +16,8 @@ public class CatalogoServiceTests
     private readonly CatalogoService _catalogoService;
 
     private readonly Guid _categoriaDocesId = Guid.NewGuid();
+    private readonly Guid _subcategoriaBarrasId = Guid.NewGuid();
+    private readonly Guid _subcategoriaPotesId = Guid.NewGuid();
 
     public CatalogoServiceTests()
     {
@@ -27,18 +29,46 @@ public class CatalogoServiceTests
         _categoriaServiceMock.Setup(s => s.ListarComSubcategorias())
             .ReturnsAsync(new List<CategoriaDTO>
             {
-                new() { CategoriaId = _categoriaDocesId, Nome = "Doces", Apelido = "doces" },
-                new() { CategoriaId = Guid.NewGuid(), Nome = "Adega", Apelido = "adega" },
+                new()
+                {
+                    CategoriaId = _categoriaDocesId,
+                    Nome = "Doces",
+                    Apelido = "doces",
+                    Subcategorias =
+                    [
+                        new() { SubcategoriaId = _subcategoriaBarrasId, Nome = "Barras", Apelido = "barras" },
+                        new() { SubcategoriaId = _subcategoriaPotesId, Nome = "Potes", Apelido = "potes" },
+                        // Mesmo apelido de uma subcategoria de Empório
+                        // (spec 016, RN-03) — a colisão só existiria se a
+                        // resolução vazasse entre categorias.
+                        new() { SubcategoriaId = Guid.NewGuid(), Nome = "Cappuccino", Apelido = "cappuccino" },
+                    ]
+                },
+                new()
+                {
+                    CategoriaId = Guid.NewGuid(),
+                    Nome = "Adega",
+                    Apelido = "adega",
+                    Subcategorias =
+                    [
+                        new() { SubcategoriaId = Guid.NewGuid(), Nome = "Cappuccino", Apelido = "cappuccino" },
+                    ]
+                },
             });
     }
+
+    private static CriteriosDoCatalogoDTO CriteriosPadrao(
+        string? apelidoDaCategoria = null,
+        IReadOnlyCollection<string>? apelidosDeSubcategoria = null,
+        bool apenasSemAcucar = false,
+        string? termo = null) =>
+        new(apelidoDaCategoria, apelidosDeSubcategoria ?? [], apenasSemAcucar, OrdenacaoCatalogo.NomeAZ, termo);
 
     [Fact]
     public async Task Dado_ApelidoInexistente_Quando_Montar_Entao_DeveLancarKeyNotFoundException()
     {
-        var filtro = FiltroPadrao();
-
         await Assert.ThrowsAsync<KeyNotFoundException>(() =>
-            _catalogoService.Montar("inexistente", filtro, 1));
+            _catalogoService.Montar(CriteriosPadrao("inexistente"), 1));
     }
 
     [Fact]
@@ -48,7 +78,7 @@ public class CatalogoServiceTests
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
 
-        var resultado = await _catalogoService.Montar("doces", FiltroPadrao(), 1);
+        var resultado = await _catalogoService.Montar(CriteriosPadrao("doces"), 1);
 
         Assert.NotNull(resultado.CategoriaAtual);
         Assert.Equal(_categoriaDocesId, resultado.CategoriaAtual!.CategoriaId);
@@ -63,7 +93,7 @@ public class CatalogoServiceTests
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
 
-        var resultado = await _catalogoService.Montar(null, FiltroPadrao(), 1);
+        var resultado = await _catalogoService.Montar(CriteriosPadrao(), 1);
 
         Assert.Null(resultado.CategoriaAtual);
         _produtoRepositoryMock.Verify(r => r.ContarNoCatalogo(
@@ -71,21 +101,76 @@ public class CatalogoServiceTests
     }
 
     [Fact]
-    public async Task Dado_DuasSubcategoriasMarcadas_Quando_Montar_Entao_DevePassarAsDuasAoRepositorio()
+    public async Task Dado_DoisApelidosDeSubcategoriaMarcados_Quando_Montar_Entao_DevePassarOsDoisIdentificadoresAoRepositorio()
     {
-        var idBarras = Guid.NewGuid();
-        var idPotes = Guid.NewGuid();
         _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
 
-        var filtro = new FiltroCatalogoDTO(null, [idBarras, idPotes], false, OrdenacaoCatalogo.NomeAZ);
-        await _catalogoService.Montar("doces", filtro, 1);
+        var criterios = CriteriosPadrao("doces", ["barras", "potes"]);
+        await _catalogoService.Montar(criterios, 1);
 
         _produtoRepositoryMock.Verify(r => r.ContarNoCatalogo(
             It.Is<FiltroCatalogoDTO>(f => f.SubcategoriaIds.Count == 2
-                && f.SubcategoriaIds.Contains(idBarras)
-                && f.SubcategoriaIds.Contains(idPotes))), Times.Once);
+                && f.SubcategoriaIds.Contains(_subcategoriaBarrasId)
+                && f.SubcategoriaIds.Contains(_subcategoriaPotesId))), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_ApelidoDeSubcategoriaDesconhecidoNaCategoria_Quando_Montar_Entao_DeveIgnorarEMostrarACategoriaInteira()
+    {
+        // RN-04 (spec 016): filtro que não pode ser aplicado não impede a
+        // página — só a categoria (o endereço em si) produz "não encontrado".
+        _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync([]);
+
+        var criterios = CriteriosPadrao("doces", ["subcategoria-que-nao-existe"]);
+        var resultado = await _catalogoService.Montar(criterios, 1);
+
+        Assert.NotNull(resultado.CategoriaAtual);
+        Assert.Empty(resultado.SubcategoriasMarcadas);
+        _produtoRepositoryMock.Verify(r => r.ContarNoCatalogo(
+            It.Is<FiltroCatalogoDTO>(f => f.SubcategoriaIds.Count == 0)), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_MesmoApelidoDeSubcategoriaEmDuasCategorias_Quando_Montar_Entao_NaoDeveConfundir()
+    {
+        // RN-03: "cappuccino" existe em Doces e em Adega. Resolver dentro de
+        // Doces não pode acidentalmente casar com a subcategoria de Adega.
+        _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync([]);
+
+        var categorias = await _categoriaServiceMock.Object.ListarComSubcategorias();
+        var idCappuccinoDeDoces = categorias.Single(c => c.Apelido == "doces").Subcategorias.Single(s => s.Apelido == "cappuccino").SubcategoriaId;
+        var idCappuccinoDeAdega = categorias.Single(c => c.Apelido == "adega").Subcategorias.Single(s => s.Apelido == "cappuccino").SubcategoriaId;
+
+        var criterios = CriteriosPadrao("doces", ["cappuccino"]);
+        await _catalogoService.Montar(criterios, 1);
+
+        _produtoRepositoryMock.Verify(r => r.ContarNoCatalogo(
+            It.Is<FiltroCatalogoDTO>(f => f.SubcategoriaIds.Count == 1
+                && f.SubcategoriaIds.Contains(idCappuccinoDeDoces)
+                && !f.SubcategoriaIds.Contains(idCappuccinoDeAdega))), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_ApelidosDeSubcategoriaSemCategoria_Quando_Montar_Entao_DeveIgnorarPorNaoTerContraOQueComparar()
+    {
+        // Fora de uma categoria, RN-03 não tem escopo contra o que resolver
+        // um apelido — o catálogo completo não filtra por subcategoria.
+        _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync([]);
+
+        var criterios = CriteriosPadrao(apelidoDaCategoria: null, apelidosDeSubcategoria: ["barras"]);
+        var resultado = await _catalogoService.Montar(criterios, 1);
+
+        Assert.Empty(resultado.SubcategoriasMarcadas);
+        _produtoRepositoryMock.Verify(r => r.ContarNoCatalogo(
+            It.Is<FiltroCatalogoDTO>(f => f.SubcategoriaIds.Count == 0)), Times.Once);
     }
 
     [Fact]
@@ -95,11 +180,60 @@ public class CatalogoServiceTests
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
 
-        var filtro = new FiltroCatalogoDTO(null, [], true, OrdenacaoCatalogo.NomeAZ);
-        await _catalogoService.Montar("doces", filtro, 1);
+        var criterios = CriteriosPadrao("doces", [], apenasSemAcucar: true);
+        await _catalogoService.Montar(criterios, 1);
 
         _produtoRepositoryMock.Verify(r => r.ContarNoCatalogo(
             It.Is<FiltroCatalogoDTO>(f => f.ApenasSemAcucar)), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_TermoComAcentoECaixaAlta_Quando_Montar_Entao_DevePassarNormalizadoAoRepositorio()
+    {
+        // RN-02 (spec 016): a comparação ignora acento e caixa dos dois
+        // lados — é CatalogoService quem normaliza o termo antes de
+        // repassar, o repositório só compara texto já normalizado.
+        _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync([]);
+
+        var criterios = CriteriosPadrao(termo: "CAFÉ");
+        await _catalogoService.Montar(criterios, 1);
+
+        _produtoRepositoryMock.Verify(r => r.ContarNoCatalogo(
+            It.Is<FiltroCatalogoDTO>(f => f.TermoNormalizado == "cafe")), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Dado_TermoNuloOuEmBranco_Quando_Montar_Entao_NaoDeveVirarFiltro(string? termo)
+    {
+        // RF-09: buscar com o campo vazio é o catálogo completo, sem erro.
+        _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync([]);
+
+        var criterios = CriteriosPadrao(termo: termo);
+        await _catalogoService.Montar(criterios, 1);
+
+        _produtoRepositoryMock.Verify(r => r.ContarNoCatalogo(
+            It.Is<FiltroCatalogoDTO>(f => f.TermoNormalizado == null)), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_UmaBuscaComTermo_Quando_Montar_Entao_CatalogoDTODeveDevolverOTermoCru()
+    {
+        // RF-06: a tela reexibe o que a pessoa digitou, não o normalizado.
+        _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync([]);
+
+        var criterios = CriteriosPadrao(termo: "Brigadeiro");
+        var resultado = await _catalogoService.Montar(criterios, 1);
+
+        Assert.Equal("Brigadeiro", resultado.Termo);
     }
 
     [Fact]
@@ -109,7 +243,7 @@ public class CatalogoServiceTests
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
 
-        var resultado = await _catalogoService.Montar("doces", FiltroPadrao(), 1);
+        var resultado = await _catalogoService.Montar(CriteriosPadrao("doces"), 1);
 
         Assert.Empty(resultado.Pagina.Itens);
         Assert.Equal(0, resultado.Pagina.TotalDeItens);
@@ -125,7 +259,7 @@ public class CatalogoServiceTests
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), 3, CatalogoService.TamanhoDaPagina))
             .ReturnsAsync([CriarProduto("Produto da página 3")]);
 
-        var resultado = await _catalogoService.Montar("doces", FiltroPadrao(), 99);
+        var resultado = await _catalogoService.Montar(CriteriosPadrao("doces"), 99);
 
         Assert.Equal(3, resultado.Pagina.PaginaAtual);
         Assert.Equal(3, resultado.Pagina.TotalDePaginas);
@@ -139,7 +273,7 @@ public class CatalogoServiceTests
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), 1, CatalogoService.TamanhoDaPagina))
             .ReturnsAsync([]);
 
-        var resultado = await _catalogoService.Montar("doces", FiltroPadrao(), 0);
+        var resultado = await _catalogoService.Montar(CriteriosPadrao("doces"), 0);
 
         Assert.Equal(1, resultado.Pagina.PaginaAtual);
     }
@@ -159,7 +293,7 @@ public class CatalogoServiceTests
         _favoritoRepositoryMock.Setup(r => r.IdsPorUsuario(usuarioId, It.IsAny<IEnumerable<Guid>>()))
             .ReturnsAsync(new HashSet<Guid> { produtoFavoritado.ProdutoId });
 
-        var resultado = await _catalogoService.Montar("doces", FiltroPadrao(), 1, usuarioId);
+        var resultado = await _catalogoService.Montar(CriteriosPadrao("doces"), 1, usuarioId);
 
         var dtoFavoritado = resultado.Pagina.Itens.Single(p => p.ProdutoId == produtoFavoritado.ProdutoId);
         var dtoNaoFavoritado = resultado.Pagina.Itens.Single(p => p.ProdutoId == produtoNaoFavoritado.ProdutoId);
@@ -178,14 +312,11 @@ public class CatalogoServiceTests
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([produto]);
 
-        var resultado = await _catalogoService.Montar("doces", FiltroPadrao(), 1, usuarioId: null);
+        var resultado = await _catalogoService.Montar(CriteriosPadrao("doces"), 1, usuarioId: null);
 
         Assert.False(resultado.Pagina.Itens.Single().EstaFavorito);
         _favoritoRepositoryMock.Verify(r => r.IdsPorUsuario(It.IsAny<Guid>(), It.IsAny<IEnumerable<Guid>>()), Times.Never);
     }
-
-    private static FiltroCatalogoDTO FiltroPadrao() =>
-        new(null, [], false, OrdenacaoCatalogo.NomeAZ);
 
     private static Produto CriarProduto(string nome) =>
         new(Guid.NewGuid(), nome, 10m, "https://imagem.com/produto.jpg");
