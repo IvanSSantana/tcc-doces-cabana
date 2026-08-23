@@ -111,6 +111,12 @@ public class Produto
 
     public void AlterarStatus(ProdutoStatus novoStatus) => Status = novoStatus;
 
+    // RN-06 (spec 017): "disponível para compra" é um estado só, com dois
+    // motivos de recusa (inativo ou fora de estoque) — invariante do
+    // domínio, não regra de tela. Método, não propriedade: uma propriedade
+    // computada o EF Core tentaria mapear para coluna.
+    public bool DisponivelParaCompra() => Status == ProdutoStatus.Ativo;
+
     public void MarcarComoSemAcucar() => SemAcucar = true;
 
     public void DesmarcarSemAcucar() => SemAcucar = false;

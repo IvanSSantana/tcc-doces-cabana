@@ -26,8 +26,9 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Implementada | spec · [plan](./014-refinamento-do-catalogo/plan.md) · [tasks](./014-refinamento-do-catalogo/tasks.md) · [checklist](./014-refinamento-do-catalogo/checklist.md) |
 | [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Implementada | spec · [plan](./015-favoritos-e-ajustes-do-catalogo/plan.md) · [tasks](./015-favoritos-e-ajustes-do-catalogo/tasks.md) · [checklist](./015-favoritos-e-ajustes-do-catalogo/checklist.md) |
 | [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | spec · [plan](./016-busca-e-enderecos-do-catalogo/plan.md) · [tasks](./016-busca-e-enderecos-do-catalogo/tasks.md) · [checklist](./016-busca-e-enderecos-do-catalogo/checklist.md) |
+| [017](./017-carrinho/spec.md) | Carrinho | Implementada | spec · [plan](./017-carrinho/plan.md) · [tasks](./017-carrinho/tasks.md) · [checklist](./017-carrinho/checklist.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -123,6 +124,20 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > categoria ficar presa a ela; e `.linha-dupla` (compartilhado por seis
 > telas) nunca empilhava em tela estreita — corrigido só para o cadastro de
 > produto, para não mudar a aparência das outras cinco por conta própria.
+>
+> A `017` deu à loja o carrinho — tabela própria (`ItemCarrinho`, chave
+> composta usuário+produto), carrinho de visitante na sessão que se funde ao
+> de conta no primeiro request autenticado (`FiltroFusaoDeCarrinho`), e os
+> controles do card e da página do produto que a `012`/`015` tinham deixado
+> desabilitados de propósito. Preço e disponibilidade são sempre lidos do
+> produto no momento — o carrinho não guarda coluna de preço, então nunca
+> fica desatualizado. Dois desvios do plano original, registrados em
+> `tasks.md`: a quantidade do card ficou como `<span>` lido por script em vez
+> do `<input type="hidden">` planejado (um hidden associado por `form=`
+> vazaria a quantidade de todos os cards da grade a cada envio, não só do
+> clicado); e `FilterException` ganhou um ramo próprio para as ações de
+> escrita do carrinho, que não têm view para redesenhar no erro — mesmo
+> padrão que `ProdutoController.VotarUtil` já usava.
 
 ## A cadeia da loja (011 → 021)
 
@@ -139,37 +154,40 @@ preferência — cada uma só é construível depois da anterior.
 | [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Implementada | tira do caminho as pendências do catálogo antes da cadeia seguir |
 | [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Implementada | liga o coração do card e fecha o desenho do catálogo |
 | [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | busca por nome, endereço legível de subcategoria e o cadastro de produto vestido — acabamento antes do carrinho |
-| 017 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
-| 018 | Carrinho | não especificada | os dois controles do card que sobraram, desabilitados pela `012` |
-| 019 | Endereço do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
-| 020 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
+| [017](./017-carrinho/spec.md) | Carrinho | Implementada | os dois controles do card que sobraram, desabilitados pela `012` |
+| 018 | Endereços do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
+| 019 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
+| 020 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
 | 021 | Pagamento | não especificada | — |
 
-**Perguntas em aberto, a resolver na spec de cada uma** — nenhuma tem resposta
-ainda, e por isso `017` em diante não foram especificadas:
+As duas perguntas sobre o carrinho de visitante e a reserva de estoque foram
+resolvidas ao escrever a `017` (sessão com fusão no login; nenhuma reserva —
+`RN-06` recusa no fechamento, não no acréscimo). As demais, **a resolver na
+spec de cada uma**:
 
-- **Frete** (`018`): valor fixo, por região, ou calculado? O mockup mostra
-  `R$ 11,94` no resumo do pedido **antes** de o cliente informar endereço.
-- **Cupom de desconto** (`020` ou spec própria): a entidade `Promocao` existe
+- **Frete** (`019`): valor fixo, por região, ou calculado? Decidido na
+  conversa que abriu a `018`/`019` — cotado pelo MelhorEnvio, calculável só
+  depois do endereço escolhido (ver `017`, plano, "Sobre as duas specs
+  seguintes").
+- **Cupom de desconto** (`021` ou spec própria): a entidade `Promocao` existe
   desde a `003` e nunca foi usada. Cupom por código é a mesma coisa que
   promoção na vitrine, ou são dois conceitos?
-- **Carrinho de visitante** (`018`): quem não está logado pode montar carrinho,
-  ou o botão leva ao login?
-- **Reserva de estoque** (`017`/`018`): item no carrinho segura estoque, ou só
-  no fechamento?
 
 > **Nota de numeração:** a cadeia era `013`–`017` quando foi traçada, e já
-> deslocou quatro vezes — `013` (correções da página inicial), `014`
-> (refinamento do catálogo), `015` (favoritos e ajustes do catálogo) e `016`
-> (busca e endereços do catálogo). Nos quatro casos, pendências conhecidas ou
-> acabamento que não valia a pena carregar para dentro de uma feature de
-> carrinho. Segue a regra do topo deste arquivo: o número é atribuído quando a
-> spec é criada, e as entradas sem link acima ainda não têm spec.
+> deslocou cinco vezes — `013` (correções da página inicial), `014`
+> (refinamento do catálogo), `015` (favoritos e ajustes do catálogo), `016`
+> (busca e endereços do catálogo) e a própria `017`, que trocou de lugar com
+> "Estoque" (Carrinho passou a ser construível antes de Estoque existir —
+> `RN-06` já cobre indisponibilidade por status, sem depender de uma tabela de
+> estoque própria). Endereços, Fechamento, Estoque e Pagamento andaram uma
+> posição cada. Segue a regra do topo deste arquivo: o número é atribuído
+> quando a spec é criada, e as entradas sem link acima ainda não têm spec.
 >
 > Cada deslocamento deixa referências obsoletas em comentário de código e em
-> specs antigas. As três rodadas já cobradas estão corrigidas; **quem deslocar
-> a cadeia de novo precisa varrer `spec 0NN` na base inteira**, inclusive na
-> spec que estiver escrevendo — foi exatamente ela que escapou da primeira vez.
+> specs antigas. As quatro rodadas já cobradas estão corrigidas; **quem
+> deslocar a cadeia de novo precisa varrer `spec 0NN` na base inteira**,
+> inclusive na spec que estiver escrevendo — foi exatamente ela que escapou da
+> primeira vez.
 
 ## Backlog fora da cadeia
 
@@ -180,7 +198,7 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Feature | Depende de |
 |---|---|
 | Listagem, edição e exclusão de produto (admin) | 001, 011 |
-| Escrever avaliação de produto | 008, carrinho — a `014` fechou a barreira de dados (índice único); falta a verificação no serviço, ver `014` plano §10 |
+| Escrever avaliação de produto | 008, 019 — precisa de um pedido fechado para checar elegibilidade, não só do carrinho (`017`, que já existe); a `014` fechou a barreira de dados (índice único), falta a verificação no serviço, ver `014` plano §10 |
 | Galeria de imagens do produto | 008 |
 | Promoções na vitrine | 003 |
 | Sem glúten e sem lactose | 012 — mesma porta que `Produto.SemAcucar` abriu |

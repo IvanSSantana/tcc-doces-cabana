@@ -76,12 +76,26 @@
 
     <div class="preco-card">R$ @Model.Preco.ToString("N2")</div>
 
+    @{
+        var foraDeCompra = Model.Status != ProdutoStatus.Ativo;
+    }
+
     <div class="acoes-card">
+        @* RF-01/RF-18 (spec 017): sem script, os ± não fazem nada (não são
+           type=submit) e o botão "Adicionar" acrescenta uma unidade — o
+           comportamento honesto de um controle de grade (plano §3). Com
+           script, carrinho.js lê o valor deste <span> a partir do cartão do
+           botão que disparou o envio e o leva junto na requisição. Não é um
+           <input hidden form="..."> de propósito: um hidden associado ao
+           formulário compartilhado por form= entraria na submissão de
+           QUALQUER cartão da grade, não só do que foi clicado. *@
         <div class="controles-card">
-            <button class="botao-quantidade-card menos" aria-label="Diminuir quantidade — ainda não disponível" disabled>−</button>
-            <span class="valor-quantidade-card">1</span>
-            <button class="botao-quantidade-card mais" aria-label="Aumentar quantidade — ainda não disponível" disabled>+</button>
+            <button type="button" class="botao-quantidade-card menos" data-quantidade-menos aria-label="Diminuir quantidade" @(foraDeCompra ? "disabled" : null)>−</button>
+            <span class="valor-quantidade-card" data-quantidade-valor>1</span>
+            <button type="button" class="botao-quantidade-card mais" data-quantidade-mais aria-label="Aumentar quantidade" @(foraDeCompra ? "disabled" : null)>+</button>
         </div>
-        <button class="botao-adicionar-card" aria-label="Adicionar ao carrinho — ainda não disponível" title="Carrinho ainda não disponível" disabled>@rotuloBotaoCarrinho</button>
+        <button type="submit" form="formulario-carrinho" name="produtoId" value="@Model.ProdutoId"
+                class="botao-adicionar-card" aria-label="Adicionar ao carrinho"
+                title="@(foraDeCompra ? "Produto indisponível" : null)" @(foraDeCompra ? "disabled" : null)>@rotuloBotaoCarrinho</button>
     </div>
 </div>

@@ -1,7 +1,7 @@
 # Plano Técnico — Carrinho
 
 **Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** 2026-08-23
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 

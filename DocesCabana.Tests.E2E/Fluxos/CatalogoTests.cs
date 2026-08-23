@@ -288,17 +288,27 @@ public class CatalogoTests : TesteE2E
         });
 
     [Fact]
-    public async Task Dado_Catalogo_Quando_OlharOsControlesDoCard_Entao_QuantidadeECarrinhoDevemEstarDesabilitados() =>
+    public async Task Dado_Catalogo_Quando_OlharOsControlesDoCard_Entao_QuantidadeECarrinhoDevemFuncionar() =>
         await Executar(async () =>
         {
-            // O favorito passou a funcionar de verdade na spec 015 — só
-            // quantidade e carrinho seguem indisponíveis até o carrinho
-            // existir (RF-18 da 015).
+            // Correção esperada, não regressão (spec 017, tasks T045): os
+            // controles do cartão saíram de "desabilitados até o carrinho
+            // existir" (spec 012, RF-24) para funcionando de verdade — CA-01
+            // não pede login, o carrinho de visitante já existe (Fase 6).
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase);
+            var cartao = pagina.Cards.First;
 
-            await Expect(pagina.Cards.First.Locator(".botao-adicionar-card")).ToBeDisabledAsync();
-            await Expect(pagina.Cards.First.Locator(".botao-quantidade-card").First).ToBeDisabledAsync();
+            await Expect(cartao.Locator(".botao-adicionar-card")).ToBeEnabledAsync();
+            await Expect(cartao.Locator(".botao-quantidade-card").First).ToBeEnabledAsync();
+
+            await cartao.Locator(".botao-quantidade-card.mais").ClickAsync();
+            await Expect(cartao.Locator(".valor-quantidade-card")).ToHaveTextAsync("2");
+
+            await cartao.Locator(".botao-adicionar-card").ClickAsync();
+            await Pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            await Expect(Pagina.Locator("[data-bolha-carrinho]")).ToHaveTextAsync("2");
         });
 
     [Fact]

@@ -36,10 +36,19 @@
         <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
     </form>
 
+    @* Irmão do formulário de favorito, mesmo motivo (spec 017, plano §9,
+       risco 6): o cartão pode estar dentro do <form method="get"> do
+       catálogo, e HTML não aceita form aninhado. O botão "Adicionar" de
+       cada cartão e o da página do produto se associam a este por form=. *@
+    <form id="formulario-carrinho" asp-area="" asp-controller="Carrinho" asp-action="Acrescentar" method="post" hidden>
+        @Html.AntiForgeryToken()
+    </form>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/components/vitrine-produtos.js" asp-append-version="true"></script>
     <script src="~/js/components/modal-login.js" asp-append-version="true"></script>
     <script src="~/js/components/favorito.js" asp-append-version="true"></script>
+    <script src="~/js/components/carrinho.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

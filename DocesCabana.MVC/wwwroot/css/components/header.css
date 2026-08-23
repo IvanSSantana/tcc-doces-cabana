@@ -133,6 +133,29 @@ header {
   stroke-linejoin: round;
 }
 
+/* CA-15 (spec 017): a bolha do carrinho — escondida quando vazio, não um
+   "0" desenhado (plano §3). */
+.icone-com-bolha {
+  position: relative;
+  display: inline-flex;
+}
+
+.bolha-carrinho {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background-color: var(--cor-destaque);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
 .cabecalho-inferior {
   background-color: var(--cor-primaria);
 }

@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
+using DocesCabana.MVC.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocesCabana.MVC.ViewComponents;
@@ -6,15 +8,21 @@ namespace DocesCabana.MVC.ViewComponents;
 public class HeaderViewComponent : ViewComponent
 {
     private readonly ICategoriaService _categoriaService;
+    private readonly ICarrinhoService _carrinhoService;
 
-    public HeaderViewComponent(ICategoriaService categoriaService)
+    public HeaderViewComponent(ICategoriaService categoriaService, ICarrinhoService carrinhoService)
     {
         _categoriaService = categoriaService;
+        _carrinhoService = carrinhoService;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(int itensCarrinho = 0)
+    public async Task<IViewComponentResult> InvokeAsync()
     {
-        ViewData["ItensCarrinho"] = itensCarrinho;
+        // CA-15 (spec 017): o cabeçalho aparece em toda página, então conta
+        // sozinho — autenticado, do banco; visitante, da sessão (a mesma
+        // soma de quantidades que TotalDeItens usa, sem precisar buscar
+        // produto nenhum: contar não valida disponibilidade).
+        ViewData["ItensCarrinho"] = await ContarItensDoCarrinho();
 
         // A barra reexibe o termo vigente (spec 016, RF-06) lendo direto da
         // própria query string — o componente aparece em toda página, então
@@ -28,5 +36,16 @@ public class HeaderViewComponent : ViewComponent
         var categorias = await _categoriaService.ListarComSubcategorias();
 
         return View(categorias);
+    }
+
+    private async Task<int> ContarItensDoCarrinho()
+    {
+        if (User.Identity is { IsAuthenticated: true })
+        {
+            var id = ((ClaimsPrincipal)User).FindFirstValue(ClaimTypes.NameIdentifier);
+            return id is null ? 0 : await _carrinhoService.ContarItens(Guid.Parse(id));
+        }
+
+        return HttpContext.Session.Ler().Sum(i => (int)i.Quantidade);
     }
 }

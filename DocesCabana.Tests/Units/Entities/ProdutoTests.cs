@@ -274,6 +274,32 @@ public class ProdutoTests
         Assert.Equal("cachaca envelhecida", produto.NomeNormalizado);
     }
 
+    [Fact]
+    public void Dado_ProdutoAtivo_Quando_VerificarDisponivelParaCompra_Entao_DeveSerVerdadeiro()
+    {
+        var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida, ProdutoStatus.Ativo);
+
+        Assert.True(produto.DisponivelParaCompra());
+    }
+
+    [Fact]
+    public void Dado_ProdutoInativo_Quando_VerificarDisponivelParaCompra_Entao_DeveSerFalso()
+    {
+        // RN-06 (spec 017): produto que saiu do catálogo é incomprável, com
+        // o mesmo efeito de produto fora de estoque.
+        var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida, ProdutoStatus.Inativo);
+
+        Assert.False(produto.DisponivelParaCompra());
+    }
+
+    [Fact]
+    public void Dado_ProdutoForaDeEstoque_Quando_VerificarDisponivelParaCompra_Entao_DeveSerFalso()
+    {
+        var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida, ProdutoStatus.ForaDeEstoque);
+
+        Assert.False(produto.DisponivelParaCompra());
+    }
+
     private Produto CriarProduto()
     {
         return new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida);

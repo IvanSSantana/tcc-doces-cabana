@@ -1,7 +1,7 @@
 # Especificação — Carrinho
 
 **ID:** `017-carrinho` · **Branch:** `017-carrinho`
-**Criada em:** 2026-08-23 · **Status:** Rascunho
+**Criada em:** 2026-08-23 · **Status:** Implementada
 
 ---
 
