@@ -108,12 +108,15 @@ em que cada requisição passa por elas.
 
 ```
 REGISTRO (antes de builder.Build())
-  AddControllersWithViews  ── registra FilterException como filtro global
-                              e troca a mensagem de erro de DataNascimento
+  AddControllersWithViews  ── registra FilterException e FiltroFusaoDeCarrinho
+                              (spec 017) como filtros globais, e troca a
+                              mensagem de erro de DataNascimento
   AddDatabaseConfiguration ── DbContext + SQLite
   AddIdentityConfiguration ── Identity, política de senha, bloqueio, cookie
   AddApplicationServices…  ── todos os repositórios e serviços (escopo)
   AddFluentValidation…     ── varre o assembly e registra todo *Validator
+  AddSession               ── carrinho de visitante (spec 017); em memória,
+                              por processo — some ao reiniciar a aplicação
 
 PARTIDA (uma vez, ao subir)
   DbInitializer.Migrar                     ── aplica migrations pendentes
@@ -125,6 +128,10 @@ PIPELINE (a cada requisição, nesta ordem)
   UseHttpsRedirection
   UseStatusCodePagesWithReExecute ── 4xx/5xx sem corpo → /Home/NaoEncontrado
   UseRouting                      ── decide qual rota casou
+  UseSession                      ── carrinho de visitante (spec 017,
+                                     plano §9, risco 1): entra logo aqui —
+                                     antes dela, a sessão lida devolve vazio
+                                     sem erro nenhum, em silêncio
   UseAuthentication               ── quem é você
   UseAuthorization                ── você pode
   UseRequestLocalization          ── pt-BR fixo: vírgula decimal, dd/MM/yyyy
@@ -412,6 +419,7 @@ o catálogo não aplica nada e mostra a caixa real do nome.
 | `/Catalogo`<br>`/Catalogo/{apelido}` | `Catalogo.Index` → `ICatalogoService.Montar` | Barra lateral, filtros, ordenação, paginação, busca |
 | `/Produto/Detalhes/{id}` | `Produto.Detalhes` → `IProdutoService.BuscarDetalhe` | Imagem, descrição, nota média, histograma, avaliações |
 | `/Favorito` | `Favorito.Index` → `IFavoritoService.ListarDoUsuario` | Grade dos favoritos. `[Authorize]` |
+| `/Carrinho` | `Carrinho.Index/Acrescentar/AlterarQuantidade/Remover` → `ICarrinhoService` | Itens, subtotal, item indisponível sinalizado. Sem `[Authorize]` — quem não entrou usa o carrinho da sessão, fundido ao de conta no primeiro request autenticado (`FiltroFusaoDeCarrinho`) |
 | `/Autenticacao/Login` | `Autenticacao.Login` → `IUsuarioService` | Entrar, com endereço de retorno |
 | `/Autenticacao/Cadastro` | `Autenticacao.Cadastro` | Criar conta de cliente |
 | `/Autenticacao/EsqueceuSenha`<br>`/RedefinirSenha` | `Autenticacao` + `IEmailService` | Recuperação por token enviado por e-mail |
@@ -433,8 +441,11 @@ desprotegida por esquecimento. Quem está logado como cliente e tenta abrir
 | `_Layout` | quase tudo | Cabeçalho completo, rodapé, modal de login, `#formulario-favorito` |
 | `_LayoutNaoAutenticado` | telas de autenticação | Cabeçalho reduzido — sem menu de categorias nem ações de usuário |
 
-O `_Layout` é onde vive o `<form id="formulario-favorito">` que os botões de
-coração de toda a página referenciam por `form=`.
+O `_Layout` é onde vivem os dois formulários que os botões de toda a página
+referenciam por `form=`: `#formulario-favorito` (coração) e
+`#formulario-carrinho` (adicionar ao carrinho, spec 017) — o mesmo truque para
+o mesmo problema: o cartão de produto pode estar dentro do `<form method="get">`
+do catálogo, e HTML não aceita form aninhado.
 
 ---
 
@@ -854,7 +865,7 @@ Registrado como filtro global. Em `OnActionExecuting` ele guarda o primeiro
 argumento da ação (normalmente o DTO do formulário) em `HttpContext.Items`, para
 poder redesenhar a tela preenchida se algo falhar.
 
-Em `OnActionExecuted`, quatro caminhos:
+Em `OnActionExecuted`, cinco caminhos:
 
 ```
 1. KeyNotFoundException
@@ -864,12 +875,20 @@ Em `OnActionExecuted`, quatro caminhos:
 2. InvalidOperationException em VotarUtil
    → volta para o Referer (a ação não tem view própria)
 
-3. Qualquer exceção num POST
+3. InvalidOperationException no controlador Carrinho (spec 017)
+   → produto que deixou de estar disponível entre a tela carregar e o
+     clique (RN-06): a mensagem explica o motivo
+   → assíncrono (X-Requested-With) → BadRequestObjectResult com a mensagem
+   → comum                         → volta para o Referer (idem VotarUtil:
+                                      nenhuma das ações de escrita tem view
+                                      própria para redesenhar)
+
+4. Qualquer exceção num POST
    → InvalidOperationException  vira mensagem no ModelState
    → outras                     viram "Um erro interno ocorreu…"
    → redesenha a view da própria ação, com o model recuperado
 
-4. Exceção num GET que não seja KeyNotFoundException
+5. Exceção num GET que não seja KeyNotFoundException
    → não tratada aqui; sobe para o UseExceptionHandler
 ```
 

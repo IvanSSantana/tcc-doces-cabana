@@ -9,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<FilterException>();
+    // Funde o carrinho de visitante ao de conta no primeiro request
+    // autenticado (spec 017, Fase 7) — global porque o login não redireciona
+    // necessariamente para /Carrinho.
+    options.Filters.Add<FiltroFusaoDeCarrinho>();
     options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor((value, propertyName) =>
     {
         if (propertyName == "DataNascimento" || propertyName == "Data de Nascimento")
@@ -23,6 +27,10 @@ builder.Services.AddDatabaseConfiguration(builder.Configuration);
 builder.Services.AddIdentityConfiguration();
 builder.Services.AddApplicationServicesAndRepositories(builder.Configuration);
 builder.Services.AddFluentValidationConfiguration();
+
+// Carrinho do visitante (spec 017, Fase 6) — em memória, por processo; some
+// ao reiniciar a aplicação, consequência aceita e registrada na spec §10.
+builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -55,6 +63,12 @@ app.UseHttpsRedirection();
 app.UseStatusCodePagesWithReExecute("/Home/NaoEncontrado");
 
 app.UseRouting();
+
+// Precisa vir depois de UseRouting e antes de UseAuthentication (plano da
+// 017, §9, risco 1): lida antes de o middleware rodar, a sessão devolve
+// vazio sem erro nenhum — o carrinho do visitante pareceria sempre vazio,
+// em silêncio.
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();

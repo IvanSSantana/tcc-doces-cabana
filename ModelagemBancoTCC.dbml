@@ -77,6 +77,20 @@ Table Favorito [headercolor: #175e7a] {
 	}
 }
 
+// Chave composta, mesmo desenho do Favorito (spec 017): "um produto entra no
+// máximo uma vez no carrinho de cada pessoa" é garantido no próprio banco. Sem
+// coluna de preço de propósito — o carrinho lê sempre o preço atual do
+// Produto (RN-04), nunca guarda um valor que possa ficar desatualizado.
+Table ItemCarrinho [headercolor: #175e7a] {
+	UsuarioId uniqueidentifier [ not null ]
+	ProdutoId uniqueidentifier [ not null ]
+	Quantidade smallint [ not null, note: 'Entre 1 e 99 (RN-02)' ]
+
+	indexes {
+		(UsuarioId, ProdutoId) [ pk ]
+	}
+}
+
 Table Avaliacao [headercolor: #175e7a] {
 	AvaliacaoId uniqueidentifier [ pk, unique ]
 	UsuarioId uniqueidentifier [ not null ]
@@ -163,6 +177,14 @@ Ref fk_Favorito_ProdutoId_Produto {
 
 Ref fk_Favorito_UsuarioId_Usuario {
 	Favorito.UsuarioId > Usuario.UsuarioId [ delete: no action, update: no action ]
+}
+
+Ref fk_ItemCarrinho_ProdutoId_Produto {
+	ItemCarrinho.ProdutoId > Produto.ProdutoId [ delete: no action, update: no action ]
+}
+
+Ref fk_ItemCarrinho_UsuarioId_Usuario {
+	ItemCarrinho.UsuarioId > Usuario.UsuarioId [ delete: no action, update: no action ]
 }
 
 Ref fk_Pagamento_PedidoId_Pedido {

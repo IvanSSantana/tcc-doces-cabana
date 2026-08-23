@@ -60,6 +60,31 @@ public class FilterException : IActionFilter
                 return;
             }
 
+            // CarrinhoController também não tem view própria nas ações de
+            // escrita (spec 017) — mesmo motivo do ramo de VotarUtil acima.
+            // Produto que deixou de estar disponível entre a tela carregar e
+            // o clique (RN-06) é o caso real: o caminho assíncrono devolve o
+            // motivo para o script explicar (RF-04); o comum volta para de
+            // onde veio.
+            if (context.Exception is InvalidOperationException &&
+                context.RouteData.Values["controller"]?.ToString() == "Carrinho")
+            {
+                if (context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    context.Result = new BadRequestObjectResult(new { erro = context.Exception.Message });
+                }
+                else
+                {
+                    var referer = context.HttpContext.Request.Headers.Referer.ToString();
+                    context.Result = string.IsNullOrEmpty(referer)
+                        ? new RedirectToActionResult("Index", "Carrinho", null)
+                        : new RedirectResult(referer);
+                }
+
+                context.ExceptionHandled = true;
+                return;
+            }
+
             // Trata apenas requisições POST (submissão de formulário)
             if (HttpMethods.IsPost(context.HttpContext.Request.Method))
             {

@@ -82,9 +82,10 @@
     transform: scale(1.15) !important;
 }
 
-/* Favoritar, quantidade e adicionar ao carrinho desabilitados até essas
-   features existirem de verdade (spec 012, RF-24). Mantidos visíveis com
-   opacidade reduzida — desabilitado não é escondido, é "ainda não". */
+/* Quantidade e adicionar ao carrinho só ficam desabilitados quando o
+   produto não está disponível para compra (spec 017) — favoritar nunca
+   desabilita (spec 015). Mantidos visíveis com opacidade reduzida —
+   desabilitado não é escondido, é "não disponível agora". */
 .card-produto button:disabled {
     cursor: not-allowed;
     opacity: 0.45;

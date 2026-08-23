@@ -23,6 +23,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IAvaliacaoRepository, AvaliacaoRepository>();
         services.AddScoped<IFavoritoRepository, FavoritoRepository>();
+        services.AddScoped<IItemCarrinhoRepository, ItemCarrinhoRepository>();
         services.AddScoped<IUsuarioService, UsuarioService>();
         services.AddScoped<IAdministradorService, AdministradorService>();
         services.AddScoped<IProdutoService, ProdutoService>();
@@ -31,6 +32,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<ICatalogoService, CatalogoService>();
         services.AddScoped<IAvaliacaoService, AvaliacaoService>();
         services.AddScoped<IFavoritoService, FavoritoService>();
+        services.AddScoped<ICarrinhoService, CarrinhoService>();
         services.AddEmailService(configuration);
 
         return services;

@@ -9,6 +9,10 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <!-- Só o driver, sem EF Core: usado por um único teste (spec 017) para
+         mudar o status de um produto direto no banco, na ausência de tela
+         administrativa para isso — ver AplicacaoEmExecucao.CaminhoDoBanco. -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.7" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="Microsoft.Playwright" Version="1.62.0" />
     <PackageReference Include="xunit" Version="2.9.3" />

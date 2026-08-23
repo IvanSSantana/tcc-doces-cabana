@@ -91,9 +91,17 @@
           </a>
         }        
 
-        <a href="#" class="botao-acao">
-
-          <i class="fa-solid fa-cart-shopping icone-acao"></i>
+        @{
+            var itensCarrinho = (int)(ViewData["ItensCarrinho"] ?? 0);
+        }
+        @* CA-16: o atalho deixa de ser href="#" — chega à tela do carrinho de
+           verdade. CA-15: a bolha só aparece com item — não é um "0"
+           desenhado (plano §3). *@
+        <a asp-area="" asp-controller="Carrinho" asp-action="Index" class="botao-acao">
+          <span class="icone-com-bolha">
+            <i class="fa-solid fa-cart-shopping icone-acao"></i>
+            <span class="bolha-carrinho" data-bolha-carrinho hidden="@(itensCarrinho == 0 ? "hidden" : null)">@itensCarrinho</span>
+          </span>
 
           <span>Meu carrinho</span>
         </a>

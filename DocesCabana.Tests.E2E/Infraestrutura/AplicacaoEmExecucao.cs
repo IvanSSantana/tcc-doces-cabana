@@ -32,11 +32,19 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
     public string UrlBase { get; }
     public string PastaDeEmails { get; }
 
-    private AplicacaoEmExecucao(string urlBase, string pastaTemporaria, string pastaDeEmails)
+    // Exposto para o teste que não tem tela administrativa para exercitar
+    // (spec 017, plano §7 — mudar o status de um produto para testar o item
+    // do carrinho que fica indisponível): uma conexão isolada e de curta
+    // duração, sem transação aberta, não disputa lock com o SQLite da
+    // aplicação em execução.
+    public string CaminhoDoBanco { get; }
+
+    private AplicacaoEmExecucao(string urlBase, string pastaTemporaria, string pastaDeEmails, string caminhoDoBanco)
     {
         UrlBase = urlBase;
         _pastaTemporaria = pastaTemporaria;
         PastaDeEmails = pastaDeEmails;
+        CaminhoDoBanco = caminhoDoBanco;
     }
 
     public static async Task<AplicacaoEmExecucao> Subir()
@@ -50,7 +58,7 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
         var caminhoDaDll = LocalizarDllDaMvc();
         var pastaDaMvc = Path.GetDirectoryName(LocalizarProjetoDaMvc())!;
 
-        var aplicacao = new AplicacaoEmExecucao($"http://127.0.0.1:{porta}", pastaTemporaria, pastaDeEmails);
+        var aplicacao = new AplicacaoEmExecucao($"http://127.0.0.1:{porta}", pastaTemporaria, pastaDeEmails, caminhoDoBanco);
 
         var infoProcesso = new ProcessStartInfo
         {

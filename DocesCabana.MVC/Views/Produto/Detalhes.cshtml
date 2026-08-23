@@ -62,15 +62,22 @@
                 }
                 else
                 {
+                    @* RF-02/RF-18 (spec 017): aqui há espaço — vira campo de
+                       verdade, funciona com ou sem script (plano §3). O
+                       form= aponta para o formulário compartilhado do
+                       layout; sem ambiguidade de cartão, porque só existe um
+                       nesta página. *@
                     <div class="seletor-quantidade" data-seletor-quantidade>
                         <button type="button" class="botao-quantidade" data-quantidade-menos aria-label="Diminuir quantidade">&minus;</button>
-                        <span class="valor-quantidade" data-quantidade-valor>1</span>
+                        <input type="number" class="valor-quantidade" name="quantidade" form="formulario-carrinho"
+                               data-quantidade-valor min="1" max="99" value="1" inputmode="numeric" />
                         <button type="button" class="botao-quantidade" data-quantidade-mais aria-label="Aumentar quantidade">+</button>
                     </div>
                 }
             </div>
 
-            <button type="button" class="botao-adicionar-carrinho" disabled="@(foraDeEstoque ? "disabled" : null)">
+            <button type="submit" form="formulario-carrinho" name="produtoId" value="@Model.ProdutoId"
+                    class="botao-adicionar-carrinho" disabled="@(foraDeEstoque ? "disabled" : null)">
                 ADICIONAR AO CARRINHO <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
             </button>
         </div>

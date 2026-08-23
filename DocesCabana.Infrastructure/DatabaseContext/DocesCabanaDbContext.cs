@@ -29,6 +29,8 @@ public class DocesCabanaDbContext : IdentityDbContext<ContaDeAcesso, IdentityRol
 
     public DbSet<Favorito> Favoritos { get; set; }
 
+    public DbSet<ItemCarrinho> ItensCarrinho { get; set; }
+
     public DbSet<Avaliacao> Avaliacoes { get; set; }
 
     public DbSet<VotoUtil> VotosUteis { get; set; }

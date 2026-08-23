@@ -1,0 +1,90 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Application.Enums
+@model CarrinhoDTO
+
+@* Bloco que a atualização sem recarga substitui inteiro (mesmo padrão da
+   014/016 — um endereço, duas representações): itens, resumo e subtotal
+   vivem juntos aqui, porque alterar quantidade muda os três ao mesmo tempo.
+   data-total-itens é o que carrinho.js lê para atualizar a bolha do
+   cabeçalho, esteja esta resposta vindo da própria tela do carrinho ou de
+   um "acrescentar" disparado de outra página (spec 017, plano §4). *@
+<div id="itens-carrinho" data-total-itens="@Model.TotalDeItens" tabindex="-1">
+    @if (Model.Linhas.Count == 0)
+    {
+        <p class="carrinho-vazio">
+            Seu carrinho está vazio.
+            <a asp-area="" asp-controller="Catalogo" asp-action="Index">Ver o catálogo</a>
+        </p>
+    }
+    else
+    {
+        <div class="grade-carrinho">
+            <ul class="lista-itens-carrinho">
+                @foreach (var linha in Model.Linhas)
+                {
+                    <li class="item-carrinho @(linha.Disponivel ? "" : "item-carrinho--indisponivel")" data-produto-id="@linha.ProdutoId">
+                        <img src="@linha.ImagemUrl" alt="@linha.Nome" class="imagem-item-carrinho" />
+
+                        <div class="detalhes-item-carrinho">
+                            <span class="nome-item-carrinho">@linha.Nome</span>
+
+                            @if (linha.Disponivel)
+                            {
+                                <span class="preco-item-carrinho">R$ @linha.PrecoUnitario.ToString("N2")</span>
+
+                                @* Cada botão já carrega o valor final como
+                                   name/value — funciona sem JavaScript
+                                   (RF-18): o servidor recebe a quantidade
+                                   pronta, não precisa somar nada. *@
+                                <form method="post" asp-action="AlterarQuantidade" class="formulario-quantidade-carrinho">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="produtoId" value="@linha.ProdutoId" />
+                                    <button type="submit" name="quantidade" value="@(linha.Quantidade - 1)"
+                                            class="botao-quantidade-carrinho menos" aria-label="Diminuir quantidade">&minus;</button>
+                                    <span class="valor-quantidade-carrinho">@linha.Quantidade</span>
+                                    <button type="submit" name="quantidade" value="@(linha.Quantidade + 1)"
+                                            class="botao-quantidade-carrinho mais" aria-label="Aumentar quantidade">+</button>
+                                </form>
+
+                                <span class="valor-linha-carrinho">R$ @linha.ValorDaLinha.ToString("N2")</span>
+                            }
+                            else
+                            {
+                                @* RF-16/RN-06: a mensagem distingue o motivo — só ela muda. *@
+                                <span class="motivo-indisponivel-carrinho">
+                                    @(linha.MotivoIndisponibilidade == MotivoIndisponibilidade.ForaDeEstoque
+                                        ? "Fora de estoque — não entra no total"
+                                        : "Saiu do catálogo — não entra no total")
+                                </span>
+                            }
+                        </div>
+
+                        <form method="post" asp-action="Remover" class="formulario-remover-carrinho">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="produtoId" value="@linha.ProdutoId" />
+                            <button type="submit" class="botao-remover-carrinho" aria-label="Remover @linha.Nome">&times;</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+
+            <aside class="resumo-carrinho">
+                <h2 class="titulo-resumo-carrinho">Resumo</h2>
+
+                <p class="total-itens-carrinho">@Model.TotalDeItens ite@(Model.TotalDeItens == 1 ? "m" : "ns")</p>
+
+                <p class="subtotal-carrinho">
+                    Subtotal <strong>R$ @Model.Subtotal.ToString("N2")</strong>
+                </p>
+
+                @* RN-08/RF-20: o caminho existe, sinalizado — o fechamento é
+                   a 019. *@
+                <button type="button" class="botao-finalizar-carrinho" disabled
+                        title="Fechamento de pedido ainda não disponível"
+                        aria-label="Finalizar compra — ainda não disponível">
+                    Finalizar compra
+                </button>
+            </aside>
+        </div>
+    }
+</div>
