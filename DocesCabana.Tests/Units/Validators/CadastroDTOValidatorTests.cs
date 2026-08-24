@@ -65,6 +65,20 @@ public class CadastroDTOValidatorTests
         Assert.Contains(resultado.Errors, e => e.PropertyName == "CPF");
     }
 
+    // RF-01/CA-01 (spec 019): o primeiro dígito verificador errado também é
+    // barreira de entrada no cadastro, não só no CpfHelper isolado.
+    [Fact]
+    public void Dado_CpfComPrimeiroDigitoVerificadorErrado_Quando_Validar_Entao_DeveSerInvalido()
+    {
+        var dto = CriarCadastroValido();
+        dto.CPF = "52998224795";
+
+        var resultado = _validator.Validate(dto);
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "CPF");
+    }
+
     [Fact]
     public void Dado_SenhasDiferentes_Quando_Validar_Entao_DeveSerInvalido()
     {

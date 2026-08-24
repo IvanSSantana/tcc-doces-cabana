@@ -28,8 +28,9 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | spec · [plan](./016-busca-e-enderecos-do-catalogo/plan.md) · [tasks](./016-busca-e-enderecos-do-catalogo/tasks.md) · [checklist](./016-busca-e-enderecos-do-catalogo/checklist.md) |
 | [017](./017-carrinho/spec.md) | Carrinho | Implementada | spec · [plan](./017-carrinho/plan.md) · [tasks](./017-carrinho/tasks.md) · [checklist](./017-carrinho/checklist.md) |
 | [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | spec · [plan](./018-conta-e-enderecos/plan.md) · [tasks](./018-conta-e-enderecos/tasks.md) · [checklist](./018-conta-e-enderecos/checklist.md) |
+| [019](./019-correcoes-e-pendencias/spec.md) | Correções e pendências | Implementada | spec · [plan](./019-correcoes-e-pendencias/plan.md) · [tasks](./019-correcoes-e-pendencias/tasks.md) · [checklist](./019-correcoes-e-pendencias/checklist.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -155,14 +156,39 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > quê — corrigido com `[ValidateNever]`; e `Usuario.AtualizarDados` grava o
 > celular só em dígitos, mesma convenção do CPF, o que um teste E2E inicial
 > não esperava.
+>
+> A `019` não constrói tela nova — conserta quatro defeitos que a leitura de
+> `arquitetura.md` (feita ao especificá-la) tinha registrado como achado, mas
+> não corrigido. `CpfHelper` conferia só o segundo dígito verificador,
+> aceitando cerca de um em dez CPFs digitados errado — o penúltimo dígito
+> nunca era comparado com nada, só usado para calcular o último; extraída
+> `CalcularDigito` e passou a conferir os dois. A home pedia o catálogo
+> inteiro (cem produtos) para mostrar oito — `ProdutoService` ganhou
+> `BuscarDestaquesDaVitrine`, reaproveitando a mesma consulta paginada que o
+> catálogo já usa (`BuscarPaginaDoCatalogo`, filtro vazio, ordenação por
+> avaliação), que de brinde corrigiu também o coração da vitrine, que nunca
+> nascia marcado — a consulta passou a marcar favorito de quem está
+> autenticado, do mesmo jeito que o catálogo já fazia desde a `015`. O título
+> da seção virou "Bem avaliados" (RN-04: um título entrega o que anuncia — não
+> podia ser "Mais vendidos" sem venda registrada no sistema; isso fica para a
+> `020`). E o comentário do `EstrelasNota`, que se contradizia descrevendo um
+> comportamento diferente do código, foi reescrito. De passagem, corrigiu
+> também um achado que não estava na leitura original: a documentação do
+> `Header.cs` tinha ficado desatualizada desde a `017`, ainda descrevendo o
+> parâmetro morto `itensCarrinho` que a própria `017` já tinha substituído por
+> contagem própria — só a documentação mudou, o componente já estava certo.
 
-## A cadeia da loja (011 → 021)
+## A cadeia da loja (011 → 022)
 
 Traçada em 2026-08-18, a partir de três referências visuais — catálogo filtrado,
 catálogo completo e carrinho com fechamento. As três telas parecem duas
 entregas e são sete: o mockup do carrinho sozinho encosta em estoque, endereço,
 pedido, pagamento e promoção. A ordem abaixo é de dependência, não de
 preferência — cada uma só é construível depois da anterior.
+
+`019-correcoes-e-pendencias` não é entrega da cadeia — é correção, como a `013`
+foi para a página inicial — mas ocupou o número que a cadeia esperava para
+"Fechamento de pedido" e por isso desloca todo o resto abaixo dela.
 
 | # | Entrega | Estado | O que destrava |
 |---|---|---|---|
@@ -173,16 +199,21 @@ preferência — cada uma só é construível depois da anterior.
 | [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | busca por nome, endereço legível de subcategoria e o cadastro de produto vestido — acabamento antes do carrinho |
 | [017](./017-carrinho/spec.md) | Carrinho | Implementada | os dois controles do card que sobraram, desabilitados pela `012` |
 | [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
-| 019 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
-| 020 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
-| 021 | Pagamento | não especificada | — |
+| 020 | Fechamento de pedido e frete | não especificada | "Mais vendidos" passa a ser ordenação possível; `Pedido`, `ItemPedido`, `Pagamento`, MelhorEnvio |
+| 022 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
 
-As duas perguntas sobre o carrinho de visitante e a reserva de estoque foram
-resolvidas ao escrever a `017` (sessão com fusão no login; nenhuma reserva —
+`021-avaliacao-promocoes-favorito-e-sugestoes` fica fora desta tabela — não é
+elo da cadeia de fechamento de pedido, é a spec de features que a `019`
+separou do backlog solto (ver a seção abaixo). "Pagamento" deixou de ser
+entrega própria: absorvido pela `020`, que já cria `Pagamento` junto com
+`Pedido`.
+
+A pergunta sobre o carrinho de visitante e a reserva de estoque foi
+resolvida ao escrever a `017` (sessão com fusão no login; nenhuma reserva —
 `RN-06` recusa no fechamento, não no acréscimo). As demais, **a resolver na
 spec de cada uma**:
 
-- **Frete** (`019`): valor fixo, por região, ou calculado? Decidido na
+- **Frete** (`020`): valor fixo, por região, ou calculado? Decidido na
   conversa que abriu a `018`/`019` — cotado pelo MelhorEnvio, calculável só
   depois do endereço escolhido (ver `017`, plano, "Sobre as duas specs
   seguintes").
@@ -191,20 +222,25 @@ spec de cada uma**:
   promoção na vitrine, ou são dois conceitos?
 
 > **Nota de numeração:** a cadeia era `013`–`017` quando foi traçada, e já
-> deslocou cinco vezes — `013` (correções da página inicial), `014`
+> deslocou seis vezes — `013` (correções da página inicial), `014`
 > (refinamento do catálogo), `015` (favoritos e ajustes do catálogo), `016`
-> (busca e endereços do catálogo) e a própria `017`, que trocou de lugar com
-> "Estoque" (Carrinho passou a ser construível antes de Estoque existir —
-> `RN-06` já cobre indisponibilidade por status, sem depender de uma tabela de
-> estoque própria). Endereços, Fechamento, Estoque e Pagamento andaram uma
-> posição cada. Segue a regra do topo deste arquivo: o número é atribuído
-> quando a spec é criada, e as entradas sem link acima ainda não têm spec.
+> (busca e endereços do catálogo), a própria `017` (que trocou de lugar com
+> "Estoque" — Carrinho passou a ser construível antes de Estoque existir,
+> `RN-06` já cobre indisponibilidade por status sem depender de tabela de
+> estoque própria), e agora a `019` (Correções e pendências), que tomou o
+> número antes reservado a "Fechamento de pedido" — Fechamento virou `020`,
+> "Pagamento" deixou de ser entrega própria (absorvido pela `020`), e
+> "Estoque" virou `022`, cedendo o `021` para a spec de features
+> (avaliação, promoções, favorito, sugestões) que a `019` extraiu do backlog
+> solto. Segue a regra do topo deste arquivo: o número é atribuído quando a
+> spec é criada, e as entradas sem link acima ainda não têm spec.
 >
 > Cada deslocamento deixa referências obsoletas em comentário de código e em
-> specs antigas. As quatro rodadas já cobradas estão corrigidas; **quem
-> deslocar a cadeia de novo precisa varrer `spec 0NN` na base inteira**,
-> inclusive na spec que estiver escrevendo — foi exatamente ela que escapou da
-> primeira vez.
+> specs antigas. As cinco rodadas já cobradas estavam corrigidas; a `019`
+> conferiu de novo (`grep -rn "spec 0[0-9][0-9]"` na base inteira) e não achou
+> nada obsoleto para corrigir além desta própria seção — **quem deslocar a
+> cadeia de novo precisa repetir essa varredura**, inclusive na spec que
+> estiver escrevendo.
 
 ## Backlog fora da cadeia
 
@@ -215,19 +251,27 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Feature | Depende de |
 |---|---|
 | Listagem, edição e exclusão de produto (admin) | 001, 011 |
-| Escrever avaliação de produto | 008, 019 — precisa de um pedido fechado para checar elegibilidade, não só do carrinho (`017`, que já existe); a `014` fechou a barreira de dados (índice único), falta a verificação no serviço, ver `014` plano §10 |
 | Galeria de imagens do produto | 008 |
-| Promoções na vitrine | 003 |
 | Sem glúten e sem lactose | 012 — mesma porta que `Produto.SemAcucar` abriu |
 | Catálogo real da loja (390 produtos) | 012 — hoje é mock proporcional, 100 produtos |
 | Imagens novas do bloco de categorias da home | 012 — as atuais não correspondem mais às categorias |
-| Favoritar da página do produto | 015 — o cartão ganhou o coração; a tela de detalhe ainda não |
-| Editar ou apagar avaliação | 014 — a RN-01 recusa a segunda avaliação; corrigir a primeira exige tela própria |
-| Carrossel da home refletir o favorito real | 015 — favoritar ali já funciona, mas o coração sempre nasce vazio (HomeController não busca o favorito de quem vê) |
-| Sugestões ao digitar na barra de pesquisa do cabeçalho | 016 — a busca por nome já existe; falta autocompletar. Pedido do responsável (2026-08-23): três blocos — "Pesquisas populares", "Produtos" e "Categorias" — como o cliente ao vivo de referência (imagem anexada na conversa, não commitada). Ao especificar, usar a skill `frontend-design` para o desenho visual do menu suspenso |
 | Trocar a senha pela área de conta | 018 — a área de conta existe; a troca com senha atual é fluxo próprio do Identity, diferente da redefinição por token que a `002` construiu |
 | Trocar o e-mail pela área de conta | 018 — é a credencial de acesso, não dado de perfil; mexer nela envolve confirmação por e-mail e invalidação de sessão |
-| "Meus pedidos" na área de conta | 018, 019 — o menu da conta já nasceu com o lugar reservado (`_MenuDaConta.cshtml`), desabilitado; só faz sentido quando a `019` criar `Pedido` |
+| "Meus pedidos" na área de conta | 018, 020 — o menu da conta já nasceu com o lugar reservado (`_MenuDaConta.cshtml`), desabilitado; só faz sentido quando a `020` criar `Pedido` |
+
+**Quatro itens que estavam aqui passaram para a spec `021` (ainda não criada)** — CRUD de avaliação
+(escrever, editar, apagar — a `014` fechou a barreira de dados, índice único;
+falta a verificação no serviço e a tela, ver `014` plano §10; decisão em
+aberto na `021` sobre exigir pedido fechado, o que a atrelaria à `020`),
+promoções na vitrine (`003` — entidade nunca usada), favoritar da página do
+produto (`015` — o cartão ganhou o coração; a tela de detalhe ainda não) e
+sugestões ao digitar na barra de pesquisa do cabeçalho (`016` — a busca por
+nome já existe, falta autocompletar; pedido do responsável em 2026-08-23, três
+blocos — "Pesquisas populares", "Produtos" e "Categorias", como o cliente ao
+vivo de referência; ao especificar, usar a skill `frontend-design` para o
+desenho do menu suspenso). O quinto item da leitura da `019`, "carrossel da
+home não reflete o favorito real", **não precisou virar spec própria** — foi
+resolvido junto com a correção da consulta da vitrine (ver `019`, RF-09).
 
 ## Como criar a próxima
 

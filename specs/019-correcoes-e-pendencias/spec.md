@@ -1,7 +1,7 @@
 # Especificação — Correções e pendências
 
 **ID:** `019-correcoes-e-pendencias` · **Branch:** `019-correcoes-e-pendencias`
-**Criada em:** 2026-08-24 · **Status:** Rascunho
+**Criada em:** 2026-08-24 · **Status:** Implementada
 
 ---
 

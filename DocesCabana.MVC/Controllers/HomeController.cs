@@ -1,6 +1,8 @@
 using System.Diagnostics;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using DocesCabana.MVC.Models;
+using DocesCabana.MVC.ViewComponents;
 using DocesCabana.Application.Contracts.Services;
 
 namespace DocesCabana.MVC.Controllers;
@@ -14,9 +16,11 @@ public class HomeController : Controller
         _produtoService = produtoService;
     }
 
+    // RF-04 (spec 019): pede só os destaques que a vitrine exibe, não a loja
+    // inteira — mesmo limite que o componente aplicaria de qualquer forma.
     public async Task<IActionResult> Index()
     {
-        var produtos = await _produtoService.BuscarTodosProdutos();
+        var produtos = await _produtoService.BuscarDestaquesDaVitrine(VitrineProdutosViewComponent.LimitePadrao, UsuarioAtualId);
         return View(produtos);
     }
 
@@ -39,5 +43,17 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    private Guid? UsuarioAtualId
+    {
+        get
+        {
+            if (User.Identity is not { IsAuthenticated: true })
+                return null;
+
+            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return id is null ? null : Guid.Parse(id);
+        }
     }
 }
