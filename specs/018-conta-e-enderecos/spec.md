@@ -1,7 +1,7 @@
 # Especificação — Conta e endereços
 
 **ID:** `018-conta-e-enderecos` · **Branch:** `018-conta-e-enderecos`
-**Criada em:** 2026-08-23 · **Status:** Rascunho
+**Criada em:** 2026-08-23 · **Status:** Implementada
 
 ---
 

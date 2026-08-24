@@ -27,8 +27,9 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Implementada | spec · [plan](./015-favoritos-e-ajustes-do-catalogo/plan.md) · [tasks](./015-favoritos-e-ajustes-do-catalogo/tasks.md) · [checklist](./015-favoritos-e-ajustes-do-catalogo/checklist.md) |
 | [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | spec · [plan](./016-busca-e-enderecos-do-catalogo/plan.md) · [tasks](./016-busca-e-enderecos-do-catalogo/tasks.md) · [checklist](./016-busca-e-enderecos-do-catalogo/checklist.md) |
 | [017](./017-carrinho/spec.md) | Carrinho | Implementada | spec · [plan](./017-carrinho/plan.md) · [tasks](./017-carrinho/tasks.md) · [checklist](./017-carrinho/checklist.md) |
+| [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | spec · [plan](./018-conta-e-enderecos/plan.md) · [tasks](./018-conta-e-enderecos/tasks.md) · [checklist](./018-conta-e-enderecos/checklist.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -138,6 +139,22 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > clicado); e `FilterException` ganhou um ramo próprio para as ações de
 > escrita do carrinho, que não têm view para redesenhar no erro — mesmo
 > padrão que `ProdutoController.VotarUtil` já usava.
+>
+> A `018` deu ao cliente uma área de conta — dados pessoais (ligando
+> `Usuario.AtualizarDados`, que existia desde a `004` sem consumidor) e
+> endereços, com exatamente um marcado como principal (RN-01 a RN-04,
+> invariantes de coleção em `EnderecoService`, não em `Endereco`). O atalho
+> "Conta" do cabeçalho, apagado pela `014`, passou a funcionar. Busca por CEP
+> no navegador (ViaCEP), com piso manual garantido — falha, demora ou CEP
+> inexistente nunca impedem o cadastro. Três achados corrigidos no caminho,
+> nenhum deles previsto no plano: `DadosPessoaisDTO.DataNascimento` sem
+> `[DisplayFormat]` renderizava a data com hora ao pré-preencher o
+> formulário; `DadosPessoaisDTO.CPF` (nunca postado, por ser só exibição)
+> era tratado como implicitamente `[Required]` pelo ASP.NET Core e
+> invalidava o `ModelState` em silêncio, sem span de erro para mostrar por
+> quê — corrigido com `[ValidateNever]`; e `Usuario.AtualizarDados` grava o
+> celular só em dígitos, mesma convenção do CPF, o que um teste E2E inicial
+> não esperava.
 
 ## A cadeia da loja (011 → 021)
 
@@ -155,7 +172,7 @@ preferência — cada uma só é construível depois da anterior.
 | [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Implementada | liga o coração do card e fecha o desenho do catálogo |
 | [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | busca por nome, endereço legível de subcategoria e o cadastro de produto vestido — acabamento antes do carrinho |
 | [017](./017-carrinho/spec.md) | Carrinho | Implementada | os dois controles do card que sobraram, desabilitados pela `012` |
-| 018 | Endereços do usuário | não especificada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
+| [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
 | 019 | Fechamento de pedido | não especificada | "Mais vendidos" passa a ser ordenação possível |
 | 020 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
 | 021 | Pagamento | não especificada | — |
@@ -204,11 +221,13 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Sem glúten e sem lactose | 012 — mesma porta que `Produto.SemAcucar` abriu |
 | Catálogo real da loja (390 produtos) | 012 — hoje é mock proporcional, 100 produtos |
 | Imagens novas do bloco de categorias da home | 012 — as atuais não correspondem mais às categorias |
-| Página de conta do cliente | 004 — o atalho do cabeçalho foi desabilitado pela `014` por levar a erro |
 | Favoritar da página do produto | 015 — o cartão ganhou o coração; a tela de detalhe ainda não |
 | Editar ou apagar avaliação | 014 — a RN-01 recusa a segunda avaliação; corrigir a primeira exige tela própria |
 | Carrossel da home refletir o favorito real | 015 — favoritar ali já funciona, mas o coração sempre nasce vazio (HomeController não busca o favorito de quem vê) |
 | Sugestões ao digitar na barra de pesquisa do cabeçalho | 016 — a busca por nome já existe; falta autocompletar. Pedido do responsável (2026-08-23): três blocos — "Pesquisas populares", "Produtos" e "Categorias" — como o cliente ao vivo de referência (imagem anexada na conversa, não commitada). Ao especificar, usar a skill `frontend-design` para o desenho visual do menu suspenso |
+| Trocar a senha pela área de conta | 018 — a área de conta existe; a troca com senha atual é fluxo próprio do Identity, diferente da redefinição por token que a `002` construiu |
+| Trocar o e-mail pela área de conta | 018 — é a credencial de acesso, não dado de perfil; mexer nela envolve confirmação por e-mail e invalidação de sessão |
+| "Meus pedidos" na área de conta | 018, 019 — o menu da conta já nasceu com o lugar reservado (`_MenuDaConta.cshtml`), desabilitado; só faz sentido quando a `019` criar `Pedido` |
 
 ## Como criar a próxima
 

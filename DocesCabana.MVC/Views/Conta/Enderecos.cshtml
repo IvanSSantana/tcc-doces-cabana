@@ -1,0 +1,79 @@
+@using DocesCabana.Application.DTOs
+@model List<EnderecoDTO>
+@{
+    ViewData["Title"] = "Meus endereços";
+    ViewData["PaginaAtiva"] = "Enderecos";
+}
+
+<link rel="stylesheet" href="~/css/components/formulario.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/conta.css" asp-append-version="true">
+
+<main class="pagina-conta">
+    <h1 class="titulo-conta">Minha conta</h1>
+
+    <div class="corpo-conta">
+        <partial name="_MenuDaConta" />
+
+        <section class="conteudo-conta">
+            <div class="cabecalho-secao-conta">
+                <h2 class="titulo-secao-conta">Endereços</h2>
+                <a asp-action="NovoEndereco" class="botao-acao botao-novo-endereco">+ Novo endereço</a>
+            </div>
+
+            @* RF-14/CA-09: lista vazia convida, em vez de ficar em branco —
+               mesmo padrão que a 015 estabeleceu para favoritos. *@
+            @if (Model.Count == 0)
+            {
+                <p class="enderecos-vazio">
+                    Você ainda não cadastrou nenhum endereço.
+                    <a asp-action="NovoEndereco">Cadastrar o primeiro</a>
+                </p>
+            }
+            else
+            {
+                <ul class="lista-enderecos">
+                    @foreach (var endereco in Model)
+                    {
+                        <li class="cartao-endereco @(endereco.Padrao ? "cartao-endereco--principal" : "")" data-endereco-id="@endereco.EnderecoId">
+                            @if (endereco.Padrao)
+                            {
+                                <span class="etiqueta-principal">★ PRINCIPAL</span>
+                            }
+
+                            <p class="linha-endereco">
+                                @endereco.Rua, @endereco.Numero
+                                @if (!string.IsNullOrWhiteSpace(endereco.Complemento))
+                                {
+                                    <text> — @endereco.Complemento</text>
+                                }
+                            </p>
+                            <p class="linha-endereco linha-endereco--secundaria">
+                                @endereco.Bairro · @endereco.Cidade/@endereco.Estado · @endereco.CEP
+                            </p>
+
+                            <div class="acoes-cartao-endereco">
+                                @* O principal não oferece "Tornar principal" — o
+                                   botão só aparece onde faz sentido acionar
+                                   (plano §3). *@
+                                @if (!endereco.Padrao)
+                                {
+                                    <form asp-action="TornarPrincipal" asp-route-id="@endereco.EnderecoId" method="post" class="formulario-inline-endereco">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="botao-secundario-endereco">Tornar principal</button>
+                                    </form>
+                                }
+
+                                <a asp-action="EditarEndereco" asp-route-id="@endereco.EnderecoId" class="botao-secundario-endereco">Editar</a>
+
+                                <form asp-action="ExcluirEndereco" asp-route-id="@endereco.EnderecoId" method="post" class="formulario-inline-endereco">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="botao-secundario-endereco botao-secundario-endereco--excluir">Excluir</button>
+                                </form>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</main>

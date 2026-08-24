@@ -20,6 +20,11 @@ public class EnderecoConfiguration : IEntityTypeConfiguration<Endereco>
         builder.Property(e => e.Numero).IsRequired();
         builder.Property(e => e.Complemento).HasMaxLength(100);
 
+        // Spec 018: Padrao é o que a RN-01 exige; DataCadastro dá à lista
+        // uma ordem estável e à RN-04 um critério de promoção.
+        builder.Property(e => e.Padrao).IsRequired().HasDefaultValue(false);
+        builder.Property(e => e.DataCadastro).IsRequired();
+
         builder.HasOne(e => e.Usuario)
             .WithMany()
             .HasForeignKey(e => e.UsuarioId)
