@@ -208,6 +208,7 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Favoritar da página do produto | 015 — o cartão ganhou o coração; a tela de detalhe ainda não |
 | Editar ou apagar avaliação | 014 — a RN-01 recusa a segunda avaliação; corrigir a primeira exige tela própria |
 | Carrossel da home refletir o favorito real | 015 — favoritar ali já funciona, mas o coração sempre nasce vazio (HomeController não busca o favorito de quem vê) |
+| Sugestões ao digitar na barra de pesquisa do cabeçalho | 016 — a busca por nome já existe; falta autocompletar. Pedido do responsável (2026-08-23): três blocos — "Pesquisas populares", "Produtos" e "Categorias" — como o cliente ao vivo de referência (imagem anexada na conversa, não commitada). Ao especificar, usar a skill `frontend-design` para o desenho visual do menu suspenso |
 
 ## Como criar a próxima
 
