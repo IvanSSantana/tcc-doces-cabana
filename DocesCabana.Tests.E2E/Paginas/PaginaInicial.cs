@@ -12,6 +12,7 @@ public class PaginaInicial
 
     public ILocator TituloDaVitrine => _pagina.Locator(".pagina-inicial-vitrine").Locator("xpath=preceding-sibling::h2[1]");
     public ILocator CardsDaVitrine => _pagina.Locator(".pagina-inicial-vitrine .card-produto");
+    public ILocator BotaoFavoritar(int indice = 0) => CardsDaVitrine.Nth(indice).Locator(".botao-favorito-card");
     // :visible é seletor próprio do Playwright, não CSS padrão — necessário
     // porque o carrossel esconde os pontos além do índice máximo com
     // `display: none` via script, sem remover do DOM (RF-08, spec 013).

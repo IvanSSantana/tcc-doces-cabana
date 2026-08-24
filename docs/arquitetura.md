@@ -271,9 +271,9 @@ A convenção de pasta é imposta pelo framework:
 ### 4.1 `Header` — o único com injeção de dependência
 
 ```csharp
-public async Task<IViewComponentResult> InvokeAsync(int itensCarrinho = 0)
+public async Task<IViewComponentResult> InvokeAsync()
 {
-    ViewData["ItensCarrinho"] = itensCarrinho;
+    ViewData["ItensCarrinho"] = await ContarItensDoCarrinho();
     ViewData["TermoDeBusca"] = Request.Query["termo"].ToString();
     var categorias = await _categoriaService.ListarComSubcategorias();
     return View(categorias);
@@ -292,8 +292,12 @@ roda em toda página do site. São 4 categorias e 31 subcategorias, mais uma
 consulta agregada de contagem por subcategoria. Aceitável nesta escala,
 mas é o candidato número um a cache no dia em que a loja crescer.
 
-**`itensCarrinho` é um parâmetro que ninguém passa.** Fica em `ViewData`,
-esperando o carrinho existir.
+**A contagem do carrinho é do próprio componente, desde a `017`.** Antes, era
+um parâmetro `itensCarrinho` que ninguém passava — ficava sempre em zero. Hoje
+o componente injeta `ICarrinhoService` e conta sozinho: do banco, pela claim
+do usuário, quando autenticado; da sessão (`HttpContext.Session.Ler()`), para
+o visitante — a mesma soma que `TotalDeItens` usa, sem precisar buscar produto
+nenhum, porque contar não valida disponibilidade.
 
 O menu suspenso em si **não tem JavaScript** — abre por `:hover` e
 `:focus-within` no CSS, o que o mantém acessível por teclado de graça. Só as 8
@@ -303,11 +307,13 @@ barra lateral do catálogo.
 ### 4.2 `VitrineProdutos` — onde mora o corte
 
 ```csharp
-public IViewComponentResult Invoke(IEnumerable<ProdutoDTO> produtos, int limite = 8)
+public const int LimitePadrao = 8;
+
+public IViewComponentResult Invoke(IEnumerable<ProdutoDTO> produtos, int limite = LimitePadrao)
     => View(produtos.Take(limite).ToList());
 ```
 
-Duas decisões pequenas e deliberadas:
+Três decisões pequenas e deliberadas:
 
 **O limite mora no componente, não em quem chama.** Qualquer página que use a
 vitrine herda o corte sem precisar lembrar de aplicá-lo. Foi a correção da `013`
@@ -316,6 +322,13 @@ para a home que renderizava 99 cartões.
 **`.ToList()` não é decoração.** `IEnumerable` pode ser enumerado mais de uma
 vez, e a view enumera duas (uma para os cartões, outra para os pontos
 indicadores). Sem materializar, a consulta rodaria duas vezes.
+
+**`LimitePadrao` é público desde a `019`.** `HomeController.Index` já pede só
+os destaques ao armazenamento (`ProdutoService.BuscarDestaquesDaVitrine`, ver
+§6.4), e precisa pedir exatamente o que o componente vai exibir — a mesma
+constante nos dois lados evita que "quantos pedimos" e "quantos exibimos"
+divirjam em silêncio. O `.Take(limite)` continua no componente mesmo assim:
+é rede de segurança contra um consumidor futuro que esqueça o próprio corte.
 
 Oito produtos = cinco posições de rolagem com quatro cartões visíveis no
 desktop. O número não é arbitrário: é `8 − 4 + 1`.
@@ -415,7 +428,7 @@ o catálogo não aplica nada e mostra a caixa real do nome.
 
 | Endereço | Controlador → Serviço | O que a tela faz |
 |---|---|---|
-| `/` | `Home.Index` → `IProdutoService.BuscarTodosProdutos` | Carrossel do topo + vitrine de 8 produtos |
+| `/` | `Home.Index` → `IProdutoService.BuscarDestaquesDaVitrine` | Carrossel do topo + vitrine dos 8 produtos mais bem avaliados (`019`; até então pedia o catálogo inteiro) |
 | `/Catalogo`<br>`/Catalogo/{apelido}` | `Catalogo.Index` → `ICatalogoService.Montar` | Barra lateral, filtros, ordenação, paginação, busca |
 | `/Produto/Detalhes/{id}` | `Produto.Detalhes` → `IProdutoService.BuscarDetalhe` | Imagem, descrição, nota média, histograma, avaliações |
 | `/Favorito` | `Favorito.Index` → `IFavoritoService.ListarDoUsuario` | Grade dos favoritos. `[Authorize]` |
@@ -612,6 +625,14 @@ da consulta. O cast para `double?` é o que permite a média ser nula.
 **Todo ramo termina em `ThenBy(p => p.Nome)`.** Sem desempate determinístico,
 `Skip`/`Take` pode repetir ou pular produto entre páginas — dois produtos de
 mesmo preço poderiam trocar de lugar entre a consulta da página 1 e a da 2.
+
+**A mesma consulta serve a vitrine da home, desde a `019`.**
+`ProdutoService.BuscarDestaquesDaVitrine` chama `BuscarPaginaDoCatalogo` com um
+`FiltroCatalogoDTO` vazio (nenhuma categoria, nenhuma subcategoria, sem termo)
+e `Ordenacao = MelhorAvaliados`, pedindo `pagina: 1` e `tamanhoDaPagina` igual
+ao limite da vitrine. Nenhuma consulta nova, nenhum critério duplicado — a
+home ganha o mesmo LIMIT/OFFSET que o catálogo, e herda de graça a exclusão de
+produto inativo e o desempate por nome.
 
 ### 6.5 Busca: por que existe uma coluna normalizada
 
@@ -932,50 +953,58 @@ cliente, **escreva um corpo na resposta.**
 
 ### 9.1 Achados desta leitura
 
-**🔴 `CpfHelper` aceita CPF com o primeiro dígito verificador errado.**
+**✅ `CpfHelper` aceitava CPF com o primeiro dígito verificador errado — resolvido na `019`.**
 
-O método calcula o primeiro dígito, **usa o valor calculado** para derivar o
-segundo, e no fim confere apenas o último:
+O método calculava o primeiro dígito, **usava o valor calculado** para derivar
+o segundo, e no fim conferia apenas o último:
 
 ```csharp
-primeirosDigitos += digito;                     // ← usa o CALCULADO, não o digitado
+primeirosDigitos += digito;                     // ← usava o CALCULADO, não o digitado
 …
-return digitos.EndsWith(digito.ToString());     // ← só o 2º dígito é conferido
+return digitos.EndsWith(digito.ToString());     // ← só o 2º dígito era conferido
 ```
 
 Verificado por teste: `52998224795`, `52998224705` e `52998224715` são todos
-inválidos e **os três passam**. Na prática, qualquer valor no 10º dígito é
-aceito, desde que o 11º case com o recalculado — cerca de 10% dos CPFs
-malformados entram.
+inválidos e **os três passavam**. Na prática, qualquer valor no 10º dígito era
+aceito, desde que o 11º casasse com o recalculado — cerca de 10% dos CPFs
+malformados entravam.
 
-Os testes existentes só corrompem o **segundo** dígito (`529.982.247-26`), que é
-justamente o caso que o código pega. Por isso nunca falharam.
+Os testes existentes só corrompiam o **segundo** dígito (`529.982.247-26`), que
+era justamente o caso que o código pegava. Por isso nunca falharam.
 
-Consertar é uma linha, mas mexe na validação do cadastro de cliente e de
-administrador — merece decisão própria, não correção de passagem.
+A `019` extraiu `CalcularDigito` e passou a conferir os dois dígitos contra o
+que a pessoa digitou (`DocesCabana.Domain/Helpers/CpfHelper.cs`).
 
-**🟡 A home carrega o catálogo inteiro para mostrar 8 produtos.**
+**✅ A home carregava o catálogo inteiro para mostrar 8 produtos — resolvido na `019`.**
 
-`HomeController.Index` chama `BuscarTodosProdutos()`, que faz
+`HomeController.Index` chamava `BuscarTodosProdutos()`, que fazia
 `_context.Set<Produto>().AsNoTracking().ToListAsync()` — **os 100 produtos** —
-filtra os inativos em memória e mapeia ~99 DTOs. Só então `VitrineProdutos`
-aplica `.Take(8)` e descarta 91.
+filtrava os inativos em memória e mapeava ~99 DTOs. Só então `VitrineProdutos`
+aplicava `.Take(8)` e descartava 91.
 
 A `013` corrigiu o sintoma visual (o corte mora no componente, que é o lugar
-certo). A consulta continua trazendo tudo.
+certo). A `019` corrigiu a consulta: `ProdutoService.BuscarDestaquesDaVitrine`
+reaproveita `BuscarPaginaDoCatalogo` com filtro vazio, ordenação por avaliação
+e `tamanhoDaPagina` igual ao limite da vitrine — o Skip/Take vira LIMIT/OFFSET
+no banco, e só os 8 produtos exibidos chegam à memória. A mesma consulta já
+respeita RN-02 (produto inativo não aparece em listagem nenhuma) e agora marca
+os favoritos do usuário autenticado, corrigindo também o achado do carrossel
+que nunca refletia favorito real (`015`, tabela 9.2).
 
-**🟡 O comentário do `EstrelasNota` descreve o algoritmo errado.**
+**✅ O comentário do `EstrelasNota` descrevia o algoritmo errado — resolvido na `019`.**
 
-Diz que nota 4,5 deixa "a 5ª estrela em 0%". O código deixa em 50%, que é o
-correto. O comentário parece ter sido editado no meio e ficou contraditório
+Dizia que nota 4,5 deixava "a 5ª estrela em 0%". O código deixa em 50%, que é
+o correto. O comentário parecia ter sido editado no meio e ficara contraditório
 consigo mesmo (*"a 5ª estrela fica 0%, e a 5ª... a 4ª fica 100%, a 5ª fica 0%"*).
+Reescrito para descrever o comportamento real
+(`DocesCabana.MVC/Views/Shared/Components/EstrelasNota/Default.cshtml`).
 
 ### 9.2 Dívidas já registradas nas specs
 
 | Dívida | Desde | Situação |
 |---|---|---|
 | Estouro horizontal do cabeçalho a 375px | `009` | Presente em toda página; declarado fora de escopo em `009`, `013`, `015` e `016` |
-| Carrossel da home não reflete favorito real | `015` | Favoritar ali funciona, mas o coração sempre nasce vazio |
+| Carrossel da home não reflete favorito real | `015` | ✅ Resolvido na `019` — `BuscarDestaquesDaVitrine` marca os favoritos do usuário autenticado |
 | Ordem das categorias no cabeçalho é a do banco | `013` | Sem critério definido; repetido em `014`, `015`, `016` |
 | `.linha-dupla` não empilha em tela estreita | `016` | Corrigido só no cadastro de produto; cadastro de cliente e de administrador seguem como sempre foram |
 | Atalho "Conta" desabilitado no cabeçalho | `014` | A página não existe |
@@ -985,13 +1014,11 @@ consigo mesmo (*"a 5ª estrela fica 0%, e a 5ª... a 4ª fica 100%, a 5ª fica 0
 
 ### 9.3 O que existe no modelo e ainda não tem comportamento
 
-Cinco das catorze tabelas modeladas não têm nenhum código que as use:
-`Estoque`, `Pedido`, `ItemPedido`, `Pagamento`, `Promocao`. `Endereco` tem
-entidade e tabela, mas nenhuma tela.
-
-**Não existe tabela de carrinho no modelo.** Quando o carrinho for especificado,
-a primeira decisão será se ele é efêmero (sessão, coerente com o modelo atual)
-ou se o diagrama do TCC ganha tabela nova.
+Cinco das quinze tabelas modeladas não têm nenhum código que as use:
+`Estoque`, `Pedido`, `ItemPedido`, `Pagamento`, `Promocao`. `ItemCarrinho`
+entrou no modelo pela `017`, que também deu tela e fluxo completo ao carrinho
+— não é mais uma pendência. `Endereco` tem entidade, tabela e tela desde a
+`018` (`Conta > Endereços`).
 
 ---
 

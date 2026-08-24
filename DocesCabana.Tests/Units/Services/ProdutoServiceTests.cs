@@ -14,6 +14,7 @@ public class ProdutoServiceTests
 {
     private readonly Mock<IProdutoRepository> _produtoRepositoryMock;
     private readonly Mock<IAvaliacaoService> _avaliacaoServiceMock;
+    private readonly Mock<IFavoritoRepository> _favoritoRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly ProdutoService _produtoService;
 
@@ -21,8 +22,10 @@ public class ProdutoServiceTests
     {
         _produtoRepositoryMock = new Mock<IProdutoRepository>();
         _avaliacaoServiceMock = new Mock<IAvaliacaoService>();
+        _favoritoRepositoryMock = new Mock<IFavoritoRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
-        _produtoService = new ProdutoService(_produtoRepositoryMock.Object, _avaliacaoServiceMock.Object, _unitOfWorkMock.Object);
+        _produtoService = new ProdutoService(
+            _produtoRepositoryMock.Object, _avaliacaoServiceMock.Object, _favoritoRepositoryMock.Object, _unitOfWorkMock.Object);
     }
 
     [Fact]
@@ -193,5 +196,61 @@ public class ProdutoServiceTests
 
         await Assert.ThrowsAsync<KeyNotFoundException>(() =>
             _produtoService.BuscarDetalhe(produtoId, OrdenacaoAvaliacao.Relevantes, 5, usuarioAtual: null));
+    }
+
+    // RF-04/RF-05/RF-09 (spec 019): a vitrine da home passa a pedir só o que
+    // exibe, reaproveitando a mesma consulta paginada do catálogo com filtro
+    // vazio e ordenação por avaliação — não mais BuscarTodosProdutos.
+    [Fact]
+    public async Task Dado_UmLimite_Quando_BuscarDestaquesDaVitrine_Entao_DevePedirAoRepositorioExatamenteEsseLimite()
+    {
+        // CA-06
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(
+                It.Is<FiltroCatalogoDTO>(f =>
+                    f.CategoriaId == null &&
+                    f.SubcategoriaIds.Count == 0 &&
+                    !f.ApenasSemAcucar &&
+                    f.Ordenacao == OrdenacaoCatalogo.MelhorAvaliados &&
+                    f.TermoNormalizado == null),
+                pagina: 1, tamanhoDaPagina: 8))
+            .ReturnsAsync([]);
+
+        await _produtoService.BuscarDestaquesDaVitrine(8);
+
+        _produtoRepositoryMock.Verify(r => r.BuscarPaginaDoCatalogo(
+            It.IsAny<FiltroCatalogoDTO>(), 1, 8), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_VisitanteSemAutenticacao_Quando_BuscarDestaquesDaVitrine_Entao_NaoDeveConsultarFavoritos()
+    {
+        // CA-12
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), 1, 8))
+            .ReturnsAsync([]);
+
+        await _produtoService.BuscarDestaquesDaVitrine(8, usuarioId: null);
+
+        _favoritoRepositoryMock.Verify(
+            r => r.IdsPorUsuario(It.IsAny<Guid>(), It.IsAny<IEnumerable<Guid>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioAutenticado_Quando_BuscarDestaquesDaVitrine_Entao_DeveMarcarOsFavoritados()
+    {
+        // CA-11
+        var usuarioId = Guid.NewGuid();
+        var produtoFavoritado = new Produto(Guid.NewGuid(), "Bolo Favorito", 15.00m, "https://imagem.com/bolo.jpg");
+        var produtoNaoFavoritado = new Produto(Guid.NewGuid(), "Doce Comum", 8.50m, "https://imagem.com/doce.jpg");
+
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), 1, 8))
+            .ReturnsAsync([produtoFavoritado, produtoNaoFavoritado]);
+        _favoritoRepositoryMock
+            .Setup(r => r.IdsPorUsuario(usuarioId, It.IsAny<IEnumerable<Guid>>()))
+            .ReturnsAsync([produtoFavoritado.ProdutoId]);
+
+        var resultado = await _produtoService.BuscarDestaquesDaVitrine(8, usuarioId);
+
+        Assert.True(resultado.Single(p => p.ProdutoId == produtoFavoritado.ProdutoId).EstaFavorito);
+        Assert.False(resultado.Single(p => p.ProdutoId == produtoNaoFavoritado.ProdutoId).EstaFavorito);
     }
 }

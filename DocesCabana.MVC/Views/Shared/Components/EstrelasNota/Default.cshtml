@@ -9,10 +9,10 @@
         @for (var i = 1; i <= 5; i++)
         {
             // Percentual da estrela "i" que fica pintado: 100% se a nota já
-            // cobre a estrela inteira, 0% se nem chega perto, e a fração
-            // exata quando ela é a estrela parcial (ex.: nota 4,5 -> a 5ª
-            // estrela fica 0%, e a 5ª... a 4ª fica 100%, a 5ª fica 0%; quem
-            // fica parcial é sempre a estrela seguinte à última inteira).
+            // cobre a estrela inteira, 0% se nem chega perto dela, e a fração
+            // exata quando ela é a estrela parcial — a única entre 0 e 100
+            // (ex.: nota 4,5 -> as quatro primeiras ficam 100%, a 5ª fica 50%;
+            // quem fica parcial é sempre a estrela seguinte à última inteira).
             var preenchimento = Math.Clamp((notaLimitada - (i - 1)) * 100, 0, 100);
             var gradienteId = $"estrela-{Guid.NewGuid():N}";
 
