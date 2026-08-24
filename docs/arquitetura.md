@@ -420,6 +420,8 @@ o catálogo não aplica nada e mostra a caixa real do nome.
 | `/Produto/Detalhes/{id}` | `Produto.Detalhes` → `IProdutoService.BuscarDetalhe` | Imagem, descrição, nota média, histograma, avaliações |
 | `/Favorito` | `Favorito.Index` → `IFavoritoService.ListarDoUsuario` | Grade dos favoritos. `[Authorize]` |
 | `/Carrinho` | `Carrinho.Index/Acrescentar/AlterarQuantidade/Remover` → `ICarrinhoService` | Itens, subtotal, item indisponível sinalizado. Sem `[Authorize]` — quem não entrou usa o carrinho da sessão, fundido ao de conta no primeiro request autenticado (`FiltroFusaoDeCarrinho`) |
+| `/Conta` | `Conta.Index/AlterarDados` → `IUsuarioService` | Dados pessoais — CPF como texto, o resto editável. `[Authorize]` na classe |
+| `/Conta/Enderecos`<br>`/Conta/NovoEndereco`<br>`/Conta/EditarEndereco/{id}` | `Conta.Enderecos/NovoEndereco/EditarEndereco/ExcluirEndereco/TornarPrincipal` → `IEnderecoService` | CRUD de endereço, exatamente um principal (RN-01 a RN-04). Busca por CEP no navegador (ViaCEP); `IEnderecoRepository` nunca busca por id sozinho, só pelo par `(enderecoId, usuarioId)` — é o que torna endereço alheio inalcançável por desenho, não por checagem avulsa |
 | `/Autenticacao/Login` | `Autenticacao.Login` → `IUsuarioService` | Entrar, com endereço de retorno |
 | `/Autenticacao/Cadastro` | `Autenticacao.Cadastro` | Criar conta de cliente |
 | `/Autenticacao/EsqueceuSenha`<br>`/RedefinirSenha` | `Autenticacao` + `IEmailService` | Recuperação por token enviado por e-mail |

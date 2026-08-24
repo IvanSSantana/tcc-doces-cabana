@@ -66,6 +66,8 @@ Table Endereco [headercolor: #175e7a] {
 	Rua varchar(255)
 	Numero integer
 	Complemento nvarchar(100)
+	Padrao bit [ not null, note: 'RN-01 (spec 018): exatamente um por pessoa' ]
+	DataCadastro datetime2 [ not null, note: 'Critério de promoção da RN-04; ordena a lista' ]
 }
 
 Table Favorito [headercolor: #175e7a] {

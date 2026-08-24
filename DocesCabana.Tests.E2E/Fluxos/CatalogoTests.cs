@@ -651,19 +651,21 @@ public class CatalogoTests : TesteE2E
         });
 
     [Fact]
-    public async Task Dado_ClienteAutenticado_Quando_OlharOCabecalho_Entao_NaoDeveOferecerContaClicavel() =>
+    public async Task Dado_ClienteAutenticado_Quando_OlharOCabecalho_Entao_DeveOferecerContaClicavel() =>
         await Executar(async () =>
         {
-            // RF-17/CA-20: o atalho "Conta" levava a Home/Conta, ação que
-            // não existe — quem clicava caía no 404. Mesmo padrão da 012
-            // para controle sem função ainda: desabilitado, não escondido.
+            // Correção esperada, não regressão (spec 018, tasks T041): o
+            // atalho "Conta" saiu de "desabilitado até a tela existir"
+            // (spec 014, RF-17) para funcionando de verdade (spec 018).
             var paginaLogin = new PaginaLogin(Pagina);
             await paginaLogin.Abrir(UrlBase);
             await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
 
-            var atalhoConta = Pagina.Locator("header").GetByText("Conta", new() { Exact = true });
+            var atalhoConta = Pagina.Locator("header").GetByRole(AriaRole.Link, new() { Name = "Conta" });
             await Expect(atalhoConta).ToBeVisibleAsync();
-            await Expect(atalhoConta.Locator("xpath=ancestor-or-self::a")).ToHaveCountAsync(0);
+
+            await atalhoConta.ClickAsync();
+            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Conta");
         });
 
     [Fact]

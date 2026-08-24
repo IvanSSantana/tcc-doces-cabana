@@ -1,0 +1,63 @@
+@using DocesCabana.Application.DTOs
+@model DadosPessoaisDTO
+@{
+    ViewData["Title"] = "Minha conta";
+    ViewData["PaginaAtiva"] = "DadosPessoais";
+}
+
+<link rel="stylesheet" href="~/css/components/formulario.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/conta.css" asp-append-version="true">
+
+<main class="pagina-conta">
+    <h1 class="titulo-conta">Minha conta</h1>
+
+    <div class="corpo-conta">
+        <partial name="_MenuDaConta" />
+
+        <section class="conteudo-conta">
+            <h2 class="titulo-secao-conta">Dados pessoais</h2>
+
+            <form asp-action="AlterarDados" method="post" class="formulario-dados-pessoais">
+                @Html.AntiForgeryToken()
+
+                <div class="campo-entrada">
+                    <label asp-for="Nome">Nome completo</label>
+                    <input asp-for="Nome" type="text" class="campo-texto" required />
+                    <span asp-validation-for="Nome" class="mensagem-erro"></span>
+                </div>
+
+                <div class="linha-dupla">
+                    @* CA-06/RN-06: o CPF aparece como texto, não como campo
+                       desabilitado — um campo apagado convida a tentar, e
+                       ele nunca muda. Mostrar o valor sem oferecer o
+                       controle é mais honesto que um controle morto (RN-08
+                       da 018, mesma regra herdada da 012 em diante). *@
+                    <div class="campo-entrada">
+                        <label>CPF</label>
+                        <span class="cpf-somente-leitura">@Model.CPF</span>
+                    </div>
+
+                    <div class="campo-entrada">
+                        <label asp-for="Celular">Celular</label>
+                        <input asp-for="Celular" type="tel" placeholder="(00) 00000-0000" class="campo-texto" required />
+                        <span asp-validation-for="Celular" class="mensagem-erro"></span>
+                    </div>
+                </div>
+
+                <div class="campo-entrada">
+                    <label asp-for="DataNascimento">Data de nascimento</label>
+                    <input asp-for="DataNascimento" type="text" placeholder="DD/MM/AAAA" class="campo-texto" required />
+                    <span asp-validation-for="DataNascimento" class="mensagem-erro"></span>
+                </div>
+
+                <div class="container-botao">
+                    <button type="submit" class="botao-acao">Salvar alterações</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</main>
+
+@section Scripts {
+    <script src="~/js/pages/conta.js" asp-append-version="true"></script>
+}
