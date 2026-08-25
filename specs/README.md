@@ -29,6 +29,10 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [017](./017-carrinho/spec.md) | Carrinho | Implementada | spec · [plan](./017-carrinho/plan.md) · [tasks](./017-carrinho/tasks.md) · [checklist](./017-carrinho/checklist.md) |
 | [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | spec · [plan](./018-conta-e-enderecos/plan.md) · [tasks](./018-conta-e-enderecos/tasks.md) · [checklist](./018-conta-e-enderecos/checklist.md) |
 | [019](./019-correcoes-e-pendencias/spec.md) | Correções e pendências | Implementada | spec · [plan](./019-correcoes-e-pendencias/plan.md) · [tasks](./019-correcoes-e-pendencias/tasks.md) · [checklist](./019-correcoes-e-pendencias/checklist.md) |
+| [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Especificada | spec · [plan](./020-dimensoes-e-frete/plan.md) · [tasks](./020-dimensoes-e-frete/tasks.md) |
+| [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Especificada | spec · [plan](./021-redesenho-do-carrinho/plan.md) · [tasks](./021-redesenho-do-carrinho/tasks.md) |
+| [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Especificada | spec · [plan](./022-fechamento-de-pedido/plan.md) · [tasks](./022-fechamento-de-pedido/tasks.md) |
+| [023](./023-meus-pedidos/spec.md) | Meus pedidos | Especificada | spec · [plan](./023-meus-pedidos/plan.md) · [tasks](./023-meus-pedidos/tasks.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
@@ -178,17 +182,11 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > parâmetro morto `itensCarrinho` que a própria `017` já tinha substituído por
 > contagem própria — só a documentação mudou, o componente já estava certo.
 
-## A cadeia da loja (011 → 022)
+## A cadeia da loja (011 → 026)
 
 Traçada em 2026-08-18, a partir de três referências visuais — catálogo filtrado,
-catálogo completo e carrinho com fechamento. As três telas parecem duas
-entregas e são sete: o mockup do carrinho sozinho encosta em estoque, endereço,
-pedido, pagamento e promoção. A ordem abaixo é de dependência, não de
-preferência — cada uma só é construível depois da anterior.
-
-`019-correcoes-e-pendencias` não é entrega da cadeia — é correção, como a `013`
-foi para a página inicial — mas ocupou o número que a cadeia esperava para
-"Fechamento de pedido" e por isso desloca todo o resto abaixo dela.
+catálogo completo e carrinho com fechamento. As três telas pareciam duas
+entregas; hoje são doze. A ordem abaixo é de dependência, não de preferência.
 
 | # | Entrega | Estado | O que destrava |
 |---|---|---|---|
@@ -196,51 +194,54 @@ foi para a página inicial — mas ocupou o número que a cadeia esperava para
 | [012](./012-catalogo/spec.md) | Catálogo | Implementada | os 4 atalhos mortos do cabeçalho e o bloco de categorias da home |
 | [014](./014-refinamento-do-catalogo/spec.md) | Refinamento do catálogo | Implementada | tira do caminho as pendências do catálogo antes da cadeia seguir |
 | [015](./015-favoritos-e-ajustes-do-catalogo/spec.md) | Favoritos e ajustes do catálogo | Implementada | liga o coração do card e fecha o desenho do catálogo |
-| [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | busca por nome, endereço legível de subcategoria e o cadastro de produto vestido — acabamento antes do carrinho |
+| [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | busca por nome e endereço legível de subcategoria |
 | [017](./017-carrinho/spec.md) | Carrinho | Implementada | os dois controles do card que sobraram, desabilitados pela `012` |
 | [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
-| 020 | Fechamento de pedido e frete | não especificada | "Mais vendidos" passa a ser ordenação possível; `Pedido`, `ItemPedido`, `Pagamento`, MelhorEnvio |
-| 022 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
+| [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Especificada | peso e medidas do produto, e o custo de entrega que o pedido precisa |
+| [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Especificada | a tela onde os passos do fechamento vão morar |
+| [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Especificada | `Pedido`, `ItemPedido` e `Pagamento` ganham comportamento; "mais vendidos" passa a ter sentido |
+| [023](./023-meus-pedidos/spec.md) | Meus pedidos | Especificada | o atalho que a `018` deixou reservado na área de conta |
+| 024 | Pagamento com processadora | não especificada | cobrança real, e a situação do pedido deixa de ser sempre "pendente" |
+| 026 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
 
-`021-avaliacao-promocoes-favorito-e-sugestoes` fica fora desta tabela — não é
-elo da cadeia de fechamento de pedido, é a spec de features que a `019`
-separou do backlog solto (ver a seção abaixo). "Pagamento" deixou de ser
-entrega própria: absorvido pela `020`, que já cria `Pagamento` junto com
-`Pedido`.
+`025-avaliacao-promocoes-favorito-e-sugestoes` fica fora desta tabela — não é
+elo da cadeia de compra, é a spec de features que a `019` separou do backlog
+solto (ver a seção abaixo).
 
-A pergunta sobre o carrinho de visitante e a reserva de estoque foi
-resolvida ao escrever a `017` (sessão com fusão no login; nenhuma reserva —
-`RN-06` recusa no fechamento, não no acréscimo). As demais, **a resolver na
-spec de cada uma**:
+**Ordem de execução sugerida, diferente da numeração:** a `021` reconstrói o
+resumo lateral do carrinho, que é onde a caixa de CEP da `020` mora. Executar a
+`021` antes da parte de cotação da `020` evita construir a caixa duas vezes. A
+parte de medidas da `020` é independente das duas e pode vir primeiro.
 
-- **Frete** (`020`): valor fixo, por região, ou calculado? Decidido na
-  conversa que abriu a `018`/`019` — cotado pelo MelhorEnvio, calculável só
-  depois do endereço escolhido (ver `017`, plano, "Sobre as duas specs
-  seguintes").
-- **Cupom de desconto** (`021` ou spec própria): a entidade `Promocao` existe
+Perguntas ainda abertas, **a resolver na spec de cada uma**:
+
+- **Nível de integração com a processadora** (`024`): redirecionar para a tela
+  do provedor, ou manter o formulário no site? A decisão determina quanto do
+  passo de pagamento da `022` sobrevive — que por isso nasce declaradamente
+  provisório.
+- **Cupom de desconto** (`025` ou spec própria): a entidade `Promocao` existe
   desde a `003` e nunca foi usada. Cupom por código é a mesma coisa que
   promoção na vitrine, ou são dois conceitos?
 
 > **Nota de numeração:** a cadeia era `013`–`017` quando foi traçada, e já
-> deslocou seis vezes — `013` (correções da página inicial), `014`
-> (refinamento do catálogo), `015` (favoritos e ajustes do catálogo), `016`
-> (busca e endereços do catálogo), a própria `017` (que trocou de lugar com
-> "Estoque" — Carrinho passou a ser construível antes de Estoque existir,
-> `RN-06` já cobre indisponibilidade por status sem depender de tabela de
-> estoque própria), e agora a `019` (Correções e pendências), que tomou o
-> número antes reservado a "Fechamento de pedido" — Fechamento virou `020`,
-> "Pagamento" deixou de ser entrega própria (absorvido pela `020`), e
-> "Estoque" virou `022`, cedendo o `021` para a spec de features
-> (avaliação, promoções, favorito, sugestões) que a `019` extraiu do backlog
-> solto. Segue a regra do topo deste arquivo: o número é atribuído quando a
-> spec é criada, e as entradas sem link acima ainda não têm spec.
+> deslocou oito vezes. As cinco primeiras foram `013` a `017`. A sexta foi a
+> `019` (Correções e pendências), que tomou o número reservado a "Fechamento de
+> pedido". A sétima dividiu "Fechamento de pedido e frete" em duas — `020`
+> (dimensões e cotação) e o fechamento propriamente dito — ao descobrir que a
+> cotação de frete entrega valor sozinha, na tela do carrinho. A oitava dividiu
+> o fechamento em três: as ~99 tarefas estimadas eram 60% acima da `017`, a
+> maior entrega até então, então saíram `021` (redesenho do carrinho), `022`
+> (fechamento) e `023` (meus pedidos). "Pagamento" voltou a ser entrega própria
+> — `024` — ao ficar decidido que haverá processadora de verdade.
+>
+> Segue a regra do topo deste arquivo: o número é atribuído quando a spec é
+> criada, e as entradas sem link acima ainda não têm spec.
 >
 > Cada deslocamento deixa referências obsoletas em comentário de código e em
-> specs antigas. As cinco rodadas já cobradas estavam corrigidas; a `019`
-> conferiu de novo (`grep -rn "spec 0[0-9][0-9]"` na base inteira) e não achou
-> nada obsoleto para corrigir além desta própria seção — **quem deslocar a
-> cadeia de novo precisa repetir essa varredura**, inclusive na spec que
-> estiver escrevendo.
+> specs antigas. **Quem deslocar a cadeia de novo precisa varrer `spec 0NN` na
+> base inteira — e também o número solto**, sem a palavra "spec": foi
+> exatamente assim que o comentário do botão de finalizar compra escapou da
+> varredura da `019` e sobreviveu errado por duas renumerações.
 
 ## Backlog fora da cadeia
 
