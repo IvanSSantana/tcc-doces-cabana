@@ -93,13 +93,14 @@
 
 ## Fase 7 — O adaptador, escrito
 
-> Escrito **sem** credencial, a partir da documentação. O que sai daqui compila,
-> sobe e se comporta corretamente na ausência de token — o que **não** sai é
-> prova de que o mapeamento da resposta está certo.
+> Escrito **sem** credencial, contra a documentação oficial já obtida (plano §4).
+> O que sai daqui compila, sobe, se comporta corretamente na ausência de token
+> **e tem o mapeamento provado contra o exemplo documentado**. O que não sai é
+> prova de que a documentação corresponde ao serviço de hoje — isso é a T047.
 
-- [ ] **T039** — `DocesCabana.Infrastructure/Services/FreteSettings.cs`: `UrlBase`, `Token`, `CepDeOrigem`, `TimeoutEmSegundos`.
-- [ ] **T040** — `DocesCabana.Infrastructure/Services/MelhorEnvio/`: os tipos de desserialização do JSON, isolados nesta pasta — é o que torna local o conserto quando o formato real for conhecido (plano §8, risco 2).
-- [ ] **T041** — `DocesCabana.Infrastructure/Services/FreteServiceMelhorEnvio.cs`: monta a requisição com CEP de origem, CEP de destino e um item por linha recebida, com **peso em kg e medidas em cm** (RF-07). As linhas já chegam filtradas por disponibilidade (T029) — o adaptador não conhece `ProdutoStatus`. Trata `HttpRequestException`, `TaskCanceledException` e JSON ilegível devolvendo `Opcoes = []` e `Mensagem` (RF-10/RN-02) — **nunca lança**.
+- [ ] **T039** — `DocesCabana.Infrastructure/Services/FreteSettings.cs`: `UrlBase`, `Token`, `CepDeOrigem`, `UserAgent`, `TimeoutEmSegundos`. **`UserAgent` é obrigatório pela API** (nome da aplicação e e-mail de contato) — é configuração, não literal no código.
+- [ ] **T040** — **Teste do mapeamento, contra o exemplo da documentação.** Gravar o JSON de resposta documentado como fixture e exigir que ele vire as opções corretas: `custom_price` e não `price`; `custom_delivery_range` e não `delivery_time`; `company.name` como transportadora e `name` como serviço; `id` preservado como `ServicoId`; entrada sem preço utilizável descartada. **Um caso dedicado à armadilha da cultura**: `"37.79"` precisa virar `37,79` e não `3779,00` (plano §4, armadilha 2) — é a única das três que passaria despercebida por toda asserção relacional. Ver falhar. **Nada aqui precisa de credencial.**
+- [ ] **T041** — `DocesCabana.Infrastructure/Services/MelhorEnvio/` (tipos de desserialização, isolados nesta pasta) e `Services/FreteServiceMelhorEnvio.cs`, fazendo T040 passar. Monta a requisição no modo `products` conforme a tabela do plano §4: **`insurance_value` recebe o preço do produto**, `options.receipt` e `own_hand` ficam `false`, e `services` é **omitido** para vir tudo que atende o trecho. Peso em kg, medidas em cm (RF-07). As linhas já chegam filtradas por disponibilidade (T029) — o adaptador não conhece `ProdutoStatus`. Trata `HttpRequestException`, `TaskCanceledException`, `422` e JSON ilegível devolvendo `Opcoes = []` e `Mensagem` (RF-10/RN-02) — **nunca lança**.
 - [ ] **T042** — `DocesCabana.Infrastructure/DependencyInjections/ApplicationDependencyInjection.cs`: `Configure<FreteSettings>` e `AddHttpClient<IFreteService, FreteServiceMelhorEnvio>` com o timeout da configuração.
 - [ ] **T043** `[P]` — `DocesCabana.MVC/appsettings.Example.json`: seção `FreteSettings` com `UrlBase` e `CepDeOrigem` preenchidos e `Token` **vazio** (RN-05). Conferir que nenhum arquivo versionado passou a conter credencial.
 - [ ] **T044** — Testes dos caminhos de falha, **sem mock e sem credencial** (plano §6): `UrlBase = "http://localhost:9"` → conexão recusada; `Token = "invalido"` → 401; timeout curto. Os três devem devolver `Mensagem` e nunca lançar.
@@ -113,7 +114,7 @@
 - [ ] **T046** 🔒 — Guardar a credencial em *user secrets*, nunca no repositório:
       `dotnet user-secrets --project DocesCabana.MVC set "FreteSettings:Token" "<chave>"`.
       Conferir `git status` limpo em seguida.
-- [ ] **T047** 🔒 — Primeira chamada real, à mão, com o CEP de origem `17340-001`. **Comparar a resposta com os tipos escritos na T040** e corrigir o que divergir. É esta tarefa que converte a suposição da Fase 7 em fato.
+- [ ] **T047** 🔒 — Primeira chamada real, à mão, com o CEP de origem `17340-001`. **Conferir se a resposta do serviço corresponde à documentação** contra a qual a T040/T041 foram escritas — não é mais descoberta de formato, é conferência de que a documentação não envelheceu. Corrigir o que divergir; a desserialização isolada em `Services/MelhorEnvio/` torna o conserto local.
 - [ ] **T048** 🔒 — `DocesCabana.Tests.E2E/Fluxos/FreteTests.cs`, marcados `[Trait("Categoria", "Externo")]`: cotação devolve opções com preço e prazo positivos (CA-05); visitante cota sem conta (CA-06); sem JavaScript funciona (CA-14). **Nenhuma asserção sobre valor absoluto** (plano §6).
 - [ ] **T049** 🔒 — Testes de relação, mesmo `[Trait]`: CEP distante custa e demora mais que CEP próximo (CA-08); mais unidades custam mais (CA-07); carrinho só de Souvenir custa mais que carrinho só de Adega, apesar de pesar menos (CA-09) — é a prova de que peso **e** medidas chegam à API corretamente, na unidade certa.
 - [ ] **T050** 🔒 — `DocesCabana.Tests.E2E/Infraestrutura/AplicacaoEmExecucao.cs`: passar `FreteSettings__Token` por variável de ambiente, lido do ambiente de quem executa — mesmo lugar onde `EmailSettings__Adaptador` já é passado. Conferir que a suíte **sem** a variável continua verde, com os testes de rede fora do filtro.
@@ -140,7 +141,7 @@
 | RF-03 | T010, T013, T014, T015 |
 | RF-04 | T033, T037 |
 | RF-05 | T048 |
-| RF-06 | T032, T048 |
+| RF-06 | T032, T040, T048 |
 | RF-07 | T041, T049 |
 | RF-08 | T029, T031 |
 | RF-09 | T023, T024, T029, T031 |

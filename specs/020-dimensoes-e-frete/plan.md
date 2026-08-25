@@ -82,7 +82,7 @@ derivação de região que um simulador pediria não existe mais.
 | Arquivo | Mudança |
 |---|---|
 | `Services/FreteServiceMelhorEnvio.cs` | **novo** — `HttpClient`, `Bearer`, mapeia a resposta |
-| `Services/FreteSettings.cs` | **novo** — `UrlBase`, `Token`, `CepDeOrigem`, `TimeoutEmSegundos` |
+| `Services/FreteSettings.cs` | **novo** — `UrlBase`, `Token`, `CepDeOrigem`, `UserAgent`, `TimeoutEmSegundos` |
 | `Services/MelhorEnvio/` | **nova pasta** — tipos de desserialização do JSON, isolados |
 | `DependencyInjections/ApplicationDependencyInjection.cs` | `Configure<FreteSettings>` + `AddHttpClient<IFreteService, FreteServiceMelhorEnvio>` |
 | `DatabaseContext/Configurations/ProdutoConfiguration.cs` | Precisão decimal das quatro colunas |
@@ -113,7 +113,13 @@ public interface IFreteService
 }
 
 // Application/DTOs/OpcaoDeFreteDTO.cs
-public record OpcaoDeFreteDTO(string Transportadora, string Servico, decimal Preco, int PrazoEmDias);
+public record OpcaoDeFreteDTO(
+    int ServicoId,              // é por ele que a 022 casa a re-cotação no fechamento
+    string Transportadora,      // "Correios", "Jadlog"
+    string Servico,             // "PAC", "SEDEX", ".Package"
+    decimal Preco,
+    int PrazoMinimoEmDias,
+    int PrazoMaximoEmDias);
 
 // Application/DTOs/CotacaoDeFreteDTO.cs
 public record CotacaoDeFreteDTO(
@@ -147,6 +153,67 @@ escolha:
 - Reaproveita `/Carrinho?cep=...`, sem rota nova
 - Cai no "um endereço, duas representações" que a `014` estabeleceu: com script,
   o mesmo endereço devolve só o pedaço que mudou
+
+### O mapeamento contra a API, e três armadilhas
+
+A documentação foi obtida antes de implementar. O endereço é
+`POST https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate`.
+
+**Cabeçalhos.** `Accept: application/json`, `Content-Type: application/json`,
+`Authorization: Bearer <token>` e — **obrigatório** — `User-Agent` com nome da
+aplicação e e-mail de contato técnico. Sem ele a API recusa, e nenhum exemplo de
+código em C# menciona isso: por isso `UserAgent` é campo de configuração, não
+literal no código.
+
+**Ida** (modo `products`, não `volumes` — a API faz o próprio empacotamento):
+
+| Campo | Origem |
+|---|---|
+| `from.postal_code` | `FreteSettings.CepDeOrigem` = `17340001` |
+| `to.postal_code` | o CEP informado |
+| `products[].id` | `ProdutoId` |
+| `products[].width` / `height` / `length` | `Largura` / `Altura` / `Comprimento`, em cm |
+| `products[].weight` | `Peso`, em kg |
+| `products[].insurance_value` | **`Produto.Preco`** — a API multiplica pela quantidade |
+| `products[].quantity` | a quantidade da linha |
+| `options.receipt` / `own_hand` | `false` — os dois só encarecem |
+| `services` | **omitido**, para vir tudo que atende o trecho |
+
+**Volta:**
+
+| Nosso campo | JSON |
+|---|---|
+| `ServicoId` | `id` |
+| `Transportadora` | `company.name` |
+| `Servico` | `name` |
+| `Preco` | **`custom_price`** |
+| `PrazoMinimoEmDias` / `PrazoMaximoEmDias` | **`custom_delivery_range.min` / `.max`** |
+
+**Armadilha 1 — os campos óbvios são os errados.** A documentação instrui a usar
+`custom_price` e `custom_delivery_time`/`custom_delivery_range`, não `price` e
+`delivery_time`: os primeiros refletem taxas e descontos configurados na conta
+da loja. Mapear os nomes naturais funcionaria até a loja configurar qualquer
+customização, e então passaria a cobrar errado em silêncio.
+
+**Armadilha 2 — o preço vem como texto, e a aplicação é `pt-BR`.**
+`"custom_price": "37.79"` é string com ponto decimal, e o `Program.cs` fixa a
+cultura em `pt-BR`, onde ponto separa milhar:
+
+```csharp
+decimal.Parse("37.79")                               // → 3779,00  ✗
+decimal.Parse("37.79", CultureInfo.InvariantCulture) // →   37,79  ✓
+```
+
+Um frete de R$ 37,79 viraria R$ 3.779,00 — e passaria em qualquer asserção
+relacional do tipo "preço > 0" ou "distante custa mais". **Tem teste próprio.**
+
+**Armadilha 3 — entrada sem preço utilizável.** A documentação mostra só o caso
+de sucesso, mas nada garante que toda entrada do vetor traga `custom_price`
+válido. Entrada sem preço utilizável é descartada antes de virar opção na tela:
+três linhas que protegem a RF-06 (toda opção exibida tem preço e prazo).
+
+**Erros.** `422` devolve `{ message, errors }` para dados inválidos — tratado
+como as demais falhas, virando `Mensagem` (RN-02), nunca exceção.
 
 ## 5. Modelo de dados
 
@@ -262,7 +329,7 @@ barreira de entrada e o tratamento de falha resolvem antes de qualquer rede.
 | Risco | Probabilidade | Impacto | Mitigação |
 |---|---|---|---|
 | **A credencial não chega a tempo** | Média | Alto | A Fase A é executável desde já e entrega valor sozinha. Se a credencial nunca vier, a Fase B vira spec própria e nada do que foi feito se perde |
-| **O formato da resposta difere do documentado** | Média | Médio | Só descobrível com credencial em mãos. A desserialização fica isolada em `Services/MelhorEnvio/`, então o conserto é local. **Nenhum teste escrito antes da credencial prova o mapeamento** |
+| **O formato da resposta difere do documentado** | ~~Média~~ **Baixa** | Médio | **Reduzido:** a documentação foi obtida antes de implementar, e o mapeamento é testado contra o exemplo documentado, sem credencial. Resta o risco de a documentação estar desatualizada em relação ao serviço — o que a T047 confere |
 | **Sandbox devolve transportadora ou preço irreal** | Média | Baixo | As asserções são de relação, não de valor. Preço irreal não quebra teste de "distante custa mais" |
 | **A migration falha sobre base povoada** | Baixa | Alto | Duas etapas: coluna com padrão temporário, depois `UPDATE`. Testada pela integração que exige medidas > 0 em todo produto |
 | **`CarrinhoDTO` mudar quebra os testes da `017`** | Baixa | Médio | `Cotacao` é anulável e o parâmetro do mapper tem padrão `null` — nenhum teste existente muda |

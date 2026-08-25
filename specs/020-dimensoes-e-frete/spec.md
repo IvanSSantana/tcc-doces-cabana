@@ -69,7 +69,7 @@ quanto custa e quanto demora receber a compra no endereço dela.
 - **RF-05** — O cálculo DEVE funcionar para quem não está autenticado, sem
   exigir endereço cadastrado.
 - **RF-06** — Cada opção de entrega apresentada DEVE informar a transportadora,
-  o nome do serviço, o preço e o prazo em dias.
+  o nome do serviço, o preço e o prazo de entrega como faixa de dias.
 - **RF-07** — A cotação DEVE considerar o peso e as medidas de cada item do
   carrinho, e a quantidade de cada um.
 - **RF-08** — A cotação NÃO DEVE considerar item indisponível, pelo mesmo
@@ -99,7 +99,9 @@ quanto custa e quanto demora receber a compra no endereço dela.
   servidor.
 - **RN-06** — O preço e o prazo exibidos são os que o serviço de entrega
   devolveu, sem ajuste, arredondamento ou margem da loja. Anunciar número que a
-  loja inventou seria dizer que veio da transportadora quando não veio.
+  loja inventou seria dizer que veio da transportadora quando não veio. É também
+  por isso que o prazo aparece como faixa: é a forma como a transportadora o
+  informa, e reduzi-lo a um número seria escolher por ela.
 
 ## 7. Critérios de aceite
 
@@ -129,7 +131,7 @@ quanto custa e quanto demora receber a compra no endereço dela.
 - **Dado** que estou na tela do carrinho
 - **Quando** informo um CEP válido e peço o cálculo
 - **Então** vejo as opções de entrega, cada uma com transportadora, serviço,
-  preço e prazo em dias
+  preço e a faixa de dias do prazo
 
 ### CA-06 — O visitante calcula sem conta
 - **Dado** que não estou autenticado
@@ -234,11 +236,24 @@ Empório ficam no meio. Um valor único faria toda cotação variar só pela
 quantidade de itens, nunca pelo que eles são, e o CA-09 seria impossível de
 satisfazer.
 
+**A documentação do serviço foi obtida antes de implementar**, e três
+decisões saíram dela:
+
+- **Cada item declara o próprio preço como valor segurado.** Extravio ou dano
+  ressarcem o valor real da mercadoria. Encarece o frete em relação a declarar
+  valor simbólico, e é o que uma loja de verdade faz.
+- **Todas as opções que o serviço devolver são exibidas**, sem a loja escolher
+  quais. Quem paga escolhe, e nenhuma alternativa mais barata fica escondida.
+- **O prazo é exibido como faixa**, porque é assim que a transportadora o
+  informa (RN-06).
+
 **⚠️ A credencial do MelhorEnvio ainda não foi obtida.** O cadastro exige etapas
-de verificação que seguem em andamento. Consequência: as tarefas de integração e
-os testes contra a API ficam **bloqueados até a credencial existir**; as tarefas
-de peso e medidas não dependem dela e são executáveis desde já. Nenhuma decisão
-desta spec depende da credencial — só a execução de parte dela.
+de verificação que seguem em andamento. Consequência: os testes **contra a API**
+ficam bloqueados até a credencial existir. O que **não** está mais bloqueado: o
+formato da requisição e da resposta é conhecido pela documentação, então o
+mapeamento pode ser escrito e testado contra o exemplo documentado, sem rede.
+Nenhuma decisão desta spec depende da credencial — só a confirmação de parte
+dela contra o serviço real.
 
 **⚠️ Uma referência obsoleta foi encontrada ao especificar.** O botão desligado
 de finalizar compra, na tela do carrinho, tem comentário dizendo que o
