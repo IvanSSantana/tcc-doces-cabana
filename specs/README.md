@@ -258,12 +258,12 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Imagens novas do bloco de categorias da home | 012 — as atuais não correspondem mais às categorias |
 | Trocar a senha pela área de conta | 018 — a área de conta existe; a troca com senha atual é fluxo próprio do Identity, diferente da redefinição por token que a `002` construiu |
 | Trocar o e-mail pela área de conta | 018 — é a credencial de acesso, não dado de perfil; mexer nela envolve confirmação por e-mail e invalidação de sessão |
-| "Meus pedidos" na área de conta | 018, 020 — o menu da conta já nasceu com o lugar reservado (`_MenuDaConta.cshtml`), desabilitado; só faz sentido quando a `020` criar `Pedido` |
+| ~~"Meus pedidos" na área de conta~~ | Virou a spec [`023`](./023-meus-pedidos/spec.md) |
 
-**Quatro itens que estavam aqui passaram para a spec `021` (ainda não criada)** — CRUD de avaliação
+**Quatro itens que estavam aqui passaram para a spec `025` (ainda não criada)** — CRUD de avaliação
 (escrever, editar, apagar — a `014` fechou a barreira de dados, índice único;
 falta a verificação no serviço e a tela, ver `014` plano §10; decisão em
-aberto na `021` sobre exigir pedido fechado, o que a atrelaria à `020`),
+aberto na `025` sobre exigir pedido fechado, o que a atrelaria à `022`),
 promoções na vitrine (`003` — entidade nunca usada), favoritar da página do
 produto (`015` — o cartão ganhou o coração; a tela de detalhe ainda não) e
 sugestões ao digitar na barra de pesquisa do cabeçalho (`016` — a busca por
