@@ -288,11 +288,20 @@ Depois dela:
 | # | Entrega | O que traz |
 |---|---|---|
 | `020` | Dimensões do produto e cotação de frete | esta |
-| `021` | Fechamento de pedido | `Pedido`, `ItemPedido`, `Pagamento`; escolher endereço e frete; esvaziar carrinho; ligar o botão de finalizar; a vitrine passa a "mais vendidos" |
-| `022` | Avaliação, promoções, favorito e sugestões | as quatro features que a `019` extraiu do backlog solto |
-| `023` | Estoque | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
+| `021` | Redesenho do carrinho | `/Carrinho` ganha o desenho do protótipo — itens em cartões, resumo lateral, esvaziar carrinho |
+| `022` | Fechamento de pedido | indicador de passos; Conta, Endereço e Pagamento; `Pedido`, `ItemPedido` e `Pagamento`; confirmação; a vitrine passa a "mais vendidos" |
+| `023` | Meus pedidos | histórico na área de conta, ligando o atalho que a `018` deixou reservado |
+| `024` | Avaliação, promoções, favorito e sugestões | as quatro features que a `019` extraiu do backlog solto |
+| `025` | Estoque | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
 
-**O que fica explicitamente para a `021`:** guardar a opção de frete escolhida,
-compor `Pedido.Valor` com itens mais frete, e trocar a ordenação da vitrine para
-"mais vendidos" com o título junto — todas dependem de venda registrada, que é o
-que a `021` cria.
+**O que fica explicitamente para a `022`:** compor `Pedido.Valor` com itens mais
+frete, e trocar a ordenação da vitrine para "mais vendidos" com o título junto —
+as duas dependem de venda registrada, que é o que a `022` cria.
+
+**⚠️ Ordem de execução sugerida, diferente da numeração.** A `021` reconstrói o
+resumo lateral do carrinho, que é exatamente onde a caixa de CEP desta entrega
+mora. Executar a `021` **antes** da Fase B da `020` evita construir a caixa duas
+vezes. Como a Fase B já está bloqueada pela credencial e a `021` não depende de
+nada, isso não custa cronograma. A Fase A da `020` (medidas do produto) é
+independente das duas e pode vir primeiro. O `README` das specs já registra
+precedente de ordem de execução diferente da numeração.
