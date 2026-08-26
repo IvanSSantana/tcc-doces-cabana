@@ -2,6 +2,7 @@ using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.MVC.Controllers;
+using DocesCabana.MVC.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -154,6 +155,43 @@ public class CarrinhoControllerTests
 
         _carrinhoServiceMock.Verify(s => s.Remover(usuarioId, produtoId), Times.Once);
     }
+
+    // ── Esvaziar (spec 021) ──────────────────────────────────────────────
+
+    [Fact]
+    public async Task Dado_UsuarioAutenticado_Quando_Esvaziar_Entao_DeveChamarOServicoERedirecionar()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+
+        var resultado = await _controller.Esvaziar();
+
+        _carrinhoServiceMock.Verify(s => s.Esvaziar(usuarioId), Times.Once);
+        var redirecionamento = Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Equal(nameof(CarrinhoController.Index), redirecionamento.ActionName);
+    }
+
+    [Fact]
+    public async Task Dado_Visitante_Quando_Esvaziar_Entao_DeveLimparASessaoENaoUsarOBanco()
+    {
+        HttpContext.Session.Escrever([new ItemDoCarrinhoDTO(Guid.NewGuid(), 2)]);
+
+        var resultado = await _controller.Esvaziar();
+
+        _carrinhoServiceMock.Verify(s => s.Esvaziar(It.IsAny<Guid>()), Times.Never);
+        Assert.Empty(HttpContext.Session.Ler());
+        Assert.IsType<RedirectToActionResult>(resultado);
+    }
+
+    [Fact]
+    public void Dado_QualquerRequisicao_Quando_ConfirmarEsvaziar_Entao_DeveDevolverAView()
+    {
+        var resultado = _controller.ConfirmarEsvaziar();
+
+        Assert.IsType<ViewResult>(resultado);
+    }
+
+    private HttpContext HttpContext => _controller.ControllerContext.HttpContext;
 
     private void ConfigurarUsuarioAutenticado(Guid usuarioId)
     {

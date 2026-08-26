@@ -18,6 +18,19 @@ public class PaginaCarrinho
     public ILocator BotaoFinalizar => Container.Locator(".botao-finalizar-carrinho");
     public ILocator ResultadoCarrinho => _pagina.Locator("#itens-carrinho");
 
+    // Spec 021 — redesenho do carrinho.
+    public ILocator CampoCupom => Container.Locator("#cupom-carrinho");
+    public ILocator BotaoAplicarCupom => Container.Locator(".entrada-cupom-carrinho button");
+    public ILocator LinkEsvaziar => Container.Locator(".botao-esvaziar-lista-carrinho");
+    public ILocator LinkContinuarComprando => Container.Locator(".botao-continuar-comprando");
+    public ILocator DialogoEsvaziar => _pagina.Locator("#dialogo-esvaziar-carrinho");
+    public ILocator BotaoConfirmarEsvaziarNoDialogo => DialogoEsvaziar.Locator(".botao-confirmar-esvaziar-carrinho");
+    public ILocator BotaoCancelarEsvaziarNoDialogo => DialogoEsvaziar.Locator(".botao-cancelar-esvaziar-carrinho");
+    public ILocator RotuloColunaPreco(Guid produtoId) =>
+        ItemPeloProduto(produtoId).Locator(".coluna-item-carrinho", new() { HasText = "Preço unitário" });
+    public ILocator RotuloColunaSubtotal(Guid produtoId) =>
+        ItemPeloProduto(produtoId).Locator(".coluna-item-carrinho", new() { HasText = "Subtotal" });
+
     public ILocator ItemPeloProduto(Guid produtoId) =>
         Container.Locator($".item-carrinho[data-produto-id='{produtoId}']");
 

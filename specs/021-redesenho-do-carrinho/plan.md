@@ -1,6 +1,6 @@
 # Plano Técnico — Redesenho do carrinho
 
-**Spec:** [`spec.md`](./spec.md) · **Status:** Rascunho
+**Spec:** [`spec.md`](./spec.md) · **Status:** Executado
 **Criado em:** 2026-08-25
 
 ---
@@ -132,6 +132,21 @@ isoladamente** — não há de onde vir um valor. O teste de unidade cobre os do
 estados injetando a cotação diretamente; o teste de ponta a ponta cobre só o
 estado sem entrega. O outro é coberto quando a cotação existir. Está registrado
 como risco em §8.
+
+**Lacuna encontrada ao implementar, resolvida com o responsável em vez de
+improvisada: qual preço vira o total, havendo mais de uma opção de entrega?**
+`CotacaoDeFreteDTO` (spec `020`) devolve uma **lista** de opções — não há
+"a" opção até o fechamento. Decisão: **a mais barata compõe o total exibido no
+carrinho** (RN-06 da spec). É estimativa, não escolha; o fechamento (`022`) usa
+a opção que a pessoa de fato selecionar, que pode divergir.
+
+```csharp
+// CarrinhoDTO — propriedades computadas, não persistidas
+public decimal ValorTotal =>
+    Subtotal + (Cotacao?.Opcoes.Count > 0 ? Cotacao.Opcoes.Min(o => o.Preco) : 0);
+
+public bool TemEntregaCalculada => Cotacao?.Opcoes.Count > 0;
+```
 
 ## 7. Estratégia de teste
 

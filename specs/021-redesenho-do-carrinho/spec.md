@@ -1,7 +1,7 @@
 # Especificação — Redesenho do carrinho
 
 **ID:** `021-redesenho-do-carrinho` · **Branch:** `021-redesenho-do-carrinho`
-**Criada em:** 2026-08-25 · **Status:** Rascunho
+**Criada em:** 2026-08-25 · **Status:** Implementada
 
 ---
 
@@ -66,7 +66,9 @@ pronto para receber o frete, e as duas ações que faltavam.
 - **RF-06** — Enquanto não houver entrega calculada, o valor em destaque DEVE
   ser chamado de subtotal, e a linha de entrega DEVE convidar ao cálculo.
 - **RF-07** — Havendo entrega calculada, o valor em destaque DEVE ser chamado de
-  total a pagar e DEVE incluir o custo da entrega.
+  total a pagar e DEVE incluir o custo da entrega. Havendo mais de uma opção de
+  entrega, a **mais barata** é a que compõe esse valor — é estimativa até o
+  fechamento, onde a pessoa escolhe de fato (RN-06).
 - **RF-08** — O resumo DEVE apresentar o campo de cupom de desconto
   **desabilitado**, informando que ainda não está disponível.
 - **RF-09** — O botão de finalizar compra DEVE continuar visível e desabilitado,
@@ -101,6 +103,11 @@ pronto para receber o frete, e as duas ações que faltavam.
   herdada.
 - **RN-05** — Item indisponível não entra em soma nenhuma. Regra herdada do
   carrinho, que segue valendo no resumo novo.
+- **RN-06** — Havendo mais de uma opção de entrega, a mais barata é a que
+  compõe o total exibido no carrinho — decidido ao implementar, registrado
+  aqui em vez de deixado implícito no código. É estimativa, não escolha:
+  quem paga escolhe de fato no fechamento (`022`), e o total pode mudar
+  então.
 
 ## 7. Critérios de aceite
 

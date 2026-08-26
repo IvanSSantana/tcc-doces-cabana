@@ -1,0 +1,23 @@
+@{
+    ViewData["Title"] = "Esvaziar carrinho";
+}
+
+@* Caminho sem JavaScript da RF-11 (spec 021, plano §5): página própria,
+   porque um <dialog> sozinho não abre sem script. Com script, carrinho.js
+   intercepta o link "Esvaziar Carrinho" da tela do carrinho e mostra a
+   mesma pergunta num diálogo inline, enviando ao mesmo POST — esta view
+   nunca chega a ser navegada nesse caminho. *@
+<main class="pagina-confirmar-esvaziar">
+    <h1 class="titulo-carrinho">Esvaziar o carrinho?</h1>
+
+    <p>Todos os itens do seu carrinho serão removidos. Essa ação não pode ser desfeita.</p>
+
+    <div class="acoes-confirmar-esvaziar">
+        <form method="post" asp-action="Esvaziar">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="botao-confirmar-esvaziar">Sim, esvaziar</button>
+        </form>
+
+        <a asp-action="Index" class="botao-cancelar-esvaziar">Cancelar</a>
+    </div>
+</main>

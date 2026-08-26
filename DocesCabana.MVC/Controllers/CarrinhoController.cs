@@ -87,6 +87,29 @@ public class CarrinhoController : Controller
         return await DevolverResultado();
     }
 
+    // RF-11 (spec 021): a pergunta é a única tela que funciona sem
+    // JavaScript — com script, o mesmo POST é disparado por um diálogo
+    // inline (carrinho.js), sem passar por esta view.
+    [HttpGet]
+    public IActionResult ConfirmarEsvaziar() => View();
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Esvaziar()
+    {
+        var usuarioId = UsuarioAtualId;
+        if (usuarioId is not null)
+        {
+            await _carrinhoService.Esvaziar(usuarioId.Value);
+        }
+        else
+        {
+            HttpContext.Session.Limpar();
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task<CarrinhoDTO> ObterCarrinhoAtual()
     {
         var usuarioId = UsuarioAtualId;

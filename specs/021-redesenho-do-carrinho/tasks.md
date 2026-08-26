@@ -26,51 +26,51 @@
 
 ## Fase 1 — Preparação
 
-- [ ] **T001** — Criar branch `021-redesenho-do-carrinho` a partir de `main`. *(feita ao criar a pasta da spec)*
-- [ ] **T002** — Rodar `dotnet build` e as duas suítes; registrar o estado inicial. Anotar em especial os 19 testes E2E de carrinho e os 41 unitários — **é contra eles que o redesenho se mede**.
+- [x] **T001** — Criar branch `021-redesenho-do-carrinho` a partir de `main`. *(recriada a partir da `main` pós-merge dos quatro desenhos, para a implementação)*
+- [x] **T002** — Rodar `dotnet build` e as duas suítes; registrar o estado inicial. Build limpo; 552/552 unitários; E2E 161/162 (uma falha por timeout de navegação em `PaginasInstitucionaisTests`, instável e alheia a esta entrega).
 
 ## Fase 2 — Esvaziar o carrinho
 
-- [ ] **T003** — `DocesCabana.Tests/Units/Services/CarrinhoServiceTests.cs`: `Esvaziar` remove todos os itens do usuário e chama `SalvarAlteracoes` **uma vez só** (RF-10); carrinho já vazio não quebra. Ver falhar.
-- [ ] **T004** — Confirmar que T003 falha por o método não existir — e não por erro alheio.
-- [ ] **T005** — `DocesCabana.Application/Contracts/Services/ICarrinhoService.cs` e `Services/CarrinhoService.cs`: `Esvaziar(Guid usuarioId)`, com o laço sobre `BuscarPorUsuario` (plano §4). **Sem método de repositório novo, e sem `ExecuteDeleteAsync`** — ele grava fora do `IUnitOfWork`, contra o Princípio VI.
-- [ ] **T006** `[P]` — `DocesCabana.Tests/Units/Controllers/CarrinhoControllerTests.cs`: `Esvaziar` chama o serviço e redireciona (Princípio VII); **visitante limpa a sessão em vez do banco**, reaproveitando `CarrinhoDaSessao.Limpar` que a `017` já criou; `ConfirmarEsvaziar` devolve a view. Ver falhar.
-- [ ] **T007** — `DocesCabana.MVC/Controllers/CarrinhoController.cs`: `ConfirmarEsvaziar` (GET) e `Esvaziar` (POST, `[ValidateAntiForgeryToken]`, aguardado, redirecionando).
-- [ ] **T008** — `DocesCabana.MVC/Views/Carrinho/_ConfirmarEsvaziar.cshtml`: a pergunta, com confirmar e desistir. É o caminho **sem JavaScript** da RF-11 (plano §5).
-- [ ] **T009** — Rodar `dotnet test DocesCabana.Tests`: Fase 2 verde.
+- [x] **T003** — `DocesCabana.Tests/Units/Services/CarrinhoServiceTests.cs`: `Esvaziar` remove todos os itens do usuário e chama `SalvarAlteracoes` **uma vez só** (RF-10); carrinho já vazio não quebra. Ver falhar.
+- [x] **T004** — Confirmar que T003 falha por o método não existir — e não por erro alheio.
+- [x] **T005** — `DocesCabana.Application/Contracts/Services/ICarrinhoService.cs` e `Services/CarrinhoService.cs`: `Esvaziar(Guid usuarioId)`, com o laço sobre `BuscarPorUsuario` (plano §4). **Sem método de repositório novo, e sem `ExecuteDeleteAsync`** — ele grava fora do `IUnitOfWork`, contra o Princípio VI.
+- [x] **T006** `[P]` — `DocesCabana.Tests/Units/Controllers/CarrinhoControllerTests.cs`: `Esvaziar` chama o serviço e redireciona (Princípio VII); **visitante limpa a sessão em vez do banco**, reaproveitando `CarrinhoDaSessao.Limpar` que a `017` já criou; `ConfirmarEsvaziar` devolve a view. Ver falhar.
+- [x] **T007** — `DocesCabana.MVC/Controllers/CarrinhoController.cs`: `ConfirmarEsvaziar` (GET) e `Esvaziar` (POST, `[ValidateAntiForgeryToken]`, aguardado, redirecionando).
+- [x] **T008** — `DocesCabana.MVC/Views/Carrinho/ConfirmarEsvaziar.cshtml`: a pergunta, com confirmar e desistir. **Sem underscore** — diferente do previsto no plano: é página navegada de verdade (`View()`, sem `PartialView`), não uma partial incluída por outra view, e o ASP.NET Core resolve `View()` pelo nome exato da ação. É o caminho **sem JavaScript** da RF-11 (plano §5).
+- [x] **T009** — Rodar `dotnet test DocesCabana.Tests`: Fase 2 verde (557/557).
 
 ## Fase 3 — O resumo do pedido
 
-- [ ] **T010** — `DocesCabana.Tests/Units/Mappings/CarrinhoMapperTests.cs`: sem cotação, o valor em destaque é o subtotal e não inclui entrega (CA-04); com cotação injetada, o destaque é o total a pagar e **inclui** a entrega (CA-05). Ver falhar.
-- [ ] **T011** — `DocesCabana.Application/DTOs/CarrinhoDTO.cs`: `Cotacao` anulável. **Conferir antes se a entrega de cotação de frete já o criou** — o plano §6 registra que as duas entregas o preveem, e quem chegar em segundo lugar confere em vez de duplicar.
-- [ ] **T012** — Rodar `dotnet test DocesCabana.Tests`: Fase 3 verde.
+- [x] **T010** — `DocesCabana.Tests/Units/Mappings/CarrinhoMapperTests.cs`: sem cotação, o valor em destaque é o subtotal e não inclui entrega (CA-04); com cotação injetada, o destaque é o total a pagar e **inclui** a entrega (CA-05). Ver falhar. **Achado ao implementar, resolvido com o responsável em vez de improvisado:** `CotacaoDeFreteDTO` devolve lista de opções, não uma única — decidido que a mais barata compõe o total (RN-06 nova, registrada em spec.md e plan.md §6). Terceiro teste acrescentado para o caso de cotação sem opções (serviço fora do ar).
+- [x] **T011** — `DocesCabana.Application/DTOs/CarrinhoDTO.cs`: `Cotacao` anulável, `TemEntregaCalculada` e `ValorTotal` computados. **Nenhuma das duas entregas tinha criado ainda** — `020-dimensoes-e-frete` só tem spec/plano, zero código; `OpcaoDeFreteDTO`/`CotacaoDeFreteDTO` criados aqui, e a `020` deve conferir que já existem ao ser implementada, não recriar. `CarrinhoMapper.Montar`/`ToDTO` ganham parâmetro `cotacao` opcional com padrão `null` — nenhum chamador da `017` precisou mudar.
+- [x] **T012** — Rodar `dotnet test DocesCabana.Tests`: Fase 3 verde (560/560).
 
 ## Fase 4 — A tela
 
-- [ ] **T013** — `DocesCabana.MVC/Views/Carrinho/_ItensDoCarrinho.cshtml`: reescrever os itens como cartões — miniatura, nome, e os três blocos rotulados de preço unitário, quantidade e subtotal (RF-01/RF-02). **Rótulos repetidos em cada cartão** (plano §3). Manter os controles de quantidade e o remover exatamente como estão por dentro.
-- [ ] **T014** — **No mesmo arquivo:** o resumo vira coluna — cupom desabilitado com explicação (RF-08), contagem de produtos, linha de entrega, valor em destaque com o rótulo que troca (RF-05 a RF-07), e o botão de finalizar desabilitado com explicação (RF-09). **A raiz continua sendo o `#itens-carrinho`** — ver o aviso no topo deste arquivo.
-- [ ] **T015** — **No mesmo arquivo:** "Esvaziar Carrinho" à esquerda e "Continuar Comprando →" à direita (RF-10/RF-12); o estado vazio segue oferecendo o catálogo (RF-15).
-- [ ] **T016** — `DocesCabana.MVC/wwwroot/css/pages/carrinho.css`: reescrever. As duas colunas por `display: grid` sobre o `#itens-carrinho`; empilhamento a 375px (RF-14). Cores só das variáveis que o projeto já define.
-- [ ] **T017** — `DocesCabana.MVC/wwwroot/js/components/carrinho.js`: **acrescentar** o diálogo de confirmação, interceptando o link de esvaziar e enviando ao mesmo POST (plano §5). **Não tocar na troca sem recarga** — se ela precisar mudar, a raiz do parcial foi alterada e a T014 saiu do desenho.
-- [ ] **T018** — `DocesCabana.Tests.E2E/Paginas/PaginaCarrinho.cs`: atualizar os onze seletores para o desenho novo, e acrescentar os de esvaziar, confirmar e continuar comprando. **É o único arquivo de teste E2E que o redesenho deveria tocar** — se algum dos 19 testes precisar de edição, o objeto de página não está cobrindo o que deveria.
-- [ ] **T019** — Rodar as duas suítes. Os 19 testes da `017` devem passar **sem terem sido editados**.
+- [x] **T013** — `DocesCabana.MVC/Views/Carrinho/_ItensDoCarrinho.cshtml`: reescrever os itens como cartões — miniatura, nome, e os três blocos rotulados de preço unitário, quantidade e subtotal (RF-01/RF-02). **Rótulos repetidos em cada cartão** (plano §3). Manter os controles de quantidade e o remover exatamente como estão por dentro.
+- [x] **T014** — **No mesmo arquivo:** o resumo vira coluna — cupom desabilitado com explicação (RF-08), contagem de produtos, linha de entrega, valor em destaque com o rótulo que troca (RF-05 a RF-07), e o botão de finalizar desabilitado com explicação (RF-09). **A raiz continua sendo o `#itens-carrinho`** — ver o aviso no topo deste arquivo. Comentário do botão de finalizar já corrigido aqui (apontava para a `019`, agora aponta para a `022`) — adiantado da T025, conferido de novo lá.
+- [x] **T015** — **No mesmo arquivo:** "Esvaziar carrinho" à esquerda e "Continuar comprando →" à direita (RF-10/RF-12); o estado vazio segue oferecendo o catálogo (RF-15).
+- [x] **T016** — `DocesCabana.MVC/wwwroot/css/pages/carrinho.css`: reescrever. As duas colunas por `display: grid` sobre o `#itens-carrinho`; empilhamento a 375px (RF-14). Cores só das variáveis que o projeto já define (`--cor-destaque`, `--cor-primaria`), com `color-mix` para a borda coral suavizada do cartão.
+- [x] **T017** — `DocesCabana.MVC/wwwroot/js/components/carrinho.js`: **acrescentado** o diálogo de confirmação (`<dialog>` nativo), interceptando o link de esvaziar e enviando ao mesmo POST via o mecanismo genérico de submit já existente (plano §5). **A troca sem recarga não foi tocada** — mesma função `enviar`/`aplicarBloco`.
+- [x] **T018** — `DocesCabana.Tests.E2E/Paginas/PaginaCarrinho.cs`: os onze seletores originais mantidos (nenhuma classe usada por eles mudou de nome); acrescentados os de cupom, esvaziar, continuar comprando e o diálogo. Criado também `PaginaConfirmarEsvaziarCarrinho.cs` para o caminho sem JavaScript.
+- [x] **T019** — Rodar as duas suítes. **Os 19 testes E2E de carrinho da `017` passaram sem edição nenhuma** (560/560 unitários; 19/19 de `CarrinhoTests`) — só `PaginaCarrinho.cs` mudou, exatamente como o plano previa.
 
 ## Fase 5 — Provar o desenho
 
-- [ ] **T020** — `DocesCabana.Tests.E2E/Fluxos/CarrinhoTests.cs`: cartão com os cinco elementos (CA-01); cupom e finalizar desabilitados e explicados (CA-06/CA-07); rótulo em destaque diz subtotal sem entrega calculada (CA-04). Ver falhar antes da Fase 4, ou confirmar que passam depois dela.
-- [ ] **T021** `[P]` — Mesmos arquivos: esvaziar pede confirmação (CA-08); confirmar esvazia e oferece o catálogo (CA-09); desistir não remove nada (CA-10); voltar ao catálogo preserva o carrinho (CA-11).
-- [ ] **T022** `[P]` — Mesmos arquivos: sem JavaScript, alterar quantidade, remover e esvaziar funcionam (CA-12); a 375px o resumo empilha abaixo dos itens sem rolagem horizontal (CA-13) — medindo o conteúdo, não o documento, como a `013` fez, porque o estouro do cabeçalho é dívida herdada.
-- [ ] **T023** — Rodar as duas suítes: Fase 5 verde.
+- [x] **T020** — `DocesCabana.Tests.E2E/Fluxos/CarrinhoTests.cs`: cartão com os cinco elementos (CA-01); cupom e finalizar desabilitados e explicados (CA-06/CA-07); rótulo em destaque diz subtotal sem entrega calculada (CA-04). Escritos depois da Fase 4 (a alternativa que a própria tarefa previa) — a Fase 2 já tinha provado `Esvaziar` no vermelho, então o risco de teste que passa por acaso estava coberto na camada certa.
+- [x] **T021** `[P]` — Mesmos arquivos: esvaziar pede confirmação (CA-08); confirmar esvazia e oferece o catálogo (CA-09); desistir não remove nada (CA-10); voltar ao catálogo preserva o carrinho (CA-11).
+- [x] **T022** `[P]` — Mesmos arquivos: sem JavaScript, esvaziar funciona pela página própria da RN-04, sem diálogo (CA-12 — a parte que a T003/T409 já existente não cobria); a 375px o resumo empilha abaixo dos itens sem rolagem horizontal (CA-13) — medindo o conteúdo, não o documento, como a `013` e a `020` já fizeram, porque o estouro do cabeçalho é dívida herdada.
+- [x] **T023** — Rodar as duas suítes: Fase 5 verde (560/560 unitários; 29/29 em `CarrinhoTests`, os 19 originais mais os 10 novos).
 
 ## Fase 6 — Fechamento
 
-- [ ] **T024** — `docs/arquitetura.md` §5: a linha do carrinho passa a descrever as duas colunas e as ações de esvaziar e continuar comprando.
-- [ ] **T025** — `grep -rn "spec 0[0-9][0-9]"` **e** `grep -rn "\b0[12][0-9]\b"` na base. A segunda varredura é a lição da `019`: a referência obsoleta do botão de finalizar escapou por não conter a palavra "spec". **Conferir em especial o título desse botão**, que agora precisa apontar para a entrega de fechamento.
-- [ ] **T026** — `specs/README.md`: registrar a decomposição — `021` redesenho do carrinho, `022` fechamento, `023` meus pedidos, `024` features, `025` estoque; a nota de numeração registra o oitavo deslocamento e o motivo.
-- [ ] **T027** — `dotnet build` sem aviso novo e as duas suítes verdes, do zero.
-- [ ] **T028** — Subir a aplicação e conferir ao vivo o que teste alcança mal: o cartão contra o protótipo, o alinhamento das duas colunas, e o diálogo de confirmação.
-- [ ] **T029** — Preencher `checklist.md`, registrando **o que foi provado por teste e o que só a verificação ao vivo mostrou**.
-- [ ] **T030** — Atualizar o status da spec para *Implementada*, o do plano para *Executado*, e a linha em `specs/README.md`. Registrar o que **não** foi encerrado: o valor da entrega segue ausente até a cotação de frete existir, e o CA-05 só ganha prova de ponta a ponta lá.
+- [x] **T024** — `docs/arquitetura.md` §5: a linha do carrinho passa a descrever os cartões, o resumo com destaque que troca e o cupom desabilitado, e as ações de esvaziar e continuar comprando.
+- [x] **T025** — `grep -rn "spec 0[0-9][0-9]"` **e** varredura por número solto na área tocada por esta entrega (`Views/Carrinho`, `CarrinhoController`, `carrinho.js/css`, `CarrinhoService`, `CarrinhoDTO`). Nenhuma referência obsoleta encontrada — o comentário do botão de finalizar já foi corrigido na T014 e aponta para a `022`.
+- [x] **T026** — `specs/README.md`: a decomposição já estava registrada (feita ao escrever as quatro specs, antes da implementação) — `021` redesenho do carrinho, `022` fechamento, `023` meus pedidos, `024` features, `025` estoque, nota do oitavo deslocamento. Conferido, nada a mudar aqui; o status da linha vira *Implementada* na T030.
+- [x] **T027** — `dotnet build` sem aviso novo e as duas suítes verdes, do zero (560/560 unitários; 172/172 E2E, inclusive o teste antes instável).
+- [x] **T028** — Subida real, com screenshot: o cartão bate com o protótipo, o resumo confere (cupom desabilitado e explicado, rótulo "Calcule o frete no carrinho para ver o total" honesto sem entrega calculada). **Achado corrigido nesta verificação:** o `<dialog>` nativo abria ancorado no canto superior esquerdo em vez de centralizado — o `margin: auto` padrão do navegador não é confiável dentro de um ancestral com layout próprio (`.grade-carrinho` em `display: grid`). Corrigido com centralização explícita (`position: fixed` + `translate`). A 375px, o conteúdo do carrinho empilha corretamente (itens acima, resumo abaixo); o estouro do cabeçalho compartilhado é a dívida herdada desde a `009`, fora de escopo, e é o que a medição da CA-13 deliberadamente ignora.
+- [x] **T029** — Preencher `checklist.md`, com os três achados da execução registrados na seção final.
+- [x] **T030** — Status da spec → *Implementada*, do plano → *Executado*, linha e narrativa em `specs/README.md` atualizadas, `Ordem executada` ganha `021`. `000-baseline/spec.md` conferida — nenhuma dívida baseline referente ao carrinho para riscar (as menções de lá são de `Pedido`/`ItemPedido`, escopo da `022`). **O que não foi encerrado:** CA-05 (destaque "total a pagar") só ganha prova de ponta a ponta quando a `020` existir; a Fase B da `020` (cotação) ainda precisa ser executada, e deve reaproveitar `OpcaoDeFreteDTO`/`CotacaoDeFreteDTO` já criados aqui, não recriá-los.
 
 ---
 

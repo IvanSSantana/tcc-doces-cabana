@@ -18,6 +18,9 @@ public interface ICarrinhoService
     Task Remover(Guid usuarioId, Guid produtoId);
     Task<int> ContarItens(Guid usuarioId);
 
+    // RF-10 (spec 021): remove todos os itens do usuário num commit só.
+    Task Esvaziar(Guid usuarioId);
+
     // Carrinho avulso — de quem ainda não entrou.
     Task<CarrinhoDTO> MontarAvulso(IReadOnlyList<ItemDoCarrinhoDTO> itens);
     Task<IReadOnlyList<ItemDoCarrinhoDTO>> AcrescentarAvulso(
