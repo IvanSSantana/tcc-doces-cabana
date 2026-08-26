@@ -114,7 +114,35 @@
     if (formulario.classList.contains("formulario-frete-carrinho")) {
       evento.preventDefault();
       enviarConsulta(formulario, new FormData(formulario));
+      return;
     }
+
+    // Cadastro de endereço no passo do fechamento (spec 022, RF-07) — o
+    // mesmo formulário que a Conta usa, aqui postando para
+    // Carrinho/CadastrarEndereco (ViewData troca o alvo, não o marcador).
+    // Só intercepta quando está dentro de #itens-carrinho: fora dali (na
+    // área de conta), o formulário segue navegação comum.
+    if (formulario.classList.contains("formulario-endereco") && formulario.closest("#itens-carrinho")) {
+      evento.preventDefault();
+      enviar(formulario, new FormData(formulario));
+    }
+  });
+
+  // Navegação entre os passos do fechamento (spec 022, RF-05) — GET puro,
+  // funciona sem script por padrão (RN-04); com script, troca só
+  // #itens-carrinho, sem recarregar a página inteira.
+  document.addEventListener("click", function (evento) {
+    var link = evento.target.closest("[data-navegacao-fechamento]");
+    if (!link) return;
+
+    evento.preventDefault();
+    fetch(link.href, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+      .then(tratarResposta)
+      .then(aplicarBloco)
+      .catch(function () {
+        // Mesmo critério de enviar(): falha de rede não trava a tela —
+        // sem script funcionaria por navegação comum; aqui, só não troca.
+      });
   });
 
   // Diálogo de confirmação para esvaziar (spec 021, RF-11). Sem JavaScript,

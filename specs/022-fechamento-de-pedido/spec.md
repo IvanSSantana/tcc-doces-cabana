@@ -1,7 +1,7 @@
 # Especificação — Fechamento de pedido
 
 **ID:** `022-fechamento-de-pedido` · **Branch:** `022-fechamento-de-pedido`
-**Criada em:** 2026-08-25 · **Status:** Rascunho
+**Criada em:** 2026-08-25 · **Status:** Implementada
 
 ---
 
@@ -321,6 +321,21 @@ ordenação por venda empataria os cem produtos em zero e a vitrine exibiria ord
 alfabética sob o título "mais vendidos", ferindo a RN-04 — exatamente o defeito
 que a entrega de correções recusou cometer e adiou para esta. Ter a capacidade
 de registrar venda não é o mesmo que ter venda.
+
+**Atualização ao implementar: a credencial do MelhorEnvio (spec `020` §10)
+ainda não foi obtida, e isso bloqueia mais desta entrega do que o previsto.**
+Sem ela, toda recotação de frete falha — inclusive a que os passos de
+Endereço e Pagamento fazem para calcular as opções de entrega. Na prática,
+é estruturalmente impossível, no ambiente de teste padrão, alcançar o passo
+de Pagamento ou confirmar um pedido de verdade: o link para continuar só
+aparece quando a cotação tem sucesso. Tudo o que não depende disso foi
+implementado e está com as duas suítes verdes (os passos, a navegação
+entre eles, o cadastro de endereço, a vitrine e a ordenação por venda). O
+caminho de falha de entrega (RF-17) é, por sinal, o único caminho real que
+este ambiente consegue exercitar de ponta a ponta — e está provado. A
+jornada completa até o comprovante (a maior parte dos critérios de aceite
+desta spec) fica pendente da mesma credencial, sem tarefa própria aqui —
+o lugar natural é estender a Fase 8 da `020` para cobri-la também.
 
 **⚠️ O passo de pagamento é deliberadamente provisório.** A loja pretende
 integrar uma processadora de pagamento (MercadoPago), e isso é **spec própria**,

@@ -371,7 +371,12 @@
   font-size: 1.1rem;
 }
 
+/* spec 022: deixou de ser um <button disabled> e virou navegação de
+   verdade para o primeiro passo do fechamento — o visual permanece. */
 .botao-finalizar-carrinho {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 44px;
   border-radius: 8px;
@@ -379,11 +384,12 @@
   background-color: var(--cor-destaque);
   color: #FFFFFF;
   font-weight: 600;
-  cursor: not-allowed;
+  text-decoration: none;
+  text-align: center;
 }
 
-.botao-finalizar-carrinho:disabled {
-  opacity: 0.6;
+.botao-finalizar-carrinho:hover {
+  filter: brightness(1.1);
 }
 
 /* Diálogo de confirmação para esvaziar (spec 021, RF-11). Centralização
@@ -478,4 +484,242 @@
     width: 72px;
     height: 72px;
   }
+}
+
+/* ── Passos do fechamento (spec 022) ──────────────────────────────────── */
+
+.passos-fechamento {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+
+.passo-fechamento a {
+  color: var(--cor-primaria);
+  opacity: 0.5;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.passo-fechamento--ativo a {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.titulo-passo-fechamento {
+  color: var(--cor-primaria);
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+}
+
+.passo-conta-fechamento,
+.passo-endereco-fechamento,
+.passo-pagamento-fechamento {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.acoes-passo-conta-fechamento {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.botao-secundario-fechamento {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.5rem;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid var(--cor-primaria);
+  color: var(--cor-primaria);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.lista-enderecos-fechamento {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.endereco-fechamento a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 35%, white);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--cor-primaria);
+}
+
+.endereco-fechamento--selecionado a {
+  border-color: var(--cor-destaque);
+  background-color: color-mix(in srgb, var(--cor-destaque) 8%, white);
+}
+
+.rotulo-endereco-padrao {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cor-destaque);
+}
+
+.novo-endereco-fechamento summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--cor-primaria);
+}
+
+.novo-endereco-fechamento[open] summary {
+  margin-bottom: 0.75rem;
+}
+
+.lista-opcoes-frete-fechamento {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lista-opcoes-frete-fechamento .opcao-frete a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 35%, white);
+  border-radius: 8px;
+  text-decoration: none;
+  flex-wrap: wrap;
+}
+
+.opcao-frete--selecionada a {
+  border-color: var(--cor-destaque);
+  background-color: color-mix(in srgb, var(--cor-destaque) 8%, white);
+}
+
+.acoes-passo-fechamento {
+  margin-top: 0.5rem;
+}
+
+.opcoes-pagamento-fechamento {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.opcoes-pagamento-fechamento legend {
+  font-weight: 600;
+  color: var(--cor-primaria);
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.opcao-pagamento-fechamento {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.aviso-pagamento-fechamento {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--cor-primaria) 70%, white);
+}
+
+.resumo-pagamento-fechamento {
+  border-top: 1px solid color-mix(in srgb, var(--cor-destaque) 35%, white);
+  padding-top: 0.75rem;
+}
+
+.resumo-pagamento-fechamento p {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.25rem 0;
+}
+
+.total-pagamento-fechamento {
+  font-size: 1.1rem;
+}
+
+/* ── Confirmação do pedido (spec 022) ─────────────────────────────────── */
+
+.pagina-confirmacao-pedido {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.titulo-confirmacao-pedido {
+  color: var(--cor-primaria);
+}
+
+.numero-confirmacao-pedido {
+  font-size: 1.1rem;
+}
+
+.itens-confirmacao-pedido {
+  list-style: none;
+  margin: 1.5rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item-confirmacao-pedido {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.imagem-item-confirmacao-pedido {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.detalhes-item-confirmacao-pedido {
+  display: flex;
+  flex-direction: column;
+}
+
+.nome-item-confirmacao-pedido {
+  font-weight: 600;
+  color: var(--cor-primaria);
+}
+
+.resumo-confirmacao-pedido {
+  border-top: 1px solid color-mix(in srgb, var(--cor-destaque) 35%, white);
+  padding-top: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.resumo-confirmacao-pedido p {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.25rem 0;
+}
+
+.total-confirmacao-pedido {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.proximos-passos-confirmacao-pedido {
+  color: color-mix(in srgb, var(--cor-primaria) 70%, white);
 }

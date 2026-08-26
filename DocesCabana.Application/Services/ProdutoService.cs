@@ -56,11 +56,13 @@ public class ProdutoService : IProdutoService
     // mesma consulta.
     public async Task<List<ProdutoDTO>> BuscarDestaquesDaVitrine(int limite, Guid? usuarioId = null)
     {
+        // RF-24 (spec 022): a vitrine passa a pedir os mais vendidos, não
+        // mais os melhor avaliados (RF-04/RF-09 da 019, superado aqui).
         var filtroVazio = new FiltroCatalogoDTO(
             CategoriaId: null,
             SubcategoriaIds: [],
             ApenasSemAcucar: false,
-            Ordenacao: OrdenacaoCatalogo.MelhorAvaliados);
+            Ordenacao: OrdenacaoCatalogo.MaisVendidos);
 
         var produtos = await _produtoRepository.BuscarPaginaDoCatalogo(filtroVazio, pagina: 1, tamanhoDaPagina: limite);
 

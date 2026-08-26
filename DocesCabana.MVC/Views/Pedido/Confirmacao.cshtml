@@ -1,0 +1,59 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Domain.Enums
+@model ConfirmacaoDePedidoDTO
+@{
+    ViewData["Title"] = "Pedido confirmado";
+
+    var rotulosDePagamento = new Dictionary<MetodoPagamento, string>
+    {
+        [MetodoPagamento.Pix] = "Pix",
+        [MetodoPagamento.CartaoCredito] = "Cartão de crédito",
+        [MetodoPagamento.CartaoDebito] = "Cartão de débito",
+        [MetodoPagamento.Boleto] = "Boleto",
+    };
+}
+
+<link rel="stylesheet" href="~/css/pages/carrinho.css" asp-append-version="true">
+
+<main class="pagina-confirmacao-pedido">
+    <h1 class="titulo-confirmacao-pedido">Pedido confirmado!</h1>
+
+    @* RF-23: número curto o bastante para ser ditado. *@
+    <p class="numero-confirmacao-pedido">Pedido nº <strong>@Model.Numero</strong></p>
+
+    <ul class="itens-confirmacao-pedido">
+        @foreach (var item in Model.Itens)
+        {
+            <li class="item-confirmacao-pedido">
+                <img src="@item.ImagemUrl" alt="@item.Nome" class="imagem-item-confirmacao-pedido" />
+                <div class="detalhes-item-confirmacao-pedido">
+                    <span class="nome-item-confirmacao-pedido">@item.Nome</span>
+                    <span>@item.Quantidade × R$ @item.PrecoUnitario.ToString("N2")</span>
+                </div>
+                <span class="valor-item-confirmacao-pedido">R$ @item.ValorDaLinha.ToString("N2")</span>
+            </li>
+        }
+    </ul>
+
+    <div class="resumo-confirmacao-pedido">
+        <p>Produtos <strong>R$ @Model.ValorDosProdutos.ToString("N2")</strong></p>
+        <p>Entrega (@Model.Transportadora — @Model.Servico) <strong>R$ @Model.ValorDoFrete.ToString("N2")</strong></p>
+        <p class="total-confirmacao-pedido">Total <strong>R$ @Model.ValorTotal.ToString("N2")</strong></p>
+        <p>
+            Prazo de entrega:
+            @(Model.PrazoMinimoEmDias == Model.PrazoMaximoEmDias
+                ? $"{Model.PrazoMinimoEmDias} dias úteis"
+                : $"{Model.PrazoMinimoEmDias} a {Model.PrazoMaximoEmDias} dias úteis")
+        </p>
+        <p>Forma de pagamento: @rotulosDePagamento[Model.MetodoPagamento]</p>
+    </div>
+
+    @* RF-12/CA-15: o pagamento ainda será combinado — sem link para
+       histórico de pedidos, que é a entrega seguinte (spec 022, §3). *@
+    <p class="proximos-passos-confirmacao-pedido">
+        O pagamento ainda será combinado diretamente com a loja. Guarde o número do pedido — é com ele que você
+        fala com a gente se precisar.
+    </p>
+
+    <a asp-area="" asp-controller="Catalogo" asp-action="Index" class="botao-acao">Continuar comprando</a>
+</main>

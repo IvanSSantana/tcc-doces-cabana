@@ -179,6 +179,13 @@ public static class DbInitializer
                 context.Avaliacoes.AddRange(avaliacoesGeradas);
                 await context.SaveChangesAsync();
             }
+
+            // Pedidos de demonstração (spec 022, RF-27) — sem eles, "mais
+            // vendidos" ordenaria cem produtos empatados em zero e a
+            // vitrine mostraria ordem alfabética sob um título falso (RN-04,
+            // o defeito que a 019 recusou cometer e adiou para esta entrega).
+            if (usuarioIds.Count > 0)
+                await SemearPedidosDeExemplo(context, usuarioIds, produtosSeed);
         }
 
         await SemearAdministrador(scope.ServiceProvider);
@@ -353,6 +360,75 @@ public static class DbInitializer
         await context.SaveChangesAsync();
 
         return usuarioIds;
+    }
+
+    // Pedidos, itens e pagamento criados pelos mesmos construtores que a
+    // aplicação usa (spec 022, plano §9) — não por SQL solto, é o que
+    // garante coerência entre as três tabelas. As situações variadas
+    // (RF-27) representam compras passadas: um pedido criado pela
+    // aplicação de verdade nasce e fica pendente até existir processadora
+    // de pagamento (spec §10); os semeados são a exceção deliberada.
+    //
+    // A distribuição de quantidades é desigual de propósito — um produto
+    // claramente "mais vendido", um segundo bem atrás, e um pouco vendido —
+    // para a ordenação por venda (RF-24) ter o que mostrar. O pedido
+    // cancelado carrega, também de propósito, a maior quantidade do
+    // "mais vendido": se ele contasse, derrubaria a ordem esperada,
+    // provando RN-05/CA-22 (pedido cancelado não conta como venda).
+    // internal (não private): o teste de integração da spec 022 chama
+    // direto, com um contexto SQLite em memória e usuários/produtos já
+    // persistidos, sem precisar subir Identity inteiro só para isso (mesmo
+    // motivo de GerarProdutosMock ser internal).
+    internal static async Task SemearPedidosDeExemplo(DocesCabanaDbContext context, List<Guid> usuarioIds, List<Produto> produtos)
+    {
+        var enderecoPorUsuario = new Dictionary<Guid, Guid>();
+        foreach (var usuarioId in usuarioIds)
+        {
+            var endereco = new Endereco(usuarioId, "SP", "Lençóis Paulista", "Centro", "17340001", "Rua das Flores", 100);
+            endereco.MarcarComoPadrao();
+            context.Enderecos.Add(endereco);
+            enderecoPorUsuario[usuarioId] = endereco.EnderecoId;
+        }
+        await context.SaveChangesAsync();
+
+        var maisVendido = produtos[0];
+        var segundoMaisVendido = produtos[Math.Min(10, produtos.Count - 1)];
+        var poucoVendido = produtos[Math.Min(20, produtos.Count - 1)];
+
+        void CriarPedido(Guid usuarioId, (Produto Produto, short Quantidade)[] itens, PedidoStatus status, MetodoPagamento metodo)
+        {
+            var valorDosProdutos = itens.Sum(i => i.Produto.Preco * i.Quantidade);
+            const decimal valorDoFrete = 12.90m;
+
+            var pedido = new Pedido(
+                usuarioId, enderecoPorUsuario[usuarioId], valorDosProdutos + valorDoFrete, valorDoFrete,
+                "Correios", "PAC", 3, 7);
+
+            foreach (var (produto, quantidade) in itens)
+                pedido.AcrescentarItem(produto.ProdutoId, quantidade, produto.Preco);
+
+            switch (status)
+            {
+                case PedidoStatus.Confirmado: pedido.Confirmar(); break;
+                case PedidoStatus.Enviado: pedido.Confirmar(); pedido.MarcarComoEnviado(); break;
+                case PedidoStatus.Entregue: pedido.Confirmar(); pedido.MarcarComoEnviado(); pedido.MarcarComoEntregue(); break;
+                case PedidoStatus.Cancelado: pedido.Cancelar(); break;
+            }
+
+            context.Pedidos.Add(pedido);
+            context.Pagamentos.Add(new Pagamento(pedido.PedidoId, metodo, valorDosProdutos + valorDoFrete));
+        }
+
+        CriarPedido(usuarioIds[0], [(maisVendido, 5)], PedidoStatus.Entregue, MetodoPagamento.Pix);
+        CriarPedido(usuarioIds[1 % usuarioIds.Count], [(maisVendido, 4)], PedidoStatus.Confirmado, MetodoPagamento.CartaoCredito);
+        // Cancelado: a maior quantidade de todas, e não deve contar (CA-22).
+        CriarPedido(usuarioIds[2 % usuarioIds.Count], [(maisVendido, 100)], PedidoStatus.Cancelado, MetodoPagamento.Boleto);
+        CriarPedido(usuarioIds[3 % usuarioIds.Count], [(segundoMaisVendido, 3)], PedidoStatus.Enviado, MetodoPagamento.Pix);
+        CriarPedido(usuarioIds[4 % usuarioIds.Count], [(segundoMaisVendido, 2)], PedidoStatus.Pendente, MetodoPagamento.CartaoDebito);
+        CriarPedido(usuarioIds[5 % usuarioIds.Count], [(poucoVendido, 1)], PedidoStatus.Entregue, MetodoPagamento.Pix);
+        CriarPedido(usuarioIds[6 % usuarioIds.Count], [(maisVendido, 2), (segundoMaisVendido, 1)], PedidoStatus.Confirmado, MetodoPagamento.Boleto);
+
+        await context.SaveChangesAsync();
     }
 
     private static async Task SemearAdministrador(IServiceProvider serviceProvider)

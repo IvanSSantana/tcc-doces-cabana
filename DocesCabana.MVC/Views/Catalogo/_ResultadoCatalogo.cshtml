@@ -51,14 +51,13 @@
                interceptar via evento "submit" sem quebrar quem não tem
                JavaScript — sem ele, chamar submit() no elemento pula o
                evento e a interceptação nunca aconteceria (spec 014, plano §1). *@
+            @* RF-26 (spec 022): "Mais vendidos" deixou de ser anunciada e
+               recusada (RN-07 da 014) — agora executa de verdade. *@
             <select id="select-ordenacao" name="ordenacao" onchange="this.form.requestSubmit()">
                 @foreach (var opcao in Enum.GetValues<OrdenacaoCatalogo>())
                 {
-                    var indisponivel = opcao == OrdenacaoCatalogo.MaisVendidos;
-                    <option value="@opcao"
-                            selected="@(Model.Ordenacao == opcao ? "selected" : null)"
-                            disabled="@(indisponivel ? "disabled" : null)">
-                        @RotuloOrdenacao(opcao)@(indisponivel ? " (em breve)" : "")
+                    <option value="@opcao" selected="@(Model.Ordenacao == opcao ? "selected" : null)">
+                        @RotuloOrdenacao(opcao)
                     </option>
                 }
             </select>

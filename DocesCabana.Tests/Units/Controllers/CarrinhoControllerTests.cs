@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
+using DocesCabana.Application.Enums;
 using DocesCabana.Application.Validators;
 using DocesCabana.MVC.Controllers;
 using DocesCabana.MVC.Helpers;
@@ -14,18 +15,28 @@ public class CarrinhoControllerTests
 {
     private readonly Mock<ICarrinhoService> _carrinhoServiceMock;
     private readonly Mock<IFreteService> _freteServiceMock;
+    private readonly Mock<IPedidoService> _pedidoServiceMock;
+    private readonly Mock<IEnderecoService> _enderecoServiceMock;
     private readonly CarrinhoController _controller;
 
     public CarrinhoControllerTests()
     {
         _carrinhoServiceMock = new Mock<ICarrinhoService>();
         _freteServiceMock = new Mock<IFreteService>();
+        _pedidoServiceMock = new Mock<IPedidoService>();
+        _enderecoServiceMock = new Mock<IEnderecoService>();
+        // Padrão para todo teste que chega a montar a tela — não é o foco
+        // da maioria deles; os que testam o passo em si sobrescrevem.
+        _pedidoServiceMock
+            .Setup(s => s.MontarPasso(It.IsAny<PassoDoFechamento>(), It.IsAny<CarrinhoDTO>(), It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<int?>()))
+            .ReturnsAsync(new PassoDoFechamentoDTO());
         var httpContext = new DefaultHttpContext { Session = new SessaoFalsa() };
         // O validador é o de verdade, não mockado (spec 020): é lógica pura,
         // sem dependência externa — mockar esconderia o próprio
         // comportamento que os testes de CEP inválido/válido querem provar.
         _controller = new CarrinhoController(
-            _carrinhoServiceMock.Object, _freteServiceMock.Object, new ConsultaDeFreteDTOValidator())
+            _carrinhoServiceMock.Object, _freteServiceMock.Object, new ConsultaDeFreteDTOValidator(),
+            _pedidoServiceMock.Object, _enderecoServiceMock.Object)
         {
             // Visitante anônimo por padrão; ConfigurarUsuarioAutenticado
             // substitui isto nos testes que precisam de um usuário logado.
@@ -291,6 +302,88 @@ public class CarrinhoControllerTests
             "01310000",
             It.Is<IReadOnlyList<LinhaDoCarrinhoDTO>>(lista => lista.Count == 1 && lista[0].ProdutoId == disponivel.ProdutoId)),
             Times.Once);
+    }
+
+    // ── Passos do fechamento (spec 022) ──────────────────────────────────
+
+    [Fact]
+    public async Task Dado_PassoDesconhecidoNaQuerystring_Quando_Index_Entao_DeveCairNoPrimeiroPasso()
+    {
+        // "Desconhecido" aqui é qualquer coisa que não seja um dos quatro
+        // nomes do enum — o próprio model binding do ASP.NET Core resolve
+        // isso para o valor padrão do parâmetro (Carrinho, o primeiro
+        // membro), sem passar pela action. Este teste prova só que, quando
+        // isso acontece, a action monta o passo Carrinho normalmente.
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+
+        await _controller.Index();
+
+        _pedidoServiceMock.Verify(s => s.MontarPasso(
+            PassoDoFechamento.Carrinho, It.IsAny<CarrinhoDTO>(), usuarioId, null, null), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioAutenticado_Quando_Index_Entao_PassoDeContaNaoDeveSerOferecido()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+        var passoDto = new PassoDoFechamentoDTO
+        {
+            PassosVisiveis = [PassoDoFechamento.Carrinho, PassoDoFechamento.Endereco, PassoDoFechamento.Pagamento]
+        };
+        _pedidoServiceMock
+            .Setup(s => s.MontarPasso(It.IsAny<PassoDoFechamento>(), It.IsAny<CarrinhoDTO>(), usuarioId, It.IsAny<Guid?>(), It.IsAny<int?>()))
+            .ReturnsAsync(passoDto);
+
+        await _controller.Index();
+
+        Assert.DoesNotContain(PassoDoFechamento.Conta, ((PassoDoFechamentoDTO)_controller.ViewData["PassoDoFechamento"]!).PassosVisiveis);
+    }
+
+    [Fact]
+    public async Task Dado_VisitanteNavegandoDiretoParaEndereco_Quando_Index_Entao_DeveCairNoPassoDeConta()
+    {
+        // Sem autenticação, forçar ?passo=Endereco pela URL não deve
+        // oferecer o conteúdo desse passo — cai no de conta (RF-02).
+        _carrinhoServiceMock.Setup(s => s.MontarAvulso(It.IsAny<IReadOnlyList<ItemDoCarrinhoDTO>>())).ReturnsAsync(new CarrinhoDTO());
+
+        await _controller.Index(passo: PassoDoFechamento.Endereco);
+
+        _pedidoServiceMock.Verify(s => s.MontarPasso(
+            PassoDoFechamento.Conta, It.IsAny<CarrinhoDTO>(), null, It.IsAny<Guid?>(), It.IsAny<int?>()), Times.Once);
+    }
+
+    // ── Cadastro de endereço no fechamento (spec 022, RF-07) ─────────────
+
+    [Fact]
+    public async Task Dado_EnderecoValido_Quando_CadastrarEndereco_Entao_DeveChamarOServicoERedirecionarParaOPassoDeEndereco()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+        var dto = new EnderecoDTO { Estado = "SP", Cidade = "Cidade", Bairro = "Bairro", CEP = "17340001", Rua = "Rua", Numero = 1 };
+
+        var resultado = await _controller.CadastrarEndereco(dto);
+
+        _enderecoServiceMock.Verify(s => s.Cadastrar(dto, usuarioId), Times.Once);
+        var redirecionamento = Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Equal(nameof(CarrinhoController.Index), redirecionamento.ActionName);
+    }
+
+    [Fact]
+    public async Task Dado_ModelStateInvalido_Quando_CadastrarEndereco_Entao_NuncaDeveChamarOServico()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+        _controller.ModelState.AddModelError("CEP", "CEP é obrigatório!");
+
+        await _controller.CadastrarEndereco(new EnderecoDTO());
+
+        _enderecoServiceMock.Verify(s => s.Cadastrar(It.IsAny<EnderecoDTO>(), It.IsAny<Guid>()), Times.Never);
     }
 
     private HttpContext HttpContext => _controller.ControllerContext.HttpContext;

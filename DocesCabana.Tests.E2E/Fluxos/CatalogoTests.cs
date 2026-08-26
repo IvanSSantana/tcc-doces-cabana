@@ -235,14 +235,22 @@ public class CatalogoTests : TesteE2E
         });
 
     [Fact]
-    public async Task Dado_SeletorDeOrdenacao_Quando_TentarEscolherMaisVendidos_Entao_DeveEstarIndisponivel() =>
+    public async Task Dado_SeletorDeOrdenacao_Quando_EscolherMaisVendidos_Entao_DeveOrdenarPorIsso() =>
         await Executar(async () =>
         {
+            // RF-26 (spec 022): "Mais vendidos" deixou de ser anunciada e
+            // recusada (RN-07 da 014, CA-19 daquela entrega) — a 022
+            // reescreve este teste pela mesma razão que a 019 já reescreveu
+            // os que sabia que cairiam aqui: correção esperada, não
+            // regressão.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase);
 
-            var opcaoDesabilitada = pagina.SeletorDeOrdenacao.Locator("option", new() { HasText = "Mais vendidos" });
-            await Expect(opcaoDesabilitada).ToBeDisabledAsync();
+            var opcao = pagina.SeletorDeOrdenacao.Locator("option", new() { HasText = "Mais vendidos" });
+            await Expect(opcao).ToBeEnabledAsync();
+
+            await pagina.SeletorDeOrdenacao.SelectOptionAsync(new SelectOptionValue { Label = "Mais vendidos" });
+            await Pagina.WaitForURLAsync(url => url.Contains("ordenacao=MaisVendidos"));
         });
 
     [Fact]

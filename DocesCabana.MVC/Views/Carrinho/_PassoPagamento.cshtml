@@ -1,0 +1,89 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Domain.Enums
+@model PassoDoFechamentoDTO
+
+@{
+    var opcaoEscolhida = Model.Cotacao?.Opcoes.FirstOrDefault(o => o.ServicoId == Model.ServicoDeEntregaSelecionadoId);
+
+    var rotulosDePagamento = new Dictionary<MetodoPagamento, string>
+    {
+        [MetodoPagamento.Pix] = "Pix",
+        [MetodoPagamento.CartaoCredito] = "Cartão de crédito",
+        [MetodoPagamento.CartaoDebito] = "Cartão de débito",
+        [MetodoPagamento.Boleto] = "Boleto",
+    };
+
+    var itemIndisponivel = ViewData["ItemIndisponivel"] as string;
+    var valorDosProdutosAtual = ViewData["ValorDosProdutosAtual"] as decimal?;
+    var valorDoFreteAtual = ViewData["ValorDoFreteAtual"] as decimal?;
+    var erroGeral = ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage;
+}
+
+<div class="passo-pagamento-fechamento">
+    <h2 class="titulo-passo-fechamento">Como você quer pagar?</h2>
+
+    @if (Model.EnderecoSelecionadoId is null || opcaoEscolhida is null)
+    {
+        <p>
+            Escolha um endereço e uma opção de entrega antes de continuar.
+            <a asp-action="Index" asp-route-passo="Endereco" data-navegacao-fechamento>Voltar para o endereço</a>
+        </p>
+    }
+    else
+    {
+        @* RF-15/CA-16/CA-17/RN-02: o que mudou desde a revisão, sinalizado
+           — o formulário postado nunca foi gravado, só provocou esta
+           reexibição com os valores atuais. *@
+        @if (erroGeral is not null)
+        {
+            <p class="mensagem-erro exibicao-bloco">@erroGeral</p>
+        }
+        @if (itemIndisponivel is not null)
+        {
+            <p class="mensagem-erro exibicao-bloco">@itemIndisponivel não está mais disponível — remova-o do carrinho para continuar.</p>
+        }
+        @if (valorDosProdutosAtual is not null)
+        {
+            <p class="mensagem-erro exibicao-bloco">O valor dos produtos agora é R$ @valorDosProdutosAtual.Value.ToString("N2").</p>
+        }
+        @if (valorDoFreteAtual is not null)
+        {
+            <p class="mensagem-erro exibicao-bloco">O valor do frete agora é R$ @valorDoFreteAtual.Value.ToString("N2").</p>
+        }
+
+        <form method="post" asp-controller="Pedido" asp-action="Fechar" class="formulario-pagamento-fechamento">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="EnderecoId" value="@Model.EnderecoSelecionadoId" />
+            <input type="hidden" name="ServicoDeEntregaId" value="@opcaoEscolhida.ServicoId" />
+            <input type="hidden" name="ValorDosProdutosExibido" value="@Model.Carrinho.Subtotal.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+            <input type="hidden" name="ValorDoFreteExibido" value="@opcaoEscolhida.Preco.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+
+            <fieldset class="opcoes-pagamento-fechamento">
+                <legend>Forma de pagamento</legend>
+                @foreach (var metodo in rotulosDePagamento.Keys)
+                {
+                    <label class="opcao-pagamento-fechamento">
+                        <input type="radio" name="MetodoPagamento" value="@((int)metodo)"
+                               checked="@(metodo == MetodoPagamento.Pix ? "checked" : null)" />
+                        @rotulosDePagamento[metodo]
+                    </label>
+                }
+            </fieldset>
+
+            @* RF-12/CA-09: nenhum dado de pagamento é pedido — só a escolha
+               da forma; o aviso diz o que acontece depois. *@
+            <p class="aviso-pagamento-fechamento">
+                Nenhum dado de pagamento é coletado aqui. Depois de confirmar, a forma de pagamento é combinada
+                diretamente com a loja.
+            </p>
+
+            <div class="resumo-pagamento-fechamento">
+                <p>Produtos <strong>R$ @Model.Carrinho.Subtotal.ToString("N2")</strong></p>
+                <p>Entrega <strong>R$ @opcaoEscolhida.Preco.ToString("N2")</strong></p>
+                <p class="total-pagamento-fechamento">Total <strong>R$ @((Model.Carrinho.Subtotal + opcaoEscolhida.Preco).ToString("N2"))</strong></p>
+            </div>
+
+            <button type="submit" class="botao-acao">Confirmar pedido</button>
+        </form>
+    }
+</div>

@@ -25,8 +25,38 @@
     }
     else
     {
+        // RF-01 (spec 022): o passo é montado pelo controlador (Carrinho
+        // ou Pedido, na recusa) e chega aqui pronto — a view só decide o
+        // que mostrar, nunca calcula passo nenhum.
+        var passoDoFechamento = ViewData["PassoDoFechamento"] as PassoDoFechamentoDTO;
+        var passoAtivo = passoDoFechamento?.PassoAtivo ?? PassoDoFechamento.Carrinho;
+
+        if (passoDoFechamento is not null)
+        {
+            <partial name="_PassosDoFechamento" model="passoDoFechamento" />
+        }
+
         <div class="grade-carrinho">
             <div class="coluna-itens-carrinho">
+            @if (passoAtivo != PassoDoFechamento.Carrinho && passoDoFechamento is not null)
+            {
+                @* A coluna esquerda troca de parcial ao trocar de passo — o
+                   resumo à direita permanece o mesmo (plano §1). *@
+                if (passoAtivo == PassoDoFechamento.Conta)
+                {
+                    <partial name="_PassoConta" />
+                }
+                else if (passoAtivo == PassoDoFechamento.Endereco)
+                {
+                    <partial name="_PassoEndereco" model="passoDoFechamento" />
+                }
+                else
+                {
+                    <partial name="_PassoPagamento" model="passoDoFechamento" />
+                }
+            }
+            else
+            {
                 <ul class="lista-itens-carrinho">
                     @foreach (var linha in Model.Linhas)
                     {
@@ -106,6 +136,7 @@
                         Continuar comprando →
                     </a>
                 </div>
+            }
             </div>
 
             <aside class="resumo-carrinho">
@@ -179,13 +210,18 @@
                     </p>
                 }
 
-                @* RN-01 herdada (017): o caminho existe, sinalizado — o
-                   fechamento é a spec 022. *@
-                <button type="button" class="botao-finalizar-carrinho" disabled
-                        title="Fechamento de pedido ainda não disponível"
-                        aria-label="Finalizar compra — ainda não disponível">
-                    Finalizar compra
-                </button>
+                @* RF-01 (spec 022): o botão passa a levar ao fechamento de
+                   verdade — só faz sentido no próprio passo do carrinho, com
+                   item disponível; nos demais passos, a chamada para ação
+                   já vive no conteúdo de cada passo (endereço/pagamento). *@
+                @if (passoAtivo == PassoDoFechamento.Carrinho && haItemDisponivel)
+                {
+                    var proximoPasso = User.Identity is { IsAuthenticated: true } ? PassoDoFechamento.Endereco : PassoDoFechamento.Conta;
+                    <a asp-action="Index" asp-route-passo="@proximoPasso" data-navegacao-fechamento
+                       class="botao-finalizar-carrinho">
+                        Finalizar compra
+                    </a>
+                }
             </aside>
         </div>
 

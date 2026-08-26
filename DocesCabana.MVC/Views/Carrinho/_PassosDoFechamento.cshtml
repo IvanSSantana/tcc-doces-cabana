@@ -1,0 +1,29 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Application.Enums
+@model PassoDoFechamentoDTO
+
+@{
+    // RF-01 (spec 022): os passos e qual está ativo. A ordem visual é a
+    // ordem declarada no enum — não reordenada aqui.
+    var rotulos = new Dictionary<PassoDoFechamento, string>
+    {
+        [PassoDoFechamento.Carrinho] = "Carrinho",
+        [PassoDoFechamento.Conta] = "Conta",
+        [PassoDoFechamento.Endereco] = "Endereço",
+        [PassoDoFechamento.Pagamento] = "Pagamento",
+    };
+}
+
+<ol class="passos-fechamento" aria-label="Passos da compra">
+    @foreach (var passo in Model.PassosVisiveis)
+    {
+        var ativo = passo == Model.PassoAtivo;
+        <li class="passo-fechamento@(ativo ? " passo-fechamento--ativo" : "")">
+            @* Navegação de verdade por padrão (RF-05/RN-04): funciona sem
+               script. Com script, carrinho.js intercepta pelo atributo e
+               troca só #itens-carrinho — RF-05 não recarrega a página. *@
+            <a asp-action="Index" asp-route-passo="@passo" data-navegacao-fechamento
+               aria-current="@(ativo ? "step" : null)">@rotulos[passo]</a>
+        </li>
+    }
+</ol>

@@ -50,7 +50,7 @@
 
         <div class="container-link">
             <a asp-action="EsqueceuSenha" class="link-navegacao" id="link-esqueceu-senha-login">Esqueceu a senha?</a>
-            <a asp-action="Cadastro" class="link-navegacao">Criar uma conta</a>
+            <a asp-action="Cadastro" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="link-navegacao">Criar uma conta</a>
         </div>
 
         <div class="container-botao">

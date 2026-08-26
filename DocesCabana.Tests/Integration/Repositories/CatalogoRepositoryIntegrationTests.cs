@@ -284,6 +284,96 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
         Assert.Equal(2, await repositorio.ContarNoCatalogo(filtroVazio));
     }
 
+    // ── Ordenação por mais vendidos (spec 022) ──────────────────────────
+
+    [Fact]
+    public async Task Dado_ProdutosComVendasDiferentes_Quando_OrdenarPorMaisVendidos_Entao_OMaisVendidoDeveVirPrimeiro()
+    {
+        var (categoriaId, subId, _) = await SemearCategoriaDoces();
+        var maisVendido = await SemearProduto(subId, "Mais Vendido", 10m);
+        var poucoVendido = await SemearProduto(subId, "Pouco Vendido", 10m);
+        var usuarioId = await SemearUsuario();
+        var enderecoId = await SemearEndereco(usuarioId);
+
+        await SemearPedido(usuarioId, enderecoId, PedidoStatus.Confirmado, (maisVendido.ProdutoId, 10));
+        await SemearPedido(usuarioId, enderecoId, PedidoStatus.Confirmado, (poucoVendido.ProdutoId, 1));
+
+        var repositorio = new ProdutoRepository(Contexto);
+        var filtro = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.MaisVendidos);
+
+        var pagina = await repositorio.BuscarPaginaDoCatalogo(filtro, 1, 12);
+
+        Assert.Equal(maisVendido.ProdutoId, pagina[0].ProdutoId);
+        Assert.Equal(poucoVendido.ProdutoId, pagina[1].ProdutoId);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoSemNenhumaVenda_Quando_OrdenarPorMaisVendidos_Entao_DeveIrParaOFimSemSumirDaConsulta()
+    {
+        var (categoriaId, subId, _) = await SemearCategoriaDoces();
+        var vendido = await SemearProduto(subId, "Vendido", 10m);
+        var semVenda = await SemearProduto(subId, "Sem Venda", 10m);
+        var usuarioId = await SemearUsuario();
+        var enderecoId = await SemearEndereco(usuarioId);
+
+        await SemearPedido(usuarioId, enderecoId, PedidoStatus.Confirmado, (vendido.ProdutoId, 1));
+
+        var repositorio = new ProdutoRepository(Contexto);
+        var filtro = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.MaisVendidos);
+
+        var pagina = await repositorio.BuscarPaginaDoCatalogo(filtro, 1, 12);
+
+        Assert.Equal(2, pagina.Count);
+        Assert.Equal(vendido.ProdutoId, pagina[0].ProdutoId);
+        Assert.Equal(semVenda.ProdutoId, pagina[1].ProdutoId);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoCancelado_Quando_OrdenarPorMaisVendidos_Entao_ANaoDeveContar()
+    {
+        // RN-05/CA-22: um pedido cancelado com quantidade enorme não deve
+        // fazer o produto vencer um concorrente com menos vendas de verdade.
+        var (categoriaId, subId, _) = await SemearCategoriaDoces();
+        var vendidoDeVerdade = await SemearProduto(subId, "Vendido De Verdade", 10m);
+        var soCancelado = await SemearProduto(subId, "So Cancelado", 10m);
+        var usuarioId = await SemearUsuario();
+        var enderecoId = await SemearEndereco(usuarioId);
+
+        await SemearPedido(usuarioId, enderecoId, PedidoStatus.Confirmado, (vendidoDeVerdade.ProdutoId, 2));
+        await SemearPedido(usuarioId, enderecoId, PedidoStatus.Cancelado, (soCancelado.ProdutoId, 1000));
+
+        var repositorio = new ProdutoRepository(Contexto);
+        var filtro = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.MaisVendidos);
+
+        var pagina = await repositorio.BuscarPaginaDoCatalogo(filtro, 1, 12);
+
+        Assert.Equal(vendidoDeVerdade.ProdutoId, pagina[0].ProdutoId);
+        Assert.Equal(soCancelado.ProdutoId, pagina[1].ProdutoId);
+    }
+
+    private async Task<Guid> SemearEndereco(Guid usuarioId)
+    {
+        var endereco = new Endereco(usuarioId, "SP", "Cidade Teste", "Bairro Teste", "17340001", "Rua Teste", 100);
+        Contexto.Enderecos.Add(endereco);
+        await Contexto.SaveChangesAsync();
+        return endereco.EnderecoId;
+    }
+
+    private async Task SemearPedido(Guid usuarioId, Guid enderecoId, PedidoStatus status, params (Guid ProdutoId, short Quantidade)[] itens)
+    {
+        var pedido = new Pedido(usuarioId, enderecoId, 100m, 10m, "Correios", "PAC", 3, 7);
+        foreach (var (produtoId, quantidade) in itens)
+            pedido.AcrescentarItem(produtoId, quantidade, 10m);
+
+        if (status == PedidoStatus.Cancelado)
+            pedido.Cancelar();
+        else if (status == PedidoStatus.Confirmado)
+            pedido.Confirmar();
+
+        Contexto.Pedidos.Add(pedido);
+        await Contexto.SaveChangesAsync();
+    }
+
     private async Task<(Guid CategoriaId, Guid SubBarrasId, Guid SubPotesId)> SemearCategoriaDoces()
     {
         var categoria = new Categoria("Doces");

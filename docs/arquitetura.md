@@ -432,7 +432,8 @@ o catálogo não aplica nada e mostra a caixa real do nome.
 | `/Catalogo`<br>`/Catalogo/{apelido}` | `Catalogo.Index` → `ICatalogoService.Montar` | Barra lateral, filtros, ordenação, paginação, busca |
 | `/Produto/Detalhes/{id}` | `Produto.Detalhes` → `IProdutoService.BuscarDetalhe` | Imagem, descrição, nota média, histograma, avaliações |
 | `/Favorito` | `Favorito.Index` → `IFavoritoService.ListarDoUsuario` | Grade dos favoritos. `[Authorize]` |
-| `/Carrinho`<br>`/Carrinho/ConfirmarEsvaziar` | `Carrinho.Index/Acrescentar/AlterarQuantidade/Remover/Esvaziar/ConfirmarEsvaziar` → `ICarrinhoService`, `IFreteService` | Itens em cartão, resumo com cupom desabilitado e destaque que troca entre subtotal e total a pagar quando há entrega calculada (`021`), item indisponível sinalizado, esvaziar com confirmação. Cotação de frete por CEP (`020`, §6.10) — só oferecida havendo item disponível, só os disponíveis entram na cotação. Sem `[Authorize]` — quem não entrou usa o carrinho da sessão, fundido ao de conta no primeiro request autenticado (`FiltroFusaoDeCarrinho`) |
+| `/Carrinho`<br>`/Carrinho/ConfirmarEsvaziar`<br>`/Carrinho/CadastrarEndereco` | `Carrinho.Index/Acrescentar/AlterarQuantidade/Remover/Esvaziar/ConfirmarEsvaziar/CadastrarEndereco` → `ICarrinhoService`, `IFreteService`, `IPedidoService`, `IEnderecoService` | Itens em cartão, resumo com cupom desabilitado e destaque que troca entre subtotal e total a pagar quando há entrega calculada (`021`), item indisponível sinalizado, esvaziar com confirmação. Cotação de frete por CEP (`020`, §6.10) — só oferecida havendo item disponível, só os disponíveis entram na cotação. Os passos do fechamento (`022`, §6.10) vivem na mesma tela: `Index` aceita `passo`/`enderecoId`/`servicoDeEntregaId` e monta o passo ativo via `IPedidoService.MontarPasso`; `CadastrarEndereco` cadastra sem sair do fechamento (`[Authorize]`, diferente das outras ações desta tela). Sem `[Authorize]` na classe — quem não entrou usa o carrinho da sessão, fundido ao de conta no primeiro request autenticado (`FiltroFusaoDeCarrinho`) |
+| `/Pedido/Confirmacao/{id}` | `Pedido.Fechar/Confirmacao` → `IPedidoService` | `Fechar` (`[HttpPost]`, `[Authorize]`) grava o pedido e redireciona para o comprovante (POST-Redirect-Get); recusa reexibe `Carrinho/Index` com `ModelState` inválido. `Confirmacao` (`[HttpGet]`) mostra o comprovante; pedido alheio ou inexistente devolve 404 (`022`, §6.10) |
 | `/Conta` | `Conta.Index/AlterarDados` → `IUsuarioService` | Dados pessoais — CPF como texto, o resto editável. `[Authorize]` na classe |
 | `/Conta/Enderecos`<br>`/Conta/NovoEndereco`<br>`/Conta/EditarEndereco/{id}` | `Conta.Enderecos/NovoEndereco/EditarEndereco/ExcluirEndereco/TornarPrincipal` → `IEnderecoService` | CRUD de endereço, exatamente um principal (RN-01 a RN-04). Busca por CEP no navegador (ViaCEP); `IEnderecoRepository` nunca busca por id sozinho, só pelo par `(enderecoId, usuarioId)` — é o que torna endereço alheio inalcançável por desenho, não por checagem avulsa |
 | `/Autenticacao/Login` | `Autenticacao.Login` → `IUsuarioService` | Entrar, com endereço de retorno |
@@ -794,6 +795,72 @@ comparando o valor final com o que a documentação mostra.
 A credencial (`FreteSettings:Token`) nunca é versionada — *user secrets* em
 desenvolvimento, variável de ambiente em produção e no E2E (RN-05).
 
+### 6.11 Fechamento de pedido (`022`)
+
+Os passos do fechamento (carrinho → conta → endereço → pagamento) vivem
+dentro da própria tela do carrinho (`Carrinho/Index`, aceita `passo`) — "a
+coluna esquerda troca de parcial, o resumo à direita permanece" é a mesma
+ideia de "um endereço, duas representações" que o projeto usa desde a `014`.
+`IPedidoService.MontarPasso(passo, carrinho, usuarioId, enderecoId,
+servicoDeEntregaId)` monta o que cada passo precisa; o carrinho em si
+(sessão ou persistido) é resolvido por `CarrinhoController`, não pelo
+serviço — `IPedidoService` não conhece `HttpContext`.
+
+**O endereço escolhido e a opção de entrega escolhida viajam pela
+querystring entre os passos, nunca em sessão.** Guardar a cotação em sessão
+foi cogitado e recusado ao especificar (replicaria uma cotação que pode
+envelhecer, sem necessidade). Isso faz o passo de Pagamento montar seu
+formulário com campos ocultos resolvidos no servidor a partir do que já
+está na URL — nenhum JavaScript sincroniza valor nenhum entre um rádio e um
+campo oculto, o que é o que faz o caminho sem script (RF-05/CA-23)
+funcionar por desenho, não por acaso.
+
+**Fechar (`PedidoService.Fechar`) confere antes de gravar, sempre pela
+mesma regra: o que a tela exibiu volta como alegação, o servidor
+recalcula.** Nove passos, na ordem:
+
+```
+1. carrega o carrinho do usuário (o de agora, não o exibido)
+2. carrinho vazio                        → recusa
+3. algum item indisponível               → recusa, nomeando o item
+4. soma os produtos pelo preço de agora
+   ≠ valor exibido                       → recusa, devolve o atual
+5. re-cota o frete para o endereço (nunca confia na cotação anterior)
+   sem cotação, ou opção escolhida sumiu → recusa
+   preço ≠ valor exibido                 → recusa, devolve o atual
+6. monta Pedido (raiz do agregado) com os itens, ao preço de agora
+7. monta Pagamento (Pendente)
+8. esvazia o carrinho (sem IUnitOfWork próprio — ver abaixo)
+9. UM SalvarAlteracoes
+```
+
+Nenhuma recusa lança exceção — todas voltam em
+`ResultadoDoFechamentoDTO.Sucesso == false` (Princípio VIII); é erro
+esperado do usuário (preço mudou, item saiu do catálogo, frete indisponível
+no momento), não falha do sistema.
+
+**`Pedido` é a raiz do agregado** — decisão que a modelagem original
+(spec `003`) tinha adiado por escrito. A coleção de itens é exposta como
+`IReadOnlyCollection<ItemPedido>`, mapeada pelo campo de apoio privado
+(`EF Core` resolve por convenção de nome, `_itens` → `Itens`, sem
+configuração extra). `Pagamento` não tem navegação em `Pedido` (é 1:1
+configurado do lado de `Pagamento`, igual antes desta feature) — por isso
+`IPedidoRepository.AdicionarComPagamento(pedido, pagamento)` adiciona os
+dois ao mesmo `DbContext` sem chamar `SalvarAlteracoes`; quem decide o
+commit é `PedidoService.Fechar`, e é por isso que passo 8 (esvaziar o
+carrinho) usa `IItemCarrinhoRepository` direto, não
+`ICarrinhoService.Esvaziar()` — esse método chama `SalvarAlteracoes` por
+conta própria, o que quebraria a garantia de "um só" (RF-20/RN-07).
+
+**A vitrine da home e a ordenação "mais vendidos" do catálogo** somam
+`ItemPedido.Quantidade` por produto, excluindo pedido cancelado — mesma
+forma de subconsulta que `MelhorAvaliados` usa desde a `014`
+(`(int?)`/`?? 0` para produto sem venda ir para o fim, não sumir da
+consulta). Sem pedidos semeados (`DbInitializer`), a ordenação empataria
+os cem produtos em zero e a home mostraria ordem alfabética sob o título
+"mais vendidos" — por isso a semeadura de pedidos existe, com situações
+variadas e um pedido cancelado.
+
 ---
 
 ## 7. Padrões que se repetem
@@ -1052,11 +1119,12 @@ Reescrito para descrever o comportamento real
 
 ### 9.3 O que existe no modelo e ainda não tem comportamento
 
-Cinco das quinze tabelas modeladas não têm nenhum código que as use:
-`Estoque`, `Pedido`, `ItemPedido`, `Pagamento`, `Promocao`. `ItemCarrinho`
-entrou no modelo pela `017`, que também deu tela e fluxo completo ao carrinho
-— não é mais uma pendência. `Endereco` tem entidade, tabela e tela desde a
-`018` (`Conta > Endereços`).
+Restam duas das quinze tabelas modeladas sem nenhum código que as use:
+`Estoque` e `Promocao`. `Pedido`, `ItemPedido` e `Pagamento` ganharam
+comportamento completo na `022` (fechamento de pedido) — `ItemCarrinho`
+entrou no modelo pela `017`, que também deu tela e fluxo completo ao
+carrinho. `Endereco` tem entidade, tabela e tela desde a `018`
+(`Conta > Endereços`).
 
 ---
 

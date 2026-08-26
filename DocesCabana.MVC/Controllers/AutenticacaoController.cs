@@ -55,26 +55,34 @@ public class AutenticacaoController : Controller
     }
 
     [HttpGet]
-    public IActionResult Cadastro()
+    public IActionResult Cadastro(string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Cadastro(CadastroDTO dto)
+    public async Task<IActionResult> Cadastro(CadastroDTO dto, string? returnUrl = null)
     {
         if (!ModelState.IsValid)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
             return View(dto);
+        }
 
         if (await _usuarioService.ContaJaExiste(dto.Email!, dto.CPF!))
         {
             ModelState.AddModelError(string.Empty, MensagensCadastro.DadosJaAssociados);
+            ViewData["ReturnUrl"] = returnUrl;
             return View(dto);
         }
 
         await _usuarioService.CadastrarUsuario(dto);
-        return RedirectToAction("Login");
+        // RF-04 (spec 022): quem criou conta no meio do fechamento precisa
+        // do mesmo retorno que o login já dá — repassa adiante, não perde
+        // no meio do caminho.
+        return RedirectToAction("Login", new { returnUrl });
     }
 
     [HttpPost]

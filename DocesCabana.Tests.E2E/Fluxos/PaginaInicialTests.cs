@@ -43,6 +43,21 @@ public class PaginaInicialTests : TesteE2E
         return resultado is DBNull or null ? -1 : Convert.ToDouble(resultado);
     }
 
+    private int ObterQuantidadeVendida(Guid produtoId)
+    {
+        using var conexao = new SqliteConnection($"Data Source={Aplicacao.CaminhoDoBanco}");
+        conexao.Open();
+        using var comando = conexao.CreateCommand();
+        comando.CommandText = @"
+            SELECT COALESCE(SUM(ip.Quantidade), 0)
+            FROM ItemPedido ip
+            JOIN Pedido p ON p.PedidoId = ip.PedidoId
+            WHERE UPPER(ip.ProdutoId) = UPPER($id) AND p.Status <> 4";
+        comando.Parameters.AddWithValue("$id", produtoId.ToString());
+        var resultado = comando.ExecuteScalar();
+        return resultado is DBNull or null ? 0 : Convert.ToInt32(resultado);
+    }
+
     private void AlterarStatusDoProduto(Guid produtoId, byte status)
     {
         using var conexao = new SqliteConnection($"Data Source={Aplicacao.CaminhoDoBanco}");
@@ -136,38 +151,41 @@ public class PaginaInicialTests : TesteE2E
         });
 
     [Fact]
-    public async Task Dado_PaginaInicial_Quando_LerOTituloDaSecao_Entao_NaoDeveDizerMaisVendidos() =>
+    public async Task Dado_PaginaInicial_Quando_LerOTituloDaSecao_Entao_NaoDeveDizerBemAvaliados() =>
         await Executar(async () =>
         {
+            // Espelha o teste que a 019 escreveu ("não deve dizer mais
+            // vendidos"), agora que a 022 fez a troca inversa (RF-25):
+            // correção esperada, não regressão.
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
 
             var titulo = await pagina.TituloDaVitrine.InnerTextAsync();
 
-            Assert.DoesNotContain("Mais Vendidos", titulo);
+            Assert.DoesNotContain("Bem avaliados", titulo);
         });
 
     [Fact]
-    public async Task Dado_PaginaInicial_Quando_LerOTituloDaSecao_Entao_DeveDizerBemAvaliados() =>
+    public async Task Dado_PaginaInicial_Quando_LerOTituloDaSecao_Entao_DeveDizerMaisVendidos() =>
         await Executar(async () =>
         {
-            // CA-10
+            // CA-20 (spec 022): o título anuncia o critério real (RN-04).
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
 
             var titulo = await pagina.TituloDaVitrine.InnerTextAsync();
 
-            Assert.Contains("Bem avaliados", titulo);
+            Assert.Contains("Mais vendidos", titulo);
         });
 
     [Fact]
-    public async Task Dado_ProdutosComAvaliacoesDiferentes_Quando_AbrirAPaginaInicial_Entao_AVitrineDeveOrdenarPorNotaMedia() =>
+    public async Task Dado_ProdutosComVendasDiferentes_Quando_AbrirAPaginaInicial_Entao_AVitrineDeveOrdenarPorQuantidadeVendida() =>
         await Executar(async () =>
         {
-            // CA-07/CA-08: em vez de fabricar notas, lê a ordem real exibida
-            // e confere contra a mesma leitura que ProdutoRepository faz
-            // para ordenar (AVG(Nota) ?? -1, decrescente) — prova que a
-            // vitrine aplica o critério, não que um dado específico existe.
+            // CA-20 (spec 022): mesma ideia do teste que a 019 escreveu para
+            // avaliação — lê a ordem real exibida e confere contra a mesma
+            // leitura que ProdutoRepository faz para ordenar (soma de
+            // ItemPedido.Quantidade em pedido não cancelado, decrescente).
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
 
@@ -179,10 +197,10 @@ public class PaginaInicialTests : TesteE2E
                 idsNaOrdemExibida.Add(Guid.Parse(texto!));
             }
 
-            var notasNaOrdemExibida = idsNaOrdemExibida.Select(ObterNotaMedia).ToList();
-            var notasEmOrdemDecrescente = notasNaOrdemExibida.OrderByDescending(n => n).ToList();
+            var vendasNaOrdemExibida = idsNaOrdemExibida.Select(ObterQuantidadeVendida).ToList();
+            var vendasEmOrdemDecrescente = vendasNaOrdemExibida.OrderByDescending(n => n).ToList();
 
-            Assert.Equal(notasEmOrdemDecrescente, notasNaOrdemExibida);
+            Assert.Equal(vendasEmOrdemDecrescente, vendasNaOrdemExibida);
         });
 
     [Fact]

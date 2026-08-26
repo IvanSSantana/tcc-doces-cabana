@@ -64,15 +64,16 @@ public class CatalogoControllerTests
     }
 
     [Fact]
-    public async Task Dado_OrdenacaoMaisVendidos_Quando_Index_Entao_DeveSanearParaMelhorAvaliados()
+    public async Task Dado_OrdenacaoMaisVendidos_Quando_Index_Entao_DeveExecutarSemSanear()
     {
-        // RN-07: "Mais vendidos" é anunciada, não oferecida — mesmo que
-        // alguém force o valor pela URL, o controller recusa e cai no
-        // padrão atual (spec 014, RF-16).
+        // RF-26 (spec 022): "Mais vendidos" passa a ser oferecida de
+        // verdade — SanearOrdenacao foi removido, existia só para recusar
+        // esta ordenação enquanto ela não tinha sentido (RN-07 da 014,
+        // superada por esta entrega).
         await _controller.Index(ordenacao: OrdenacaoCatalogo.MaisVendidos);
 
         _catalogoServiceMock.Verify(s => s.Montar(
-            It.Is<CriteriosDoCatalogoDTO>(c => c.Ordenacao == OrdenacaoCatalogo.MelhorAvaliados),
+            It.Is<CriteriosDoCatalogoDTO>(c => c.Ordenacao == OrdenacaoCatalogo.MaisVendidos),
             It.IsAny<int>(),
             It.IsAny<Guid?>()), Times.Once);
     }

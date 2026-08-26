@@ -12,6 +12,11 @@
     <h1 class="titulo-tela">Cadastre-se</h1>
 
     <form asp-action="Cadastro" method="post" class="formulario-autenticacao">
+        @* RF-04 (spec 022): o retorno sobrevive ao POST, mesma ideia do
+           Login (spec 015) — quem criou conta no meio do fechamento volta
+           para onde estava. *@
+        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
         <div class="campo-entrada">
             <label asp-for="Nome">Nome Completo</label>
             <input asp-for="Nome" type="text" placeholder="Digite seu nome completo..." class="campo-texto" required />
@@ -98,7 +103,7 @@
             }
 
         <div class="container-link">
-            <a asp-action="Login" class="link-navegacao">Já tem uma conta?</a>
+            <a asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="link-navegacao">Já tem uma conta?</a>
         </div>
 
         <div class="container-botao">
