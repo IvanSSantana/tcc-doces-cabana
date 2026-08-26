@@ -29,14 +29,17 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [017](./017-carrinho/spec.md) | Carrinho | Implementada | spec · [plan](./017-carrinho/plan.md) · [tasks](./017-carrinho/tasks.md) · [checklist](./017-carrinho/checklist.md) |
 | [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | spec · [plan](./018-conta-e-enderecos/plan.md) · [tasks](./018-conta-e-enderecos/tasks.md) · [checklist](./018-conta-e-enderecos/checklist.md) |
 | [019](./019-correcoes-e-pendencias/spec.md) | Correções e pendências | Implementada | spec · [plan](./019-correcoes-e-pendencias/plan.md) · [tasks](./019-correcoes-e-pendencias/tasks.md) · [checklist](./019-correcoes-e-pendencias/checklist.md) |
-| [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Especificada | spec · [plan](./020-dimensoes-e-frete/plan.md) · [tasks](./020-dimensoes-e-frete/tasks.md) |
+| [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Implementada | spec · [plan](./020-dimensoes-e-frete/plan.md) · [tasks](./020-dimensoes-e-frete/tasks.md) · [checklist](./020-dimensoes-e-frete/checklist.md) |
 | [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Implementada | spec · [plan](./021-redesenho-do-carrinho/plan.md) · [tasks](./021-redesenho-do-carrinho/tasks.md) · [checklist](./021-redesenho-do-carrinho/checklist.md) |
 | [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Especificada | spec · [plan](./022-fechamento-de-pedido/plan.md) · [tasks](./022-fechamento-de-pedido/tasks.md) |
 | [023](./023-meus-pedidos/spec.md) | Meus pedidos | Especificada | spec · [plan](./023-meus-pedidos/plan.md) · [tasks](./023-meus-pedidos/tasks.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020`.
 > A `021` foi executada antes da `020` de propósito — ver o parágrafo dela
-> abaixo e a nota de ordem de execução no plano das duas specs.
+> abaixo e a nota de ordem de execução no plano das duas specs. A `020`
+> ficou com uma parte pendente (Fase 8 do `tasks.md`, verificação contra a
+> API real) por depender de uma credencial ainda não obtida — registrado no
+> §10 da spec, não bloqueia o restante da entrega nem a `022`.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -214,7 +217,7 @@ entregas; hoje são doze. A ordem abaixo é de dependência, não de preferênci
 | [016](./016-busca-e-enderecos-do-catalogo/spec.md) | Busca e endereços do catálogo | Implementada | busca por nome e endereço legível de subcategoria |
 | [017](./017-carrinho/spec.md) | Carrinho | Implementada | os dois controles do card que sobraram, desabilitados pela `012` |
 | [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
-| [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Especificada | peso e medidas do produto, e o custo de entrega que o pedido precisa |
+| [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Implementada | peso e medidas do produto, e o custo de entrega que o pedido precisa |
 | [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Implementada | a tela onde os passos do fechamento vão morar |
 | [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Especificada | `Pedido`, `ItemPedido` e `Pagamento` ganham comportamento; "mais vendidos" passa a ter sentido |
 | [023](./023-meus-pedidos/spec.md) | Meus pedidos | Especificada | o atalho que a `018` deixou reservado na área de conta |

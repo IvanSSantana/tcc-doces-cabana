@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
+using DocesCabana.Application.Validators;
 using DocesCabana.MVC.Controllers;
 using DocesCabana.MVC.Helpers;
 using Microsoft.AspNetCore.Http;
@@ -12,13 +13,19 @@ namespace DocesCabana.Tests.Units.Controllers;
 public class CarrinhoControllerTests
 {
     private readonly Mock<ICarrinhoService> _carrinhoServiceMock;
+    private readonly Mock<IFreteService> _freteServiceMock;
     private readonly CarrinhoController _controller;
 
     public CarrinhoControllerTests()
     {
         _carrinhoServiceMock = new Mock<ICarrinhoService>();
+        _freteServiceMock = new Mock<IFreteService>();
         var httpContext = new DefaultHttpContext { Session = new SessaoFalsa() };
-        _controller = new CarrinhoController(_carrinhoServiceMock.Object)
+        // O validador é o de verdade, não mockado (spec 020): é lógica pura,
+        // sem dependência externa — mockar esconderia o próprio
+        // comportamento que os testes de CEP inválido/válido querem provar.
+        _controller = new CarrinhoController(
+            _carrinhoServiceMock.Object, _freteServiceMock.Object, new ConsultaDeFreteDTOValidator())
         {
             // Visitante anônimo por padrão; ConfigurarUsuarioAutenticado
             // substitui isto nos testes que precisam de um usuário logado.
@@ -189,6 +196,101 @@ public class CarrinhoControllerTests
         var resultado = _controller.ConfirmarEsvaziar();
 
         Assert.IsType<ViewResult>(resultado);
+    }
+
+    // ── Cotação de frete (spec 020) ──────────────────────────────────────
+
+    private LinhaDoCarrinhoDTO CriarLinha(
+        decimal preco = 10m, short quantidade = 1,
+        DocesCabana.Application.Enums.MotivoIndisponibilidade motivo = DocesCabana.Application.Enums.MotivoIndisponibilidade.Nenhum) => new()
+    {
+        ProdutoId = Guid.NewGuid(),
+        Nome = "Brigadeiro",
+        PrecoUnitario = preco,
+        Quantidade = quantidade,
+        ValorDaLinha = preco * quantidade,
+        Peso = 0.5m,
+        Altura = 10m,
+        Largura = 15m,
+        Comprimento = 20m,
+        MotivoIndisponibilidade = motivo
+    };
+
+    [Fact]
+    public async Task Dado_CepValidoEItemDisponivel_Quando_Index_Entao_DeveCotarEDevolverViewComCotacao()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        var carrinho = new CarrinhoDTO { Linhas = [CriarLinha()] };
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(carrinho);
+        var cotacao = new CotacaoDeFreteDTO("01310000", [new OpcaoDeFreteDTO(1, "Correios", "PAC", 18m, 8, 9)], null);
+        _freteServiceMock.Setup(s => s.Cotar("01310000", It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>())).ReturnsAsync(cotacao);
+
+        var resultado = await _controller.Index(cep: "01310000");
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        var modelo = Assert.IsType<CarrinhoDTO>(viewResult.Model);
+        Assert.True(modelo.TemEntregaCalculada);
+    }
+
+    [Fact]
+    public async Task Dado_CepComFormatoInvalido_Quando_Index_Entao_NuncaDeveChamarOServico()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        var carrinho = new CarrinhoDTO { Linhas = [CriarLinha()] };
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(carrinho);
+
+        await _controller.Index(cep: "123");
+
+        _freteServiceMock.Verify(
+            s => s.Cotar(It.IsAny<string>(), It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_CepComFormatoInvalido_Quando_Index_Entao_ModelStateDeveFicarInvalido()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO { Linhas = [CriarLinha()] });
+
+        await _controller.Index(cep: "123");
+
+        Assert.False(_controller.ModelState.IsValid);
+    }
+
+    [Fact]
+    public async Task Dado_CarrinhoSemItemDisponivel_Quando_Index_ComCep_Entao_NaoDeveCotar()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        var linhaIndisponivel = CriarLinha(motivo: DocesCabana.Application.Enums.MotivoIndisponibilidade.ForaDeEstoque);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO { Linhas = [linhaIndisponivel] });
+
+        await _controller.Index(cep: "01310000");
+
+        _freteServiceMock.Verify(
+            s => s.Cotar(It.IsAny<string>(), It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_ItemDisponivelEIndisponivel_Quando_Index_ComCep_Entao_DevePassarApenasODisponivelAoServico()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        var disponivel = CriarLinha();
+        var indisponivel = CriarLinha(motivo: DocesCabana.Application.Enums.MotivoIndisponibilidade.ForaDeEstoque);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO { Linhas = [disponivel, indisponivel] });
+        _freteServiceMock
+            .Setup(s => s.Cotar(It.IsAny<string>(), It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>()))
+            .ReturnsAsync(new CotacaoDeFreteDTO("01310000", [], "indiferente"));
+
+        await _controller.Index(cep: "01310000");
+
+        _freteServiceMock.Verify(s => s.Cotar(
+            "01310000",
+            It.Is<IReadOnlyList<LinhaDoCarrinhoDTO>>(lista => lista.Count == 1 && lista[0].ProdutoId == disponivel.ProdutoId)),
+            Times.Once);
     }
 
     private HttpContext HttpContext => _controller.ControllerContext.HttpContext;

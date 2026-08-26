@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using DocesCabana.MVC.Helpers;
 
@@ -13,16 +15,47 @@ namespace DocesCabana.MVC.Controllers;
 public class CarrinhoController : Controller
 {
     private readonly ICarrinhoService _carrinhoService;
+    private readonly IFreteService _freteService;
+    private readonly IValidator<ConsultaDeFreteDTO> _consultaDeFreteValidator;
 
-    public CarrinhoController(ICarrinhoService carrinhoService)
+    public CarrinhoController(
+        ICarrinhoService carrinhoService, IFreteService freteService, IValidator<ConsultaDeFreteDTO> consultaDeFreteValidator)
     {
         _carrinhoService = carrinhoService;
+        _freteService = freteService;
+        _consultaDeFreteValidator = consultaDeFreteValidator;
     }
 
+    // RF-04/RF-09/RF-11 (spec 020): cep é opcional — sem ele, a tela é só o
+    // carrinho de sempre. Com ele, cota antes de exibir: CEP inválido não
+    // chega a bater no serviço (RF-09/CA-10), e carrinho sem item
+    // disponível também não cota (RF-11/CA-13) — não há o que despachar.
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? cep = null)
     {
         var carrinho = await ObterCarrinhoAtual();
+
+        if (!string.IsNullOrWhiteSpace(cep))
+        {
+            var consulta = new ConsultaDeFreteDTO(cep);
+            var validacao = await _consultaDeFreteValidator.ValidateAsync(consulta);
+
+            if (!validacao.IsValid)
+            {
+                validacao.AddToModelState(ModelState);
+            }
+            else
+            {
+                // RN-03: só os itens disponíveis vão para a cotação — o
+                // adaptador não precisa conhecer ProdutoStatus.
+                var disponiveis = carrinho.Linhas.Where(l => l.Disponivel).ToList();
+                if (disponiveis.Count > 0)
+                {
+                    var cotacao = await _freteService.Cotar(cep, disponiveis);
+                    carrinho = carrinho.ComCotacao(cotacao);
+                }
+            }
+        }
 
         if (EhRequisicaoAssincrona)
             return PartialView("_ItensDoCarrinho", carrinho);

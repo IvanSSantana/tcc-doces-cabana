@@ -78,6 +78,27 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
         infoProcesso.Environment["EmailSettings__Adaptador"] = "Arquivo";
         infoProcesso.Environment["EmailSettings__PastaDeSaida"] = pastaDeEmails;
 
+        // Frete (spec 020) — sem simulador, IFreteService só tem a
+        // implementação real. Sem a credencial no ambiente de quem executa,
+        // aponta para um endereço que recusa conexão: a cotação falha de
+        // forma determinística, sem depender de rede nem do MelhorEnvio
+        // estar no ar — os testes sem [Trait("Categoria", "Externo")]
+        // continuam verdes em qualquer máquina. Com a credencial presente
+        // (FreteSettings__Token no ambiente de fora), repassa a URL real e o
+        // token, para os testes marcados como externos (Fase 8, T048/T049).
+        var tokenDoAmbiente = Environment.GetEnvironmentVariable("FreteSettings__Token");
+        if (!string.IsNullOrWhiteSpace(tokenDoAmbiente))
+        {
+            infoProcesso.Environment["FreteSettings__UrlBase"] = "https://sandbox.melhorenvio.com.br";
+            infoProcesso.Environment["FreteSettings__Token"] = tokenDoAmbiente;
+            infoProcesso.Environment["FreteSettings__UserAgent"] =
+                Environment.GetEnvironmentVariable("FreteSettings__UserAgent") ?? "Doces Cabana (testes-e2e@docescabana.com.br)";
+        }
+        else
+        {
+            infoProcesso.Environment["FreteSettings__UrlBase"] = "http://localhost:9";
+        }
+
         var processo = new Process { StartInfo = infoProcesso, EnableRaisingEvents = true };
         processo.OutputDataReceived += (_, e) => { if (e.Data is not null) aplicacao._saidaPadrao.AppendLine(e.Data); };
         processo.ErrorDataReceived += (_, e) => { if (e.Data is not null) aplicacao._saidaDeErro.AppendLine(e.Data); };

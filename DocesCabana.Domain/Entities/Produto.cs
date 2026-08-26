@@ -35,6 +35,18 @@ public class Produto
     // marcação que preserva a distinção que a fusão apagaria.
     public bool SemAcucar { get; private set; }
 
+    // Peso e dimensões (spec 020, RN-01): sem elas a loja não sabe cotar o
+    // frete de um produto. Atributo essencial, como Nome e Preco — por isso
+    // entram sem valor padrão, ao contrário de Status/Descricao/SemAcucar,
+    // que são de fato opcionais.
+    public decimal Peso { get; private set; }          // kg
+
+    public decimal Altura { get; private set; }        // cm
+
+    public decimal Largura { get; private set; }       // cm
+
+    public decimal Comprimento { get; private set; }   // cm
+
     // Navegações filho -> pai, anuláveis (vêm null sem Include). Ambas as
     // pontas vivem no domínio, então são navegação normal (RQ-10 da spec 003).
     public Subcategoria? Subcategoria { get; private set; }
@@ -48,6 +60,10 @@ public class Produto
         string nome,
         decimal preco,
         string imagemUrl,
+        decimal peso,
+        decimal altura,
+        decimal largura,
+        decimal comprimento,
         ProdutoStatus status = ProdutoStatus.Ativo,
         Guid id = default,
         string? descricao = null,
@@ -58,6 +74,7 @@ public class Produto
         ValidarPreco(preco);
         ValidarImagem(imagemUrl);
         ValidarDescricao(descricao);
+        ValidarDimensoes(peso, altura, largura, comprimento);
 
         ProdutoId = id == Guid.Empty
             ? Guid.NewGuid()
@@ -71,6 +88,20 @@ public class Produto
         ImagemUrl = imagemUrl;
         Descricao = descricao;
         SemAcucar = semAcucar;
+        Peso = peso;
+        Altura = altura;
+        Largura = largura;
+        Comprimento = comprimento;
+    }
+
+    public void AlterarDimensoes(decimal peso, decimal altura, decimal largura, decimal comprimento)
+    {
+        ValidarDimensoes(peso, altura, largura, comprimento);
+
+        Peso = peso;
+        Altura = altura;
+        Largura = largura;
+        Comprimento = comprimento;
     }
 
     public void AlterarNome(string nome)
@@ -162,6 +193,21 @@ public class Produto
     {
         if (descricao is not null && descricao.Length > 4000)
             throw new ArgumentException("Descrição deve ter no máximo 4000 caracteres.", nameof(descricao));
+    }
+
+    private static void ValidarDimensoes(decimal peso, decimal altura, decimal largura, decimal comprimento)
+    {
+        if (peso <= 0)
+            throw new ArgumentException("Peso deve ser maior que zero.", nameof(peso));
+
+        if (altura <= 0)
+            throw new ArgumentException("Altura deve ser maior que zero.", nameof(altura));
+
+        if (largura <= 0)
+            throw new ArgumentException("Largura deve ser maior que zero.", nameof(largura));
+
+        if (comprimento <= 0)
+            throw new ArgumentException("Comprimento deve ser maior que zero.", nameof(comprimento));
     }
 
     private void ValidarImagem(string url)

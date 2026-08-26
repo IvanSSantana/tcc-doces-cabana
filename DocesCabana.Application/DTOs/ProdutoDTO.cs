@@ -24,4 +24,13 @@ public class ProdutoDTO
     public bool EstaFavorito { get; init; }
 
     public bool SemAcucar { get; init; }
+
+    // Peso e dimensões (spec 020, RF-01) — kg e cm, mesma unidade do domínio.
+    public decimal Peso { get; init; }
+
+    public decimal Altura { get; init; }
+
+    public decimal Largura { get; init; }
+
+    public decimal Comprimento { get; init; }
 }

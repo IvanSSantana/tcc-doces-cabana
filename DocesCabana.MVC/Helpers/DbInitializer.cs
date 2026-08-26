@@ -21,7 +21,10 @@ public static class DbInitializer
     // Caseiros" e "Doces Zero" se fundiram em "Doces" — a distinção "zero"
     // virou Produto.SemAcucar (RN-04), não subcategoria própria, porque
     // "Barras" e "Potes" existiam nas duas listas originais.
-    private static readonly (string Categoria, string[] Subcategorias)[] Taxonomia =
+    // internal: o teste de unidade da spec 020 reaproveita esta mesma lista
+    // para montar o dicionário que GerarProdutosMock espera, em vez de
+    // duplicar os nomes de categoria/subcategoria à parte.
+    internal static readonly (string Categoria, string[] Subcategorias)[] Taxonomia =
     [
         ("Doces", ["Barras", "Bolachas / Rosquinhas", "Box", "Combos", "Compotas", "Cappuccino", "Latas", "Palhas", "Potes", "Quindim", "Raspa de Tachos", "Sorvetes"]),
         ("Empório", ["Café", "Cappuccino", "Charcutaria", "Croissant", "Desidratados", "Geleias", "Manteiga", "Mel", "Molho", "Risotto"]),
@@ -34,6 +37,19 @@ public static class DbInitializer
     private static readonly HashSet<string> SubcategoriasDeOrigemZero = ["Barras", "Combos", "Cappuccino", "Potes", "Sorvetes"];
 
     private const int ProdutosPorCategoria = 25;
+
+    // Peso e dimensões por categoria (spec 020, plano §5) — não um valor
+    // único para os cem produtos: Adega pesada e compacta, Souvenir leve e
+    // volumosa é o par que faz o peso cubado da transportadora vencer o
+    // peso real (ou o contrário), sem o qual nenhum critério de aceite
+    // sobre volume seria satisfazível.
+    private static readonly Dictionary<string, (decimal Peso, decimal Altura, decimal Largura, decimal Comprimento)> MedidasPorCategoria = new()
+    {
+        ["Adega"] = (1.200m, 32m, 8m, 8m),       // garrafa: pesada e compacta
+        ["Doces"] = (0.400m, 12m, 15m, 15m),     // pote ou lata
+        ["Empório"] = (0.500m, 14m, 10m, 10m),   // vidro de geleia, pacote de café
+        ["Souvenir"] = (0.300m, 20m, 25m, 30m),  // pelúcia: leve e volumosa
+    };
 
     // Semente padrão do gerador de avaliações (spec 014, RF-14) — fixa para
     // que recriar a base produza sempre as mesmas notas, nos mesmos
@@ -173,7 +189,10 @@ public static class DbInitializer
     // tenha ao menos um produto e o catálogo feche em 3 páginas por
     // categoria (12 por página). Prova a mecânica de filtro e paginação;
     // não é o catálogo real da loja — isso é backlog (spec 012 §8).
-    private static List<Produto> GerarProdutosMock(Dictionary<string, Dictionary<string, Subcategoria>> subcategoriasPorCategoria)
+    // internal (não private): permite ao teste de unidade da spec 020
+    // provar que os cem produtos gerados nascem com medidas > 0, sem
+    // precisar de um DbContext — mesmo padrão de GerarAvaliacoesMock.
+    internal static List<Produto> GerarProdutosMock(Dictionary<string, Dictionary<string, Subcategoria>> subcategoriasPorCategoria)
     {
         var produtos = new List<Produto>();
 
@@ -181,8 +200,10 @@ public static class DbInitializer
         // que a spec 008 usa para demonstrar a página do produto, e serve de
         // alvo às avaliações de exemplo abaixo.
         var raspaDeTachos = subcategoriasPorCategoria["Doces"]["Raspa de Tachos"];
+        var medidasDoces = MedidasPorCategoria["Doces"];
         produtos.Add(new Produto(
             raspaDeTachos.SubcategoriaId, "Raspa Tacho", 19.99m, ImagensDeExemplo[0],
+            medidasDoces.Peso, medidasDoces.Altura, medidasDoces.Largura, medidasDoces.Comprimento,
             descricao: "Um clássico caramelizado no ponto certo, com aquele toque de queima que só o tacho de cobre dá. Feito artesanalmente em pequenos lotes, sem conservantes."));
 
         var indiceImagem = 1;
@@ -211,11 +232,14 @@ public static class DbInitializer
                 var imagem = ImagensDeExemplo[indiceImagem % ImagensDeExemplo.Length];
                 indiceImagem++;
 
+                var medidas = MedidasPorCategoria[nomeCategoria];
+
                 produtos.Add(new Produto(
                     subcategoria.SubcategoriaId,
                     $"{nomeSubcategoria} {i}",
                     preco,
                     imagem,
+                    medidas.Peso, medidas.Altura, medidas.Largura, medidas.Comprimento,
                     status,
                     semAcucar: semAcucar));
             }

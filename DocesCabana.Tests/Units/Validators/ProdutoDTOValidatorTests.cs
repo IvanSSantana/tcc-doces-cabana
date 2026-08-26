@@ -127,12 +127,80 @@ public class ProdutoDTOValidatorTests
         Assert.Contains(resultado.Errors, e => e.PropertyName == "Descricao");
     }
 
+    // ── Peso e dimensões (spec 020, RF-02) ───────────────────────────────
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Dado_PesoInvalido_Quando_Validar_Entao_DeveSerInvalido(decimal peso)
+    {
+        var dto = CriarProdutoValido(peso: peso);
+
+        var resultado = _validator.Validate(dto);
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "Peso");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Dado_AlturaInvalida_Quando_Validar_Entao_DeveSerInvalido(decimal altura)
+    {
+        var dto = CriarProdutoValido(altura: altura);
+
+        var resultado = _validator.Validate(dto);
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "Altura");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Dado_LarguraInvalida_Quando_Validar_Entao_DeveSerInvalido(decimal largura)
+    {
+        var dto = CriarProdutoValido(largura: largura);
+
+        var resultado = _validator.Validate(dto);
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "Largura");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Dado_ComprimentoInvalido_Quando_Validar_Entao_DeveSerInvalido(decimal comprimento)
+    {
+        var dto = CriarProdutoValido(comprimento: comprimento);
+
+        var resultado = _validator.Validate(dto);
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "Comprimento");
+    }
+
+    [Fact]
+    public void Dado_MedidasValidas_Quando_Validar_Entao_DeveSerValido()
+    {
+        var dto = CriarProdutoValido(peso: 0.5m, altura: 10m, largura: 15m, comprimento: 20m);
+
+        var resultado = _validator.Validate(dto);
+
+        Assert.True(resultado.IsValid);
+    }
+
     private static ProdutoDTO CriarProdutoValido(
         string nome = "Brigadeiro Gourmet",
         decimal preco = 4.50m,
         string imagemUrl = "https://imagem.com/brigadeiro.jpg",
         Guid? subcategoriaId = null,
-        string? descricao = null) =>
+        string? descricao = null,
+        decimal peso = 0.5m,
+        decimal altura = 10m,
+        decimal largura = 15m,
+        decimal comprimento = 20m) =>
         new()
         {
             Nome = nome,
@@ -140,6 +208,10 @@ public class ProdutoDTOValidatorTests
             Status = ProdutoStatus.Ativo,
             ImagemUrl = imagemUrl,
             SubcategoriaId = subcategoriaId ?? Guid.NewGuid(),
-            Descricao = descricao
+            Descricao = descricao,
+            Peso = peso,
+            Altura = altura,
+            Largura = largura,
+            Comprimento = comprimento
         };
 }

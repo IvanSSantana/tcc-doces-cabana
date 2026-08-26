@@ -12,7 +12,7 @@ public class CarrinhoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_UmParJaNoCarrinho_Quando_TentarAdicionarDeNovo_Entao_DeveSerRecusado()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var usuarioId = await SemearUsuario();
@@ -31,8 +31,8 @@ public class CarrinhoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_CarrinhosDeDuasPessoas_Quando_BuscarPorUsuario_Entao_NaoDeveTrazerODaOutra()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
-        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg");
+        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.AddRange(produtoUm, produtoDois);
         await Contexto.SaveChangesAsync();
         var usuarioUmId = await SemearUsuario("Cliente Um", "52998224725");
@@ -56,7 +56,7 @@ public class CarrinhoIntegrationTests : InfraestruturaSqliteEmMemoria
         // status) para montar a tela — sem Include, cada linha viria com
         // Produto nulo.
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var usuarioId = await SemearUsuario();
@@ -75,8 +75,8 @@ public class CarrinhoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_AMesmaPessoa_Quando_AdicionarProdutosDiferentes_Entao_DeveAceitarOsDois()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
-        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg");
+        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.AddRange(produtoUm, produtoDois);
         await Contexto.SaveChangesAsync();
         var usuarioId = await SemearUsuario();
@@ -95,7 +95,7 @@ public class CarrinhoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_Buscar_Quando_ParExiste_Entao_DeveEncontrar()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var usuarioId = await SemearUsuario();
@@ -125,8 +125,8 @@ public class CarrinhoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_DoisItensComQuantidadesDiferentes_Quando_ContarItens_Entao_DeveSomarAsQuantidadesNaoAsLinhas()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
-        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg");
+        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.AddRange(produtoUm, produtoDois);
         await Contexto.SaveChangesAsync();
         var usuarioId = await SemearUsuario();
@@ -145,7 +145,7 @@ public class CarrinhoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_ItemAdicionadoPeloRepositorio_Quando_Remover_Entao_DeveSairDoBanco()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var usuarioId = await SemearUsuario();

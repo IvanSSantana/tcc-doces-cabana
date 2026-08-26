@@ -12,7 +12,7 @@ public class GeradorDeAvaliacoesTests
     {
         var subcategoriaId = Guid.NewGuid();
         return Enumerable.Range(1, quantidade)
-            .Select(i => new Produto(subcategoriaId, $"Produto {i}", 10m, "https://imagem.com/produto.jpg"))
+            .Select(i => new Produto(subcategoriaId, $"Produto {i}", 10m, "https://imagem.com/produto.jpg", 0.5m, 10m, 15m, 20m))
             .ToList();
     }
 

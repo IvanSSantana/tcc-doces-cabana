@@ -13,7 +13,7 @@ public class AvaliacaoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_PessoaQueJaAvaliouUmProduto_Quando_RegistrarSegundaAvaliacaoDoMesmoProduto_Entao_DeveSerRecusada()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var autorId = await SemearUsuario();
@@ -30,7 +30,7 @@ public class AvaliacaoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_PessoasDiferentes_Quando_AvaliaremOMesmoProduto_Entao_DeveAceitarAsDuas()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var autorUmId = await SemearUsuario("Cliente Um", "52998224725");
@@ -47,8 +47,8 @@ public class AvaliacaoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_AMesmaPessoa_Quando_AvaliarProdutosDiferentes_Entao_DeveAceitarAsDuas()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
-        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg");
+        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.AddRange(produtoUm, produtoDois);
         await Contexto.SaveChangesAsync();
         var autorId = await SemearUsuario();

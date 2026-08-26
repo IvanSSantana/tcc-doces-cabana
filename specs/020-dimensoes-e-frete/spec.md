@@ -1,7 +1,7 @@
 # Especificação — Dimensões do produto e cotação de frete
 
 **ID:** `020-dimensoes-e-frete` · **Branch:** `020-dimensoes-e-frete`
-**Criada em:** 2026-08-25 · **Status:** Rascunho
+**Criada em:** 2026-08-25 · **Status:** Implementada
 
 ---
 
@@ -254,6 +254,19 @@ formato da requisição e da resposta é conhecido pela documentação, então o
 mapeamento pode ser escrito e testado contra o exemplo documentado, sem rede.
 Nenhuma decisão desta spec depende da credencial — só a confirmação de parte
 dela contra o serviço real.
+
+**Atualização ao implementar: a credencial segue não obtida.** Tudo o que não
+dependia dela foi implementado e está com as duas suítes verdes (medidas,
+validação, cadastro, cotação com mock de HTTP, telas, JavaScript opcional,
+E2E dos três critérios que não tocam rede). Os testes contra a API real
+(CA-05 a CA-09, CA-14) e a etapa manual de conferir a resposta contra a
+documentação seguem bloqueados — ficam para quando a credencial existir,
+sem exigir nenhuma mudança de código, só rodar o que já está escrito e
+marcado `[Trait("Categoria", "Externo")]`. Um bug real foi encontrado ao
+provar CA-11 sem credencial: `FreteServiceMelhorEnvio.Cotar` lançava exceção
+não capturada quando `UserAgent` ficava em branco, violando o próprio
+contrato de "nunca lança" — corrigido dando um valor-padrão não vazio a essa
+configuração.
 
 **⚠️ Uma referência obsoleta foi encontrada ao especificar.** O botão desligado
 de finalizar compra, na tela do carrinho, tem comentário dizendo que o

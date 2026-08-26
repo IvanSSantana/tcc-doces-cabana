@@ -10,7 +10,7 @@ public class AvaliacaoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_AvaliacoesComNotasDiferentes_Quando_BuscarPorProdutoOrdenandoPorMaiorNota_Entao_DeveTrazerDaMaiorParaAMenor()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         // Autores distintos: o índice único de Avaliacao(UsuarioId, ProdutoId)
@@ -34,7 +34,7 @@ public class AvaliacaoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_AvaliacoesComDatasDiferentes_Quando_BuscarPorProdutoOrdenandoPorMaisRecentes_Entao_DeveTrazerAMaisNovaPrimeiro()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var autorAntigoId = await SemearUsuario("Autor Antigo", "52998224725");
@@ -55,7 +55,7 @@ public class AvaliacaoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     {
         // RN-05: Relevantes ordena pela mais útil primeiro.
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var autorPoucoVotadaId = await SemearUsuario("Autor Pouco Votada", "52998224725");
@@ -82,7 +82,7 @@ public class AvaliacaoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_AvaliacoesComNotasVariadas_Quando_ContarPorNota_Entao_DeveAgruparPorNota()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var autorUmId = await SemearUsuario("Autor Um", "52998224725");

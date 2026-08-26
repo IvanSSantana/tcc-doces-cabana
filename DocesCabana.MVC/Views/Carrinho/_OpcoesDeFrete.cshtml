@@ -1,0 +1,26 @@
+@using DocesCabana.Application.DTOs
+@model CotacaoDeFreteDTO
+
+@* RF-06/RF-10 (spec 020): a lista de opções, ou a mensagem de falha —
+   RN-02, falha de serviço externo nunca vira exceção, só mensagem. *@
+@if (Model.Mensagem is not null)
+{
+    <p class="mensagem-falha-frete">@Model.Mensagem</p>
+}
+else
+{
+    <ul class="lista-opcoes-frete">
+        @foreach (var opcao in Model.Opcoes)
+        {
+            <li class="opcao-frete">
+                <span class="transportadora-opcao-frete">@opcao.Transportadora — @opcao.Servico</span>
+                <span class="preco-opcao-frete">R$ @opcao.Preco.ToString("N2")</span>
+                <span class="prazo-opcao-frete">
+                    @(opcao.PrazoMinimoEmDias == opcao.PrazoMaximoEmDias
+                        ? $"{opcao.PrazoMinimoEmDias} dias úteis"
+                        : $"{opcao.PrazoMinimoEmDias} a {opcao.PrazoMaximoEmDias} dias úteis")
+                </span>
+            </li>
+        }
+    </ul>
+}

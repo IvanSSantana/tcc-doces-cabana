@@ -12,7 +12,7 @@ public class ProdutoMapperTests
     {
         var id = Guid.NewGuid();
         var subcategoriaId = Guid.NewGuid();
-        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg", ProdutoStatus.Inativo, id);
+        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m, ProdutoStatus.Inativo, id);
 
         var dto = ProdutoMapper.ToDTO(produto);
 
@@ -23,6 +23,10 @@ public class ProdutoMapperTests
         Assert.Equal("https://imagem.com/brigadeiro.jpg", dto.ImagemUrl);
         Assert.Equal(subcategoriaId, dto.SubcategoriaId);
         Assert.Null(dto.PromocaoId);
+        Assert.Equal(0.5m, dto.Peso);
+        Assert.Equal(10m, dto.Altura);
+        Assert.Equal(15m, dto.Largura);
+        Assert.Equal(20m, dto.Comprimento);
     }
 
     [Fact]
@@ -34,7 +38,11 @@ public class ProdutoMapperTests
             Preco = 27.00m,
             Status = ProdutoStatus.Inativo,
             ImagemUrl = "https://imagem.com/pe-de-moca.jpg",
-            SubcategoriaId = Guid.NewGuid()
+            SubcategoriaId = Guid.NewGuid(),
+            Peso = 0.5m,
+            Altura = 10m,
+            Largura = 15m,
+            Comprimento = 20m
         };
 
         var produto = ProdutoMapper.ToEntity(dto);
@@ -44,6 +52,10 @@ public class ProdutoMapperTests
         Assert.Equal(dto.Preco, produto.Preco);
         Assert.Equal(dto.ImagemUrl, produto.ImagemUrl);
         Assert.Equal(dto.SubcategoriaId, produto.SubcategoriaId);
+        Assert.Equal(dto.Peso, produto.Peso);
+        Assert.Equal(dto.Altura, produto.Altura);
+        Assert.Equal(dto.Largura, produto.Largura);
+        Assert.Equal(dto.Comprimento, produto.Comprimento);
     }
 
     [Fact]

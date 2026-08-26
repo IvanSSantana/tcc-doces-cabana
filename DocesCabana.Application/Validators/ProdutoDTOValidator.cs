@@ -24,6 +24,19 @@ public class ProdutoDTOValidator : AbstractValidator<ProdutoDTO>
         // RN-01: descrição é opcional, por isso sem NotEmpty — só o limite.
         RuleFor(x => x.Descricao)
             .MaximumLength(4000).WithMessage("Descrição deve ter no máximo 4000 caracteres.");
+
+        // RF-02/RN-01 (spec 020): produto sem medida não é despachável.
+        RuleFor(x => x.Peso)
+            .GreaterThan(0).WithMessage("Peso deve ser maior que zero.");
+
+        RuleFor(x => x.Altura)
+            .GreaterThan(0).WithMessage("Altura deve ser maior que zero.");
+
+        RuleFor(x => x.Largura)
+            .GreaterThan(0).WithMessage("Largura deve ser maior que zero.");
+
+        RuleFor(x => x.Comprimento)
+            .GreaterThan(0).WithMessage("Comprimento deve ser maior que zero.");
     }
 
     private static bool SerUrlAbsolutaHttp(string url)

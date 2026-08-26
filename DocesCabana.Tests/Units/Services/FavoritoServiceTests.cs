@@ -27,7 +27,7 @@ public class FavoritoServiceTests
     }
 
     private static Produto CriarProduto(ProdutoStatus status = ProdutoStatus.Ativo) =>
-        new(Guid.NewGuid(), "Brigadeiro", 5m, "https://imagem.com/brigadeiro.jpg", status);
+        new(Guid.NewGuid(), "Brigadeiro", 5m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m, status);
 
     [Fact]
     public async Task Dado_ProdutoNaoFavoritado_Quando_Alternar_Entao_DeveFavoritarEDevolverTrue()
