@@ -89,9 +89,16 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
                     .Average(a => (double?)a.Nota) ?? -1)
                 .ThenBy(p => p.Nome),
 
-            // NomeAZ é o padrão (RF-17); MaisVendidos nunca chega aqui — o
-            // controller saneia para NomeAZ antes de montar o filtro, porque
-            // RN-07 a mantém indisponível até a spec 020.
+            // RF-24 (spec 022): soma as unidades vendidas em pedido não
+            // cancelado (RN-05) — produto sem venda nenhuma some pra 0, não
+            // da consulta, mesma forma que MelhorAvaliados usa desde a 014.
+            OrdenacaoCatalogo.MaisVendidos => consulta
+                .OrderByDescending(p => _context.ItensPedido
+                    .Where(i => i.ProdutoId == p.ProdutoId && i.Pedido!.Status != PedidoStatus.Cancelado)
+                    .Sum(i => (int?)i.Quantidade) ?? 0)
+                .ThenBy(p => p.Nome),
+
+            // NomeAZ é o padrão (RF-17).
             _ => consulta.OrderBy(p => p.Nome),
         };
 }

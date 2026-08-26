@@ -1,0 +1,69 @@
+@using DocesCabana.Application.DTOs
+@model EnderecoDTO
+@{
+    // Reaproveitado fora de Conta (spec 022, plano §6): o passo de endereço
+    // do fechamento posta para CarrinhoController.CadastrarEndereco, não
+    // para ContaController — os dois nomes chegam por ViewData, com o
+    // padrão de Conta (edição por EnderecoId) como default.
+    var eEdicao = Model.EnderecoId != Guid.Empty;
+    var controlador = ViewData["ControladorFormulario"] as string ?? "Conta";
+    var acao = ViewData["AcaoFormulario"] as string ?? (eEdicao ? "EditarEndereco" : "NovoEndereco");
+}
+
+<form asp-controller="@controlador" asp-action="@acao" method="post" class="formulario-endereco" data-formulario-endereco>
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="EnderecoId" />
+
+    @* CEP é o primeiro campo — é ele que preenche os demais (plano §3,
+       RF-16). Sem script, é só mais um campo de texto: RF-19/CA-21 exigem
+       que o cadastro funcione assim mesmo. *@
+    <div class="campo-entrada">
+        <label asp-for="CEP">CEP</label>
+        <input asp-for="CEP" type="text" placeholder="00000-000" class="campo-texto" required data-campo-cep />
+        <span asp-validation-for="CEP" class="mensagem-erro"></span>
+    </div>
+
+    <div class="linha-dupla">
+        <div class="campo-entrada">
+            <label asp-for="Estado">Estado</label>
+            <input asp-for="Estado" type="text" class="campo-texto" required data-preenchido-por-cep />
+            <span asp-validation-for="Estado" class="mensagem-erro"></span>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="Cidade">Cidade</label>
+            <input asp-for="Cidade" type="text" class="campo-texto" required data-preenchido-por-cep />
+            <span asp-validation-for="Cidade" class="mensagem-erro"></span>
+        </div>
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="Bairro">Bairro</label>
+        <input asp-for="Bairro" type="text" class="campo-texto" required data-preenchido-por-cep />
+        <span asp-validation-for="Bairro" class="mensagem-erro"></span>
+    </div>
+
+    <div class="linha-dupla">
+        <div class="campo-entrada">
+            <label asp-for="Rua">Rua</label>
+            <input asp-for="Rua" type="text" class="campo-texto" required data-preenchido-por-cep />
+            <span asp-validation-for="Rua" class="mensagem-erro"></span>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="Numero">Número</label>
+            <input asp-for="Numero" type="number" min="1" class="campo-texto" required />
+            <span asp-validation-for="Numero" class="mensagem-erro"></span>
+        </div>
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="Complemento">Complemento (opcional)</label>
+        <input asp-for="Complemento" type="text" class="campo-texto" />
+        <span asp-validation-for="Complemento" class="mensagem-erro"></span>
+    </div>
+
+    <div class="container-botao">
+        <button type="submit" class="botao-acao">Salvar endereço</button>
+    </div>
+</form>

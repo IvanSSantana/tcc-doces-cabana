@@ -1,6 +1,6 @@
 # Plano Técnico — Fechamento de pedido
 
-**Spec:** [`spec.md`](./spec.md) · **Status:** Rascunho
+**Spec:** [`spec.md`](./spec.md) · **Status:** Executado
 **Criado em:** 2026-08-25
 
 ---

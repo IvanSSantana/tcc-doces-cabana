@@ -505,18 +505,30 @@ public class CarrinhoTests : TesteE2E
         });
 
     [Fact]
-    public async Task Dado_TelaDoCarrinho_Quando_OlharOBotaoDeFinalizar_Entao_DeveEstarDesabilitadoEExplicado() =>
+    public async Task Dado_TelaDoCarrinho_Quando_OlharOBotaoDeFinalizar_Entao_DeveLevarAoFechamento() =>
         await Executar(async () =>
         {
-            // CA-07
+            // CA-07 da spec 021 previa o botão desabilitado, "fechamento
+            // ainda não disponível" — a spec 022 implementou o fechamento,
+            // e o botão agora navega para o primeiro passo dele (RF-01).
+            // Reescrito aqui pela mesma razão que a 019 reescreveu os
+            // testes que a 022 sabia que ia derrubar: correção esperada,
+            // não regressão.
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
             await pagina.SemearItem(UrlBase, produtoId, 1);
             await pagina.Abrir(UrlBase);
 
-            await Expect(pagina.BotaoFinalizar).ToBeDisabledAsync();
-            await Expect(pagina.BotaoFinalizar).ToHaveAttributeAsync("title", "Fechamento de pedido ainda não disponível");
+            await Expect(pagina.BotaoFinalizar).ToBeEnabledAsync();
+            await Expect(pagina.BotaoFinalizar).ToHaveAttributeAsync("href", "/Carrinho?passo=Endereco");
+
+            await pagina.BotaoFinalizar.ClickAsync();
+
+            // Com JavaScript, o clique troca só #itens-carrinho — a URL não
+            // muda (RF-05); o passo ativo no indicador é a prova de que
+            // navegou de verdade.
+            await Expect(Pagina.Locator(".passo-fechamento--ativo")).ToHaveTextAsync("Endereço");
         });
 
     [Fact]

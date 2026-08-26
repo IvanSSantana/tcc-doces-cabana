@@ -1,0 +1,81 @@
+@using DocesCabana.Application.DTOs
+@model PassoDoFechamentoDTO
+
+<div class="passo-endereco-fechamento">
+    <h2 class="titulo-passo-fechamento">Para onde vai?</h2>
+
+    @if (Model.Enderecos.Count > 0)
+    {
+        <ul class="lista-enderecos-fechamento">
+            @foreach (var endereco in Model.Enderecos)
+            {
+                var selecionado = endereco.EnderecoId == Model.EnderecoSelecionadoId;
+                <li class="endereco-fechamento@(selecionado ? " endereco-fechamento--selecionado" : "")">
+                    @* RF-06: navegação de verdade — trocar de endereço é um
+                       GET com o id na querystring, funciona sem script
+                       (RN-04); com script, carrinho.js troca só o bloco. *@
+                    <a asp-action="Index" asp-route-passo="Endereco" asp-route-enderecoId="@endereco.EnderecoId"
+                       data-navegacao-fechamento aria-current="@(selecionado ? "true" : null)">
+                        <span class="linha-endereco-fechamento">@endereco.Rua, @endereco.Numero — @endereco.Bairro, @endereco.Cidade/@endereco.Estado</span>
+                        @if (endereco.Padrao)
+                        {
+                            <span class="rotulo-endereco-padrao">Principal</span>
+                        }
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Você ainda não tem nenhum endereço cadastrado. Cadastre um abaixo para continuar.</p>
+    }
+
+    @* CA-06: sem endereço nenhum, ou querendo mais um, cadastra sem sair
+       do fechamento — reaproveita o mesmo formulário da 018. *@
+    <details class="novo-endereco-fechamento"@(Model.Enderecos.Count == 0 ? " open" : "")>
+        <summary>@(Model.Enderecos.Count == 0 ? "Cadastrar endereço" : "Cadastrar outro endereço")</summary>
+        <partial name="~/Views/Conta/_FormularioEndereco.cshtml" model="new EnderecoDTO()"
+                 view-data="@(new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData) { ["ControladorFormulario"] = "Carrinho", ["AcaoFormulario"] = "CadastrarEndereco" })" />
+    </details>
+
+    @if (Model.EnderecoSelecionadoId is not null)
+    {
+        <h2 class="titulo-passo-fechamento">Como chega?</h2>
+
+        @if (Model.Cotacao is { Opcoes.Count: > 0 })
+        {
+            <ul class="lista-opcoes-frete lista-opcoes-frete-fechamento">
+                @foreach (var opcao in Model.Cotacao.Opcoes)
+                {
+                    var selecionada = opcao.ServicoId == Model.ServicoDeEntregaSelecionadoId;
+                    <li class="opcao-frete@(selecionada ? " opcao-frete--selecionada" : "")">
+                        <a asp-action="Index" asp-route-passo="Endereco" asp-route-enderecoId="@Model.EnderecoSelecionadoId"
+                           asp-route-servicoDeEntregaId="@opcao.ServicoId" data-navegacao-fechamento
+                           aria-current="@(selecionada ? "true" : null)">
+                            <span class="transportadora-opcao-frete">@opcao.Transportadora — @opcao.Servico</span>
+                            <span class="preco-opcao-frete">R$ @opcao.Preco.ToString("N2")</span>
+                            <span class="prazo-opcao-frete">
+                                @(opcao.PrazoMinimoEmDias == opcao.PrazoMaximoEmDias
+                                    ? $"{opcao.PrazoMinimoEmDias} dias úteis"
+                                    : $"{opcao.PrazoMinimoEmDias} a {opcao.PrazoMaximoEmDias} dias úteis")
+                            </span>
+                        </a>
+                    </li>
+                }
+            </ul>
+
+            <div class="acoes-passo-fechamento">
+                <a asp-action="Index" asp-route-passo="Pagamento" asp-route-enderecoId="@Model.EnderecoSelecionadoId"
+                   asp-route-servicoDeEntregaId="@Model.ServicoDeEntregaSelecionadoId"
+                   data-navegacao-fechamento class="botao-acao">Continuar para pagamento</a>
+            </div>
+        }
+        else if (Model.Cotacao is not null)
+        {
+            @* RN-02/CA-19: falha de serviço externo nunca impede usar a
+               tela — só a opção de continuar some. *@
+            <p class="mensagem-falha-frete">@Model.Cotacao.Mensagem</p>
+        }
+    }
+</div>

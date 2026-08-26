@@ -18,10 +18,8 @@ public class ItemPedidoConfiguration : IEntityTypeConfiguration<ItemPedido>
             .IsRequired()
             .HasColumnType("decimal(18,2)");
 
-        builder.HasOne(i => i.Pedido)
-            .WithMany()
-            .HasForeignKey(i => i.PedidoId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // A relação com Pedido é configurada do lado de Pedido
+        // (PedidoConfiguration.HasMany), que é a raiz do agregado.
 
         builder.HasOne(i => i.Produto)
             .WithMany()

@@ -1,0 +1,13 @@
+@* RF-02 (spec 022): quem não está autenticado encontra aqui o caminho para
+   entrar ou criar conta — returnUrl devolve ao carrinho depois (RF-04). *@
+<div class="passo-conta-fechamento">
+    <h2 class="titulo-passo-fechamento">Entre ou crie sua conta</h2>
+    <p>Para continuar a compra, entre na sua conta ou crie uma nova — o que está no carrinho continua aqui.</p>
+
+    <div class="acoes-passo-conta-fechamento">
+        <a asp-area="" asp-controller="Autenticacao" asp-action="Login" asp-route-returnUrl="/Carrinho"
+           class="botao-acao">Entrar</a>
+        <a asp-area="" asp-controller="Autenticacao" asp-action="Cadastro" asp-route-returnUrl="/Carrinho"
+           class="botao-secundario-fechamento">Criar conta</a>
+    </div>
+</div>

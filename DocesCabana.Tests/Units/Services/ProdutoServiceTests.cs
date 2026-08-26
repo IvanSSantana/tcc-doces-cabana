@@ -212,17 +212,19 @@ public class ProdutoServiceTests
 
     // RF-04/RF-05/RF-09 (spec 019): a vitrine da home passa a pedir só o que
     // exibe, reaproveitando a mesma consulta paginada do catálogo com filtro
-    // vazio e ordenação por avaliação — não mais BuscarTodosProdutos.
+    // vazio — não mais BuscarTodosProdutos. A ordenação por avaliação virou
+    // ordenação por venda na spec 022 (RF-24) — reescrito pela mesma razão
+    // que a 019 reescreveu os testes que sabia que a 022 ia derrubar.
     [Fact]
     public async Task Dado_UmLimite_Quando_BuscarDestaquesDaVitrine_Entao_DevePedirAoRepositorioExatamenteEsseLimite()
     {
-        // CA-06
+        // CA-06 da spec 019; RF-24 da 022 (mais vendidos, não mais avaliados)
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(
                 It.Is<FiltroCatalogoDTO>(f =>
                     f.CategoriaId == null &&
                     f.SubcategoriaIds.Count == 0 &&
                     !f.ApenasSemAcucar &&
-                    f.Ordenacao == OrdenacaoCatalogo.MelhorAvaliados &&
+                    f.Ordenacao == OrdenacaoCatalogo.MaisVendidos &&
                     f.TermoNormalizado == null),
                 pagina: 1, tamanhoDaPagina: 8))
             .ReturnsAsync([]);

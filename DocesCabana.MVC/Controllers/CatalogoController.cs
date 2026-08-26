@@ -33,7 +33,7 @@ public class CatalogoController : Controller
             ApelidoDaCategoria: apelido,
             ApelidosDeSubcategoria: subcategorias ?? [],
             ApenasSemAcucar: semAcucar,
-            Ordenacao: SanearOrdenacao(ordenacao),
+            Ordenacao: ordenacao,
             Termo: termo);
 
         var catalogo = await _catalogoService.Montar(criterios, pagina, UsuarioAtualId);
@@ -48,14 +48,6 @@ public class CatalogoController : Controller
 
         return View(catalogo);
     }
-
-    // RN-07: "Mais vendidos" é anunciada, não oferecida — o ligador de
-    // modelo aceita o valor por vir de um enum válido, mas o controller
-    // recusa executar essa ordenação até a spec 020 dar sentido a ela.
-    private static OrdenacaoCatalogo SanearOrdenacao(OrdenacaoCatalogo ordenacao) =>
-        ordenacao == OrdenacaoCatalogo.MaisVendidos
-            ? OrdenacaoCatalogo.MelhorAvaliados
-            : ordenacao;
 
     private Guid? UsuarioAtualId
     {
