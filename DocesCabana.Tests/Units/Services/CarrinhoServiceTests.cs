@@ -504,4 +504,36 @@ public class CarrinhoServiceTests
         _itemCarrinhoRepositoryMock.Verify(r => r.Adicionar(It.IsAny<ItemCarrinho>()), Times.Never);
         _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
     }
+
+    // ── Esvaziar (spec 021) ──────────────────────────────────────────────
+
+    [Fact]
+    public async Task Dado_CarrinhoComItens_Quando_Esvaziar_Entao_DeveRemoverTodosEChamarSalvarAlteracoesUmaVez()
+    {
+        var usuarioId = Guid.NewGuid();
+        var itens = new List<ItemCarrinho>
+        {
+            new(usuarioId, Guid.NewGuid(), 2),
+            new(usuarioId, Guid.NewGuid(), 1),
+        };
+        _itemCarrinhoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId)).ReturnsAsync(itens);
+
+        await _carrinhoService.Esvaziar(usuarioId);
+
+        _itemCarrinhoRepositoryMock.Verify(r => r.Remover(itens[0]), Times.Once);
+        _itemCarrinhoRepositoryMock.Verify(r => r.Remover(itens[1]), Times.Once);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_CarrinhoJaVazio_Quando_Esvaziar_Entao_NaoDeveQuebrarNemChamarSalvarAlteracoes()
+    {
+        var usuarioId = Guid.NewGuid();
+        _itemCarrinhoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId)).ReturnsAsync([]);
+
+        await _carrinhoService.Esvaziar(usuarioId);
+
+        _itemCarrinhoRepositoryMock.Verify(r => r.Remover(It.IsAny<ItemCarrinho>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
+    }
 }

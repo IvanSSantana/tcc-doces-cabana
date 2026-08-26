@@ -467,6 +467,199 @@ public class CarrinhoTests : TesteE2E
             await Expect(pagina.ItemPeloProduto(produtoId).Locator(".valor-quantidade-carrinho")).ToHaveTextAsync("2");
         });
 
+    // ── Redesenho do carrinho (spec 021) ─────────────────────────────────
+
+    [Fact]
+    public async Task Dado_ItemDisponivel_Quando_AbrirOCarrinho_Entao_OCartaoDeveTerImagemNomePrecoQuantidadeESubtotal() =>
+        await Executar(async () =>
+        {
+            // CA-01
+            await CriarClienteEEntrar();
+            var produtoId = await ObterProdutoAtivo();
+            var pagina = new PaginaCarrinho(Pagina);
+            await pagina.SemearItem(UrlBase, produtoId, 2);
+            await pagina.Abrir(UrlBase);
+
+            var item = pagina.ItemPeloProduto(produtoId);
+            await Expect(item.Locator("img")).ToBeVisibleAsync();
+            await Expect(item.Locator(".nome-item-carrinho")).ToBeVisibleAsync();
+            await Expect(pagina.RotuloColunaPreco(produtoId)).ToContainTextAsync("Preço unitário");
+            await Expect(item.Locator(".valor-quantidade-carrinho")).ToHaveTextAsync("2");
+            await Expect(pagina.RotuloColunaSubtotal(produtoId)).ToContainTextAsync("Subtotal");
+        });
+
+    [Fact]
+    public async Task Dado_TelaDoCarrinho_Quando_OlharOCupom_Entao_DeveEstarDesabilitadoEExplicado() =>
+        await Executar(async () =>
+        {
+            // CA-06
+            await CriarClienteEEntrar();
+            var produtoId = await ObterProdutoAtivo();
+            var pagina = new PaginaCarrinho(Pagina);
+            await pagina.SemearItem(UrlBase, produtoId, 1);
+            await pagina.Abrir(UrlBase);
+
+            await Expect(pagina.CampoCupom).ToBeDisabledAsync();
+            await Expect(pagina.BotaoAplicarCupom).ToBeDisabledAsync();
+            await Expect(Pagina.Locator(".explicacao-cupom-carrinho")).ToContainTextAsync("ainda não está disponível");
+        });
+
+    [Fact]
+    public async Task Dado_TelaDoCarrinho_Quando_OlharOBotaoDeFinalizar_Entao_DeveEstarDesabilitadoEExplicado() =>
+        await Executar(async () =>
+        {
+            // CA-07
+            await CriarClienteEEntrar();
+            var produtoId = await ObterProdutoAtivo();
+            var pagina = new PaginaCarrinho(Pagina);
+            await pagina.SemearItem(UrlBase, produtoId, 1);
+            await pagina.Abrir(UrlBase);
+
+            await Expect(pagina.BotaoFinalizar).ToBeDisabledAsync();
+            await Expect(pagina.BotaoFinalizar).ToHaveAttributeAsync("title", "Fechamento de pedido ainda não disponível");
+        });
+
+    [Fact]
+    public async Task Dado_NenhumaEntregaCalculada_Quando_OlharOResumo_Entao_ODestaqueDeveSerSubtotal() =>
+        await Executar(async () =>
+        {
+            // CA-04
+            await CriarClienteEEntrar();
+            var produtoId = await ObterProdutoAtivo();
+            var pagina = new PaginaCarrinho(Pagina);
+            await pagina.SemearItem(UrlBase, produtoId, 1);
+            await pagina.Abrir(UrlBase);
+
+            await Expect(pagina.Subtotal).ToContainTextAsync("Subtotal");
+            await Expect(Pagina.Locator(".linha-frete-carrinho")).ToContainTextAsync("Calcule o frete");
+        });
+
+    [Fact]
+    public async Task Dado_ItemNoCarrinho_Quando_PedirParaEsvaziar_Entao_DevePerguntarAntesDeRemoverNada() =>
+        await Executar(async () =>
+        {
+            // CA-08
+            await CriarClienteEEntrar();
+            var produtoId = await ObterProdutoAtivo();
+            var pagina = new PaginaCarrinho(Pagina);
+            await pagina.SemearItem(UrlBase, produtoId, 1);
+            await pagina.Abrir(UrlBase);
+
+            await pagina.LinkEsvaziar.ClickAsync();
+
+            await Expect(pagina.DialogoEsvaziar).ToBeVisibleAsync();
+            await Expect(pagina.ItemPeloProduto(produtoId)).ToBeVisibleAsync();
+        });
+
+    [Fact]
+    public async Task Dado_PerguntaDeEsvaziarAberta_Quando_Confirmar_Entao_DeveRemoverTudoEOferecerOCatalogo() =>
+        await Executar(async () =>
+        {
+            // CA-09
+            await CriarClienteEEntrar();
+            var produtoId = await ObterProdutoAtivo();
+            var pagina = new PaginaCarrinho(Pagina);
+            await pagina.SemearItem(UrlBase, produtoId, 1);
+            await pagina.Abrir(UrlBase);
+
+            await pagina.LinkEsvaziar.ClickAsync();
+            await pagina.BotaoConfirmarEsvaziarNoDialogo.ClickAsync();
+
+            await Expect(pagina.MensagemVazia).ToBeVisibleAsync();
+            await Expect(pagina.MensagemVazia.GetByRole(Microsoft.Playwright.AriaRole.Link)).ToBeVisibleAsync();
+        });
+
+    [Fact]
+    public async Task Dado_PerguntaDeEsvaziarAberta_Quando_Desistir_Entao_NadaDeveSerRemovido() =>
+        await Executar(async () =>
+        {
+            // CA-10
+            await CriarClienteEEntrar();
+            var produtoId = await ObterProdutoAtivo();
+            var pagina = new PaginaCarrinho(Pagina);
+            await pagina.SemearItem(UrlBase, produtoId, 1);
+            await pagina.Abrir(UrlBase);
+
+            await pagina.LinkEsvaziar.ClickAsync();
+            await pagina.BotaoCancelarEsvaziarNoDialogo.ClickAsync();
+
+            await Expect(pagina.DialogoEsvaziar).Not.ToBeVisibleAsync();
+            await Expect(pagina.ItemPeloProduto(produtoId)).ToBeVisibleAsync();
+        });
+
+    [Fact]
+    public async Task Dado_ItemNoCarrinho_Quando_VoltarAoCatalogoEAoCarrinho_Entao_OItemDevePermanecer() =>
+        await Executar(async () =>
+        {
+            // CA-11
+            await CriarClienteEEntrar();
+            var produtoId = await ObterProdutoAtivo();
+            var pagina = new PaginaCarrinho(Pagina);
+            await pagina.SemearItem(UrlBase, produtoId, 1);
+            await pagina.Abrir(UrlBase);
+
+            await pagina.LinkContinuarComprando.ClickAsync();
+            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Catalogo");
+
+            await pagina.Abrir(UrlBase);
+            await Expect(pagina.ItemPeloProduto(produtoId)).ToBeVisibleAsync();
+        });
+
+    [Fact]
+    public async Task Dado_JavaScriptDesligado_Quando_Esvaziar_Entao_DevePerguntarPorPaginaPropriaEFuncionar() =>
+        await Executar(async () =>
+        {
+            // CA-12 (a parte que T022 acrescenta a T003 já não cobre: o
+            // esvaziar em si). Mesmo cliente do seed que os demais testes
+            // sem script usam, pelo mesmo motivo (cadastro depende de
+            // máscara em JavaScript).
+            await using var contextoSemScript = await Navegador.NewContextAsync(new() { JavaScriptEnabled = false });
+            var paginaSemScript = await contextoSemScript.NewPageAsync();
+
+            var paginaLogin = new PaginaLogin(paginaSemScript);
+            await paginaLogin.Abrir(UrlBase);
+            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailClienteSeed, AplicacaoEmExecucao.SenhaClienteSeed);
+
+            var pagina = new PaginaCarrinho(paginaSemScript);
+            var produtoId = await ObterProdutoAtivo();
+            await pagina.SemearItem(UrlBase, produtoId, 1);
+            await pagina.Abrir(UrlBase);
+
+            // Sem script, o link navega para a página própria da RN-04 —
+            // não abre diálogo nenhum, porque <dialog>.showModal() nunca é
+            // chamado.
+            await pagina.LinkEsvaziar.ClickAsync();
+            await Expect(paginaSemScript).ToHaveURLAsync($"{UrlBase}/Carrinho/ConfirmarEsvaziar");
+
+            var paginaConfirmar = new PaginaConfirmarEsvaziarCarrinho(paginaSemScript);
+            await paginaConfirmar.BotaoConfirmar.ClickAsync();
+
+            await Expect(paginaSemScript).ToHaveURLAsync($"{UrlBase}/Carrinho");
+            await Expect(pagina.MensagemVazia).ToBeVisibleAsync();
+        });
+
+    [Fact]
+    public async Task Dado_TelaDe375px_Quando_AbrirOCarrinho_Entao_OResumoDeveEmpilharSemRolagemHorizontal() =>
+        await Executar(async () =>
+        {
+            // CA-13
+            await CriarClienteEEntrar();
+            var produtoId = await ObterProdutoAtivo();
+            var pagina = new PaginaCarrinho(Pagina);
+            await pagina.SemearItem(UrlBase, produtoId, 1);
+
+            await Pagina.SetViewportSizeAsync(375, 800);
+            await pagina.Abrir(UrlBase);
+
+            // Mede o conteúdo, não o documento — o cabeçalho compartilhado já
+            // estoura a 375px por conta própria desde a 009 (fora de escopo,
+            // mesmo critério que a 013 e a 020 já registraram).
+            var larguraDoConteudo = await Pagina.Locator(".pagina-carrinho").EvaluateAsync<double>("el => el.scrollWidth");
+            var larguraDaTela = await Pagina.EvaluateAsync<double>("() => window.innerWidth");
+
+            Assert.True(larguraDoConteudo <= larguraDaTela + 1);
+        });
+
     private async Task Sair() =>
         await Pagina.Locator("header").GetByRole(Microsoft.Playwright.AriaRole.Button, new() { Name = "Sair" }).ClickAsync();
 }

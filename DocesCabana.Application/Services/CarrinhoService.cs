@@ -81,6 +81,21 @@ public class CarrinhoService : ICarrinhoService
     public async Task<int> ContarItens(Guid usuarioId) =>
         await _itemCarrinhoRepository.ContarItens(usuarioId);
 
+    // RF-10 (spec 021): laço sobre BuscarPorUsuario, não ExecuteDeleteAsync —
+    // esse contornaria o ChangeTracker e gravaria fora do IUnitOfWork, contra
+    // o Princípio VI. Carrinho vazio não chama SalvarAlteracoes à toa.
+    public async Task Esvaziar(Guid usuarioId)
+    {
+        var itens = await _itemCarrinhoRepository.BuscarPorUsuario(usuarioId);
+        if (itens.Count == 0)
+            return;
+
+        foreach (var item in itens)
+            _itemCarrinhoRepository.Remover(item);
+
+        await _unitOfWork.SalvarAlteracoes();
+    }
+
     // ── Carrinho avulso (Fase 6) — mesmas regras da versão persistida
     // (RN-01/RN-02/RN-06), aplicadas sobre uma lista em vez do banco. Quem
     // guarda a lista (a sessão) não sabe nada disso — só lê e escreve JSON

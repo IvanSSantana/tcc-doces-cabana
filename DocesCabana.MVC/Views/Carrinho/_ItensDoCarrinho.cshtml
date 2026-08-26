@@ -7,7 +7,14 @@
    vivem juntos aqui, porque alterar quantidade muda os três ao mesmo tempo.
    data-total-itens é o que carrinho.js lê para atualizar a bolha do
    cabeçalho, esteja esta resposta vindo da própria tela do carrinho ou de
-   um "acrescentar" disparado de outra página (spec 017, plano §4). *@
+   um "acrescentar" disparado de outra página (spec 017, plano §4).
+
+   O redesenho da spec 021 muda a aparência, não a raiz: #itens-carrinho
+   continua sendo o único container que a troca sem recarga substitui — as
+   duas colunas do protótipo saem de CSS (display: grid) sobre a mesma
+   .grade-carrinho de sempre. Separar o resumo num container irmão faria a
+   troca deixar de ser atômica (itens novos com subtotal velho por um
+   instante). Ver plano §1. *@
 <div id="itens-carrinho" data-total-itens="@Model.TotalDeItens" tabindex="-1">
     @if (Model.Linhas.Count == 0)
     {
@@ -19,66 +26,129 @@
     else
     {
         <div class="grade-carrinho">
-            <ul class="lista-itens-carrinho">
-                @foreach (var linha in Model.Linhas)
-                {
-                    <li class="item-carrinho @(linha.Disponivel ? "" : "item-carrinho--indisponivel")" data-produto-id="@linha.ProdutoId">
-                        <img src="@linha.ImagemUrl" alt="@linha.Nome" class="imagem-item-carrinho" />
+            <div class="coluna-itens-carrinho">
+                <ul class="lista-itens-carrinho">
+                    @foreach (var linha in Model.Linhas)
+                    {
+                        <li class="item-carrinho @(linha.Disponivel ? "" : "item-carrinho--indisponivel")" data-produto-id="@linha.ProdutoId">
+                            <img src="@linha.ImagemUrl" alt="@linha.Nome" class="imagem-item-carrinho" />
 
-                        <div class="detalhes-item-carrinho">
-                            <span class="nome-item-carrinho">@linha.Nome</span>
+                            <div class="detalhes-item-carrinho">
+                                <span class="nome-item-carrinho">@linha.Nome</span>
 
-                            @if (linha.Disponivel)
-                            {
-                                <span class="preco-item-carrinho">R$ @linha.PrecoUnitario.ToString("N2")</span>
+                                @if (linha.Disponivel)
+                                {
+                                    @* Os rótulos de coluna se repetem em cada cartão, não uma
+                                       vez como cabeçalho de tabela (spec 021, plano §3) — é o
+                                       que faz o cartão se sustentar sozinho ao empilhar em
+                                       tela estreita. *@
+                                    <div class="colunas-item-carrinho">
+                                        <div class="coluna-item-carrinho">
+                                            <span class="rotulo-coluna-carrinho">Preço unitário (R$)</span>
+                                            <span class="preco-item-carrinho">R$ @linha.PrecoUnitario.ToString("N2")</span>
+                                        </div>
 
-                                @* Cada botão já carrega o valor final como
-                                   name/value — funciona sem JavaScript
-                                   (RF-18): o servidor recebe a quantidade
-                                   pronta, não precisa somar nada. *@
-                                <form method="post" asp-action="AlterarQuantidade" class="formulario-quantidade-carrinho">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="produtoId" value="@linha.ProdutoId" />
-                                    <button type="submit" name="quantidade" value="@(linha.Quantidade - 1)"
-                                            class="botao-quantidade-carrinho menos" aria-label="Diminuir quantidade">&minus;</button>
-                                    <span class="valor-quantidade-carrinho">@linha.Quantidade</span>
-                                    <button type="submit" name="quantidade" value="@(linha.Quantidade + 1)"
-                                            class="botao-quantidade-carrinho mais" aria-label="Aumentar quantidade">+</button>
-                                </form>
+                                        <div class="coluna-item-carrinho">
+                                            <span class="rotulo-coluna-carrinho">Quantidade</span>
 
-                                <span class="valor-linha-carrinho">R$ @linha.ValorDaLinha.ToString("N2")</span>
-                            }
-                            else
-                            {
-                                @* RF-16/RN-06: a mensagem distingue o motivo — só ela muda. *@
-                                <span class="motivo-indisponivel-carrinho">
-                                    @(linha.MotivoIndisponibilidade == MotivoIndisponibilidade.ForaDeEstoque
-                                        ? "Fora de estoque — não entra no total"
-                                        : "Saiu do catálogo — não entra no total")
-                                </span>
-                            }
-                        </div>
+                                            @* Cada botão já carrega o valor final como
+                                               name/value — funciona sem JavaScript
+                                               (RF-18 da 017): o servidor recebe a quantidade
+                                               pronta, não precisa somar nada. *@
+                                            <form method="post" asp-action="AlterarQuantidade" class="formulario-quantidade-carrinho">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="produtoId" value="@linha.ProdutoId" />
+                                                <button type="submit" name="quantidade" value="@(linha.Quantidade - 1)"
+                                                        class="botao-quantidade-carrinho menos" aria-label="Diminuir quantidade">&minus;</button>
+                                                <span class="valor-quantidade-carrinho">@linha.Quantidade</span>
+                                                <button type="submit" name="quantidade" value="@(linha.Quantidade + 1)"
+                                                        class="botao-quantidade-carrinho mais" aria-label="Aumentar quantidade">+</button>
+                                            </form>
+                                        </div>
 
-                        <form method="post" asp-action="Remover" class="formulario-remover-carrinho">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="produtoId" value="@linha.ProdutoId" />
-                            <button type="submit" class="botao-remover-carrinho" aria-label="Remover @linha.Nome">&times;</button>
-                        </form>
-                    </li>
-                }
-            </ul>
+                                        <div class="coluna-item-carrinho">
+                                            <span class="rotulo-coluna-carrinho">Subtotal (R$)</span>
+                                            <span class="valor-linha-carrinho">R$ @linha.ValorDaLinha.ToString("N2")</span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    @* RF-16/RN-06 (spec 017): a mensagem distingue o motivo — só ela muda. *@
+                                    <span class="motivo-indisponivel-carrinho">
+                                        @(linha.MotivoIndisponibilidade == MotivoIndisponibilidade.ForaDeEstoque
+                                            ? "Fora de estoque — não entra no total"
+                                            : "Saiu do catálogo — não entra no total")
+                                    </span>
+                                }
+                            </div>
+
+                            <form method="post" asp-action="Remover" class="formulario-remover-carrinho">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="produtoId" value="@linha.ProdutoId" />
+                                <button type="submit" class="botao-remover-carrinho" aria-label="Remover @linha.Nome">&times;</button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+
+                <div class="acoes-lista-carrinho">
+                    @* RF-10/RF-11 (spec 021): navegação de verdade por padrão — a
+                       pergunta existe como página própria porque um <dialog>
+                       sozinho não abre sem script (RN-04). Com script,
+                       carrinho.js intercepta este link e mostra a mesma
+                       pergunta no diálogo abaixo, sem sair da tela. *@
+                    <a asp-action="ConfirmarEsvaziar" class="botao-esvaziar-lista-carrinho" data-abrir-confirmacao-esvaziar>
+                        Esvaziar carrinho
+                    </a>
+
+                    <a asp-area="" asp-controller="Catalogo" asp-action="Index" class="botao-continuar-comprando">
+                        Continuar comprando →
+                    </a>
+                </div>
+            </div>
 
             <aside class="resumo-carrinho">
-                <h2 class="titulo-resumo-carrinho">Resumo</h2>
+                <h2 class="titulo-resumo-carrinho">Resumo do pedido</h2>
+
+                @* RF-08 (spec 021): visível e desabilitado, não funcional —
+                   RN-01 (herdada da 017/019): um controle entrega o que
+                   anuncia; um campo cinza que explica por que está cinza não
+                   mente, um campo que aceita texto e não faz nada, sim. *@
+                <div class="campo-cupom-carrinho">
+                    <label for="cupom-carrinho">Cupom de desconto</label>
+                    <div class="entrada-cupom-carrinho">
+                        <input type="text" id="cupom-carrinho" disabled placeholder="Em breve" />
+                        <button type="button" disabled>Aplicar</button>
+                    </div>
+                    <span class="explicacao-cupom-carrinho">Cupom de desconto ainda não está disponível.</span>
+                </div>
 
                 <p class="total-itens-carrinho">@Model.TotalDeItens ite@(Model.TotalDeItens == 1 ? "m" : "ns")</p>
 
-                <p class="subtotal-carrinho">
-                    Subtotal <strong>R$ @Model.Subtotal.ToString("N2")</strong>
-                </p>
+                @* RF-05/RF-06/RF-07/RN-02 (spec 021): o rótulo diz a verdade
+                   nos dois estados — sem entrega calculada, o valor é
+                   subtotal; com ela, passa a incluir a entrega e vira "total
+                   a pagar" (a mais barata, entre opções — RN-06). *@
+                @if (Model.TemEntregaCalculada)
+                {
+                    <p class="linha-frete-carrinho">
+                        Frete <strong>R$ @Model.Cotacao!.Opcoes.Min(o => o.Preco).ToString("N2")</strong>
+                    </p>
+                    <p class="subtotal-carrinho">
+                        Total a pagar <strong>R$ @Model.ValorTotal.ToString("N2")</strong>
+                    </p>
+                }
+                else
+                {
+                    <p class="linha-frete-carrinho">Calcule o frete no carrinho para ver o total.</p>
+                    <p class="subtotal-carrinho">
+                        Subtotal <strong>R$ @Model.Subtotal.ToString("N2")</strong>
+                    </p>
+                }
 
-                @* RN-08/RF-20: o caminho existe, sinalizado — o fechamento é
-                   a 019. *@
+                @* RN-01 herdada (017): o caminho existe, sinalizado — o
+                   fechamento é a spec 022. *@
                 <button type="button" class="botao-finalizar-carrinho" disabled
                         title="Fechamento de pedido ainda não disponível"
                         aria-label="Finalizar compra — ainda não disponível">
@@ -86,5 +156,21 @@
                 </button>
             </aside>
         </div>
+
+        @* RF-11 (spec 021): o diálogo que o script abre no lugar de navegar
+           para /Carrinho/ConfirmarEsvaziar. O <form> aqui dentro recebe o
+           mesmo tratamento assíncrono dos demais formulários do carrinho —
+           carrinho.js intercepta pela classe, não por estar dentro do
+           diálogo. *@
+        <dialog id="dialogo-esvaziar-carrinho" class="dialogo-esvaziar-carrinho">
+            <form method="post" asp-action="Esvaziar" class="formulario-esvaziar-carrinho">
+                @Html.AntiForgeryToken()
+                <p>Esvaziar o carrinho? Todos os itens serão removidos.</p>
+                <div class="acoes-dialogo-esvaziar-carrinho">
+                    <button type="submit" class="botao-confirmar-esvaziar-carrinho">Sim, esvaziar</button>
+                    <button type="button" class="botao-cancelar-esvaziar-carrinho" data-fechar-dialogo-esvaziar>Cancelar</button>
+                </div>
+            </form>
+        </dialog>
     }
 </div>

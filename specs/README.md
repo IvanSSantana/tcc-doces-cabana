@@ -30,11 +30,13 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | spec · [plan](./018-conta-e-enderecos/plan.md) · [tasks](./018-conta-e-enderecos/tasks.md) · [checklist](./018-conta-e-enderecos/checklist.md) |
 | [019](./019-correcoes-e-pendencias/spec.md) | Correções e pendências | Implementada | spec · [plan](./019-correcoes-e-pendencias/plan.md) · [tasks](./019-correcoes-e-pendencias/tasks.md) · [checklist](./019-correcoes-e-pendencias/checklist.md) |
 | [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Especificada | spec · [plan](./020-dimensoes-e-frete/plan.md) · [tasks](./020-dimensoes-e-frete/tasks.md) |
-| [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Especificada | spec · [plan](./021-redesenho-do-carrinho/plan.md) · [tasks](./021-redesenho-do-carrinho/tasks.md) |
+| [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Implementada | spec · [plan](./021-redesenho-do-carrinho/plan.md) · [tasks](./021-redesenho-do-carrinho/tasks.md) · [checklist](./021-redesenho-do-carrinho/checklist.md) |
 | [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Especificada | spec · [plan](./022-fechamento-de-pedido/plan.md) · [tasks](./022-fechamento-de-pedido/tasks.md) |
 | [023](./023-meus-pedidos/spec.md) | Meus pedidos | Especificada | spec · [plan](./023-meus-pedidos/plan.md) · [tasks](./023-meus-pedidos/tasks.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021`.
+> A `021` foi executada antes da `020` de propósito — ver o parágrafo dela
+> abaixo e a nota de ordem de execução no plano das duas specs.
 > A `001` originalmente esperava a `004`/`005` para resolver papéis, mas a
 > pendência foi resolvida com o mínimo viável embutido nela própria (papel
 > `Administrador` + admin semeado) — ver a nota de atualização na spec `001`.
@@ -181,6 +183,21 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 > `Header.cs` tinha ficado desatualizada desde a `017`, ainda descrevendo o
 > parâmetro morto `itensCarrinho` que a própria `017` já tinha substituído por
 > contagem própria — só a documentação mudou, o componente já estava certo.
+>
+> A `021` deu à tela do carrinho o desenho que o protótipo do fechamento já
+> previa — itens em cartão com colunas rotuladas, resumo em coluna própria,
+> cupom desabilitado e explicado, e duas ações que faltavam: esvaziar o
+> carrinho inteiro (com confirmação, por página própria sem script e por
+> `<dialog>` inline com ele) e voltar ao catálogo. Os 19 testes E2E herdados da
+> `017` não precisaram de nenhuma edição — só o objeto de página mudou, prova
+> de que a fronteira de teste estava no lugar certo. Executada **antes** da
+> parte de cotação da `020` de propósito: reconstrói o mesmo resumo lateral
+> onde a caixa de CEP vai morar, e fazer ao contrário significaria construí-la
+> duas vezes. Uma lacuna que nenhuma das duas specs tinha decidido — qual preço
+> compõe o total, havendo mais de uma opção de frete — foi resolvida com o
+> responsável ao implementar, não improvisada: a mais barata, registrada como
+> `RN-06` nova. `OpcaoDeFreteDTO`/`CotacaoDeFreteDTO`, que a `020` também
+> previa criar, nasceram aqui por ter chegado primeiro.
 
 ## A cadeia da loja (011 → 026)
 
@@ -198,7 +215,7 @@ entregas; hoje são doze. A ordem abaixo é de dependência, não de preferênci
 | [017](./017-carrinho/spec.md) | Carrinho | Implementada | os dois controles do card que sobraram, desabilitados pela `012` |
 | [018](./018-conta-e-enderecos/spec.md) | Conta e endereços | Implementada | o `EnderecoEntregaId` que `Pedido` exige no construtor |
 | [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Especificada | peso e medidas do produto, e o custo de entrega que o pedido precisa |
-| [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Especificada | a tela onde os passos do fechamento vão morar |
+| [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Implementada | a tela onde os passos do fechamento vão morar |
 | [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Especificada | `Pedido`, `ItemPedido` e `Pagamento` ganham comportamento; "mais vendidos" passa a ter sentido |
 | [023](./023-meus-pedidos/spec.md) | Meus pedidos | Especificada | o atalho que a `018` deixou reservado na área de conta |
 | 024 | Pagamento com processadora | não especificada | cobrança real, e a situação do pedido deixa de ser sempre "pendente" |

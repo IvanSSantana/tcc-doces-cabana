@@ -83,10 +83,40 @@
 
     if (
       formulario.classList.contains("formulario-quantidade-carrinho") ||
-      formulario.classList.contains("formulario-remover-carrinho")
+      formulario.classList.contains("formulario-remover-carrinho") ||
+      formulario.classList.contains("formulario-esvaziar-carrinho")
     ) {
       evento.preventDefault();
       enviar(formulario, new FormData(formulario, botao));
+
+      // O diálogo (spec 021) não tem por que continuar aberto enquanto a
+      // resposta chega — falha de rede não é crítica o bastante para travar
+      // a tela (mesmo critério do enviar() acima); o carrinho simplesmente
+      // não muda, e a pessoa tenta de novo pelo link.
+      var dialogoDoFormulario = formulario.closest("dialog");
+      if (dialogoDoFormulario) dialogoDoFormulario.close();
+    }
+  });
+
+  // Diálogo de confirmação para esvaziar (spec 021, RF-11). Sem JavaScript,
+  // o link de "Esvaziar carrinho" navega para /Carrinho/ConfirmarEsvaziar —
+  // uma página própria com a mesma pergunta (RN-04). Com script, o mesmo
+  // link abre este diálogo inline, e a navegação nunca acontece.
+  document.addEventListener("click", function (evento) {
+    var abrirConfirmacao = evento.target.closest("[data-abrir-confirmacao-esvaziar]");
+    if (abrirConfirmacao) {
+      var dialogo = document.querySelector("#dialogo-esvaziar-carrinho");
+      if (dialogo && typeof dialogo.showModal === "function") {
+        evento.preventDefault();
+        dialogo.showModal();
+      }
+      return;
+    }
+
+    var fecharDialogo = evento.target.closest("[data-fechar-dialogo-esvaziar]");
+    if (fecharDialogo) {
+      var dialogoAberto = evento.target.closest("dialog");
+      if (dialogoAberto) dialogoAberto.close();
     }
   });
 
