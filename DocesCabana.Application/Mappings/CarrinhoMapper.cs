@@ -26,7 +26,11 @@ public static class CarrinhoMapper
             PrecoUnitario = par.Produto.Preco,
             Quantidade = par.Quantidade,
             ValorDaLinha = par.Produto.Preco * par.Quantidade,
-            MotivoIndisponibilidade = ResolverMotivo(par.Produto.Status)
+            MotivoIndisponibilidade = ResolverMotivo(par.Produto.Status),
+            Peso = par.Produto.Peso,
+            Altura = par.Produto.Altura,
+            Largura = par.Produto.Largura,
+            Comprimento = par.Produto.Comprimento
         }).ToList();
 
         return new CarrinhoDTO

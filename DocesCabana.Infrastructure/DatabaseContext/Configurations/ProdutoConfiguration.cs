@@ -47,6 +47,25 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             .IsRequired()
             .HasDefaultValue(false);
 
+        // Peso e dimensões (spec 020, RF-01/RN-01) — decimal(10,3): três
+        // casas bastam para grama e milímetro, e sobra faixa para qualquer
+        // produto físico da loja.
+        builder.Property(p => p.Peso)
+            .IsRequired()
+            .HasColumnType("decimal(10,3)");
+
+        builder.Property(p => p.Altura)
+            .IsRequired()
+            .HasColumnType("decimal(10,3)");
+
+        builder.Property(p => p.Largura)
+            .IsRequired()
+            .HasColumnType("decimal(10,3)");
+
+        builder.Property(p => p.Comprimento)
+            .IsRequired()
+            .HasColumnType("decimal(10,3)");
+
 
         builder.Property(p => p.SubcategoriaId)
             .IsRequired();

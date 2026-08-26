@@ -33,8 +33,8 @@ public class ProdutoServiceTests
     {
         var produtos = new List<Produto>
         {
-            new Produto(Guid.NewGuid(), "Bolo de Chocolate", 15.00m, "https://imagem.com/bolo.jpg"),
-            new Produto(Guid.NewGuid(), "Doce de Leite", 8.50m, "https://imagem.com/doce.jpg")
+            new Produto(Guid.NewGuid(), "Bolo de Chocolate", 15.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m),
+            new Produto(Guid.NewGuid(), "Doce de Leite", 8.50m, "https://imagem.com/doce.jpg", 0.5m, 10m, 15m, 20m)
         };
 
         _produtoRepositoryMock.Setup(r => r.BuscarTodos())
@@ -56,9 +56,9 @@ public class ProdutoServiceTests
         // inativo na página do produto). RF-25/RN-01 corrigem aqui.
         var produtos = new List<Produto>
         {
-            new Produto(Guid.NewGuid(), "Bolo Ativo", 15.00m, "https://imagem.com/bolo.jpg", ProdutoStatus.Ativo),
-            new Produto(Guid.NewGuid(), "Doce Inativo", 8.50m, "https://imagem.com/doce.jpg", ProdutoStatus.Inativo),
-            new Produto(Guid.NewGuid(), "Bala Fora de Estoque", 5.00m, "https://imagem.com/bala.jpg", ProdutoStatus.ForaDeEstoque),
+            new Produto(Guid.NewGuid(), "Bolo Ativo", 15.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m, ProdutoStatus.Ativo),
+            new Produto(Guid.NewGuid(), "Doce Inativo", 8.50m, "https://imagem.com/doce.jpg", 0.5m, 10m, 15m, 20m, ProdutoStatus.Inativo),
+            new Produto(Guid.NewGuid(), "Bala Fora de Estoque", 5.00m, "https://imagem.com/bala.jpg", 0.5m, 10m, 15m, 20m, ProdutoStatus.ForaDeEstoque),
         };
 
         _produtoRepositoryMock.Setup(r => r.BuscarTodos())
@@ -86,7 +86,7 @@ public class ProdutoServiceTests
     public async Task Dado_IdExistente_Quando_BuscarProdutoPorId_Entao_DeveRetornarProdutoDto()
     {
         var idEsperado = Guid.NewGuid();
-        var produto = new Produto(Guid.NewGuid(), "Bolo de Chocolate", 15.00m, "https://imagem.com/bolo.jpg", id: idEsperado);
+        var produto = new Produto(Guid.NewGuid(), "Bolo de Chocolate", 15.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m, id: idEsperado);
 
         _produtoRepositoryMock.Setup(r => r.BuscarPorId(idEsperado))
             .ReturnsAsync(produto);
@@ -107,7 +107,11 @@ public class ProdutoServiceTests
             Preco = 5.50m,
             Status = ProdutoStatus.Ativo,
             ImagemUrl = "https://imagem.com/brigadeiro.jpg",
-            SubcategoriaId = Guid.NewGuid()
+            SubcategoriaId = Guid.NewGuid(),
+            Peso = 0.5m,
+            Altura = 10m,
+            Largura = 15m,
+            Comprimento = 20m
         };
 
         var resultado = await _produtoService.Cadastrar(dto);
@@ -125,7 +129,11 @@ public class ProdutoServiceTests
             Preco = 5.50m,
             Status = ProdutoStatus.Ativo,
             ImagemUrl = "https://imagem.com/brigadeiro.jpg",
-            SubcategoriaId = Guid.NewGuid()
+            SubcategoriaId = Guid.NewGuid(),
+            Peso = 0.5m,
+            Altura = 10m,
+            Largura = 15m,
+            Comprimento = 20m
         };
 
         await _produtoService.Cadastrar(dto);
@@ -142,7 +150,11 @@ public class ProdutoServiceTests
             Preco = 27.00m,
             Status = ProdutoStatus.Inativo,
             ImagemUrl = "https://imagem.com/pe-de-moca.jpg",
-            SubcategoriaId = Guid.NewGuid()
+            SubcategoriaId = Guid.NewGuid(),
+            Peso = 0.5m,
+            Altura = 10m,
+            Largura = 15m,
+            Comprimento = 20m
         };
 
         var resultado = await _produtoService.Cadastrar(dto);
@@ -157,7 +169,7 @@ public class ProdutoServiceTests
         // CA-01
         var produtoId = Guid.NewGuid();
         var produto = new Produto(Guid.NewGuid(), "Pé de Moleque Doce de Matar", 29.99m,
-            "https://imagem.com/pe-de-moleque.jpg", id: produtoId, descricao: "Feito com amendoim torrado na hora.");
+            "https://imagem.com/pe-de-moleque.jpg", 0.5m, 10m, 15m, 20m, id: produtoId, descricao: "Feito com amendoim torrado na hora.");
 
         _produtoRepositoryMock.Setup(r => r.BuscarDetalhePorId(produtoId)).ReturnsAsync(produto);
         _avaliacaoServiceMock.Setup(s => s.ResumirPorProduto(produtoId))
@@ -190,7 +202,7 @@ public class ProdutoServiceTests
         // CA-05, RN-12: produto inativo não é visível ao cliente por nenhum caminho.
         var produtoId = Guid.NewGuid();
         var produto = new Produto(Guid.NewGuid(), "Bolo de Teste", 10.00m,
-            "https://imagem.com/bolo.jpg", ProdutoStatus.Inativo, produtoId);
+            "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m, ProdutoStatus.Inativo, produtoId);
 
         _produtoRepositoryMock.Setup(r => r.BuscarDetalhePorId(produtoId)).ReturnsAsync(produto);
 
@@ -239,8 +251,8 @@ public class ProdutoServiceTests
     {
         // CA-11
         var usuarioId = Guid.NewGuid();
-        var produtoFavoritado = new Produto(Guid.NewGuid(), "Bolo Favorito", 15.00m, "https://imagem.com/bolo.jpg");
-        var produtoNaoFavoritado = new Produto(Guid.NewGuid(), "Doce Comum", 8.50m, "https://imagem.com/doce.jpg");
+        var produtoFavoritado = new Produto(Guid.NewGuid(), "Bolo Favorito", 15.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m);
+        var produtoNaoFavoritado = new Produto(Guid.NewGuid(), "Doce Comum", 8.50m, "https://imagem.com/doce.jpg", 0.5m, 10m, 15m, 20m);
 
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), 1, 8))
             .ReturnsAsync([produtoFavoritado, produtoNaoFavoritado]);

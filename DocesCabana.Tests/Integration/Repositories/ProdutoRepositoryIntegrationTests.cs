@@ -64,5 +64,5 @@ public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     }
 
     private static Produto CriarProduto(Guid subcategoriaId) =>
-        new(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg");
+        new(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
 }

@@ -13,7 +13,7 @@ public class DatabaseIntegrationTests : InfraestruturaSqliteEmMemoria
     {
         var repositorio = new Repository<Produto>(Contexto);
         var subcategoriaId = Guid.NewGuid();
-        var produto = new Produto(subcategoriaId, "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg");
+        var produto = new Produto(subcategoriaId, "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m);
 
         await repositorio.Adicionar(produto);
 
@@ -27,7 +27,7 @@ public class DatabaseIntegrationTests : InfraestruturaSqliteEmMemoria
         var repositorio = new Repository<Produto>(Contexto);
         var uow = new UnitOfWork(Contexto);
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg");
+        var produto = new Produto(subcategoriaId, "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m);
 
         await repositorio.Adicionar(produto);
         var salvos = await uow.SalvarAlteracoes();
@@ -43,7 +43,7 @@ public class DatabaseIntegrationTests : InfraestruturaSqliteEmMemoria
     {
         var uow = new UnitOfWork(Contexto);
         var subcategoriaId = await SemearSubcategoria();
-        var produtoValido = new Produto(subcategoriaId, "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg");
+        var produtoValido = new Produto(subcategoriaId, "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m);
 
         // Dois usuários com o mesmo CPF violam o índice único da tabela — o
         // SalvarAlteracoes falha, e nenhuma das duas alterações deve persistir,

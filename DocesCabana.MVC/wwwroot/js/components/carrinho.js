@@ -52,6 +52,19 @@
       });
   }
 
+  // Cotação de frete (spec 020) é GET, não POST — cotar não muda estado
+  // nenhum (plano §4, "por que GET"). A URL carrega o cep na query, para o
+  // caminho sem script continuar funcionando por navegação comum.
+  function enviarConsulta(formulario, dados) {
+    var url = formulario.action + "?" + new URLSearchParams(dados).toString();
+    fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+      .then(tratarResposta)
+      .then(aplicarBloco)
+      .catch(function () {
+        // Mesmo critério de enviar(): falha de rede não trava a tela.
+      });
+  }
+
   document.addEventListener("submit", function (evento) {
     var formulario = evento.target;
     var botao = evento.submitter;
@@ -95,6 +108,12 @@
       // não muda, e a pessoa tenta de novo pelo link.
       var dialogoDoFormulario = formulario.closest("dialog");
       if (dialogoDoFormulario) dialogoDoFormulario.close();
+      return;
+    }
+
+    if (formulario.classList.contains("formulario-frete-carrinho")) {
+      evento.preventDefault();
+      enviarConsulta(formulario, new FormData(formulario));
     }
   });
 

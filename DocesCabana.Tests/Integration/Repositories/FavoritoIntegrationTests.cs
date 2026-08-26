@@ -13,7 +13,7 @@ public class FavoritoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_UmParJaFavoritado_Quando_TentarFavoritarDeNovo_Entao_DeveSerRecusado()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         var usuarioId = await SemearUsuario();
@@ -32,8 +32,8 @@ public class FavoritoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_FavoritosDeDuasPessoas_Quando_BuscarPorUsuario_Entao_NaoDeveTrazerODaOutra()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
-        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg");
+        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.AddRange(produtoUm, produtoDois);
         await Contexto.SaveChangesAsync();
         var usuarioUmId = await SemearUsuario("Cliente Um", "52998224725");
@@ -54,8 +54,8 @@ public class FavoritoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_AMesmaPessoa_Quando_FavoritarProdutosDiferentes_Entao_DeveAceitarOsDois()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
-        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg");
+        var produtoUm = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        var produtoDois = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.AddRange(produtoUm, produtoDois);
         await Contexto.SaveChangesAsync();
         var usuarioId = await SemearUsuario();
@@ -74,8 +74,8 @@ public class FavoritoIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_IdentificadoresMisturados_Quando_IdsPorUsuario_Entao_DeveDevolverSoOsFavoritados()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produtoFavoritado = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg");
-        var produtoNaoFavoritado = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg");
+        var produtoFavoritado = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        var produtoNaoFavoritado = new Produto(subcategoriaId, "Beijinho", 5.00m, "https://imagem.com/beijinho.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.AddRange(produtoFavoritado, produtoNaoFavoritado);
         await Contexto.SaveChangesAsync();
         var usuarioId = await SemearUsuario();

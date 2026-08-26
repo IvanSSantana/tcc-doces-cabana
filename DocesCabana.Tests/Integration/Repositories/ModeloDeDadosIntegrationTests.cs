@@ -8,7 +8,7 @@ public class ModeloDeDadosIntegrationTests : InfraestruturaSqliteEmMemoria
     [Fact]
     public async Task Dado_ProdutoComSubcategoriaInexistente_Quando_Salvar_Entao_DeveRecusar()
     {
-        var produto = new Produto(Guid.NewGuid(), "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(Guid.NewGuid(), "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
 
         Contexto.Produtos.Add(produto);
 
@@ -20,7 +20,7 @@ public class ModeloDeDadosIntegrationTests : InfraestruturaSqliteEmMemoria
     {
         var subcategoriaId = await SemearSubcategoria();
         var usuarioId = await SemearUsuario();
-        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
 
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
@@ -39,7 +39,7 @@ public class ModeloDeDadosIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_UmEstoqueExistente_Quando_CriarSegundoEstoqueParaOMesmoProduto_Entao_DeveRecusar()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
 
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
@@ -58,7 +58,7 @@ public class ModeloDeDadosIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_ProdutoComSubcategoria_Quando_ConsultarSemInclude_Entao_NavegacaoDeveVirNula()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
 
@@ -73,7 +73,7 @@ public class ModeloDeDadosIntegrationTests : InfraestruturaSqliteEmMemoria
     public async Task Dado_ProdutoComSubcategoria_Quando_ConsultarComInclude_Entao_NavegacaoDeveVirPreenchida()
     {
         var subcategoriaId = await SemearSubcategoria();
-        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg");
+        var produto = new Produto(subcategoriaId, "Brigadeiro Gourmet", 5.50m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
 

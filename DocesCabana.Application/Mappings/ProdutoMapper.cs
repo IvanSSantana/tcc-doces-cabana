@@ -22,7 +22,11 @@ public static class ProdutoMapper
             SubcategoriaId = produto.SubcategoriaId,
             PromocaoId = produto.PromocaoId,
             SemAcucar = produto.SemAcucar,
-            EstaFavorito = estaFavorito
+            EstaFavorito = estaFavorito,
+            Peso = produto.Peso,
+            Altura = produto.Altura,
+            Largura = produto.Largura,
+            Comprimento = produto.Comprimento
         };
 
     public static List<ProdutoDTO> ToDTO(IEnumerable<Produto> produtos) =>
@@ -34,7 +38,9 @@ public static class ProdutoMapper
         produtos.Select(p => ToDTO(p, favoritados.Contains(p.ProdutoId))).ToList();
 
     public static Produto ToEntity(ProdutoDTO dto) =>
-        new(dto.SubcategoriaId, dto.Nome, dto.Preco, dto.ImagemUrl, dto.Status, dto.ProdutoId, dto.Descricao, dto.SemAcucar);
+        new(dto.SubcategoriaId, dto.Nome, dto.Preco, dto.ImagemUrl,
+            dto.Peso, dto.Altura, dto.Largura, dto.Comprimento,
+            dto.Status, dto.ProdutoId, dto.Descricao, dto.SemAcucar);
 
     public static List<Produto> ToEntity(IEnumerable<ProdutoDTO> dtos) =>
         dtos.Select(ToEntity).ToList();

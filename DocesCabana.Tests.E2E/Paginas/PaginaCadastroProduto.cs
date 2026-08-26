@@ -18,13 +18,25 @@ public class PaginaCadastroProduto
     public async Task Abrir(string urlBase) =>
         await _pagina.GotoAsync($"{urlBase}/Admin/Produto/Cadastro");
 
-    public async Task Preencher(string nome, decimal preco, string imagemUrl, string subcategoria = SubcategoriaConhecida)
+    // Peso/Altura/Largura/Comprimento (spec 020, RF-02) são obrigatórios no
+    // formulário desde então — parâmetros opcionais para não obrigar todo
+    // teste já existente a conhecer o detalhe, com o mesmo valor-padrão dos
+    // testes de unidade (ProdutoTests).
+    public async Task Preencher(
+        string nome, decimal preco, string imagemUrl, string subcategoria = SubcategoriaConhecida,
+        decimal peso = 0.5m, decimal altura = 10m, decimal largura = 15m, decimal comprimento = 20m)
     {
+        var cultura = System.Globalization.CultureInfo.InvariantCulture;
+
         await Formulario.GetByLabel("Nome do Produto").FillAsync(nome);
-        await Formulario.GetByLabel("Preço").FillAsync(preco.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
+        await Formulario.GetByLabel("Preço").FillAsync(preco.ToString("0.00", cultura));
         await Formulario.GetByLabel("Status").SelectOptionAsync(new SelectOptionValue { Label = "Ativo" });
         await Formulario.GetByLabel("Imagem (URL)").FillAsync(imagemUrl);
         await Formulario.GetByLabel("Subcategoria").SelectOptionAsync(new SelectOptionValue { Label = subcategoria });
+        await Formulario.GetByLabel("Peso (kg)").FillAsync(peso.ToString("0.000", cultura));
+        await Formulario.GetByLabel("Altura (cm)").FillAsync(altura.ToString("0.0", cultura));
+        await Formulario.GetByLabel("Largura (cm)").FillAsync(largura.ToString("0.0", cultura));
+        await Formulario.GetByLabel("Comprimento (cm)").FillAsync(comprimento.ToString("0.0", cultura));
     }
 
     public async Task Enviar() =>

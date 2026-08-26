@@ -8,7 +8,7 @@ namespace DocesCabana.Tests.Units.Mappings;
 public class CarrinhoMapperTests
 {
     private static Produto CriarProduto(decimal preco = 10m) =>
-        new(Guid.NewGuid(), "Brigadeiro", preco, "https://imagem.com/brigadeiro.jpg");
+        new(Guid.NewGuid(), "Brigadeiro", preco, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
 
     // RF-06/RN-02 (spec 021): sem cotação, o valor em destaque é o subtotal
     // e não inclui entrega nenhuma — dizer "total a pagar" aqui seria

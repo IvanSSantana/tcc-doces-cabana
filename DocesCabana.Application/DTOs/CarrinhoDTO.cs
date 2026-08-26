@@ -24,4 +24,16 @@ public class CarrinhoDTO
     // fato.
     public decimal ValorTotal =>
         Subtotal + (TemEntregaCalculada ? Cotacao!.Opcoes.Min(o => o.Preco) : 0m);
+
+    // RF-04 (spec 020): o carrinho já vem montado sem cotação — o
+    // controlador cota depois, com o CEP da query, e anexa aqui. Devolve
+    // uma cópia em vez de mutar (CarrinhoDTO é, por convenção, imutável
+    // depois de montado).
+    public CarrinhoDTO ComCotacao(CotacaoDeFreteDTO cotacao) => new()
+    {
+        Linhas = Linhas,
+        Subtotal = Subtotal,
+        TotalDeItens = TotalDeItens,
+        Cotacao = cotacao
+    };
 }

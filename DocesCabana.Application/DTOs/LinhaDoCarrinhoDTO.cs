@@ -21,5 +21,18 @@ public class LinhaDoCarrinhoDTO
     // RN-06: Nenhum, ForaDoCatalogo ou ForaDeEstoque — só a mensagem muda.
     public MotivoIndisponibilidade MotivoIndisponibilidade { get; init; }
 
+    // Peso e dimensões (spec 020): é o que IFreteService.Cotar precisa por
+    // item, e só o Produto as carrega — nem ItemDoCarrinhoDTO (ProdutoId +
+    // Quantidade, carrinho de visitante) nem um DTO novo teriam de onde vir
+    // sem uma consulta extra. Correção ao plano original, que previa
+    // ItemDoCarrinhoDTO como parâmetro de Cotar.
+    public decimal Peso { get; init; }
+
+    public decimal Altura { get; init; }
+
+    public decimal Largura { get; init; }
+
+    public decimal Comprimento { get; init; }
+
     public bool Disponivel => MotivoIndisponibilidade == MotivoIndisponibilidade.Nenhum;
 }

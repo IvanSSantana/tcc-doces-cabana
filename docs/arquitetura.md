@@ -432,7 +432,7 @@ o catálogo não aplica nada e mostra a caixa real do nome.
 | `/Catalogo`<br>`/Catalogo/{apelido}` | `Catalogo.Index` → `ICatalogoService.Montar` | Barra lateral, filtros, ordenação, paginação, busca |
 | `/Produto/Detalhes/{id}` | `Produto.Detalhes` → `IProdutoService.BuscarDetalhe` | Imagem, descrição, nota média, histograma, avaliações |
 | `/Favorito` | `Favorito.Index` → `IFavoritoService.ListarDoUsuario` | Grade dos favoritos. `[Authorize]` |
-| `/Carrinho`<br>`/Carrinho/ConfirmarEsvaziar` | `Carrinho.Index/Acrescentar/AlterarQuantidade/Remover/Esvaziar/ConfirmarEsvaziar` → `ICarrinhoService` | Itens em cartão, resumo com cupom desabilitado e destaque que troca entre subtotal e total a pagar quando há entrega calculada (`021`), item indisponível sinalizado, esvaziar com confirmação. Sem `[Authorize]` — quem não entrou usa o carrinho da sessão, fundido ao de conta no primeiro request autenticado (`FiltroFusaoDeCarrinho`) |
+| `/Carrinho`<br>`/Carrinho/ConfirmarEsvaziar` | `Carrinho.Index/Acrescentar/AlterarQuantidade/Remover/Esvaziar/ConfirmarEsvaziar` → `ICarrinhoService`, `IFreteService` | Itens em cartão, resumo com cupom desabilitado e destaque que troca entre subtotal e total a pagar quando há entrega calculada (`021`), item indisponível sinalizado, esvaziar com confirmação. Cotação de frete por CEP (`020`, §6.10) — só oferecida havendo item disponível, só os disponíveis entram na cotação. Sem `[Authorize]` — quem não entrou usa o carrinho da sessão, fundido ao de conta no primeiro request autenticado (`FiltroFusaoDeCarrinho`) |
 | `/Conta` | `Conta.Index/AlterarDados` → `IUsuarioService` | Dados pessoais — CPF como texto, o resto editável. `[Authorize]` na classe |
 | `/Conta/Enderecos`<br>`/Conta/NovoEndereco`<br>`/Conta/EditarEndereco/{id}` | `Conta.Enderecos/NovoEndereco/EditarEndereco/ExcluirEndereco/TornarPrincipal` → `IEnderecoService` | CRUD de endereço, exatamente um principal (RN-01 a RN-04). Busca por CEP no navegador (ViaCEP); `IEnderecoRepository` nunca busca por id sozinho, só pelo par `(enderecoId, usuarioId)` — é o que torna endereço alheio inalcançável por desenho, não por checagem avulsa |
 | `/Autenticacao/Login` | `Autenticacao.Login` → `IUsuarioService` | Entrar, com endereço de retorno |
@@ -755,6 +755,44 @@ exercitar, em demonstração, o ramo do `?? -1` da ordenação.
 `GerarAvaliacoesMock` não toca o banco de propósito: é função pura, então dá
 para chamá-la duas vezes com a mesma semente e comparar o resultado num teste
 de unidade, sem SQLite em memória.
+
+### 6.10 Cotação de frete (`020`)
+
+Todo produto tem peso e três dimensões (`Produto.Peso/Altura/Largura/
+Comprimento`, obrigatórios desde esta feature, sem valor padrão — quem
+cadastra decide). `DbInitializer` semeia um valor fixo por categoria (Adega
+mais pesada e compacta, Souvenir mais leve e volumosa — de propósito, para o
+peso cubado e o peso real puderem divergir em sentidos opostos num mesmo
+carrinho).
+
+O contrato fica em `IFreteService.Cotar(cepDestino, itens)`, implementado por
+`FreteServiceMelhorEnvio` (`Infrastructure/Services/`) — um `HttpClient`
+tipado (`AddHttpClient<IFreteService, FreteServiceMelhorEnvio>`) contra a API
+do MelhorEnvio, sandbox por padrão. A conversão de/para o formato da API
+(`snake_case`, `Services/MelhorEnvio/*MelhorEnvio.cs`) fica isolada num
+subpasta própria — se o formato divergir da documentação, o conserto é
+local.
+
+**`Cotar` nunca lança.** Falha de rede, timeout, CEP não atendido, credencial
+ausente ou inválida são condição esperada, não exceção (Princípio VIII — cada
+camada tem um dono de erro, e aqui o dono é o próprio serviço): o método
+sempre devolve uma `CotacaoDeFreteDTO`, com `Opcoes` vazia e `Mensagem`
+preenchida quando a cotação não foi possível. `CarrinhoController.Index`
+nunca precisa de `try/catch` para isso. Isso inclui a própria configuração:
+`FreteSettings.UserAgent` tem um valor-padrão não vazio de propósito —
+`HttpHeaders.UserAgent.ParseAdd("")` lança `FormatException`, e deixar essa
+falha escapar do adaptador quebraria a garantia acima por um detalhe de
+configuração, não por falha de transporte de verdade.
+
+A cotação é sobre `decimal`, e o app roda fixo em `pt-BR`, onde `.` é
+separador de milhar, não decimal — todo `decimal.Parse`/`TryParse` sobre
+strings vindas da API usa `CultureInfo.InvariantCulture` explicitamente, ou
+`"37.79"` vira `3779`, não `37,79`. É o defeito mais fácil de não notar nesta
+integração: passa em qualquer asserção relacional (`preço > 0`) e só aparece
+comparando o valor final com o que a documentação mostra.
+
+A credencial (`FreteSettings:Token`) nunca é versionada — *user secrets* em
+desenvolvimento, variável de ambiente em produção e no E2E (RN-05).
 
 ---
 

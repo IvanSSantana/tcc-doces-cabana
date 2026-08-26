@@ -288,6 +288,84 @@
   color: #6b6b6b;
 }
 
+/* Caixa de CEP e opções de frete (spec 020) */
+.formulario-frete-carrinho {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #EFEAE2;
+}
+
+.formulario-frete-carrinho label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-primaria);
+}
+
+.entrada-cep-carrinho {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.entrada-cep-carrinho input,
+.entrada-cep-carrinho button {
+  border-radius: 8px;
+  border: 1px solid #DAD4CE;
+  padding: 0.5rem 0.75rem;
+}
+
+.entrada-cep-carrinho input {
+  flex: 1;
+  min-width: 0;
+}
+
+.entrada-cep-carrinho button {
+  background-color: var(--cor-primaria);
+  color: #FFFFFF;
+  font-weight: 600;
+  cursor: pointer;
+  border-color: var(--cor-primaria);
+}
+
+.lista-opcoes-frete {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.opcao-frete {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #EFEAE2;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.transportadora-opcao-frete {
+  font-weight: 600;
+  color: var(--cor-primaria);
+}
+
+.preco-opcao-frete {
+  font-weight: 700;
+}
+
+.prazo-opcao-frete {
+  color: #6b6b6b;
+}
+
+.mensagem-falha-frete {
+  color: #b3413a;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
 .subtotal-carrinho {
   margin: 0 0 0.5rem;
   font-size: 1.1rem;

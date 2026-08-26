@@ -126,6 +126,38 @@
 
                 <p class="total-itens-carrinho">@Model.TotalDeItens ite@(Model.TotalDeItens == 1 ? "m" : "ns")</p>
 
+                @{
+                    // RF-11 (spec 020): sem item disponível não há o que
+                    // despachar — a caixa de CEP nem aparece.
+                    var haItemDisponivel = Model.Linhas.Any(l => l.Disponivel);
+                    var erroCep = ViewData.ModelState["Cep"]?.Errors.FirstOrDefault()?.ErrorMessage;
+                }
+
+                @if (haItemDisponivel)
+                {
+                    @* RF-04 (spec 020): GET, irmão dos formulários de
+                       quantidade — nunca aninhado. Funciona sem JavaScript
+                       (RF-12/RN-04); com script, carrinho.js troca só o
+                       #itens-carrinho, mesmo caminho assíncrono da 017. *@
+                    <form method="get" asp-action="Index" class="formulario-frete-carrinho">
+                        <label for="cep-carrinho">Calcular frete</label>
+                        <div class="entrada-cep-carrinho">
+                            <input type="text" id="cep-carrinho" name="cep" value="@Model.Cotacao?.CepConsultado" placeholder="00000-000" />
+                            <button type="submit">Calcular</button>
+                        </div>
+
+                        @if (erroCep is not null)
+                        {
+                            <span class="mensagem-erro">@erroCep</span>
+                        }
+                    </form>
+
+                    @if (Model.Cotacao is not null)
+                    {
+                        <partial name="_OpcoesDeFrete" model="Model.Cotacao" />
+                    }
+                }
+
                 @* RF-05/RF-06/RF-07/RN-02 (spec 021): o rótulo diz a verdade
                    nos dois estados — sem entrega calculada, o valor é
                    subtotal; com ela, passa a incluir a entrega e vira "total

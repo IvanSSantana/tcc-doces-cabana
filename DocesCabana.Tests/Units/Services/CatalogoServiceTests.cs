@@ -319,5 +319,5 @@ public class CatalogoServiceTests
     }
 
     private static Produto CriarProduto(string nome) =>
-        new(Guid.NewGuid(), nome, 10m, "https://imagem.com/produto.jpg");
+        new(Guid.NewGuid(), nome, 10m, "https://imagem.com/produto.jpg", 0.5m, 10m, 15m, 20m);
 }

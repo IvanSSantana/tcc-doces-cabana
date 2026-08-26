@@ -29,7 +29,7 @@ public class CarrinhoServiceTests
     }
 
     private static Produto CriarProduto(ProdutoStatus status = ProdutoStatus.Ativo, decimal preco = 10m) =>
-        new(Guid.NewGuid(), "Brigadeiro", preco, "https://imagem.com/brigadeiro.jpg", status);
+        new(Guid.NewGuid(), "Brigadeiro", preco, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m, status);
 
     // ── Acrescentar ─────────────────────────────────────────────────────
 

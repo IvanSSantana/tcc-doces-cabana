@@ -1,6 +1,6 @@
 # Plano Técnico — Dimensões do produto e cotação de frete
 
-**Spec:** [`spec.md`](./spec.md) · **Status:** Rascunho
+**Spec:** [`spec.md`](./spec.md) · **Status:** Executado
 **Criado em:** 2026-08-25
 
 ---

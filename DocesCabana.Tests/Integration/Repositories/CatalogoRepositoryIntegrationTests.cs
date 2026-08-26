@@ -18,7 +18,7 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
         // (spec 016, plano §6). Grava direto no contexto, sem passar pelo
         // construtor de Produto, para não preencher o campo de propósito.
         var (_, subId, _) = await SemearCategoriaDoces();
-        var produto = new Produto(subId, "Café Especial", 15m, "https://imagem.com/produto.jpg");
+        var produto = new Produto(subId, "Café Especial", 15m, "https://imagem.com/produto.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
 
@@ -312,7 +312,7 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     private async Task<Produto> SemearProduto(
         Guid subcategoriaId, string nome, decimal preco, bool semAcucar = false, ProdutoStatus status = ProdutoStatus.Ativo)
     {
-        var produto = new Produto(subcategoriaId, nome, preco, "https://imagem.com/produto.jpg", status, semAcucar: semAcucar);
+        var produto = new Produto(subcategoriaId, nome, preco, "https://imagem.com/produto.jpg", 0.5m, 10m, 15m, 20m, status, semAcucar: semAcucar);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         return produto;

@@ -31,6 +31,21 @@ public class PaginaCarrinho
     public ILocator RotuloColunaSubtotal(Guid produtoId) =>
         ItemPeloProduto(produtoId).Locator(".coluna-item-carrinho", new() { HasText = "Subtotal" });
 
+    // Spec 020 — cotação de frete.
+    public ILocator CampoCep => Container.Locator("#cep-carrinho");
+    public ILocator BotaoCalcularFrete => Container.Locator(".entrada-cep-carrinho button");
+    public ILocator ErroCep => Container.Locator(".formulario-frete-carrinho .mensagem-erro");
+    public ILocator OpcoesDeFrete => Container.Locator(".opcao-frete");
+    public ILocator MensagemFalhaFrete => Container.Locator(".mensagem-falha-frete");
+    public ILocator FormularioFrete => Container.Locator(".formulario-frete-carrinho");
+
+    public async Task CalcularFrete(string cep)
+    {
+        await CampoCep.FillAsync(cep);
+        await BotaoCalcularFrete.ClickAsync();
+        await _pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
+    }
+
     public ILocator ItemPeloProduto(Guid produtoId) =>
         Container.Locator($".item-carrinho[data-produto-id='{produtoId}']");
 

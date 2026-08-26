@@ -7,6 +7,7 @@ using DocesCabana.Infrastructure.Repositories;
 using DocesCabana.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace DocesCabana.Infrastructure.DependencyInjections;
 
@@ -15,6 +16,7 @@ public static class ApplicationDependencyInjection
     public static IServiceCollection AddApplicationServicesAndRepositories(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+        services.Configure<FreteSettings>(configuration.GetSection("FreteSettings"));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
@@ -36,6 +38,22 @@ public static class ApplicationDependencyInjection
         services.AddScoped<ICarrinhoService, CarrinhoService>();
         services.AddScoped<IEnderecoService, EnderecoService>();
         services.AddEmailService(configuration);
+        services.AddFreteService();
+
+        return services;
+    }
+
+    // Isolado pelo mesmo motivo de AddEmailService: testável sem montar o
+    // grafo inteiro. Uma implementação só (spec 020 §10) — sem simulador ao
+    // lado, então sem o "if" por adaptador que AddEmailService tem.
+    public static IServiceCollection AddFreteService(this IServiceCollection services)
+    {
+        services.AddHttpClient<IFreteService, FreteServiceMelhorEnvio>((provedor, client) =>
+        {
+            var settings = provedor.GetRequiredService<IOptions<FreteSettings>>().Value;
+            client.BaseAddress = new Uri(settings.UrlBase);
+            client.Timeout = TimeSpan.FromSeconds(settings.TimeoutEmSegundos);
+        });
 
         return services;
     }
