@@ -23,6 +23,7 @@
   font-size: 14px;
   color: var(--produto-tinta-suave);
   margin-bottom: 1.5rem;
+  gap: 20px;
 }
 
 .caminho-navegacao a {
@@ -152,6 +153,14 @@
   min-width: 1.5ch;
   text-align: center;
   font-weight: 600;
+  border: none;
+  background-color: #fdf5f1;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .botao-adicionar-carrinho {

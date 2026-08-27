@@ -33,6 +33,7 @@
   margin-bottom: 1.5rem;
   /* RF-19 (spec 015): a referência mostra a trilha em caixa alta. */
   text-transform: uppercase;
+  gap: 20px;
 }
 
 .trilha-catalogo a {

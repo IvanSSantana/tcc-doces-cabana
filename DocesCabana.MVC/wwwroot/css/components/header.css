@@ -182,6 +182,7 @@ nav {
 .link-nav {
   display: flex;
   align-items: center;
+  margin: 0 7px;
   gap: 6px;
   /* O espaçamento vertical que estava na section (spec 012) muda de lugar
      para cá (spec 013, plano §1): é o que faz o item de categoria ocupar a
@@ -249,7 +250,7 @@ nav {
 
 .seta-header {
   margin-top: 10%;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition: transform 0.5s ease, color 0.2s ease;
 }
 
 /* Menu suspenso das categorias (spec 012, plano §3; geometria corrigida na
