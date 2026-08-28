@@ -395,7 +395,9 @@ public static class DbInitializer
         var segundoMaisVendido = produtos[Math.Min(10, produtos.Count - 1)];
         var poucoVendido = produtos[Math.Min(20, produtos.Count - 1)];
 
-        void CriarPedido(Guid usuarioId, (Produto Produto, short Quantidade)[] itens, PedidoStatus status, MetodoPagamento metodo)
+        void CriarPedido(
+            Guid usuarioId, (Produto Produto, short Quantidade)[] itens, PedidoStatus status, MetodoPagamento metodo,
+            DateTime? data = null)
         {
             var valorDosProdutos = itens.Sum(i => i.Produto.Preco * i.Quantidade);
             const decimal valorDoFrete = 12.90m;
@@ -415,10 +417,27 @@ public static class DbInitializer
                 case PedidoStatus.Cancelado: pedido.Cancelar(); break;
             }
 
+            // Data nasce sempre "agora" no construtor (RN — pedido real
+            // nunca escolhe a própria data). Os semeados representam
+            // compras passadas (spec 023, §10), então uma data explícita
+            // por reflection é o mesmo contorno que os testes já usam para
+            // avaliação (InfraestruturaSqliteEmMemoria.SemearAvaliacao) —
+            // aqui, para a lista ter mais de um pedido por cliente com
+            // datas visivelmente diferentes (RF-03/CA-03).
+            if (data is not null)
+                typeof(Pedido).GetProperty(nameof(Pedido.Data))!.SetValue(pedido, data.Value);
+
             context.Pedidos.Add(pedido);
             context.Pagamentos.Add(new Pagamento(pedido.PedidoId, metodo, valorDosProdutos + valorDoFrete));
         }
 
+        // O primeiro cliente ganha dois pedidos, de propósito: é o único
+        // jeito de a lista "Meus pedidos" provar, na massa de demonstração,
+        // que o mais recente vem primeiro (RF-03/CA-03) — os demais
+        // clientes têm um pedido só.
+        CriarPedido(
+            usuarioIds[0], [(maisVendido, 1)], PedidoStatus.Confirmado, MetodoPagamento.CartaoCredito,
+            data: DateTime.UtcNow.AddDays(-30));
         CriarPedido(usuarioIds[0], [(maisVendido, 5)], PedidoStatus.Entregue, MetodoPagamento.Pix);
         CriarPedido(usuarioIds[1 % usuarioIds.Count], [(maisVendido, 4)], PedidoStatus.Confirmado, MetodoPagamento.CartaoCredito);
         // Cancelado: a maior quantidade de todas, e não deve contar (CA-22).

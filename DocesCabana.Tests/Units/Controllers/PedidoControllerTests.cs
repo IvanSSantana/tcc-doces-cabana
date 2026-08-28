@@ -110,4 +110,46 @@ public class PedidoControllerTests
 
         Assert.IsType<NotFoundResult>(resultado);
     }
+
+    // ── Meus pedidos (spec 023) ───────────────────────────────────────────
+
+    [Fact]
+    public async Task Dado_UsuarioComPedidos_Quando_Meus_Entao_DeveDevolverAViewComOsResumos()
+    {
+        var resumos = new List<ResumoDePedidoDTO>
+        {
+            new(Guid.NewGuid(), "ABCD1234", DateTime.UtcNow, PedidoStatus.Pendente, 2, 30m)
+        };
+        _pedidoServiceMock.Setup(s => s.ListarDoUsuario(_usuarioId)).ReturnsAsync(resumos);
+
+        var resultado = await _controller.Meus();
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(resumos, viewResult.Model);
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioSemPedidoNenhum_Quando_Meus_Entao_DeveDevolverAViewMesmoAssim()
+    {
+        // CA-04: lista vazia é tela própria, não erro.
+        _pedidoServiceMock.Setup(s => s.ListarDoUsuario(_usuarioId)).ReturnsAsync(new List<ResumoDePedidoDTO>());
+
+        var resultado = await _controller.Meus();
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Empty((IEnumerable<ResumoDePedidoDTO>)viewResult.Model!);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoProprio_Quando_Detalhe_Entao_DeveDevolverAViewComODetalhe()
+    {
+        var pedidoId = Guid.NewGuid();
+        var detalhe = new DetalheDePedidoDTO { PedidoId = pedidoId, Numero = "ABCD1234" };
+        _pedidoServiceMock.Setup(s => s.BuscarDetalhe(pedidoId, _usuarioId)).ReturnsAsync(detalhe);
+
+        var resultado = await _controller.Detalhe(pedidoId);
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(detalhe, viewResult.Model);
+    }
 }

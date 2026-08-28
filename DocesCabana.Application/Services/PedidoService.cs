@@ -157,13 +157,39 @@ public class PedidoService : IPedidoService
 
     public async Task<ConfirmacaoDePedidoDTO?> ObterConfirmacao(Guid pedidoId, Guid usuarioId)
     {
-        var pedido = await _pedidoRepository.BuscarPorIdComItens(pedidoId);
-        if (pedido is null || pedido.UsuarioId != usuarioId)
+        var pedido = await _pedidoRepository.Buscar(pedidoId, usuarioId);
+        if (pedido is null)
             return null;
 
         var pagamento = await _pedidoRepository.BuscarPagamentoPorPedido(pedidoId);
 
         return PedidoMapper.ToConfirmacaoDTO(pedido, pagamento?.Metodo ?? default);
+    }
+
+    public async Task<IReadOnlyList<ResumoDePedidoDTO>> ListarDoUsuario(Guid usuarioId)
+    {
+        var pedidos = await _pedidoRepository.ListarPorUsuario(usuarioId);
+
+        // RF-03/CA-03: mais recente primeiro — regra de negócio, decidida
+        // aqui, não deixada para a ordem que o repositório happens to
+        // devolver.
+        return pedidos
+            .OrderByDescending(p => p.Data)
+            .Select(PedidoMapper.ToResumoDTO)
+            .ToList();
+    }
+
+    public async Task<DetalheDePedidoDTO> BuscarDetalhe(Guid pedidoId, Guid usuarioId)
+    {
+        // RN-01: pedido inexistente ou de outra pessoa são o mesmo caso —
+        // Buscar já filtra pelo par pedido-e-dono, então não há checagem
+        // separada a esquecer (plano §1).
+        var pedido = await _pedidoRepository.Buscar(pedidoId, usuarioId)
+            ?? throw new KeyNotFoundException("Pedido não encontrado.");
+
+        var pagamento = await _pedidoRepository.BuscarPagamentoPorPedido(pedidoId);
+
+        return PedidoMapper.ToDetalheDTO(pedido, pagamento);
     }
 
     // RF-21: o carrinho esvazia dentro do mesmo commit de Fechar — não usa

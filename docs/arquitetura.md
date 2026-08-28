@@ -433,7 +433,7 @@ o catálogo não aplica nada e mostra a caixa real do nome.
 | `/Produto/Detalhes/{id}` | `Produto.Detalhes` → `IProdutoService.BuscarDetalhe` | Imagem, descrição, nota média, histograma, avaliações |
 | `/Favorito` | `Favorito.Index` → `IFavoritoService.ListarDoUsuario` | Grade dos favoritos. `[Authorize]` |
 | `/Carrinho`<br>`/Carrinho/ConfirmarEsvaziar`<br>`/Carrinho/CadastrarEndereco` | `Carrinho.Index/Acrescentar/AlterarQuantidade/Remover/Esvaziar/ConfirmarEsvaziar/CadastrarEndereco` → `ICarrinhoService`, `IFreteService`, `IPedidoService`, `IEnderecoService` | Itens em cartão, resumo com cupom desabilitado e destaque que troca entre subtotal e total a pagar quando há entrega calculada (`021`), item indisponível sinalizado, esvaziar com confirmação. Cotação de frete por CEP (`020`, §6.10) — só oferecida havendo item disponível, só os disponíveis entram na cotação. Os passos do fechamento (`022`, §6.10) vivem na mesma tela: `Index` aceita `passo`/`enderecoId`/`servicoDeEntregaId` e monta o passo ativo via `IPedidoService.MontarPasso`; `CadastrarEndereco` cadastra sem sair do fechamento (`[Authorize]`, diferente das outras ações desta tela). Sem `[Authorize]` na classe — quem não entrou usa o carrinho da sessão, fundido ao de conta no primeiro request autenticado (`FiltroFusaoDeCarrinho`) |
-| `/Pedido/Confirmacao/{id}` | `Pedido.Fechar/Confirmacao` → `IPedidoService` | `Fechar` (`[HttpPost]`, `[Authorize]`) grava o pedido e redireciona para o comprovante (POST-Redirect-Get); recusa reexibe `Carrinho/Index` com `ModelState` inválido. `Confirmacao` (`[HttpGet]`) mostra o comprovante; pedido alheio ou inexistente devolve 404 (`022`, §6.10) |
+| `/Pedido/Confirmacao/{id}`<br>`/Pedido/Meus`<br>`/Pedido/Detalhe/{id}` | `Pedido.Fechar/Confirmacao/Meus/Detalhe` → `IPedidoService` | `Fechar` (`[HttpPost]`) grava o pedido e redireciona para o comprovante (POST-Redirect-Get); recusa reexibe `Carrinho/Index` com `ModelState` inválido. `Confirmacao` mostra o comprovante recém-fechado. `Meus` lista as compras da pessoa, mais recente primeiro; `Detalhe` traz o pedido inteiro, como estava no fechamento (`023`, §6.10). `[Authorize]` na classe — pedido alheio ou inexistente devolve 404 em qualquer uma das quatro ações (`022`/`023`) |
 | `/Conta` | `Conta.Index/AlterarDados` → `IUsuarioService` | Dados pessoais — CPF como texto, o resto editável. `[Authorize]` na classe |
 | `/Conta/Enderecos`<br>`/Conta/NovoEndereco`<br>`/Conta/EditarEndereco/{id}` | `Conta.Enderecos/NovoEndereco/EditarEndereco/ExcluirEndereco/TornarPrincipal` → `IEnderecoService` | CRUD de endereço, exatamente um principal (RN-01 a RN-04). Busca por CEP no navegador (ViaCEP); `IEnderecoRepository` nunca busca por id sozinho, só pelo par `(enderecoId, usuarioId)` — é o que torna endereço alheio inalcançável por desenho, não por checagem avulsa |
 | `/Autenticacao/Login` | `Autenticacao.Login` → `IUsuarioService` | Entrar, com endereço de retorno |
@@ -860,6 +860,38 @@ consulta). Sem pedidos semeados (`DbInitializer`), a ordenação empataria
 os cem produtos em zero e a home mostraria ordem alfabética sob o título
 "mais vendidos" — por isso a semeadura de pedidos existe, com situações
 variadas e um pedido cancelado.
+
+### 6.12 Meus pedidos (`023`) — proteção por assinatura de repositório
+
+Entrega de leitura pura: `PedidoService.ListarDoUsuario` (a lista, mais
+recente primeiro) e `BuscarDetalhe` (o pedido inteiro — itens com o preço
+gravado no fechamento, endereço, transportadora, prazo, valores e forma de
+pagamento) não escrevem nada.
+
+**O desenho que protege RN-01 ("pedido alheio é inalcançável") não é uma
+checagem — é a ausência do método que permitiria violá-la.**
+`IPedidoRepository.Buscar(pedidoId, usuarioId)` filtra os dois campos na
+própria consulta; não existe `BuscarPorId(pedidoId)` sozinho no
+repositório, então não há caminho por onde a regra possa ser esquecida.
+Mesmo desenho que `IEnderecoRepository.Buscar` já usa desde a `018`, agora
+aplicado pela segunda vez — é um padrão do projeto, não um detalhe de uma
+feature. `BuscarDetalhe` lança `KeyNotFoundException` tanto para pedido
+inexistente quanto para pedido de outra pessoa, **sem distinguir os dois
+casos**: uma resposta diferente para cada um contaria a quem tenta um
+identificador alheio que aquele pedido existe.
+
+A tradução de `PedidoStatus`/`PagamentoStatus` para o texto que a pessoa
+vê ("Aguardando pagamento", não `Pendente`) mora nas views
+(`Views/Pedido/Meus.cshtml`, `Detalhe.cshtml`), não na entidade —
+vocabulário de tela muda sem que a regra de negócio mude.
+
+`_MenuDaConta.cshtml` mora em `Views/Shared/`, não em `Views/Conta/`: é
+incluído tanto por `ContaController` quanto por `PedidoController` desde
+esta entrega, e `Views/Shared/` é exatamente onde o Princípio IV manda o
+que é reaproveitado por mais de uma página. Um parcial fora dali só
+resolve para o controlador da própria pasta — a spec `023` encontrou esse
+erro de propósito (`InvalidOperationException` renderizando `Pedido/Meus`)
+antes de mover o arquivo.
 
 ---
 

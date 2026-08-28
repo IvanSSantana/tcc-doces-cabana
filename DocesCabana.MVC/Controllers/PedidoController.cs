@@ -68,6 +68,25 @@ public class PedidoController : Controller
         return View(confirmacao);
     }
 
+    // spec 023 (RF-02/RF-03/CA-04): a lista, do mais recente ao mais antigo
+    // — vazia para quem nunca comprou, a própria view explica isso.
+    [HttpGet]
+    public async Task<IActionResult> Meus()
+    {
+        var pedidos = await _pedidoService.ListarDoUsuario(UsuarioAtualId);
+        return View(pedidos);
+    }
+
+    // spec 023 (RF-06 a RF-10): pedido alheio ou inexistente lança
+    // KeyNotFoundException (RN-01), que o FilterException global traduz
+    // para 404 — sem try/catch aqui (Princípio VIII).
+    [HttpGet]
+    public async Task<IActionResult> Detalhe(Guid id)
+    {
+        var detalhe = await _pedidoService.BuscarDetalhe(id, UsuarioAtualId);
+        return View(detalhe);
+    }
+
     // Sempre autenticado — [Authorize] na classe garante que a claim existe.
     private Guid UsuarioAtualId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
