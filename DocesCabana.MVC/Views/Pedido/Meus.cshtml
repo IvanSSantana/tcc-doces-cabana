@@ -1,0 +1,67 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Domain.Enums
+@model IReadOnlyList<ResumoDePedidoDTO>
+@{
+    ViewData["Title"] = "Meus pedidos";
+    ViewData["PaginaAtiva"] = "Pedidos";
+
+    // Vocabulário do cliente, não o nome do enumerado (plano §3/§5) — a
+    // tradução mora na view porque é vocabulário de tela, não regra de
+    // negócio (não muda se PedidoStatus mudar de nome).
+    static string RotuloDaSituacao(PedidoStatus status) => status switch
+    {
+        PedidoStatus.Pendente => "Aguardando pagamento",
+        PedidoStatus.Confirmado => "Confirmado",
+        PedidoStatus.Enviado => "Enviado",
+        PedidoStatus.Entregue => "Entregue",
+        PedidoStatus.Cancelado => "Cancelado",
+        _ => status.ToString()
+    };
+}
+
+<link rel="stylesheet" href="~/css/pages/conta.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/pedidos.css" asp-append-version="true">
+
+<main class="pagina-conta">
+    <h1 class="titulo-conta">Minha conta</h1>
+
+    <div class="corpo-conta">
+        <partial name="_MenuDaConta" />
+
+        <section class="conteudo-conta">
+            <h2 class="titulo-secao-conta">Meus pedidos</h2>
+
+            @* RF-05/CA-04: quem nunca comprou encontra uma explicação e o
+               caminho para o catálogo — mesmo padrão de lista vazia que
+               endereços e favoritos já usam. *@
+            @if (Model.Count == 0)
+            {
+                <p class="pedidos-vazio">
+                    Você ainda não fez nenhum pedido.
+                    <a asp-area="" asp-controller="Catalogo" asp-action="Index">Ver o catálogo</a>
+                </p>
+            }
+            else
+            {
+                <ul class="lista-pedidos">
+                    @foreach (var pedido in Model)
+                    {
+                        <li class="cartao-pedido">
+                            <a asp-action="Detalhe" asp-route-id="@pedido.PedidoId" class="link-cartao-pedido">
+                                <div class="detalhes-cartao-pedido">
+                                    <span class="numero-cartao-pedido">Pedido nº @pedido.Numero</span>
+                                    <span class="data-cartao-pedido">@pedido.Data.ToString("dd/MM/yyyy")</span>
+                                    <span class="situacao-cartao-pedido situacao-cartao-pedido--@pedido.Status.ToString().ToLowerInvariant()">
+                                        @RotuloDaSituacao(pedido.Status)
+                                    </span>
+                                    <span class="itens-cartao-pedido">@pedido.QuantidadeDeItens ite@(pedido.QuantidadeDeItens == 1 ? "m" : "ns")</span>
+                                </div>
+                                <span class="valor-cartao-pedido">R$ @pedido.ValorTotal.ToString("N2")</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</main>

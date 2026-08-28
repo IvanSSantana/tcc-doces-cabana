@@ -254,4 +254,79 @@ public class PedidoServiceTests
         Assert.True(resultado.Sucesso);
         Assert.Equal(11m, pedidoGravado!.Itens.First().PrecoUnitario);
     }
+
+    // ── Meus pedidos (spec 023) ───────────────────────────────────────────
+
+    private Pedido CriarPedidoPersistido(DateTime data, PedidoStatus status = PedidoStatus.Pendente)
+    {
+        var pedido = new Pedido(_usuarioId, _enderecoId, 28m, 8m, "Correios", "PAC", 3, 7);
+        pedido.AcrescentarItem(_produtoId, 2, 10m);
+        DefinirData(pedido, data);
+        if (status == PedidoStatus.Confirmado) pedido.Confirmar();
+        return pedido;
+    }
+
+    // Data nasce sempre "agora" no construtor (mesma regra de outras
+    // entidades desta base) — reflection é o mesmo contorno de teste que
+    // InfraestruturaSqliteEmMemoria.SemearAvaliacao já usa para controlar
+    // ordenação sem depender de Thread.Sleep.
+    private static void DefinirData(Pedido pedido, DateTime data) =>
+        typeof(Pedido).GetProperty(nameof(Pedido.Data))!.SetValue(pedido, data);
+
+    [Fact]
+    public async Task Dado_PedidosDoUsuario_Quando_ListarDoUsuario_Entao_DeveDevolverDoMaisRecenteAoMaisAntigo()
+    {
+        var antigo = CriarPedidoPersistido(new DateTime(2026, 1, 1));
+        var recente = CriarPedidoPersistido(new DateTime(2026, 6, 1));
+        _pedidoRepositoryMock.Setup(r => r.ListarPorUsuario(_usuarioId)).ReturnsAsync([antigo, recente]);
+
+        var resultado = await _pedidoService.ListarDoUsuario(_usuarioId);
+
+        Assert.Equal([recente.PedidoId, antigo.PedidoId], resultado.Select(r => r.PedidoId));
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioSemPedido_Quando_ListarDoUsuario_Entao_DeveDevolverListaVazia()
+    {
+        _pedidoRepositoryMock.Setup(r => r.ListarPorUsuario(_usuarioId)).ReturnsAsync([]);
+
+        var resultado = await _pedidoService.ListarDoUsuario(_usuarioId);
+
+        Assert.Empty(resultado);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoInexistente_Quando_BuscarDetalhe_Entao_DeveLancarKeyNotFoundException()
+    {
+        var pedidoId = Guid.NewGuid();
+        _pedidoRepositoryMock.Setup(r => r.Buscar(pedidoId, _usuarioId)).ReturnsAsync((Pedido?)null);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _pedidoService.BuscarDetalhe(pedidoId, _usuarioId));
+    }
+
+    [Fact]
+    public async Task Dado_PedidoDeOutroUsuario_Quando_BuscarDetalhe_Entao_DeveLancarKeyNotFoundException()
+    {
+        // RN-01/CA-07: pedido alheio nunca chega ao serviço — a busca já
+        // filtra por (pedidoId, usuarioId) no repositório, então "alheio" e
+        // "inexistente" são o mesmo caso aqui, não dois ramos a distinguir.
+        var pedidoId = Guid.NewGuid();
+        _pedidoRepositoryMock.Setup(r => r.Buscar(pedidoId, _usuarioId)).ReturnsAsync((Pedido?)null);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _pedidoService.BuscarDetalhe(pedidoId, _usuarioId));
+    }
+
+    [Fact]
+    public async Task Dado_PrecoDoProdutoMudouDepoisDaCompra_Quando_BuscarDetalhe_Entao_DeveTrazerOPrecoGravado()
+    {
+        // RN-02/CA-06: o preço vem do ItemPedido (congelado no fechamento),
+        // nunca do Produto.Preco atual.
+        var pedido = CriarPedidoPersistido(new DateTime(2026, 1, 1));
+        _pedidoRepositoryMock.Setup(r => r.Buscar(pedido.PedidoId, _usuarioId)).ReturnsAsync(pedido);
+        _pedidoRepositoryMock.Setup(r => r.BuscarPagamentoPorPedido(pedido.PedidoId)).ReturnsAsync((Pagamento?)null);
+
+        var detalhe = await _pedidoService.BuscarDetalhe(pedido.PedidoId, _usuarioId);
+
+        Assert.Equal(10m, detalhe.Itens.First().PrecoUnitario);
+    }
 }

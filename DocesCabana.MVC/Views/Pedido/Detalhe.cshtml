@@ -1,0 +1,101 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Domain.Enums
+@model DetalheDePedidoDTO
+@{
+    ViewData["Title"] = $"Pedido nº {Model.Numero}";
+    ViewData["PaginaAtiva"] = "Pedidos";
+
+    static string RotuloDaSituacao(PedidoStatus status) => status switch
+    {
+        PedidoStatus.Pendente => "Aguardando pagamento",
+        PedidoStatus.Confirmado => "Confirmado",
+        PedidoStatus.Enviado => "Enviado",
+        PedidoStatus.Entregue => "Entregue",
+        PedidoStatus.Cancelado => "Cancelado",
+        _ => status.ToString()
+    };
+
+    static string RotuloDoPagamento(MetodoPagamento metodo) => metodo switch
+    {
+        MetodoPagamento.Pix => "Pix",
+        MetodoPagamento.CartaoCredito => "Cartão de crédito",
+        MetodoPagamento.CartaoDebito => "Cartão de débito",
+        MetodoPagamento.Boleto => "Boleto",
+        _ => metodo.ToString()
+    };
+
+    static string RotuloDaSituacaoDoPagamento(PagamentoStatus status) => status switch
+    {
+        PagamentoStatus.Pendente => "Aguardando pagamento",
+        PagamentoStatus.Aprovado => "Aprovado",
+        PagamentoStatus.Recusado => "Recusado",
+        PagamentoStatus.Estornado => "Estornado",
+        _ => status.ToString()
+    };
+}
+
+<link rel="stylesheet" href="~/css/pages/conta.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/pedidos.css" asp-append-version="true">
+
+<main class="pagina-conta">
+    <h1 class="titulo-conta">Minha conta</h1>
+
+    <div class="corpo-conta">
+        <partial name="_MenuDaConta" />
+
+        <section class="conteudo-conta">
+            <a asp-action="Meus" class="link-voltar-pedidos">&larr; Meus pedidos</a>
+
+            <div class="cabecalho-detalhe-pedido">
+                <h2 class="titulo-secao-conta">Pedido nº @Model.Numero</h2>
+                <span class="situacao-cartao-pedido situacao-cartao-pedido--@Model.Status.ToString().ToLowerInvariant()">
+                    @RotuloDaSituacao(Model.Status)
+                </span>
+            </div>
+            <p class="data-detalhe-pedido">Feito em @Model.Data.ToString("dd/MM/yyyy")</p>
+
+            <ul class="itens-detalhe-pedido">
+                @foreach (var item in Model.Itens)
+                {
+                    <li class="item-detalhe-pedido">
+                        <img src="@item.ImagemUrl" alt="@item.Nome" class="imagem-item-detalhe-pedido" />
+                        <div class="descricao-item-detalhe-pedido">
+                            <span class="nome-item-detalhe-pedido">@item.Nome</span>
+                            <span>@item.Quantidade &times; R$ @item.PrecoUnitario.ToString("N2")</span>
+                        </div>
+                        <span class="valor-item-detalhe-pedido">R$ @item.ValorDaLinha.ToString("N2")</span>
+                    </li>
+                }
+            </ul>
+
+            <div class="bloco-detalhe-pedido">
+                <h3 class="subtitulo-detalhe-pedido">Entrega</h3>
+                <p>
+                    @Model.Endereco.Rua, @Model.Endereco.Numero
+                    @if (!string.IsNullOrWhiteSpace(Model.Endereco.Complemento))
+                    {
+                        <text> — @Model.Endereco.Complemento</text>
+                    }
+                </p>
+                <p>@Model.Endereco.Bairro · @Model.Endereco.Cidade/@Model.Endereco.Estado · @Model.Endereco.CEP</p>
+                <p>
+                    @Model.Transportadora — @Model.Servico ·
+                    @(Model.PrazoMinimoEmDias == Model.PrazoMaximoEmDias
+                        ? $"{Model.PrazoMinimoEmDias} dias úteis"
+                        : $"{Model.PrazoMinimoEmDias} a {Model.PrazoMaximoEmDias} dias úteis")
+                </p>
+            </div>
+
+            <div class="bloco-detalhe-pedido">
+                <h3 class="subtitulo-detalhe-pedido">Pagamento</h3>
+                <p>@RotuloDoPagamento(Model.MetodoPagamento) — @RotuloDaSituacaoDoPagamento(Model.StatusDoPagamento)</p>
+            </div>
+
+            <div class="resumo-detalhe-pedido">
+                <p>Produtos <strong>R$ @Model.ValorDosProdutos.ToString("N2")</strong></p>
+                <p>Entrega <strong>R$ @Model.ValorDoFrete.ToString("N2")</strong></p>
+                <p class="total-detalhe-pedido">Total <strong>R$ @Model.ValorTotal.ToString("N2")</strong></p>
+            </div>
+        </section>
+    </div>
+</main>

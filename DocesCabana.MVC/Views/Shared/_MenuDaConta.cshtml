@@ -1,0 +1,24 @@
+@{
+    // "activePage" vem de ViewData, passado por cada view que inclui este
+    // parcial — decide qual entrada do menu marca como atual.
+    var paginaAtiva = ViewData["PaginaAtiva"] as string;
+}
+
+<nav class="menu-conta" aria-label="Menu da conta">
+    @* asp-controller explícito (spec 023): este parcial passou a ser
+       incluído também por PedidoController — sem o controlador fixo, os
+       links relativos resolveriam para lá, não para Conta. *@
+    <a asp-controller="Conta" asp-action="Index" class="link-menu-conta @(paginaAtiva == "DadosPessoais" ? "link-menu-conta--ativo" : "")">
+        Dados pessoais
+    </a>
+
+    <a asp-controller="Conta" asp-action="Enderecos" class="link-menu-conta @(paginaAtiva == "Enderecos" ? "link-menu-conta--ativo" : "")">
+        Endereços
+    </a>
+
+    @* RF-01/CA-01 (spec 023): o lugar reservado desde a 018 deixa de estar
+       desabilitado. *@
+    <a asp-controller="Pedido" asp-action="Meus" class="link-menu-conta @(paginaAtiva == "Pedidos" ? "link-menu-conta--ativo" : "")">
+        Meus pedidos
+    </a>
+</nav>

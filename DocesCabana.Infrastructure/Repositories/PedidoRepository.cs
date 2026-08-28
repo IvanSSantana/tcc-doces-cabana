@@ -12,17 +12,20 @@ public class PedidoRepository : Repository<Pedido>, IPedidoRepository
     {
     }
 
-    public async Task<Pedido?> BuscarPorIdComItens(Guid pedidoId) =>
+    // Uma consulta só, com os itens (e o produto de cada um) e o endereço
+    // de entrega — nunca uma consulta por linha (spec 023, plano §4/§8).
+    public async Task<Pedido?> Buscar(Guid pedidoId, Guid usuarioId) =>
         await _context.Pedidos
             .Include(p => p.Itens)
             .ThenInclude(i => i.Produto)
             .Include(p => p.EnderecoEntrega)
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.PedidoId == pedidoId);
+            .FirstOrDefaultAsync(p => p.PedidoId == pedidoId && p.UsuarioId == usuarioId);
 
     public async Task<List<Pedido>> ListarPorUsuario(Guid usuarioId) =>
         await _context.Pedidos
             .Where(p => p.UsuarioId == usuarioId)
+            .Include(p => p.Itens)
             .AsNoTracking()
             .ToListAsync();
 

@@ -24,4 +24,16 @@ public interface IPedidoService
     // existe" de "não é seu" (mesmo motivo de IEnderecoRepository nunca
     // buscar por id sozinho).
     Task<ConfirmacaoDePedidoDTO?> ObterConfirmacao(Guid pedidoId, Guid usuarioId);
+
+    // spec 023 (RF-03): do mais recente ao mais antigo. Lista vazia para
+    // quem nunca comprou — nunca erro (CA-04).
+    Task<IReadOnlyList<ResumoDePedidoDTO>> ListarDoUsuario(Guid usuarioId);
+
+    /// <summary>
+    /// Lança <see cref="KeyNotFoundException"/> para pedido inexistente ou de
+    /// outra pessoa — os dois casos são indistinguíveis de fora (RN-01,
+    /// CA-07/CA-08): dizer "esse pedido nem existe" a quem tenta o de outra
+    /// pessoa contaria que ele existe.
+    /// </summary>
+    Task<DetalheDePedidoDTO> BuscarDetalhe(Guid pedidoId, Guid usuarioId);
 }

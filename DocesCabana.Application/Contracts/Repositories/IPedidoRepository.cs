@@ -5,11 +5,17 @@ namespace DocesCabana.Application.Contracts.Repositories;
 
 public interface IPedidoRepository : IRepository<Pedido>
 {
-    // Com os itens incluídos — BuscarPorId (do IRepository genérico) não
-    // traz a coleção, e a confirmação do pedido (RF-22) precisa dela. Sem
-    // repositório para item nem para pagamento: Pedido é a raiz do agregado,
-    // grava e lê os itens junto (spec 022, plano §3).
-    Task<Pedido?> BuscarPorIdComItens(Guid pedidoId);
+    // Com os itens (e o produto de cada um) e o endereço de entrega
+    // incluídos — BuscarPorId (do IRepository genérico) não traz nada disso,
+    // e tanto a confirmação (spec 022) quanto o detalhe (spec 023, RF-06 a
+    // RF-09) precisam. Sem repositório para item nem para pagamento: Pedido
+    // é a raiz do agregado, grava e lê os itens junto (spec 022, plano §3).
+    //
+    // Sem BuscarPorId(pedidoId) sozinho de propósito (spec 023, plano §1) —
+    // mesmo desenho de IEnderecoRepository.Buscar: a busca já filtra pelo
+    // par pedido-e-dono, então RN-01 não pode ser violada por esquecimento,
+    // não depende de checagem posterior.
+    Task<Pedido?> Buscar(Guid pedidoId, Guid usuarioId);
 
     Task<List<Pedido>> ListarPorUsuario(Guid usuarioId);
 

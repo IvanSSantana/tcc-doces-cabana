@@ -32,9 +32,13 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Implementada | spec · [plan](./020-dimensoes-e-frete/plan.md) · [tasks](./020-dimensoes-e-frete/tasks.md) · [checklist](./020-dimensoes-e-frete/checklist.md) |
 | [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Implementada | spec · [plan](./021-redesenho-do-carrinho/plan.md) · [tasks](./021-redesenho-do-carrinho/tasks.md) · [checklist](./021-redesenho-do-carrinho/checklist.md) |
 | [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Implementada | spec · [plan](./022-fechamento-de-pedido/plan.md) · [tasks](./022-fechamento-de-pedido/tasks.md) · [checklist](./022-fechamento-de-pedido/checklist.md) |
-| [023](./023-meus-pedidos/spec.md) | Meus pedidos | Especificada | spec · [plan](./023-meus-pedidos/plan.md) · [tasks](./023-meus-pedidos/tasks.md) |
+| [023](./023-meus-pedidos/spec.md) | Meus pedidos | Implementada | spec · [plan](./023-meus-pedidos/plan.md) · [tasks](./023-meus-pedidos/tasks.md) · [checklist](./023-meus-pedidos/checklist.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023`.
+> A `023` (meus pedidos) é a única entrega de leitura pura desta cadeia —
+> nenhuma escrita, nenhuma migration — e por isso não herda a pendência de
+> credencial das duas anteriores: tudo o que ela precisa já está gravado
+> pelo fechamento.
 > A `021` foi executada antes da `020` de propósito — ver o parágrafo dela
 > abaixo e a nota de ordem de execução no plano das duas specs. A `020`
 > ficou com uma parte pendente (Fase 8 do `tasks.md`, verificação contra a
@@ -224,7 +228,7 @@ entregas; hoje são doze. A ordem abaixo é de dependência, não de preferênci
 | [020](./020-dimensoes-e-frete/spec.md) | Dimensões do produto e cotação de frete | Implementada | peso e medidas do produto, e o custo de entrega que o pedido precisa |
 | [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Implementada | a tela onde os passos do fechamento vão morar |
 | [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Implementada | `Pedido`, `ItemPedido` e `Pagamento` ganham comportamento; "mais vendidos" passa a ter sentido |
-| [023](./023-meus-pedidos/spec.md) | Meus pedidos | Especificada | o atalho que a `018` deixou reservado na área de conta |
+| [023](./023-meus-pedidos/spec.md) | Meus pedidos | Implementada | o atalho que a `018` deixou reservado na área de conta |
 | 024 | Pagamento com processadora | não especificada | cobrança real, e a situação do pedido deixa de ser sempre "pendente" |
 | 026 | Estoque | não especificada | substitui o `ProdutoStatus.ForaDeEstoque` marcado à mão |
 

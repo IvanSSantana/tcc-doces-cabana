@@ -1,7 +1,7 @@
 # Especificação — Meus pedidos
 
 **ID:** `023-meus-pedidos` · **Branch:** `023-meus-pedidos`
-**Criada em:** 2026-08-25 · **Status:** Rascunho
+**Criada em:** 2026-08-25 · **Status:** Implementada
 
 ---
 
@@ -178,6 +178,14 @@ aplicação permanece pendente.
 **⚠️ A ordem das categorias no cabeçalho continua sendo a do banco** — pendência
 herdada, repetida em todas as entregas desde a de correções da página inicial,
 ainda sem critério definido pelo responsável. Segue fora de escopo.
+
+**Atualização ao implementar: comprar de verdade e conferir o pedido novo na
+lista não pôde ser percorrido manualmente.** Esta entrega é só leitura —
+depende de pedidos já existentes, e criar um novo passa pelo fechamento
+(`022`), que por sua vez depende da credencial do MelhorEnvio, ainda não
+obtida (`020` §10). Tudo o que não depende disso foi implementado e está com
+as duas suítes verdes; a suíte E2E prova, em navegador real, que a lista e o
+detalhe funcionam corretamente sobre os pedidos **semeados**.
 
 ---
 

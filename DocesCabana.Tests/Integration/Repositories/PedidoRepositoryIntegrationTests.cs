@@ -7,7 +7,7 @@ namespace DocesCabana.Tests.Integration.Repositories;
 public class PedidoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
 {
     [Fact]
-    public async Task Dado_PedidoComItens_Quando_BuscarPorIdComItens_Entao_DeveRetornarComOsItens()
+    public async Task Dado_PedidoComItens_Quando_Buscar_Entao_DeveRetornarComOsItensEProdutoEEndereco()
     {
         var unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new PedidoRepository(Contexto);
@@ -23,12 +23,37 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
         await repositorio.AdicionarComPagamento(pedido, pagamento);
         await unidadeDeTrabalho.SalvarAlteracoes();
 
-        var encontrado = await repositorio.BuscarPorIdComItens(pedido.PedidoId);
+        var encontrado = await repositorio.Buscar(pedido.PedidoId, usuarioId);
 
         Assert.NotNull(encontrado);
         Assert.Single(encontrado.Itens);
         Assert.Equal(produto.ProdutoId, encontrado.Itens.First().ProdutoId);
         Assert.Equal(2, encontrado.Itens.First().Quantidade);
+        // spec 023: o detalhe precisa do produto de cada item e do endereço,
+        // sem consulta extra — os dois vêm na mesma chamada.
+        Assert.Equal("Brigadeiro", encontrado.Itens.First().Produto?.Nome);
+        Assert.NotNull(encontrado.EnderecoEntrega);
+        Assert.Equal(enderecoId, encontrado.EnderecoEntrega!.EnderecoId);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoDeOutroUsuario_Quando_Buscar_Entao_DeveRetornarNulo()
+    {
+        // RN-01/CA-07 (spec 023): o par pedido-e-dono é a própria barreira —
+        // não existe caminho que ache o pedido só pelo identificador.
+        var unidadeDeTrabalho = new UnitOfWork(Contexto);
+        var repositorio = new PedidoRepository(Contexto);
+        var dono = await SemearUsuario("Dono", "52998224725");
+        var outroUsuario = await SemearUsuario("Outro", "11144477735");
+        var enderecoId = await SemearEndereco(dono);
+
+        var pedido = new Pedido(dono, enderecoId, 20m, 10m, "Correios", "PAC", 3, 7);
+        await repositorio.Adicionar(pedido);
+        await unidadeDeTrabalho.SalvarAlteracoes();
+
+        var encontrado = await repositorio.Buscar(pedido.PedidoId, outroUsuario);
+
+        Assert.Null(encontrado);
     }
 
     [Fact]
