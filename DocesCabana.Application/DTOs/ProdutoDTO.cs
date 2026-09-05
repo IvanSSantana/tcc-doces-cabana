@@ -33,4 +33,26 @@ public class ProdutoDTO
     public decimal Largura { get; init; }
 
     public decimal Comprimento { get; init; }
+
+    // RF-06 (spec 027): o endereço vem do resultado do envio, não do que a
+    // pessoa digitou — ImagemUrl é init, então a atribuição direta depois do
+    // binding não compila. Devolve cópia, como CarrinhoDTO.ComCotacao
+    // (spec 020) resolveu o mesmo problema.
+    public ProdutoDTO ComImagem(string imagemUrl) => new()
+    {
+        ProdutoId = ProdutoId,
+        Nome = Nome,
+        Preco = Preco,
+        Status = Status,
+        ImagemUrl = imagemUrl,
+        Descricao = Descricao,
+        SubcategoriaId = SubcategoriaId,
+        PromocaoId = PromocaoId,
+        EstaFavorito = EstaFavorito,
+        SemAcucar = SemAcucar,
+        Peso = Peso,
+        Altura = Altura,
+        Largura = Largura,
+        Comprimento = Comprimento
+    };
 }

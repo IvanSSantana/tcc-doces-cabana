@@ -1,5 +1,6 @@
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
+using DocesCabana.Application.Validators;
 using DocesCabana.Domain.Enums;
 using AdminProdutoController = DocesCabana.MVC.Areas.Admin.Controllers.ProdutoController;
 using Microsoft.AspNetCore.Http;
@@ -17,13 +18,24 @@ public class ProdutoControllerTests
 {
     private readonly Mock<IProdutoService> _produtoServiceMock;
     private readonly Mock<ICategoriaService> _categoriaServiceMock;
+    private readonly Mock<IArmazenamentoDeImagem> _armazenamentoMock;
     private readonly AdminProdutoController _controller;
 
     public ProdutoControllerTests()
     {
         _produtoServiceMock = new Mock<IProdutoService>();
         _categoriaServiceMock = new Mock<ICategoriaService>();
-        _controller = new AdminProdutoController(_produtoServiceMock.Object, _categoriaServiceMock.Object);
+        _armazenamentoMock = new Mock<IArmazenamentoDeImagem>();
+        _controller = new AdminProdutoController(
+            _produtoServiceMock.Object, _categoriaServiceMock.Object, _armazenamentoMock.Object, new ImagemParaEnvioDTOValidator());
+    }
+
+    // FormFile concreto (Microsoft.AspNetCore.Http) — sem lib nova, sem
+    // arquivo em disco: o conteúdo é uma stream em memória.
+    private static IFormFile CriarArquivo(string nome = "brigadeiro.jpg", string contentType = "image/jpeg", int tamanhoEmBytes = 1024)
+    {
+        var stream = new MemoryStream(new byte[tamanhoEmBytes]);
+        return new FormFile(stream, 0, stream.Length, "imagem", nome) { Headers = new HeaderDictionary(), ContentType = contentType };
     }
 
     [Fact]
@@ -82,36 +94,97 @@ public class ProdutoControllerTests
         _categoriaServiceMock.Setup(s => s.ListarComSubcategorias())
             .ReturnsAsync(new List<CategoriaDTO>());
 
-        var resultado = await _controller.Cadastro(dto);
+        var resultado = await _controller.Cadastro(dto, CriarArquivo());
 
         var viewResult = Assert.IsType<ViewResult>(resultado);
         Assert.Equal(dto, viewResult.Model);
         _produtoServiceMock.Verify(s => s.Cadastrar(It.IsAny<ProdutoDTO>()), Times.Never);
+        _armazenamentoMock.Verify(s => s.Enviar(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
+    // RF-02, CA-02: sem arquivo nenhum, o produto não é cadastrado e o
+    // armazenamento nunca é chamado.
     [Fact]
-    public async Task Dado_ProdutoValido_Quando_CadastroPost_Entao_DeveCadastrarERedirecionarComConfirmacao()
+    public async Task Dado_SemArquivo_Quando_CadastroPost_Entao_DeveInvalidarModelStateSemChamarArmazenamento()
     {
-        var dto = new ProdutoDTO
-        {
-            Nome = "Brigadeiro Gourmet",
-            Preco = 5.50m,
-            Status = ProdutoStatus.Ativo,
-            ImagemUrl = "https://imagem.com/brigadeiro.jpg",
-            SubcategoriaId = Guid.NewGuid()
-        };
-        _produtoServiceMock.Setup(s => s.Cadastrar(dto))
+        var dto = CriarDtoValido();
+        _categoriaServiceMock.Setup(s => s.ListarComSubcategorias())
+            .ReturnsAsync(new List<CategoriaDTO>());
+
+        var resultado = await _controller.Cadastro(dto, imagem: null);
+
+        Assert.IsType<ViewResult>(resultado);
+        Assert.False(_controller.ModelState.IsValid);
+        _armazenamentoMock.Verify(s => s.Enviar(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _produtoServiceMock.Verify(s => s.Cadastrar(It.IsAny<ProdutoDTO>()), Times.Never);
+    }
+
+    // RF-03/RF-04, CA-03/CA-04: arquivo recusado pelo validador (formato ou
+    // tamanho) tem o mesmo efeito — nunca chega a chamar o armazenamento.
+    [Fact]
+    public async Task Dado_ArquivoDeFormatoInvalido_Quando_CadastroPost_Entao_DeveInvalidarModelStateSemChamarArmazenamento()
+    {
+        var dto = CriarDtoValido();
+        _categoriaServiceMock.Setup(s => s.ListarComSubcategorias())
+            .ReturnsAsync(new List<CategoriaDTO>());
+
+        var resultado = await _controller.Cadastro(dto, CriarArquivo(nome: "documento.pdf", contentType: "application/pdf"));
+
+        Assert.IsType<ViewResult>(resultado);
+        Assert.False(_controller.ModelState.IsValid);
+        _armazenamentoMock.Verify(s => s.Enviar(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _produtoServiceMock.Verify(s => s.Cadastrar(It.IsAny<ProdutoDTO>()), Times.Never);
+    }
+
+    // RF-08, CA-08: envio falhou → volta à view e o cadastro nunca roda.
+    [Fact]
+    public async Task Dado_EnvioDaImagemFalhou_Quando_CadastroPost_Entao_DeveVoltarAViewSemCadastrar()
+    {
+        var dto = CriarDtoValido();
+        _categoriaServiceMock.Setup(s => s.ListarComSubcategorias())
+            .ReturnsAsync(new List<CategoriaDTO>());
+        _armazenamentoMock.Setup(s => s.Enviar(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(ResultadoDoEnvioDeImagemDTO.ParaFalha("Não foi possível enviar a imagem agora."));
+
+        var resultado = await _controller.Cadastro(dto, CriarArquivo());
+
+        Assert.IsType<ViewResult>(resultado);
+        Assert.False(_controller.ModelState.IsValid);
+        _produtoServiceMock.Verify(s => s.Cadastrar(It.IsAny<ProdutoDTO>()), Times.Never);
+    }
+
+    // CA-06: o endereço devolvido pelo armazenamento chega ao DTO gravado, e
+    // a ação redireciona.
+    [Fact]
+    public async Task Dado_ProdutoValido_Quando_CadastroPost_Entao_DeveCadastrarComOEnderecoDoEnvioERedirecionarComConfirmacao()
+    {
+        var dto = CriarDtoValido();
+        _armazenamentoMock.Setup(s => s.Enviar(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(ResultadoDoEnvioDeImagemDTO.ParaSucesso("https://projeto.supabase.co/storage/v1/object/public/images/public/abc.jpg"));
+        _produtoServiceMock.Setup(s => s.Cadastrar(It.Is<ProdutoDTO>(d => d.ImagemUrl == "https://projeto.supabase.co/storage/v1/object/public/images/public/abc.jpg")))
             .ReturnsAsync(dto);
 
         ConfigurarTempData();
 
-        var resultado = await _controller.Cadastro(dto);
+        var resultado = await _controller.Cadastro(dto, CriarArquivo());
 
         var redirectResult = Assert.IsType<RedirectToActionResult>(resultado);
         Assert.Equal("Cadastro", redirectResult.ActionName);
-        _produtoServiceMock.Verify(s => s.Cadastrar(dto), Times.Once);
+        _produtoServiceMock.Verify(s => s.Cadastrar(It.Is<ProdutoDTO>(d => d.ImagemUrl == "https://projeto.supabase.co/storage/v1/object/public/images/public/abc.jpg")), Times.Once);
         Assert.NotNull(_controller.TempData["Confirmacao"]);
     }
+
+    private static ProdutoDTO CriarDtoValido() => new()
+    {
+        Nome = "Brigadeiro Gourmet",
+        Preco = 5.50m,
+        Status = ProdutoStatus.Ativo,
+        SubcategoriaId = Guid.NewGuid(),
+        Peso = 0.5m,
+        Altura = 10m,
+        Largura = 15m,
+        Comprimento = 20m
+    };
 
     private void ConfigurarTempData()
     {

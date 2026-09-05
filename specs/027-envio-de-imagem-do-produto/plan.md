@@ -1,6 +1,6 @@
 # Plano Técnico — Envio de imagem do produto
 
-**Spec:** [`spec.md`](./spec.md) · **Status:** Rascunho
+**Spec:** [`spec.md`](./spec.md) · **Status:** Implementado (parcial) — ver `checklist.md`
 **Criado em:** 2026-09-05
 
 ---

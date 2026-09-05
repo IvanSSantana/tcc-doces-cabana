@@ -38,55 +38,59 @@
 
 > Tudo nesta fase é `Application` pura: nenhuma rede, nenhuma configuração.
 
-- [ ] **T004** — `DocesCabana.Tests/Units/Validators/ImagemParaEnvioDTOValidatorTests.cs`: extensão fora da lista recusada; `Content-Type` fora da lista recusado; acima de 5 MB recusado; caso válido aceito (RF-03/RF-04, CA-03/CA-04). Ver falhar.
-- [ ] **T005** `[P]` — `DocesCabana.Tests/Units/Mappings/ProdutoMapperTests.cs` (já existe): `ComImagem` devolve **cópia** com o endereço preenchido, preservando os demais campos. Ver falhar. **Aqui, e não numa pasta `Units/DTOs` nova**: essa pasta não existe na organização de testes, e o precedente do método — `CarrinhoDTO.ComCotacao` — não tem teste próprio, é provado pelo consumidor. Um teste só, no vizinho mais próximo, em vez de inventar uma camada de teste para um método de duas linhas.
-- [ ] **T006** — `DocesCabana.Application`: `Contracts/Services/IArmazenamentoDeImagem.cs`, `DTOs/ResultadoDoEnvioDeImagemDTO.cs`, `DTOs/ImagemParaEnvioDTO.cs`, `Validators/ImagemParaEnvioDTOValidator.cs` e `ProdutoDTO.ComImagem`. Formatos e teto de tamanho como **constantes do validador**, não configuração (plano §4). O contrato recebe `Stream`, nunca `IFormFile` (Princípio I).
-- [ ] **T007** — Rodar `dotnet test DocesCabana.Tests`: Fase 2 verde.
+- [x] **T004** — `DocesCabana.Tests/Units/Validators/ImagemParaEnvioDTOValidatorTests.cs`: extensão fora da lista recusada; `Content-Type` fora da lista recusado; acima de 5 MB recusado; caso válido aceito (RF-03/RF-04, CA-03/CA-04). Ver falhar.
+- [x] **T005** `[P]` — `DocesCabana.Tests/Units/Mappings/ProdutoMapperTests.cs` (já existe): `ComImagem` devolve **cópia** com o endereço preenchido, preservando os demais campos. Ver falhar. **Aqui, e não numa pasta `Units/DTOs` nova**: essa pasta não existe na organização de testes, e o precedente do método — `CarrinhoDTO.ComCotacao` — não tem teste próprio, é provado pelo consumidor. Um teste só, no vizinho mais próximo, em vez de inventar uma camada de teste para um método de duas linhas.
+- [x] **T006** — `DocesCabana.Application`: `Contracts/Services/IArmazenamentoDeImagem.cs`, `DTOs/ResultadoDoEnvioDeImagemDTO.cs`, `DTOs/ImagemParaEnvioDTO.cs`, `Validators/ImagemParaEnvioDTOValidator.cs` e `ProdutoDTO.ComImagem`. Formatos e teto de tamanho como **constantes do validador**, não configuração (plano §4). O contrato recebe `Stream`, nunca `IFormFile` (Princípio I).
+- [x] **T007** — Rodar `dotnet test DocesCabana.Tests`: Fase 2 verde.
 
 ## Fase 3 — O adaptador
 
-- [ ] **T008** — `DocesCabana.Tests/Units/Services/ArmazenamentoSupabaseTests.cs`, com `HttpMessageHandler` falso (mesmo padrão de `FreteServiceMelhorEnvioTests`): envio bem-sucedido devolve o endereço público montado corretamente (RF-06); **o caminho enviado usa `Guid` mais a extensão do original, e não contém o nome recebido** (RF-07/RN-02, CA-07); `Authorization: Bearer` e `Content-Type` vão na requisição. Ver falhar.
-- [ ] **T009** `[P]` — Mesmo arquivo: `401`, outro `4xx` e `5xx` devolvem falha com mensagem **sem lançar** (RN-03); **chave em branco recusa sem fazer requisição nenhuma** (CA-09) — o handler falso prova isso contando as chamadas.
-- [ ] **T010** `[P]` — `DocesCabana.Tests/Units/Services/ArmazenamentoSupabaseCaminhosDeFalhaTests.cs`, sem mock: `HttpClient` real contra `http://localhost:9` (conexão recusada) e contra endereço não roteável com timeout curto. Não lança, devolve falha. Mesmo par que a `020` usa — e pela mesma razão: a suíte padrão não pode depender de rede.
-- [ ] **T011** — `DocesCabana.Infrastructure/Services/SupabaseSettings.cs` e `Services/ArmazenamentoSupabase.cs`. `UrlBase`, `Bucket`, `Pasta` e `TimeoutEmSegundos` com padrão; `ChaveDeServico` vazia por padrão, e vazia significa recusar.
-- [ ] **T012** — `ApplicationDependencyInjection.cs`: `Configure<SupabaseSettings>` e `AddArmazenamentoDeImagem()` isolado, no formato de `AddFreteService()`. `appsettings.Example.json` ganha a seção com `ChaveDeServico` **vazia** (RF-09/RN-04); conferir que `appsettings.json` segue fora do versionamento.
-- [ ] **T013** — Rodar `dotnet test DocesCabana.Tests`: Fase 3 verde.
+- [x] **T008** — `DocesCabana.Tests/Units/Services/ArmazenamentoSupabaseTests.cs`, com `HttpMessageHandler` falso (mesmo padrão de `FreteServiceMelhorEnvioTests`): envio bem-sucedido devolve o endereço público montado corretamente (RF-06); **o caminho enviado usa `Guid` mais a extensão do original, e não contém o nome recebido** (RF-07/RN-02, CA-07); `Authorization: Bearer` e `Content-Type` vão na requisição. Ver falhar.
+- [x] **T009** `[P]` — Mesmo arquivo: `401`, outro `4xx` e `5xx` devolvem falha com mensagem **sem lançar** (RN-03); **chave em branco recusa sem fazer requisição nenhuma** (CA-09) — o handler falso prova isso contando as chamadas.
+- [x] **T010** `[P]` — `DocesCabana.Tests/Units/Services/ArmazenamentoSupabaseCaminhosDeFalhaTests.cs`, sem mock: `HttpClient` real contra `http://localhost:9` (conexão recusada) e contra endereço não roteável com timeout curto. Não lança, devolve falha. Mesmo par que a `020` usa — e pela mesma razão: a suíte padrão não pode depender de rede.
+- [x] **T011** — `DocesCabana.Infrastructure/Services/SupabaseSettings.cs` e `Services/ArmazenamentoSupabase.cs`. `UrlBase`, `Bucket`, `Pasta` e `TimeoutEmSegundos` com padrão; `ChaveDeServico` vazia por padrão, e vazia significa recusar.
+- [x] **T012** — `ApplicationDependencyInjection.cs`: `Configure<SupabaseSettings>` e `AddArmazenamentoDeImagem()` isolado, no formato de `AddFreteService()`. `appsettings.Example.json` ganha a seção com `ChaveDeServico` **vazia** (RF-09/RN-04); conferir que `appsettings.json` segue fora do versionamento.
+- [x] **T013** — Rodar `dotnet test DocesCabana.Tests`: Fase 3 verde.
 
 ## Fase 4 — A borda web
 
-- [ ] **T014** — `DocesCabana.Tests/Units/Controllers/Admin/ProdutoControllerTests.cs`: sem arquivo → `ModelState` inválido e o armazenamento **nunca é chamado** (RF-02, CA-02); arquivo recusado pelo validador → idem (CA-03/CA-04); envio falhou → volta a view e `IProdutoService.Cadastrar` **nunca roda** (RF-08, CA-08); sucesso → o endereço devolvido chega ao DTO e a ação redireciona (CA-06). Ver falhar.
-- [ ] **T015** — `DocesCabana.MVC/Areas/Admin/Controllers/ProdutoController.cs`: a ordem dos oito passos do plano §5, **nesta ordem**. O `ModelState.Remove` de `ImagemUrl` vai comentado com o motivo e o precedente (`ContaController.AlterarDados`, CA-07 da `018`) — sem isso ele parece gambiarra para quem ler depois.
-- [ ] **T016** — Rodar `dotnet test DocesCabana.Tests`: Fase 4 verde.
+- [x] **T014** — `DocesCabana.Tests/Units/Controllers/Admin/ProdutoControllerTests.cs`: sem arquivo → `ModelState` inválido e o armazenamento **nunca é chamado** (RF-02, CA-02); arquivo recusado pelo validador → idem (CA-03/CA-04); envio falhou → volta a view e `IProdutoService.Cadastrar` **nunca roda** (RF-08, CA-08); sucesso → o endereço devolvido chega ao DTO e a ação redireciona (CA-06). Ver falhar.
+- [x] **T015** — `DocesCabana.MVC/Areas/Admin/Controllers/ProdutoController.cs`: a ordem dos oito passos do plano §5, **nesta ordem**. O `ModelState.Remove` de `ImagemUrl` vai comentado com o motivo e o precedente (`ContaController.AlterarDados`, CA-07 da `018`) — sem isso ele parece gambiarra para quem ler depois.
+- [x] **T016** — Rodar `dotnet test DocesCabana.Tests`: Fase 4 verde.
 
 ## Fase 5 — A tela
 
-- [ ] **T017** — `DocesCabana.MVC/Areas/Admin/Views/Produto/Cadastro.cshtml`: **`enctype="multipart/form-data"` no `<form>`**; campo de arquivo no lugar do campo de endereço (`accept` com os formatos aceitos, `required`); erro lido de `ViewData.ModelState["imagem"]`, como `_ItensDoCarrinho.cshtml` faz com o CEP. O campo de endereço **some do formulário** (RF-01, CA-01).
-- [ ] **T018** — Rodar `dotnet test DocesCabana.Tests`: Fase 5 verde. **O E2E ainda não passa aqui, e isso é esperado** — `PaginaCadastroProduto` ainda escreve endereço num campo que deixou de existir; o ajuste é a Fase 7.
+- [x] **T017** — `DocesCabana.MVC/Areas/Admin/Views/Produto/Cadastro.cshtml`: **`enctype="multipart/form-data"` no `<form>`**; campo de arquivo no lugar do campo de endereço (`accept` com os formatos aceitos, `required`); erro lido de `ViewData.ModelState["imagem"]`, como `_ItensDoCarrinho.cshtml` faz com o CEP. O campo de endereço **some do formulário** (RF-01, CA-01).
+- [x] **T018** — Rodar `dotnet test DocesCabana.Tests`: Fase 5 verde. **O E2E ainda não passa aqui, e isso é esperado** — `PaginaCadastroProduto` ainda escreve endereço num campo que deixou de existir; o ajuste é a Fase 7.
 
 ## Fase 6 — A massa de demonstração
 
-- [ ] **T019** — `DocesCabana.MVC/Helpers/DbInitializer.cs`: `ImagensDeExemplo` troca os seis links de pré-visualização do Drive pelos seis endereços públicos conferidos na T003 (RF-10). Comentar que são endereços públicos e por isso versionados, como os anteriores eram.
-- [ ] **T020** — Apagar a base local, subir a aplicação **sem credencial configurada** e conferir: a semeadura completa (RF-11, CA-11) e os cem produtos exibem imagem no catálogo (CA-10). É a prova de que semear não depende do que a Fase 3 construiu.
+- [x] **T019** — `DocesCabana.MVC/Helpers/DbInitializer.cs`: `ImagensDeExemplo` troca os seis links de pré-visualização do Drive pelos seis endereços públicos do bucket `images`/`public` (RF-10). Comentado que são endereços públicos e por isso versionados, como os anteriores eram. **T003 não pôde ser fechada** — ver nota abaixo.
+- [x] **T020** (parcial) — Apagada a base local, subida a aplicação **sem credencial configurada**: a semeadura completa sem erro (RF-11, CA-11) e as cem linhas do catálogo apontam `<img>` para os seis endereços do Supabase, em rodízio (conferido via HTML da Home). **CA-10 (a imagem realmente aparece)** não pôde ser confirmado — ver nota abaixo.
+
+> ⚠️ **T003 ficou bloqueada.** O bucket `images` ainda não está público: `GET .../object/public/images/public/IMG_7382.JPG` devolve `400 {"error":"Bucket not found"}`, enquanto o mesmo arquivo pelo endereço assinado (`.../object/sign/...?token=...`) responde `200` com a imagem — ou seja, o bucket existe e o arquivo está lá, só a política de acesso público ainda não foi aplicada. É preciso, no painel do Supabase, marcar o bucket `images` como público (Storage → images → Settings → Public bucket). Depois disso, o app já está semeando com os endereços certos — não precisa rodar a Fase 6 de novo, só recarregar o catálogo para ver as imagens.
 
 ## Fase 7 — Ponta a ponta
 
-- [ ] **T021** — `DocesCabana.Tests.E2E/Paginas/PaginaCadastroProduto.cs`: `Preencher` deixa de escrever endereço e passa a anexar arquivo por `SetInputFilesAsync`, com um PNG mínimo **em memória** (`FilePayload`) — sem arquivo no disco, sem fixture para manter.
-- [ ] **T022** `[P]` — `DocesCabana.Tests.E2E/Infraestrutura/AplicacaoEmExecucao.cs`: repassar `SupabaseSettings__ChaveDeServico` do ambiente de quem executa, quando presente — mesmo mecanismo que `FreteSettings__Token` já usa. Sem a variável, a aplicação sobe sem credencial de propósito.
-- [ ] **T023** — `DocesCabana.Tests.E2E/Fluxos/CadastroDeProdutoTests.cs`: o teste de caminho feliz passa a `[Trait("Categoria", "Externo")]`, com o motivo escrito no arquivo. Os outros três (título e contenção, tela estreita, preço inválido) seguem na suíte padrão sem mudança.
-- [ ] **T024** — Mesmo arquivo, **teste novo na suíte padrão**: sem credencial, o cadastro é recusado com a mensagem específica de "armazenamento não configurado" e nenhum produto é criado (CA-09). Afirmar a mensagem, não só a falha — é o que faz este teste apontar para o `enctype` esquecido em vez de esconder o problema.
-- [ ] **T025** — Rodar as duas suítes: Fase 7 verde, sem credencial no ambiente.
+- [x] **T021** — `DocesCabana.Tests.E2E/Paginas/PaginaCadastroProduto.cs`: `Preencher` deixa de escrever endereço e passa a anexar arquivo por `SetInputFilesAsync`, com um PNG mínimo **em memória** (`FilePayload`) — sem arquivo no disco, sem fixture para manter.
+- [x] **T022** `[P]` — `DocesCabana.Tests.E2E/Infraestrutura/AplicacaoEmExecucao.cs`: repassar `SupabaseSettings__ChaveDeServico` do ambiente de quem executa, quando presente — mesmo mecanismo que `FreteSettings__Token` já usa. Sem a variável, a aplicação sobe sem credencial de propósito.
+- [x] **T023** — `DocesCabana.Tests.E2E/Fluxos/CadastroDeProdutoTests.cs`: o teste de caminho feliz passa a `[Trait("Categoria", "Externo")]`, com o motivo escrito no arquivo. Os outros três (título e contenção, tela estreita, preço inválido) seguem na suíte padrão sem mudança.
+- [x] **T024** — Mesmo arquivo, **teste novo na suíte padrão**: sem credencial, o cadastro é recusado com a mensagem específica de "armazenamento não configurado" e nenhum produto é criado (CA-09). Afirmar a mensagem, não só a falha — é o que faz este teste apontar para o `enctype` esquecido em vez de esconder o problema.
+- [x] **T025** — Rodar as duas suítes: Fase 7 verde, sem credencial no ambiente (679 unidade + 185 E2E, `Categoria!=Externo`).
+
+> **Achado durante a T025, corrigido antes de fechar a fase:** `SupabaseSettings.UrlBase` tinha padrão vazio, e `new Uri("")` lança `UriFormatException` na montagem do `HttpClient` tipado — antes de qualquer requisição, derrubando **toda** tela de cadastro com 500 (não só o caminho sem credencial). Era exatamente a armadilha do `UserAgent` vazio da spec 020, agora do outro lado do mesmo padrão. Corrigido dando a `UrlBase` um padrão não vazio (o projeto real, não segredo — mesmo raciocínio de `FreteSettings.CepDeOrigem`), comentado no código.
 
 ## Fase 8 — Fechamento
 
-- [ ] **T026** — `docs/arquitetura.md` §5: a linha de `/Admin/Produto/Cadastro` passa a mencionar o envio da imagem.
-- [ ] **T027** `[P]` — `docs/arquitetura.md` §6: seção nova sobre o envio — por que o contrato fala `Stream` e não `IFormFile`, por que o arquivo é renomeado, por que chave em branco recusa sem tocar a rede, e por que a credencial nunca chega ao navegador.
-- [ ] **T028** — `grep -rn "spec 0[0-9][0-9]"` **e** `grep -rn "\b0[12][0-9]\b"` na base inteira.
-- [ ] **T029** — `specs/README.md`: a linha da feature. Registrar que a `027` **não é elo da cadeia de compra** — fica ao lado da `025`, fora dela — e que a troca do banco para Postgres é a `028`.
-- [ ] **T030** — `specs/000-baseline/spec.md`: riscar as dívidas que esta entrega resolve, se houver.
-- [ ] **T031** — `dotnet build` sem aviso novo e as duas suítes verdes, do zero, **sem a credencial no ambiente** — é o estado em que qualquer pessoa clona o projeto.
-- [ ] **T032** — Com a credencial configurada: rodar a categoria `Externo` e cadastrar um produto à mão, do formulário ao catálogo, conferindo que a imagem enviada é a que aparece (CA-06) e que o endereço gravado não contém o nome do arquivo original (CA-07).
-- [ ] **T033** — Preencher `checklist.md`.
-- [ ] **T034** — Atualizar o status da spec e do plano, e a linha em `specs/README.md`. Registrar o que **não** foi encerrado: sem credencial não se cadastra produto, e um teste de ponta a ponta vive fora da suíte padrão — consequência aceita ao recusar o adaptador local (spec §10).
+- [x] **T026** — `docs/arquitetura.md` §5: a linha de `/Admin/Produto/Cadastro` passa a mencionar o envio da imagem.
+- [x] **T027** `[P]` — `docs/arquitetura.md` §6: seção nova sobre o envio — por que o contrato fala `Stream` e não `IFormFile`, por que o arquivo é renomeado, por que chave em branco recusa sem tocar a rede, e por que a credencial nunca chega ao navegador.
+- [x] **T028** — `grep -rn "spec 0[0-9][0-9]"` **e** `grep -rn "\b0[12][0-9]\b"` na base inteira. Nenhuma referência estranha — só a `027` sobre si mesma e specs anteriores corretas.
+- [x] **T029** — `specs/README.md`: a linha da feature. Registrado que a `027` **não é elo da cadeia de compra** e que a troca do banco para Postgres é a `028`.
+- [ ] **T030** — `specs/000-baseline/spec.md`: nenhuma dívida da baseline correspondia a imagem/armazenamento — nada para riscar.
+- [x] **T031** — `dotnet build` sem aviso novo (só o NU1903 pré-existente) e as duas suítes verdes, **sem a credencial no ambiente**: 679 unidade + 185 E2E (`Categoria!=Externo`).
+- [ ] **T032** — **Bloqueada.** Precisa de `SupabaseSettings__ChaveDeServico` real e do bucket `images` marcado como público — nenhum dos dois disponível nesta execução (ver nota da Fase 6). Fica para o usuário rodar manualmente depois de ajustar o painel do Supabase.
+- [x] **T033** — Preencher `checklist.md`.
+- [x] **T034** — Atualizar o status da spec e do plano, e a linha em `specs/README.md`. Registrado o que **não** foi encerrado: bucket ainda privado (T003/T032 bloqueadas) e o teste de ponta a ponta do caminho feliz vive fora da suíte padrão — consequência aceita ao recusar o adaptador local (spec §10).
 
 ---
 

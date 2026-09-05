@@ -17,7 +17,7 @@
 <main class="container-autenticacao pagina-cadastro-produto">
 <h1 class="titulo-tela">Cadastrar Produto</h1>
 
-<form asp-action="Cadastro" method="post" class="formulario-autenticacao">
+<form asp-action="Cadastro" method="post" enctype="multipart/form-data" class="formulario-autenticacao">
     @Html.AntiForgeryToken()
 
     <div class="campo-entrada">
@@ -48,11 +48,21 @@
         </div>
     </div>
 
+    @* Substitui o campo de endereço (spec 027, RF-01) — quem preenche
+       ImagemUrl passa a ser o servidor, depois do envio. O erro mora na
+       chave "imagem" do ModelState, não numa propriedade do model — mesmo
+       caminho que o CEP usa em _ItensDoCarrinho.cshtml (spec 020). *@
     <div class="campo-entrada">
-        <label asp-for="ImagemUrl">Imagem (URL)</label>
-        <input asp-for="ImagemUrl" class="campo-texto" placeholder="https://..." required />
+        <label for="imagem">Imagem</label>
+        <input type="file" id="imagem" name="imagem" class="campo-texto" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required />
 
-        <span asp-validation-for="ImagemUrl" class="mensagem-erro"></span>
+        @{
+            var erroDaImagem = ViewData.ModelState["imagem"]?.Errors.FirstOrDefault()?.ErrorMessage;
+        }
+        @if (erroDaImagem is not null)
+        {
+            <span class="mensagem-erro exibicao-bloco">@erroDaImagem</span>
+        }
     </div>
 
     <div class="linha-dupla">

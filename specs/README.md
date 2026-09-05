@@ -33,9 +33,22 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Implementada | spec · [plan](./021-redesenho-do-carrinho/plan.md) · [tasks](./021-redesenho-do-carrinho/tasks.md) · [checklist](./021-redesenho-do-carrinho/checklist.md) |
 | [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Implementada | spec · [plan](./022-fechamento-de-pedido/plan.md) · [tasks](./022-fechamento-de-pedido/tasks.md) · [checklist](./022-fechamento-de-pedido/checklist.md) |
 | [023](./023-meus-pedidos/spec.md) | Meus pedidos | Implementada | spec · [plan](./023-meus-pedidos/plan.md) · [tasks](./023-meus-pedidos/tasks.md) · [checklist](./023-meus-pedidos/checklist.md) |
-| [027](./027-envio-de-imagem-do-produto/spec.md) | Envio de imagem do produto | Especificada | spec · [plan](./027-envio-de-imagem-do-produto/plan.md) · [tasks](./027-envio-de-imagem-do-produto/tasks.md) |
+| [027](./027-envio-de-imagem-do-produto/spec.md) | Envio de imagem do produto | Implementada (parcial) | spec · [plan](./027-envio-de-imagem-do-produto/plan.md) · [tasks](./027-envio-de-imagem-do-produto/tasks.md) · [checklist](./027-envio-de-imagem-do-produto/checklist.md) |
 
-> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023`.
+> **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023` → `027`.
+> A `027` deu ao cadastro de produto o envio de arquivo pelo próprio
+> formulário, substituindo o endereço digitado — `IArmazenamentoDeImagem`/
+> `ArmazenamentoSupabase`, mesmo desenho de `IFreteService` da `020`: sem
+> SDK novo, credencial nunca versionada, e falha de transporte que nunca
+> lança. Ficou **parcial**: o bucket do Supabase ainda não foi marcado como
+> público no painel (`.../object/public/...` devolve "Bucket not found",
+> enquanto o endereço assinado do mesmo arquivo responde normalmente) — sem
+> isso, T003 e T032 do `tasks.md` não puderam ser fechadas, e ninguém
+> consegue cadastrar produto de verdade até o painel ser ajustado. As duas
+> suítes automatizadas ficaram verdes sem credencial nenhuma no ambiente
+> (679 unidade + 185 E2E), e o caminho feliz de ponta a ponta que precisa da
+> credencial real saiu para `[Trait("Categoria", "Externo")]` — consequência
+> aceita ao recusar o adaptador local (spec §10).
 > A `023` (meus pedidos) é a única entrega de leitura pura desta cadeia —
 > nenhuma escrita, nenhuma migration — e por isso não herda a pendência de
 > credencial das duas anteriores: tudo o que ela precisa já está gravado

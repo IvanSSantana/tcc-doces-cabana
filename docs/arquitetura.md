@@ -442,7 +442,7 @@ o catálogo não aplica nada e mostra a caixa real do nome.
 | `/Institucional/QuemSomos`<br>`/Privacidade` | `Institucional` | Conteúdo estático |
 | `/Home/NaoEncontrado` | `Home.NaoEncontrado` | Alvo da reexecução de 404 |
 | `/Home/AcessoNegado` | `Home.AcessoNegado` | Alvo do `AccessDeniedPath` do Identity |
-| `/Admin/Produto/Cadastro` | `Admin.Produto` → `IProdutoService` | Cadastro de produto. `[Authorize(Roles = Administrador)]` |
+| `/Admin/Produto/Cadastro` | `Admin.Produto` → `IProdutoService` + `IArmazenamentoDeImagem` | Cadastro de produto, com envio da imagem para o Storage antes de gravar (`027`). `[Authorize(Roles = Administrador)]` |
 | `/Admin/Administrador`<br>`/Admin/Administrador/Cadastro` | `Admin.Administrador` → `IAdministradorService` | Listar e cadastrar administradores. `[Authorize(Roles = Administrador)]` |
 
 Os dois controladores da area exigem **papel**, não só autenticação — a
@@ -892,6 +892,50 @@ que é reaproveitado por mais de uma página. Um parcial fora dali só
 resolve para o controlador da própria pasta — a spec `023` encontrou esse
 erro de propósito (`InvalidOperationException` renderizando `Pedido/Meus`)
 antes de mover o arquivo.
+
+### 6.13 Envio de imagem do produto (`027`)
+
+O cadastro de produto passou a receber um arquivo (`IFormFile`), não mais um
+endereço digitado. O contrato que sobe ao Storage, porém, fala `Stream`, não
+`IFormFile`: `IArmazenamentoDeImagem.Enviar(Stream, nomeOriginal, contentType)`
+vive em `Application`, que só referencia `Domain` (Princípio I) — `IFormFile`
+é tipo do ASP.NET, e arrastá-lo para dentro da `Application` seria a mesma
+violação que `IEmailService` evita ao não conhecer `SmtpClient` diretamente.
+Quem abre o arquivo é sempre a `MVC`, na borda.
+
+**Quem nomeia o arquivo guardado é o adaptador, nunca quem envia.**
+`ArmazenamentoSupabase` (`Infrastructure/Services/`) descarta o nome que veio
+do formulário e grava sob um `Guid` mais a extensão original — o nome do
+computador de quem cadastra pode trazer acento, caminho ou coincidir com um
+arquivo que já está no bucket, e nada nisso deveria decidir parte de um
+endereço público (RN-02).
+
+**Chave de serviço em branco recusa sem tocar a rede.** Mesma lição que a
+`020` aprendeu com o `UserAgent` vazio, aplicada duas vezes agora: primeiro
+com `SupabaseSettings.ChaveDeServico` (`Enviar` verifica e devolve falha antes
+de montar a requisição), depois de novo com `SupabaseSettings.UrlBase` — que
+precisou de um valor-padrão não vazio pela mesma razão que `FreteSettings.
+UserAgent` precisou, porque `new Uri("")` já lança `UriFormatException` na
+montagem do `HttpClient` tipado, antes de qualquer chamada. Sem essa
+credencial, o cadastro inteiro (não só o upload) devolveria 500 em vez da
+mensagem "Armazenamento de imagem não configurado." — achado rodando o E2E
+sem a variável de ambiente configurada, do mesmo jeito que a `020` achou o
+primeiro caso.
+
+**A credencial nunca chega ao navegador.** É a `service_role` do Supabase, e
+só é lida dentro do adaptador, em `Infrastructure`. O arquivo trafega
+navegador → aplicação → Storage; a aplicação nunca devolve a chave para o
+cliente, nem a expõe em view ou script.
+
+`ImagemUrl` deixou de ser campo do formulário — passa a ser preenchido pelo
+servidor, a partir do endereço que `Enviar` devolve, e `ProdutoDTO.ComImagem`
+existe só porque as propriedades do DTO são `init` (mesmo problema que
+`CarrinhoDTO.ComCotacao` resolveu na `020`). Isso deixa o binding automático
+sinalizando `ImagemUrl` como inválido (o campo chega vazio, e o validador
+ainda exige `NotEmpty`) mesmo quando tudo o mais está certo — por isso
+`ProdutoController.Cadastro` chama `ModelState.Remove(nameof(ProdutoDTO.
+ImagemUrl))` antes de checar `ModelState.IsValid`, o mesmo precedente que
+`ContaController.AlterarDados` já usa para o CPF (spec `018`).
 
 ---
 

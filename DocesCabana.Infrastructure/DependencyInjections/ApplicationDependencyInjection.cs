@@ -17,6 +17,7 @@ public static class ApplicationDependencyInjection
     {
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<FreteSettings>(configuration.GetSection("FreteSettings"));
+        services.Configure<SupabaseSettings>(configuration.GetSection("SupabaseSettings"));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
@@ -41,6 +42,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<IPedidoService, PedidoService>();
         services.AddEmailService(configuration);
         services.AddFreteService();
+        services.AddArmazenamentoDeImagem();
 
         return services;
     }
@@ -53,6 +55,21 @@ public static class ApplicationDependencyInjection
         services.AddHttpClient<IFreteService, FreteServiceMelhorEnvio>((provedor, client) =>
         {
             var settings = provedor.GetRequiredService<IOptions<FreteSettings>>().Value;
+            client.BaseAddress = new Uri(settings.UrlBase);
+            client.Timeout = TimeSpan.FromSeconds(settings.TimeoutEmSegundos);
+        });
+
+        return services;
+    }
+
+    // Isolado pelo mesmo motivo de AddFreteService: testável sem montar o
+    // grafo inteiro. Uma implementação só (spec 027 §10) — sem adaptador
+    // local, então sem o "if" por adaptador que AddEmailService tem.
+    public static IServiceCollection AddArmazenamentoDeImagem(this IServiceCollection services)
+    {
+        services.AddHttpClient<IArmazenamentoDeImagem, ArmazenamentoSupabase>((provedor, client) =>
+        {
+            var settings = provedor.GetRequiredService<IOptions<SupabaseSettings>>().Value;
             client.BaseAddress = new Uri(settings.UrlBase);
             client.Timeout = TimeSpan.FromSeconds(settings.TimeoutEmSegundos);
         });
