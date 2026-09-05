@@ -33,6 +33,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [021](./021-redesenho-do-carrinho/spec.md) | Redesenho do carrinho | Implementada | spec · [plan](./021-redesenho-do-carrinho/plan.md) · [tasks](./021-redesenho-do-carrinho/tasks.md) · [checklist](./021-redesenho-do-carrinho/checklist.md) |
 | [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Implementada | spec · [plan](./022-fechamento-de-pedido/plan.md) · [tasks](./022-fechamento-de-pedido/tasks.md) · [checklist](./022-fechamento-de-pedido/checklist.md) |
 | [023](./023-meus-pedidos/spec.md) | Meus pedidos | Implementada | spec · [plan](./023-meus-pedidos/plan.md) · [tasks](./023-meus-pedidos/tasks.md) · [checklist](./023-meus-pedidos/checklist.md) |
+| [027](./027-envio-de-imagem-do-produto/spec.md) | Envio de imagem do produto | Especificada | spec · [plan](./027-envio-de-imagem-do-produto/plan.md) · [tasks](./027-envio-de-imagem-do-produto/tasks.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023`.
 > A `023` (meus pedidos) é a única entrega de leitura pura desta cadeia —
@@ -235,6 +236,18 @@ entregas; hoje são doze. A ordem abaixo é de dependência, não de preferênci
 `025-avaliacao-promocoes-favorito-e-sugestoes` fica fora desta tabela — não é
 elo da cadeia de compra, é a spec de features que a `019` separou do backlog
 solto (ver a seção abaixo).
+
+A [`027`](./027-envio-de-imagem-do-produto/spec.md) (envio de imagem do
+produto) também fica fora da cadeia: é infraestrutura da área administrativa,
+não passo da compra. Nasceu de um pedido único — "migrar para o Supabase" —
+que ao ser especificado se revelou **dois subsistemas independentes**: o
+armazenamento das imagens e a troca do banco para Postgres. O primeiro é a
+`027`; o segundo será a `028`, ainda não especificada. Não dependem um do
+outro (o armazenamento funciona com o banco atual, e o banco funcionaria com
+as imagens atuais) e, juntos, ficariam na faixa de 80 a 100 tarefas — a mesma
+que fez o fechamento de pedido ser quebrado em três. Os números `024`, `025` e
+`026` seguem reservados para pagamento, features e estoque: tomá-los aqui
+seria o nono deslocamento da cadeia, por nenhum ganho.
 
 **Ordem de execução sugerida, diferente da numeração:** a `021` reconstrói o
 resumo lateral do carrinho, que é onde a caixa de CEP da `020` mora. Executar a
