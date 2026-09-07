@@ -80,7 +80,7 @@ public class ArmazenamentoSupabaseTests
     }
 
     [Fact]
-    public async Task Dado_EnvioBemSucedido_Quando_Enviar_Entao_DeveEnviarAuthorizationEContentType()
+    public async Task Dado_EnvioBemSucedido_Quando_Enviar_Entao_DeveEnviarAuthorizationApikeyEContentType()
     {
         var handler = new HandlerFalso(HttpStatusCode.OK, "{}");
         var servico = CriarServico(handler);
@@ -90,6 +90,12 @@ public class ArmazenamentoSupabaseTests
 
         Assert.NotNull(handler.UltimaRequisicao);
         Assert.Equal("Bearer chave-de-teste", handler.UltimaRequisicao!.Headers.Authorization?.ToString());
+        // O formato novo de chave do Supabase (sb_secret_...) não é um JWT —
+        // o Storage recusa com 403 "Invalid Compact JWS" só com Authorization
+        // (achado rodando contra o serviço real, T032): precisa também do
+        // cabeçalho apikey com a mesma chave.
+        Assert.True(handler.UltimaRequisicao.Headers.TryGetValues("apikey", out var apikey));
+        Assert.Equal("chave-de-teste", apikey!.Single());
         Assert.Equal("image/jpeg", handler.UltimaRequisicao.Content?.Headers.ContentType?.MediaType);
     }
 

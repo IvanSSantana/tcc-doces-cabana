@@ -44,6 +44,11 @@ public class ArmazenamentoSupabase : IArmazenamentoDeImagem
         };
         mensagem.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
         mensagem.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.ChaveDeServico);
+        // O formato novo de chave do Supabase (sb_secret_...) não é um JWT —
+        // o Storage recusa com 403 "Invalid Compact JWS" só com Authorization
+        // (achado rodando contra o serviço real, T032). Precisa também do
+        // apikey com a mesma chave.
+        mensagem.Headers.Add("apikey", _settings.ChaveDeServico);
 
         try
         {

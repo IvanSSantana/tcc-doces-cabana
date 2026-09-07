@@ -922,10 +922,31 @@ mensagem "Armazenamento de imagem não configurado." — achado rodando o E2E
 sem a variável de ambiente configurada, do mesmo jeito que a `020` achou o
 primeiro caso.
 
-**A credencial nunca chega ao navegador.** É a `service_role` do Supabase, e
+**A credencial nunca chega ao navegador.** É a chave de serviço do Supabase, e
 só é lida dentro do adaptador, em `Infrastructure`. O arquivo trafega
 navegador → aplicação → Storage; a aplicação nunca devolve a chave para o
 cliente, nem a expõe em view ou script.
+
+**O Storage exige `apikey` além de `Authorization`.** O formato novo de chave
+do Supabase (`sb_secret_…`) não é um JWT, e a API recusa com
+`403 "Invalid Compact JWS"` quando recebe só `Authorization: Bearer` — que é
+como `FreteServiceMelhorEnvio` autentica, e por isso foi como este adaptador
+nasceu. Os dois cabeçalhos levam a mesma chave. Isso não aparece em teste de
+unidade com handler falso, porque ele afirma a requisição que sai, não a
+resposta de um servidor real: foi a verificação manual contra o serviço (T032
+da `027`) que achou.
+
+**O teste de "sem credencial" precisa negar a credencial, não omiti-la.** O
+E2E sobe a aplicação com `ASPNETCORE_ENVIRONMENT=Development`, e nesse ambiente
+o ASP.NET Core carrega os *user secrets* da máquina de quem executa. Enquanto
+`AplicacaoEmExecucao` apenas deixava de definir a variável no ramo sem
+credencial, a chave real de quem tivesse uma configurada entrava por baixo — e
+o teste que deveria provar a recusa passou a cadastrar produto de verdade.
+O ramo agora zera `SupabaseSettings__ChaveDeServico` explicitamente; variável
+de ambiente tem precedência sobre user secrets. A cotação de frete escapa do
+mesmo furo por outro caminho: o ramo sem credencial dela aponta
+`FreteSettings__UrlBase` para `http://localhost:9`, então a chamada falha
+mesmo que um token vaze.
 
 `ImagemUrl` deixou de ser campo do formulário — passa a ser preenchido pelo
 servidor, a partir do endereço que `Enviar` devolve, e `ProdutoDTO.ComImagem`

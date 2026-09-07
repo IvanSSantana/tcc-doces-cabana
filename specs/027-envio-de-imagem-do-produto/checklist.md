@@ -5,13 +5,11 @@ Preenchido ao final da implementação. Item não marcado bloqueia o merge.
 ## Especificação
 
 - [x] Todo `RF-xx` da spec tem código correspondente
-- [ ] Todo `CA-xx` foi verificado manualmente na aplicação rodando — **CA-06,
-      CA-07 e CA-10 não puderam ser verificados**: dependem do bucket
-      `images` estar marcado como público no painel do Supabase, e ele ainda
-      não está (`.../object/public/...` devolve `400 Bucket not found`,
-      enquanto o mesmo arquivo pelo endereço assinado responde). Os demais
-      (CA-01 a CA-05, CA-08, CA-09, CA-11) foram verificados por teste
-      automatizado.
+- [x] Todo `CA-xx` foi verificado manualmente na aplicação rodando — CA-01 a
+      CA-05, CA-08, CA-09 e CA-11 por teste automatizado; CA-06, CA-07 e CA-10
+      à mão, com a credencial real e o bucket já público (T032). O cadastro
+      manual encontrou e derrubou um defeito que a suíte não pegaria: falta do
+      cabeçalho `apikey`, exigido pelo formato novo de chave do Supabase.
 - [x] Nada fora do escopo declarado entrou junto na entrega
 - [x] Nenhuma marcação `[NECESSITA ESCLARECIMENTO]` sobrou
 
@@ -46,12 +44,37 @@ Preenchido ao final da implementação. Item não marcado bloqueia o merge.
 - [x] Entrada do usuário não é interpolada em HTML sem escape
 - [x] Mensagens de erro não vazam existência de conta nem detalhe interno
 
-## Pendências registradas (não bloqueiam o código, bloqueiam o uso real)
+## Pendências que existiram e foram encerradas
 
-- [ ] **Bucket `images` marcado como público no painel do Supabase** —
-      Storage → images → Settings → Public bucket. Sem isso, ninguém
-      cadastra produto de verdade (o upload em si até funcionaria com uma
-      `service_role` válida, mas os endereços gravados — e os da massa de
-      demonstração — não resolvem para ninguém).
-- [ ] **`SupabaseSettings__ChaveDeServico` real** para rodar a categoria
-      `Externo` e o caminho feliz de ponta a ponta (T032).
+- [x] **Bucket `images` marcado como público no painel do Supabase** — feito
+      pelo responsável durante a execução. Os seis endereços da massa de
+      demonstração respondem `200`.
+- [x] **`SupabaseSettings:ChaveDeServico` real** — configurada em *user
+      secrets*. A categoria `Externo` passa, e o cadastro manual completo foi
+      feito (T032).
+
+## Dois achados da verificação manual
+
+**1. `Authorization: Bearer` não basta.** O adaptador foi escrito no molde de
+`FreteServiceMelhorEnvio`, que autentica só com `Authorization`. Isso basta para
+uma chave JWT, e **não** basta para o formato novo do Supabase (`sb_secret_…`),
+que exige também o cabeçalho `apikey` — sem ele, o Storage responde
+`403 "Invalid Compact JWS"`. Seguir o padrão do vizinho é a regra certa e
+continuaria sendo; o que ela não cobre é quando o serviço vizinho e o novo
+autenticam de formas diferentes. Só um teste contra o serviço real acha isso.
+
+**2. O E2E não estava isolado dos *user secrets* da máquina.** Descoberto como
+consequência do achado anterior: assim que a chave real foi configurada em user
+secrets para poder fazer a T032, o teste de "sem credencial" (CA-09) passou a
+**cadastrar produto de verdade** — o processo filho roda com
+`ASPNETCORE_ENVIRONMENT=Development`, e nesse ambiente o ASP.NET Core carrega os
+segredos da máquina de quem executa. O `AplicacaoEmExecucao` controlava as
+variáveis de ambiente, mas não o que entrava por trás delas.
+
+Corrigido zerando `SupabaseSettings__ChaveDeServico` explicitamente no ramo
+"sem credencial", em vez de apenas omiti-lo — variável de ambiente tem
+precedência sobre user secrets. **Omitir não é o mesmo que negar**, e essa
+diferença era invisível enquanto ninguém tinha o segredo configurado. A cotação
+de frete escapa do mesmo furo por acidente: o ramo sem credencial dela força
+`FreteSettings__UrlBase=http://localhost:9`, o que faz a cotação falhar mesmo
+se um token vazar dos user secrets.

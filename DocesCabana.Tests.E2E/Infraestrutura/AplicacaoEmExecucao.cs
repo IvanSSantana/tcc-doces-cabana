@@ -117,6 +117,20 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
             infoProcesso.Environment["SupabaseSettings__Pasta"] =
                 Environment.GetEnvironmentVariable("SupabaseSettings__Pasta") ?? "public";
         }
+        else
+        {
+            // Zerar explicitamente, e não apenas omitir. O processo filho roda
+            // com ASPNETCORE_ENVIRONMENT=Development, e nesse ambiente o
+            // ASP.NET Core carrega os *user secrets* da máquina de quem
+            // executa — omitir aqui entregaria a chave real de quem tiver uma
+            // configurada ao teste cujo cenário é justamente não haver chave
+            // (CA-09 da spec 027). Aconteceu de verdade: o teste passou a
+            // cadastrar produto no Supabase depois que a chave foi posta em
+            // user secrets para a verificação manual da T032. Variável de
+            // ambiente tem precedência sobre user secrets, então o vazio aqui
+            // vence.
+            infoProcesso.Environment["SupabaseSettings__ChaveDeServico"] = string.Empty;
+        }
 
         var processo = new Process { StartInfo = infoProcesso, EnableRaisingEvents = true };
         processo.OutputDataReceived += (_, e) => { if (e.Data is not null) aplicacao._saidaPadrao.AppendLine(e.Data); };
