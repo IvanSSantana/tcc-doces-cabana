@@ -8,7 +8,11 @@ public class CadastroDeProdutoTests : TesteE2E
 {
     public CadastroDeProdutoTests(FixtureE2E fixture) : base(fixture) { }
 
+    // Caminho feliz exige a imagem realmente subindo ao Storage — só roda
+    // com SupabaseSettings__ChaveDeServico no ambiente (spec 027 §10, mesma
+    // consequência aceita que a cotação de frete real já tem desde a 020).
     [Fact]
+    [Trait("Categoria", "Externo")]
     public async Task Dado_Administrador_Quando_CadastrarProduto_Entao_DeveConfirmar() =>
         await Executar(async () =>
         {
@@ -16,8 +20,7 @@ public class CadastroDeProdutoTests : TesteE2E
 
             var paginaProduto = new PaginaCadastroProduto(Pagina);
             await paginaProduto.Abrir(UrlBase);
-            await paginaProduto.Preencher(
-                "Brigadeiro Gourmet E2E", 9.90m, "https://exemplo.com/imagens/brigadeiro.jpg");
+            await paginaProduto.Preencher("Brigadeiro Gourmet E2E", 9.90m);
             await paginaProduto.Enviar();
 
             await Expect(paginaProduto.MensagemDeConfirmacao).ToHaveTextAsync("Produto cadastrado com sucesso!");
@@ -31,11 +34,30 @@ public class CadastroDeProdutoTests : TesteE2E
 
             var paginaProduto = new PaginaCadastroProduto(Pagina);
             await paginaProduto.Abrir(UrlBase);
-            await paginaProduto.Preencher(
-                "Produto Preço Inválido", 0m, "https://exemplo.com/imagens/invalido.jpg");
+            await paginaProduto.Preencher("Produto Preço Inválido", 0m);
             await paginaProduto.Enviar();
 
             await Expect(paginaProduto.ErroDePreco).ToHaveTextAsync("Preço deve ser maior que zero.");
+            await Expect(paginaProduto.MensagemDeConfirmacao).Not.ToBeVisibleAsync();
+        });
+
+    // CA-09: sem credencial no ambiente (a suíte padrão nunca a tem), o
+    // cadastro recusa com a mensagem específica de "não configurado" — não
+    // só "houve uma falha". Afirmar a mensagem exata é o que faz este teste
+    // apontar para o enctype esquecido, em vez de mascarar o sintoma
+    // (tasks.md, nota das "duas coisas não negociáveis").
+    [Fact]
+    public async Task Dado_SemCredencialDeArmazenamento_Quando_CadastrarProduto_Entao_DeveRecusarComMensagemEspecificaSemCadastrar() =>
+        await Executar(async () =>
+        {
+            await EntrarComoAdministrador();
+
+            var paginaProduto = new PaginaCadastroProduto(Pagina);
+            await paginaProduto.Abrir(UrlBase);
+            await paginaProduto.Preencher("Produto Sem Credencial E2E", 12.90m);
+            await paginaProduto.Enviar();
+
+            await Expect(paginaProduto.ErroGeral).ToHaveTextAsync("Armazenamento de imagem não configurado.");
             await Expect(paginaProduto.MensagemDeConfirmacao).Not.ToBeVisibleAsync();
         });
 

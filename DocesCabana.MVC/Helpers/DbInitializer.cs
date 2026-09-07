@@ -77,14 +77,20 @@ public static class DbInitializer
 
     // Reaproveitadas em ciclo para as 100 linhas do mock — não há 100 fotos
     // reais disponíveis; a taxonomia é que precisa ser real (spec 012 §11).
+    //
+    // Antes eram seis links de pré-visualização do Google Drive (spec 027,
+    // RF-10): página, não arquivo de imagem, e dependente de permissão que
+    // ninguém do sistema controla. Agora são endereços públicos do mesmo
+    // bucket do Supabase Storage que o cadastro de produto usa — sem token,
+    // sem validade (RN-05) — e ficam versionados, como os do Drive ficavam.
     private static readonly string[] ImagensDeExemplo =
     [
-        "https://drive.google.com/file/d/1q2pScc0aQL8V8w3PeffOQsAfo6_-YxYk/preview",
-        "https://drive.google.com/file/d/1nqCmg7DPQQhUhFKQ12b21XMQSVTYWSuT/preview",
-        "https://drive.google.com/file/d/1YfVBWgDdQ4XVB1tsSY7yDOssljtJlIuZ/preview",
-        "https://drive.google.com/file/d/1jFKyz7UdjlYL6gRJbzi2N4Pm3IsIKrZ4/preview",
-        "https://drive.google.com/file/d/1Hq0GQ6axWc-iRPOheT4vBYa0s6MU-q6C/preview",
-        "https://drive.google.com/file/d/1bfDl0VMyHkHzxOxluuho3-7EERjjdDa2/preview",
+        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7382.JPG",
+        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7412.JPG",
+        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7419.JPG",
+        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7422.JPG",
+        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7423.JPG",
+        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7427.JPG",
     ];
 
     public static void Migrar(IServiceProvider serviceProvider)

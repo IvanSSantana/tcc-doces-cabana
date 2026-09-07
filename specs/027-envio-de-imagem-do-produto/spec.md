@@ -1,7 +1,7 @@
 # Especificação — Envio de imagem do produto
 
 **ID:** `027-envio-de-imagem-do-produto` · **Branch:** `027-envio-de-imagem-do-produto`
-**Criada em:** 2026-09-05 · **Status:** Rascunho
+**Criada em:** 2026-09-05 · **Status:** Implementada (parcial) — ver `checklist.md`
 
 ---
 

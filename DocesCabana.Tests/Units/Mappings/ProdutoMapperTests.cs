@@ -65,4 +65,42 @@ public class ProdutoMapperTests
 
         Assert.Empty(resultado);
     }
+
+    // ComImagem vive em ProdutoDTO (não em ProdutoMapper), mas é provado
+    // aqui — vizinho mais próximo do DTO — em vez de uma pasta Units/DTOs
+    // nova para um método de duas linhas (spec 027, T005).
+    [Fact]
+    public void Dado_UmDTO_Quando_ComImagem_Entao_DeveDevolverCopiaComEnderecoPreenchidoPreservandoOResto()
+    {
+        var dto = new ProdutoDTO
+        {
+            ProdutoId = Guid.NewGuid(),
+            Nome = "Brigadeiro Gourmet",
+            Preco = 5.50m,
+            Status = ProdutoStatus.Ativo,
+            ImagemUrl = "",
+            Descricao = "Descrição",
+            SubcategoriaId = Guid.NewGuid(),
+            SemAcucar = true,
+            Peso = 0.5m,
+            Altura = 10m,
+            Largura = 15m,
+            Comprimento = 20m
+        };
+
+        var copia = dto.ComImagem("https://imagem.com/produto.jpg");
+
+        Assert.Equal("https://imagem.com/produto.jpg", copia.ImagemUrl);
+        Assert.Equal(dto.ProdutoId, copia.ProdutoId);
+        Assert.Equal(dto.Nome, copia.Nome);
+        Assert.Equal(dto.Preco, copia.Preco);
+        Assert.Equal(dto.Status, copia.Status);
+        Assert.Equal(dto.Descricao, copia.Descricao);
+        Assert.Equal(dto.SubcategoriaId, copia.SubcategoriaId);
+        Assert.Equal(dto.SemAcucar, copia.SemAcucar);
+        Assert.Equal(dto.Peso, copia.Peso);
+        Assert.Equal(dto.Altura, copia.Altura);
+        Assert.Equal(dto.Largura, copia.Largura);
+        Assert.Equal(dto.Comprimento, copia.Comprimento);
+    }
 }

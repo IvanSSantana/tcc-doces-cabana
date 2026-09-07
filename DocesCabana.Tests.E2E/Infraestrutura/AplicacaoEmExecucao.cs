@@ -99,6 +99,39 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
             infoProcesso.Environment["FreteSettings__UrlBase"] = "http://localhost:9";
         }
 
+        // Armazenamento de imagem (spec 027) — mesmo mecanismo do frete.
+        // Sem SupabaseSettings__ChaveDeServico no ambiente de quem executa,
+        // sobe sem credencial de propósito: o adaptador recusa sem tocar a
+        // rede (RN-03), e os testes sem [Trait("Categoria", "Externo")]
+        // continuam determinísticos em qualquer máquina. Com a credencial
+        // presente, repassa também UrlBase/Bucket/Pasta se o ambiente os
+        // definir, para os testes marcados como externos (Fase 8).
+        var chaveDeServicoDoAmbiente = Environment.GetEnvironmentVariable("SupabaseSettings__ChaveDeServico");
+        if (!string.IsNullOrWhiteSpace(chaveDeServicoDoAmbiente))
+        {
+            infoProcesso.Environment["SupabaseSettings__ChaveDeServico"] = chaveDeServicoDoAmbiente;
+            infoProcesso.Environment["SupabaseSettings__UrlBase"] =
+                Environment.GetEnvironmentVariable("SupabaseSettings__UrlBase") ?? "https://mjnlzsucdsxqahabsniy.supabase.co";
+            infoProcesso.Environment["SupabaseSettings__Bucket"] =
+                Environment.GetEnvironmentVariable("SupabaseSettings__Bucket") ?? "images";
+            infoProcesso.Environment["SupabaseSettings__Pasta"] =
+                Environment.GetEnvironmentVariable("SupabaseSettings__Pasta") ?? "public";
+        }
+        else
+        {
+            // Zerar explicitamente, e não apenas omitir. O processo filho roda
+            // com ASPNETCORE_ENVIRONMENT=Development, e nesse ambiente o
+            // ASP.NET Core carrega os *user secrets* da máquina de quem
+            // executa — omitir aqui entregaria a chave real de quem tiver uma
+            // configurada ao teste cujo cenário é justamente não haver chave
+            // (CA-09 da spec 027). Aconteceu de verdade: o teste passou a
+            // cadastrar produto no Supabase depois que a chave foi posta em
+            // user secrets para a verificação manual da T032. Variável de
+            // ambiente tem precedência sobre user secrets, então o vazio aqui
+            // vence.
+            infoProcesso.Environment["SupabaseSettings__ChaveDeServico"] = string.Empty;
+        }
+
         var processo = new Process { StartInfo = infoProcesso, EnableRaisingEvents = true };
         processo.OutputDataReceived += (_, e) => { if (e.Data is not null) aplicacao._saidaPadrao.AppendLine(e.Data); };
         processo.ErrorDataReceived += (_, e) => { if (e.Data is not null) aplicacao._saidaDeErro.AppendLine(e.Data); };
