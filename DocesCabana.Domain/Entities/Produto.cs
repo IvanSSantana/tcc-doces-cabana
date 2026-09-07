@@ -14,8 +14,9 @@ public class Produto
     // Derivado de Nome nos dois únicos pontos que o alteram — construtor e
     // AlterarNome — nunca atribuído por fora (spec 016, RN-02). É o que a
     // busca por texto compara, sem acento e sem caixa: sem esta coluna,
-    // "cafe" não encontraria "Café" no SQLite (Contains vira instr,
-    // sensível aos dois).
+    // "cafe" não encontraria "Café" — nem no SQLite original (Contains virava
+    // instr, sensível aos dois) nem no Postgres de hoje (Contains vira LIKE,
+    // igualmente sensível aos dois sem a normalização).
     public string NomeNormalizado { get; private set; } = default!;
 
     public decimal Preco { get; private set; }

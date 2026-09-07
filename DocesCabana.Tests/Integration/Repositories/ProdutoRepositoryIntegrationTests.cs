@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-public class ProdutoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
+public class ProdutoRepositoryIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_ProdutoPersistido_QuandoBuscarPorId_Entao_DeveRetornarProduto()

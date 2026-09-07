@@ -7,7 +7,7 @@ namespace DocesCabana.Tests.Integration.Repositories;
 // Cobre a chave composta de Favorito(ProdutoId, UsuarioId), criada desde a
 // migration da spec 003 — é ela quem garante RN-01 (par único) no banco,
 // sem barreira de validação adicional (spec 015, plano §10).
-public class FavoritoIntegrationTests : InfraestruturaSqliteEmMemoria
+public class FavoritoIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_UmParJaFavoritado_Quando_TentarFavoritarDeNovo_Entao_DeveSerRecusado()

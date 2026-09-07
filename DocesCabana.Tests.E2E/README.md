@@ -4,8 +4,10 @@ Testes de ponta a ponta em navegador real, via Playwright. Percorrem os
 fluxos que as specs `001` a `006` entregaram — cadastro, login, recuperação
 de senha, cadastro de produto e gestão de administradores — clicando e
 preenchendo como uma pessoa faria, contra a aplicação de verdade subindo num
-processo filho, com um SQLite descartável e um adaptador de e-mail que grava
-em arquivo (nunca contra a base do dia a dia — ver `specs/007-testes-e2e-com-playwright/plan.md`).
+processo filho, com um Postgres descartável (contêiner via Testcontainers,
+spec 028 — exige Docker Desktop em execução) e um adaptador de e-mail que
+grava em arquivo (nunca contra a base do dia a dia — ver
+`specs/007-testes-e2e-com-playwright/plan.md`).
 
 ## Instalação (uma vez por máquina)
 

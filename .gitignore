@@ -55,9 +55,6 @@ nunit-*.xml
 
 .vscode/
 .cursor/
-docescabana.db-shm
-docescabana.db-wal
-docescabana.db
 appsettings.json
 # Configuração local do Claude Code (não é do projeto)
 .claude/settings.local.json

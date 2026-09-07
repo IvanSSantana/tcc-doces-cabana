@@ -4,7 +4,7 @@ using DocesCabana.Infrastructure.Repositories;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-public class AvaliacaoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
+public class AvaliacaoRepositoryIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_AvaliacoesComNotasDiferentes_Quando_BuscarPorProdutoOrdenandoPorMaiorNota_Entao_DeveTrazerDaMaiorParaAMenor()

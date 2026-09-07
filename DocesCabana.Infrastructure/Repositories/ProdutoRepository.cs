@@ -64,9 +64,11 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
             consulta = consulta.Where(p => p.SemAcucar);
 
         // Busca por texto (spec 016) — mais um filtro, não um caminho à
-        // parte (RN-01). Contains sobre NomeNormalizado vira instr no
-        // SQLite: literal, sem interpretar %/_ como curinga, e comparado
-        // contra um texto já sem acento e sem caixa dos dois lados (RN-02).
+        // parte (RN-01). Contains sobre NomeNormalizado vira LIKE no
+        // Postgres (era instr no SQLite original) — o EF Core escapa %/_ na
+        // tradução dos dois jeitos, então nenhum vira curinga por acidente
+        // (spec 028, teste que trava isso em CatalogoRepositoryIntegrationTests).
+        // Comparado contra um texto já sem acento e sem caixa dos dois lados (RN-02).
         if (!string.IsNullOrWhiteSpace(filtro.TermoNormalizado))
             consulta = consulta.Where(p => p.NomeNormalizado.Contains(filtro.TermoNormalizado));
 

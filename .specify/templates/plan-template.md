@@ -87,7 +87,7 @@ public interface IXService
 | Unidade — serviço | `Units/Services/XServiceTests.cs` | RF-xx com repositório mockado |
 | Unidade — validator | `Units/Validators/XDTOValidatorTests.cs` | cada `RuleFor` |
 | Unidade — controller | `Units/Controllers/XControllerTests.cs` | ModelState, redirecionamento |
-| Integração | `Integration/Repositories/XRepositoryIntegrationTests.cs` | persistência real em SQLite |
+| Integração | `Integration/Repositories/XRepositoryIntegrationTests.cs` | persistência real em Postgres descartável |
 
 Mapeamento critério → teste:
 

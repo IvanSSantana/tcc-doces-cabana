@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-public class ModeloDeDadosIntegrationTests : InfraestruturaSqliteEmMemoria
+public class ModeloDeDadosIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_ProdutoComSubcategoriaInexistente_Quando_Salvar_Entao_DeveRecusar()

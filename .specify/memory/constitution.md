@@ -1,6 +1,6 @@
 # Constituição — Doces Cabana
 
-**Versão:** 1.4.1 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-08-19
+**Versão:** 1.4.2 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-09-07
 
 Este documento define os princípios inegociáveis do projeto. Toda `spec`, `plan` e
 `tasks` é validada contra ele antes de virar código. Quando uma decisão técnica
@@ -146,8 +146,9 @@ Organização em `DocesCabana.Tests`:
 - `Units/Services` — regra de aplicação, repositório via `Moq`.
 - `Units/Validators` — cada `RuleFor` com um caso válido e um inválido.
 - `Units/Controllers` — tipo de `IActionResult`, `ModelState`, redirecionamento.
-- `Integration/Repositories` — SQLite em memória via
-  [`InfraestruturaSqliteEmMemoria`](../../DocesCabana.Tests/Integration/InfraestruturaSqliteEmMemoria.cs).
+- `Integration/Repositories` — Postgres descartável (contêiner via
+  Testcontainers) através de
+  [`InfraestruturaPostgresDescartavel`](../../DocesCabana.Tests/Integration/InfraestruturaPostgresDescartavel.cs).
 
 Ferramentas fixas: xUnit + Moq + coverlet para teste de unidade e de
 integração; `Microsoft.Playwright` para teste de ponta a ponta em navegador,
@@ -235,3 +236,4 @@ justificativa escrita na `spec`:
 | 1.3.0 | 2026-08-13 | Feature `007-testes-e2e-com-playwright`. Princípio V passa a distinguir camada de teste: xUnit + Moq + coverlet continuam fixos para unidade e integração; `Microsoft.Playwright` entra como driver de navegador para teste de ponta a ponta, com o xUnit seguindo como runner único — não introduzido um segundo runner, só um driver para uma camada que a stack anterior não alcançava. |
 | 1.4.0 | 2026-08-18 | Feature `010-organizacao-de-nomenclatura`. Princípio IV ganha duas regras normativas novas, mesmo padrão da 1.1.0: nome de classe é único por conceito de negócio (motivada pela colisão `AdminController`/`AdministradorController`, corrigida por esta feature) e tela parcial de uso único mora com o controlador dono, `Views/Shared/` reservado ao que é reaproveitado (regra que a base já praticava desde a `008`, agora escrita). MINOR — expansão material do princípio, não correção de texto. |
 | 1.4.1 | 2026-08-19 | Feature `011-area-administrativa`. Ressalva ao parágrafo de unicidade de nome que a 1.4.0 introduziu: o escopo é a *area*, não a solução inteira — `Admin/Produto` e `/Produto` são telas de públicos distintos, separadas pelo framework. PATCH — corrige o alcance de uma regra existente, não introduz regra nova. |
+| 1.4.2 | 2026-09-07 | Feature `028-banco-postgres-supabase`. Princípio V: `Integration/Repositories` passa a descrever Postgres descartável via `InfraestruturaPostgresDescartavel`, no lugar do SQLite em memória via `InfraestruturaSqliteEmMemoria` — o banco trocou de motor, a organização de teste não mudou. PATCH — corrige referência e exemplo, não introduz regra nova. |

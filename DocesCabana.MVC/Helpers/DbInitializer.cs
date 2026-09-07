@@ -101,11 +101,12 @@ public static class DbInitializer
         context.Database.Migrate();
     }
 
-    // Corrige, em C# e não em SQL (o SQLite não tem função para remover
-    // acento — é justamente por isso que a coluna existe), as linhas de
-    // Produto gravadas antes da migration AddProdutoNomeNormalizado (spec
-    // 016, plano §6). Idempotente: numa base recém-criada, ou já corrigida,
-    // não encontra nenhuma linha e não faz nada.
+    // Corrige, em C# e não em SQL, as linhas de Produto gravadas antes da
+    // migration AddProdutoNomeNormalizado (spec 016, plano §6) — a
+    // normalização mora no domínio (TextoHelper), não em função de banco
+    // específica de um provider (spec 028). Idempotente: numa base
+    // recém-criada, ou já corrigida, não encontra nenhuma linha e não faz
+    // nada.
     public static async Task PreencherNomesNormalizados(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
@@ -264,8 +265,8 @@ public static class DbInitializer
     // Gera avaliações para a maior parte dos produtos, deixando parte sem
     // nenhuma (spec 014, RF-12/RF-13). Sem acesso a banco de propósito — é o
     // que permite chamar duas vezes com a mesma semente e comparar o
-    // resultado (RF-14, CA-16), sem precisar de um SQLite em memória para
-    // testar geração pura.
+    // resultado (RF-14, CA-16), sem precisar de banco nenhum para testar
+    // geração pura.
     //
     // RN-01 (uma avaliação por pessoa por produto) é respeitada por
     // construção: os avaliadores de um produto vêm de um embaralhamento sem
@@ -382,9 +383,9 @@ public static class DbInitializer
     // "mais vendido": se ele contasse, derrubaria a ordem esperada,
     // provando RN-05/CA-22 (pedido cancelado não conta como venda).
     // internal (não private): o teste de integração da spec 022 chama
-    // direto, com um contexto SQLite em memória e usuários/produtos já
-    // persistidos, sem precisar subir Identity inteiro só para isso (mesmo
-    // motivo de GerarProdutosMock ser internal).
+    // direto, com um contexto de banco descartável (Postgres desde a spec
+    // 028) e usuários/produtos já persistidos, sem precisar subir Identity
+    // inteiro só para isso (mesmo motivo de GerarProdutosMock ser internal).
     internal static async Task SemearPedidosDeExemplo(DocesCabanaDbContext context, List<Guid> usuarioIds, List<Produto> produtos)
     {
         var enderecoPorUsuario = new Dictionary<Guid, Guid>();
@@ -427,7 +428,7 @@ public static class DbInitializer
             // nunca escolhe a própria data). Os semeados representam
             // compras passadas (spec 023, §10), então uma data explícita
             // por reflection é o mesmo contorno que os testes já usam para
-            // avaliação (InfraestruturaSqliteEmMemoria.SemearAvaliacao) —
+            // avaliação (InfraestruturaPostgresDescartavel.SemearAvaliacao) —
             // aqui, para a lista ter mais de um pedido por cliente com
             // datas visivelmente diferentes (RF-03/CA-03).
             if (data is not null)

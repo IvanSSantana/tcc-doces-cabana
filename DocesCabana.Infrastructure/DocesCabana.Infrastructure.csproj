@@ -9,9 +9,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
-    <!-- Fixa a versão transitiva sem a vulnerabilidade GHSA-2m69-gcr7-jv3q (ver 2.1.11) -->
-    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.12" />
+    <!-- Banco no Postgres do Supabase (spec 028). O pin de
+         SQLitePCLRaw.lib.e_sqlite3 que existia aqui saiu junto com o SQLite —
+         era só para tapar a vulnerabilidade GHSA-2m69-gcr7-jv3q da versão
+         transitiva que o provider antigo arrastava. -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

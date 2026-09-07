@@ -3,7 +3,7 @@ using DocesCabana.Infrastructure.Repositories;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-public class EnderecoIntegrationTests : InfraestruturaSqliteEmMemoria
+public class EnderecoIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_EnderecosCadastradosForaDeOrdem_Quando_BuscarPorUsuario_Entao_DeveOrdenarPorDataCadastro()

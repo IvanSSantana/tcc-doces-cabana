@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration;
 
-public class DatabaseIntegrationTests : InfraestruturaSqliteEmMemoria
+public class DatabaseIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_UmNovoProduto_Quando_AdicionarAoRepositorioSemSalvar_Entao_NaoDeveEstarNoBanco()

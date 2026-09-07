@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-public class CatalogoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
+public class CatalogoRepositoryIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_ProdutoComNomeNormalizadoVazio_Quando_PreencherRetroativamente_Entao_DeveFicarEncontravel()
@@ -25,8 +25,11 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
         // "Apaga" o derivado via SQL cru — Produto não expõe um jeito de
         // deixá-lo divergente do nome por fora do construtor (RN-02), então
         // simular a base antiga exige contornar a entidade.
+        // Identificadores entre aspas (spec 028): sem elas, o Postgres dobra
+        // para minúsculo e procura uma tabela "produto" que não existe — o
+        // EF cria "Produto".
         await Contexto.Database.ExecuteSqlRawAsync(
-            "UPDATE Produto SET NomeNormalizado = '' WHERE ProdutoId = {0}", produto.ProdutoId);
+            """UPDATE "Produto" SET "NomeNormalizado" = '' WHERE "ProdutoId" = {0}""", produto.ProdutoId);
         Contexto.ChangeTracker.Clear();
 
         await DbInitializer.PreencherNomesNormalizados(Contexto);
@@ -252,10 +255,14 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
     [Fact]
     public async Task Dado_TermoComCaracteresDeCuringaSql_Quando_Buscar_Entao_NaoDeveTratarComoCuringa()
     {
-        // No SQLite, Contains vira instr — literal, sem interpretar % ou _
-        // como curinga (plano §9). Um produto chamado "100% Cacau" só casa
-        // com o termo "100% cacau" digitado por inteiro, não com "100" mais
-        // qualquer coisa.
+        // No SQLite, Contains virava instr — literal, sem interpretar % ou _
+        // como curinga (plano §9 da 016). No Postgres (spec 028), Contains
+        // vira LIKE, que trata os dois como curinga — mas o EF Core escapa o
+        // termo automaticamente antes de montar o LIKE, então o resultado é
+        // o mesmo por um caminho diferente: continua sendo o EF, não o
+        // provider, quem garante isso. Este teste prova o comportamento
+        // observável, não o mecanismo por baixo — por isso segue válido
+        // trocando de motor.
         var (categoriaId, subId, _) = await SemearCategoriaDoces();
         await SemearProduto(subId, "100% Cacau", 10m);
         await SemearProduto(subId, "1000 Cacau", 12m);
