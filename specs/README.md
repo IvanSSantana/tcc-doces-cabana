@@ -34,6 +34,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [022](./022-fechamento-de-pedido/spec.md) | Fechamento de pedido | Implementada | spec · [plan](./022-fechamento-de-pedido/plan.md) · [tasks](./022-fechamento-de-pedido/tasks.md) · [checklist](./022-fechamento-de-pedido/checklist.md) |
 | [023](./023-meus-pedidos/spec.md) | Meus pedidos | Implementada | spec · [plan](./023-meus-pedidos/plan.md) · [tasks](./023-meus-pedidos/tasks.md) · [checklist](./023-meus-pedidos/checklist.md) |
 | [027](./027-envio-de-imagem-do-produto/spec.md) | Envio de imagem do produto | Implementada | spec · [plan](./027-envio-de-imagem-do-produto/plan.md) · [tasks](./027-envio-de-imagem-do-produto/tasks.md) · [checklist](./027-envio-de-imagem-do-produto/checklist.md) |
+| [028](./028-banco-postgres-supabase/spec.md) | Banco de dados no Postgres do Supabase | Especificada | spec · [plan](./028-banco-postgres-supabase/plan.md) · [tasks](./028-banco-postgres-supabase/tasks.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023` → `027`.
 > A `027` deu ao cadastro de produto o envio de arquivo pelo próprio
@@ -257,12 +258,24 @@ produto) também fica fora da cadeia: é infraestrutura da área administrativa,
 não passo da compra. Nasceu de um pedido único — "migrar para o Supabase" —
 que ao ser especificado se revelou **dois subsistemas independentes**: o
 armazenamento das imagens e a troca do banco para Postgres. O primeiro é a
-`027`; o segundo será a `028`, ainda não especificada. Não dependem um do
-outro (o armazenamento funciona com o banco atual, e o banco funcionaria com
-as imagens atuais) e, juntos, ficariam na faixa de 80 a 100 tarefas — a mesma
-que fez o fechamento de pedido ser quebrado em três. Os números `024`, `025` e
-`026` seguem reservados para pagamento, features e estoque: tomá-los aqui
-seria o nono deslocamento da cadeia, por nenhum ganho.
+`027`; o segundo é a [`028`](./028-banco-postgres-supabase/spec.md). Não
+dependem um do outro (o armazenamento funciona com o banco atual, e o banco
+funcionaria com as imagens atuais) e, juntos, ficariam na faixa de 80 a 100
+tarefas — a mesma que fez o fechamento de pedido ser quebrado em três. Os
+números `024`, `025` e `026` seguem reservados para pagamento, features e
+estoque: tomá-los aqui seria o nono deslocamento da cadeia, por nenhum ganho.
+
+A `028` também fica fora da cadeia de compra, e é a primeira entrega do projeto
+**sem interface nenhuma**: troca o substrato (SQLite local → Postgres do
+Supabase) sem alterar um comportamento visível. A motivação registrada é
+coerência de stack, não defeito — o que virou régua explícita na spec: a troca
+não pode deixar a suíte mais lenta que o aceitável, mais frágil, nem dependente
+de rede. A decisão mais consequente foi **trocar o motor da suíte junto com o
+da aplicação** (contêiner descartável via Testcontainers), porque manter os
+testes no SQLite exigiria dois providers e dois conjuntos de migrations para
+sempre — e deixaria os 60 testes de persistência provando um banco que ninguém
+executa, incluindo asserções de ordenação que dependem da regra de ordenação do
+motor.
 
 **Ordem de execução sugerida, diferente da numeração:** a `021` reconstrói o
 resumo lateral do carrinho, que é onde a caixa de CEP da `020` mora. Executar a
