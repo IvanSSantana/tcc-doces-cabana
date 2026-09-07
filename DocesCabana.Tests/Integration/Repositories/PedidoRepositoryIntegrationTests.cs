@@ -4,7 +4,7 @@ using DocesCabana.Infrastructure.Repositories;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-public class PedidoRepositoryIntegrationTests : InfraestruturaSqliteEmMemoria
+public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_PedidoComItens_Quando_Buscar_Entao_DeveRetornarComOsItensEProdutoEEndereco()

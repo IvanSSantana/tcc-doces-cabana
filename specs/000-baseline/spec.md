@@ -62,10 +62,11 @@ absoluta `http`/`https`; produto sempre pertence a uma subcategoria.
 
 ### 4.3 Infraestrutura — **pronto**
 
-- Persistência em SQLite via EF Core, com migrations aplicadas. SQL Server é o
-  banco alvo do deploy — a troca não aconteceu ainda; a spec `002-revisao-tecnica`
-  removeu a única configuração de coluna presa ao dialeto SQLite, então trocar o
-  provider passa a custar uma linha mais a regeração das migrations.
+- Persistência em Postgres via EF Core, com migrations aplicadas — era SQLite
+  até a spec `028-banco-postgres-supabase`, que trocou o provider por uma
+  linha mais a regeração das migrations, exatamente como a `002-revisao-tecnica`
+  já tinha deixado pronto ao remover a única configuração de coluna presa ao
+  dialeto antigo.
 - Contas gerenciadas pelo ASP.NET Identity com chave `Guid`. Bloqueio temporário
   após tentativas de senha malsucedidas está ativo (5 tentativas, 15 minutos).
 - Envio de e-mail por SMTP.

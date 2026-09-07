@@ -111,7 +111,7 @@ REGISTRO (antes de builder.Build())
   AddControllersWithViews  ── registra FilterException e FiltroFusaoDeCarrinho
                               (spec 017) como filtros globais, e troca a
                               mensagem de erro de DataNascimento
-  AddDatabaseConfiguration ── DbContext + SQLite
+  AddDatabaseConfiguration ── DbContext + Postgres (Supabase, spec 028)
   AddIdentityConfiguration ── Identity, política de senha, bloqueio, cookie
   AddApplicationServices…  ── todos os repositórios e serviços (escopo)
   AddFluentValidation…     ── varre o assembly e registra todo *Validator
@@ -637,9 +637,11 @@ produto inativo e o desempate por nome.
 
 ### 6.5 Busca: por que existe uma coluna normalizada
 
-O banco é SQLite. O `Contains` do EF Core é traduzido para `instr`, que é
-**sensível a maiúsculas e a acento**. Sem tratamento, `"cafe"` não encontraria
-`"Café"` — nem `"brigadeiro"` encontraria `"Brigadeiro"`.
+O banco é Postgres, no Supabase desde a `028` (era SQLite até lá). Nos dois
+provedores o `Contains` do EF Core é traduzido para algo **sensível a
+maiúsculas e a acento** — `instr` no SQLite original, `LIKE` no Postgres de
+hoje. Sem tratamento, `"cafe"` não encontraria `"Café"` — nem `"brigadeiro"`
+encontraria `"Brigadeiro"`, em nenhum dos dois.
 
 A solução tem duas metades que precisam casar:
 
@@ -755,7 +757,7 @@ exercitar, em demonstração, o ramo do `?? -1` da ordenação.
 
 `GerarAvaliacoesMock` não toca o banco de propósito: é função pura, então dá
 para chamá-la duas vezes com a mesma semente e comparar o resultado num teste
-de unidade, sem SQLite em memória.
+de unidade, sem subir banco nenhum.
 
 ### 6.10 Cotação de frete (`020`)
 
@@ -958,6 +960,70 @@ ainda exige `NotEmpty`) mesmo quando tudo o mais está certo — por isso
 ImagemUrl))` antes de checar `ModelState.IsValid`, o mesmo precedente que
 `ContaController.AlterarDados` já usa para o CPF (spec `018`).
 
+### 6.14 Banco no Postgres do Supabase (`028`)
+
+O banco deixou de ser um arquivo SQLite local e passou a ser Postgres,
+hospedado no mesmo projeto Supabase de onde as imagens já vinham (`027`). A
+troca é de substrato, não de comportamento — nenhuma entidade, repositório,
+consulta LINQ ou view mudou; a régua da spec (§10 de lá) proibia isso
+explicitamente.
+
+**Um provider só, em código e em teste.** `UseSqlite` virou `UseNpgsql` numa
+linha (`DbContextDependencyInjection`), e a suíte de integração trocou de
+motor junto — não porque fosse obrigatório, mas porque manter dois motores
+exigiria dois conjuntos de migrations para sempre, e deixaria os testes de
+persistência provando um banco que a loja não usa.
+
+**As 14 migrations antigas foram apagadas, não adaptadas.** Foram geradas
+pelo provider do SQLite e não podiam ser aplicadas no Postgres — uma delas
+chegava a rodar `UPDATE Produto` sem aspas, que no Postgres procura uma tabela
+`produto` (minúscula) inexistente, já que identificador sem aspas é dobrado
+para minúsculo. Como o único banco que existia era local e descartável,
+histórico de evolução não tinha função a cumprir; uma `InitialCreatePostgres`
+nasceu no lugar.
+
+**A suíte de integração usa um contêiner Postgres descartável, não
+`ICollectionFixture`.** `PostgresDeTeste` é um singleton estático,
+inicializado sob demanda e protegido por semáforo — usar o mecanismo padrão
+do xUnit (`[Collection]` + injeção de construtor) obrigaria as 60 classes de
+teste existentes a mudar de assinatura. Cada teste continua recebendo um
+banco novo (`CREATE DATABASE` dentro do contêiner compartilhado), preservando
+o isolamento que o SQLite em memória já dava. O Ryuk do próprio Testcontainers
+derruba o contêiner ao fim do processo — sem `Dispose` explícito.
+
+**A suíte E2E tem seu próprio contêiner, mais simples.** Ela já compartilha
+uma única instância da aplicação para a suíte inteira (`ColecaoE2E`), então
+não precisa do isolamento por teste — um contêiner, um banco, entregue ao
+processo filho pela mesma variável de ambiente (`ConnectionStrings__DefaultConnection`)
+que antes apontava para o arquivo SQLite.
+
+**Testcontainers valida o Docker no `.Build()`, não só no `.StartAsync()`.**
+Achado rodando com o Docker Desktop desligado de verdade: um `try/catch` que
+cobria só `StartAsync()` deixava a exceção de `.Build()` escapar sem a
+mensagem amigável. Os dois métodos precisam estar dentro do mesmo bloco —
+mesma classe de armadilha que o `UserAgent` vazio da `020` e a `UrlBase`
+vazia da `027` já ensinaram: erro de ambiente que escapa do tratamento
+pretendido derruba com o sintoma cru, não a causa.
+
+**`Contains` continua seguro, por um mecanismo diferente.** No SQLite,
+`NomeNormalizado.Contains(termo)` virava `instr()` — comparação literal, sem
+curinga. No Postgres vira `LIKE`, que interpreta `%` e `_` como curinga — mas
+o EF Core escapa esses caracteres no parâmetro antes de montar a consulta,
+nos dois provedores. O teste que prova isso (`"100% Cacau"` não casando com
+qualquer coisa que comece em "100") passou sem alteração — é o EF Core quem
+garante o comportamento, não o provider por baixo.
+
+**Identificador sem aspas em SQL cru é o defeito mais repetido desta
+migração.** Apareceu três vezes, em três arquivos independentes: dois testes
+de ponta a ponta que alteravam status de produto direto no banco
+(`CarrinhoTests`, `PaginaInicialTests`), e um teste de integração que
+simulava uma linha da base antiga (`CatalogoRepositoryIntegrationTests`). Em
+todos, o mesmo ajuste: `"Produto"`, `"Status"`, `"NomeNormalizado"` entre
+aspas, e o parâmetro nomeado trocando de `$nome` (Microsoft.Data.Sqlite) para
+`@nome` (Npgsql). O `UPPER()` dos dois lados que o SQLite exigia — porque
+gravava `Guid` como texto maiúsculo — também saiu: `ProdutoId` é `uuid` de
+verdade agora, e a comparação é direta.
+
 ---
 
 ## 7. Padrões que se repetem
@@ -1054,13 +1120,14 @@ Nome de teste segue `Dado_..._Quando_..._Entao_...`.
 
 | Projeto | Camada | Ferramenta |
 |---|---|---|
-| `DocesCabana.Tests` | unidade + integração | xUnit, Moq, SQLite em memória |
+| `DocesCabana.Tests` | unidade + integração | xUnit, Moq, Postgres descartável (Testcontainers, spec 028) |
 | `DocesCabana.Tests.E2E` | ponta a ponta | Playwright, sobre a aplicação de verdade |
 
-O E2E sobe a MVC num processo filho, apontada para um SQLite descartável e um
-adaptador de e-mail que escreve em arquivo — nunca toca a base de
-desenvolvimento. Uma instância é compartilhada pela suíte inteira; cada teste
-ganha um contexto de navegador novo, para cookie de um não vazar para outro.
+O E2E sobe a MVC num processo filho, apontada para um Postgres descartável
+(contêiner próprio, spec 028) e um adaptador de e-mail que escreve em arquivo
+— nunca toca a base de desenvolvimento nem o banco da loja no Supabase. Uma
+instância é compartilhada pela suíte inteira; cada teste ganha um contexto de
+navegador novo, para cookie de um não vazar para outro.
 
 **Duas armadilhas de teste que já custaram tempo:**
 

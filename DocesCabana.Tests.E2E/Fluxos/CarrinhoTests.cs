@@ -1,6 +1,6 @@
 using DocesCabana.Tests.E2E.Infraestrutura;
 using DocesCabana.Tests.E2E.Paginas;
-using Microsoft.Data.Sqlite;
+using Npgsql;
 using static Microsoft.Playwright.Assertions;
 
 namespace DocesCabana.Tests.E2E.Fluxos;
@@ -47,19 +47,19 @@ public class CarrinhoTests : TesteE2E
     // Sem tela administrativa para inativar/reativar produto (mesma
     // limitação que a `015` registrou para CA-10 dela), este teste altera o
     // status direto no banco de teste — uma conexão isolada e de curta
-    // duração, sem transação aberta, não disputa lock com o SQLite da
+    // duração, sem transação aberta, não disputa lock com o Postgres da
     // aplicação em execução.
     private void AlterarStatusDoProduto(Guid produtoId, byte status)
     {
-        using var conexao = new SqliteConnection($"Data Source={Aplicacao.CaminhoDoBanco}");
+        using var conexao = new NpgsqlConnection(Aplicacao.ConexaoDoBanco);
         conexao.Open();
         using var comando = conexao.CreateCommand();
-        // EF Core grava o TEXT do Guid em maiúsculas no SQLite; comparação
-        // sem UPPER() nos dois lados não bate com produtoId.ToString()
-        // (minúsculo), e a comparação de TEXT é case-sensitive por padrão.
-        comando.CommandText = "UPDATE Produto SET Status = $status WHERE UPPER(ProdutoId) = UPPER($id)";
-        comando.Parameters.AddWithValue("$status", status);
-        comando.Parameters.AddWithValue("$id", produtoId.ToString());
+        // ProdutoId é uuid de verdade no Postgres (spec 028) — a comparação
+        // é direta, sem o UPPER() dos dois lados que o SQLite exigia por
+        // guardar o Guid como texto maiúsculo.
+        comando.CommandText = """UPDATE "Produto" SET "Status" = @status WHERE "ProdutoId" = @id""";
+        comando.Parameters.AddWithValue("status", status);
+        comando.Parameters.AddWithValue("id", produtoId);
         comando.ExecuteNonQuery();
     }
 

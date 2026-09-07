@@ -6,8 +6,8 @@ public class TextoHelperTests
 {
     // Nomes reais da loja (DbInitializer) — os que motivaram a coluna
     // normalizada (spec 016, plano §1): sem a normalização, buscar "cafe"
-    // não encontra "Café" no SQLite (Contains vira instr, sensível a caixa
-    // e a acento).
+    // não encontra "Café" — Contains vira LIKE (Postgres, spec 028) ou virava
+    // instr (SQLite original), e os dois são sensíveis a caixa e a acento.
     [Theory]
     [InlineData("Café", "cafe")]
     [InlineData("Cachaça", "cachaca")]

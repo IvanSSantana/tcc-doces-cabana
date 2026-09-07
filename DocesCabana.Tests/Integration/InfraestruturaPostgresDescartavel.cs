@@ -1,34 +1,36 @@
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.DatabaseContext;
 using DocesCabana.Infrastructure.Identity;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration;
 
-public abstract class InfraestruturaSqliteEmMemoria : IAsyncLifetime
+// Banco no Postgres do Supabase (spec 028) — um contêiner descartável
+// compartilhado pela suíte inteira (PostgresDeTeste), um banco novo por
+// teste dentro dele. Era InfraestruturaSqliteEmMemoria; o nome muda porque
+// o Princípio IV manda o nome dizer o que a classe é.
+public abstract class InfraestruturaPostgresDescartavel : IAsyncLifetime
 {
-    private SqliteConnection _conexao = null!;
     protected DocesCabanaDbContext Contexto = null!;
 
     public async Task InitializeAsync()
     {
-        _conexao = new SqliteConnection("DataSource=:memory:");
-        await _conexao.OpenAsync();
+        var connectionString = await PostgresDeTeste.CriarBancoNovo();
 
         var opcoes = new DbContextOptionsBuilder<DocesCabanaDbContext>()
-            .UseSqlite(_conexao)
+            .UseNpgsql(connectionString)
             .Options;
 
         Contexto = new DocesCabanaDbContext(opcoes);
         await Contexto.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync()
-    {
-        await Contexto.DisposeAsync();
-        await _conexao.DisposeAsync();
-    }
+    // Sem DROP DATABASE aqui de propósito: o contêiner inteiro (e todos os
+    // bancos criados dentro dele) some quando o Ryuk do Testcontainers
+    // derruba o contêiner ao fim do processo. Tentar apagar cada banco
+    // individualmente exigiria fechar o pool de conexões primeiro — custo
+    // sem ganho, já que nada disso sobrevive além da execução da suíte.
+    public async Task DisposeAsync() => await Contexto.DisposeAsync();
 
     /// <summary>
     /// Persiste uma categoria e uma subcategoria válidas e devolve o

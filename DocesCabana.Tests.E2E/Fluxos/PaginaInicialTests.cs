@@ -1,7 +1,7 @@
 using DocesCabana.Tests.E2E.Infraestrutura;
 using DocesCabana.Tests.E2E.Paginas;
-using Microsoft.Data.Sqlite;
 using Microsoft.Playwright;
+using Npgsql;
 using static Microsoft.Playwright.Assertions;
 
 namespace DocesCabana.Tests.E2E.Fluxos;
@@ -34,38 +34,41 @@ public class PaginaInicialTests : TesteE2E
     // ordenar (AVG(Nota), nulo quando não há avaliação — plano §5).
     private double ObterNotaMedia(Guid produtoId)
     {
-        using var conexao = new SqliteConnection($"Data Source={Aplicacao.CaminhoDoBanco}");
+        using var conexao = new NpgsqlConnection(Aplicacao.ConexaoDoBanco);
         conexao.Open();
         using var comando = conexao.CreateCommand();
-        comando.CommandText = "SELECT AVG(Nota) FROM Avaliacao WHERE UPPER(ProdutoId) = UPPER($id)";
-        comando.Parameters.AddWithValue("$id", produtoId.ToString());
+        // ProdutoId é uuid de verdade no Postgres (spec 028) — sem o UPPER()
+        // dos dois lados que o SQLite exigia.
+        comando.CommandText = """SELECT AVG("Nota") FROM "Avaliacao" WHERE "ProdutoId" = @id""";
+        comando.Parameters.AddWithValue("id", produtoId);
         var resultado = comando.ExecuteScalar();
         return resultado is DBNull or null ? -1 : Convert.ToDouble(resultado);
     }
 
     private int ObterQuantidadeVendida(Guid produtoId)
     {
-        using var conexao = new SqliteConnection($"Data Source={Aplicacao.CaminhoDoBanco}");
+        using var conexao = new NpgsqlConnection(Aplicacao.ConexaoDoBanco);
         conexao.Open();
         using var comando = conexao.CreateCommand();
-        comando.CommandText = @"
-            SELECT COALESCE(SUM(ip.Quantidade), 0)
-            FROM ItemPedido ip
-            JOIN Pedido p ON p.PedidoId = ip.PedidoId
-            WHERE UPPER(ip.ProdutoId) = UPPER($id) AND p.Status <> 4";
-        comando.Parameters.AddWithValue("$id", produtoId.ToString());
+        comando.CommandText = """
+            SELECT COALESCE(SUM(ip."Quantidade"), 0)
+            FROM "ItemPedido" ip
+            JOIN "Pedido" p ON p."PedidoId" = ip."PedidoId"
+            WHERE ip."ProdutoId" = @id AND p."Status" <> 4
+            """;
+        comando.Parameters.AddWithValue("id", produtoId);
         var resultado = comando.ExecuteScalar();
         return resultado is DBNull or null ? 0 : Convert.ToInt32(resultado);
     }
 
     private void AlterarStatusDoProduto(Guid produtoId, byte status)
     {
-        using var conexao = new SqliteConnection($"Data Source={Aplicacao.CaminhoDoBanco}");
+        using var conexao = new NpgsqlConnection(Aplicacao.ConexaoDoBanco);
         conexao.Open();
         using var comando = conexao.CreateCommand();
-        comando.CommandText = "UPDATE Produto SET Status = $status WHERE UPPER(ProdutoId) = UPPER($id)";
-        comando.Parameters.AddWithValue("$status", status);
-        comando.Parameters.AddWithValue("$id", produtoId.ToString());
+        comando.CommandText = """UPDATE "Produto" SET "Status" = @status WHERE "ProdutoId" = @id""";
+        comando.Parameters.AddWithValue("status", status);
+        comando.Parameters.AddWithValue("id", produtoId);
         comando.ExecuteNonQuery();
     }
 

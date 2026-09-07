@@ -9,7 +9,7 @@ namespace DocesCabana.Tests.Integration.Repositories;
 // itens, e que as quantidades vendidas diferem o bastante entre produtos
 // para uma ordenação por venda ser visível — sem subir Identity inteiro
 // (SemearPedidosDeExemplo não depende dele, só de DbContext).
-public class DbInitializerPedidosIntegrationTests : InfraestruturaSqliteEmMemoria
+public class DbInitializerPedidosIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_UsuariosEProdutosSemeados_Quando_SemearPedidosDeExemplo_Entao_DeveGravarPedidosComItensEPagamento()

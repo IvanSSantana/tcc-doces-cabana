@@ -10,11 +10,15 @@ conter, credenciais de SMTP). Ao clonar o repositório:
 Copy-Item DocesCabana.MVC/appsettings.Example.json DocesCabana.MVC/appsettings.json
 ```
 
-O exemplo já sobe a aplicação em desenvolvimento (SQLite local, sem SMTP real).
-Para credenciais de verdade, use os *user secrets* do .NET:
+O exemplo já sobe a aplicação em desenvolvimento (sem SMTP real). O banco é
+Postgres, hospedado no Supabase (spec 028) — não há mais SQLite local nem
+fallback sem configuração: a connection string real, com senha, precisa ir
+para os *user secrets* do .NET:
 
 ```powershell
 cd DocesCabana.MVC
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=...;Port=5432;Database=postgres;Username=postgres.<ref>;Password=...;SSL Mode=Require"
+dotnet user-secrets set "SupabaseSettings:ChaveDeServico" "sua-chave-de-servico"
 dotnet user-secrets set "EmailSettings:SmtpUsername" "seu-usuario"
 dotnet user-secrets set "EmailSettings:SmtpPassword" "sua-senha"
 ```

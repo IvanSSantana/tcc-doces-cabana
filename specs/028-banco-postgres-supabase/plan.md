@@ -1,6 +1,6 @@
 # Plano Técnico — Banco de dados no Postgres do Supabase
 
-**Spec:** [`spec.md`](./spec.md) · **Status:** Rascunho
+**Spec:** [`spec.md`](./spec.md) · **Status:** Implementado — ver `checklist.md`
 **Criado em:** 2026-09-07
 
 ---

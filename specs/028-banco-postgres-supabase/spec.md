@@ -1,7 +1,7 @@
 # Especificação — Banco de dados no Postgres do Supabase
 
 **ID:** `028-banco-postgres-supabase` · **Branch:** `028-banco-postgres-supabase`
-**Criada em:** 2026-09-07 · **Status:** Rascunho
+**Criada em:** 2026-09-07 · **Status:** Implementada — ver `checklist.md`
 
 ---
 

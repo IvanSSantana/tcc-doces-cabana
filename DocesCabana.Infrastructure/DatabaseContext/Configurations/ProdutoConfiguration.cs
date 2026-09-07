@@ -18,8 +18,12 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
 
         // Derivado de Nome (spec 016) — sem acento, sem caixa. Linhas
         // gravadas antes desta migration nascem com '' (plano §6); é o
-        // DbInitializer.PreencherNomesNormalizados que as corrige, não o
-        // banco: SQLite não tem função para remover acento.
+        // DbInitializer.PreencherNomesNormalizados que as corrige, em C# —
+        // não porque o banco atual não soubesse (o Postgres tem a extensão
+        // unaccent, o SQLite original não tinha função nenhuma), mas porque
+        // a normalização já vive no domínio (Produto.NomeNormalizado,
+        // TextoHelper) e não faz sentido duplicá-la em SQL específico de um
+        // provider (spec 028).
         builder.Property(p => p.NomeNormalizado)
             .IsRequired()
             .HasMaxLength(255)
@@ -30,9 +34,10 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             .HasColumnType("decimal(18,2)");
 
         // Sem HasColumnType: ProdutoStatus é enum de byte, e o provider mapeia
-        // sozinho para o tipo inteiro nativo em qualquer banco (INTEGER no
-        // SQLite, tinyint no SQL Server). Fixar "INTEGER" aqui quebraria a
-        // troca de provider planejada para o deploy.
+        // sozinho para o tipo inteiro nativo em qualquer banco (era INTEGER
+        // no SQLite; é smallint no Postgres desde a spec 028). A troca de
+        // provider que este comentário previa aconteceu, e não precisou
+        // tocar esta linha — exatamente por não ter fixado "INTEGER" aqui.
         builder.Property(p => p.Status)
             .IsRequired();
 

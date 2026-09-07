@@ -1,14 +1,16 @@
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
+using Testcontainers.PostgreSql;
 
 namespace DocesCabana.Tests.E2E.Infraestrutura;
 
 /// <summary>
 /// Sobe a aplicação MVC de verdade num processo filho, apontada para um
-/// SQLite descartável e para o adaptador de e-mail em arquivo — sem tocar a
-/// base usada no dia a dia do desenvolvimento (RF-04, RN-04, RN-05 da 007).
-/// Uma instância é compartilhada pela suíte inteira, via <see cref="ColecaoE2E"/>.
+/// Postgres descartável (spec 028) e para o adaptador de e-mail em arquivo —
+/// sem tocar a base usada no dia a dia do desenvolvimento nem o banco da loja
+/// no Supabase (RF-04, RN-04, RN-05 da 007; RF-06 da 028). Uma instância é
+/// compartilhada pela suíte inteira, via <see cref="ColecaoE2E"/>.
 /// </summary>
 public sealed class AplicacaoEmExecucao : IAsyncDisposable
 {
@@ -24,7 +26,13 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
 
     private const int TimeoutDeSubidaSegundos = 60;
 
+    // Mesma versão maior que o Supabase roda (PostgreSQL 17, medido na T003
+    // do plano da 028) — sem isso o E2E validaria um motor e a loja rodaria
+    // outro.
+    private const string ImagemDoPostgres = "postgres:17-alpine";
+
     private readonly string _pastaTemporaria;
+    private readonly PostgreSqlContainer _conteinerDoBanco;
     private Process? _processo;
     private readonly StringBuilder _saidaPadrao = new();
     private readonly StringBuilder _saidaDeErro = new();
@@ -35,16 +43,19 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
     // Exposto para o teste que não tem tela administrativa para exercitar
     // (spec 017, plano §7 — mudar o status de um produto para testar o item
     // do carrinho que fica indisponível): uma conexão isolada e de curta
-    // duração, sem transação aberta, não disputa lock com o SQLite da
-    // aplicação em execução.
-    public string CaminhoDoBanco { get; }
+    // duração, sem transação aberta, não disputa lock com o Postgres da
+    // aplicação em execução. Era CaminhoDoBanco (arquivo SQLite); agora é a
+    // connection string do contêiner descartável (spec 028).
+    public string ConexaoDoBanco { get; }
 
-    private AplicacaoEmExecucao(string urlBase, string pastaTemporaria, string pastaDeEmails, string caminhoDoBanco)
+    private AplicacaoEmExecucao(
+        string urlBase, string pastaTemporaria, string pastaDeEmails, string conexaoDoBanco, PostgreSqlContainer conteinerDoBanco)
     {
         UrlBase = urlBase;
         _pastaTemporaria = pastaTemporaria;
         PastaDeEmails = pastaDeEmails;
-        CaminhoDoBanco = caminhoDoBanco;
+        ConexaoDoBanco = conexaoDoBanco;
+        _conteinerDoBanco = conteinerDoBanco;
     }
 
     public static async Task<AplicacaoEmExecucao> Subir()
@@ -54,11 +65,24 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
         var pastaDeEmails = Path.Combine(pastaTemporaria, "emails");
         Directory.CreateDirectory(pastaDeEmails);
 
-        var caminhoDoBanco = Path.Combine(pastaTemporaria, "e2e.db");
+        // Um contêiner só para a suíte E2E inteira — ela já compartilha uma
+        // única instância da aplicação (ColecaoE2E), então não precisa do
+        // isolamento por teste que a suíte de integração tem (plano §5).
+        var conteinerDoBanco = new PostgreSqlBuilder(ImagemDoPostgres).Build();
+        try
+        {
+            await conteinerDoBanco.StartAsync();
+        }
+        catch (Exception causaOriginal)
+        {
+            throw new InvalidOperationException(MontarMensagemDePostgresIndisponivel(causaOriginal));
+        }
+
         var caminhoDaDll = LocalizarDllDaMvc();
         var pastaDaMvc = Path.GetDirectoryName(LocalizarProjetoDaMvc())!;
 
-        var aplicacao = new AplicacaoEmExecucao($"http://127.0.0.1:{porta}", pastaTemporaria, pastaDeEmails, caminhoDoBanco);
+        var aplicacao = new AplicacaoEmExecucao(
+            $"http://127.0.0.1:{porta}", pastaTemporaria, pastaDeEmails, conteinerDoBanco.GetConnectionString(), conteinerDoBanco);
 
         var infoProcesso = new ProcessStartInfo
         {
@@ -73,7 +97,7 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
 
         infoProcesso.Environment["ASPNETCORE_ENVIRONMENT"] = "Development";
         infoProcesso.Environment["ASPNETCORE_URLS"] = aplicacao.UrlBase;
-        infoProcesso.Environment["ConnectionStrings__DefaultConnection"] = $"Data Source={caminhoDoBanco}";
+        infoProcesso.Environment["ConnectionStrings__DefaultConnection"] = aplicacao.ConexaoDoBanco;
         infoProcesso.Environment["Admin__SenhaInicial"] = SenhaAdministrador;
         infoProcesso.Environment["EmailSettings__Adaptador"] = "Arquivo";
         infoProcesso.Environment["EmailSettings__PastaDeSaida"] = pastaDeEmails;
@@ -183,6 +207,18 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
         {_saidaDeErro}
         """;
 
+    // RF-09/RN-05 (spec 028): o erro cru do Testcontainers descreve o
+    // sintoma (npipe, daemon), não a causa. Mesma mensagem que
+    // DocesCabana.Tests.Integration.MensagemDePostgresIndisponivel usa —
+    // duplicada aqui em vez de referenciada, porque os dois projetos de
+    // teste são suítes independentes (nenhum referencia o outro).
+    private static string MontarMensagemDePostgresIndisponivel(Exception causaOriginal) =>
+        $"""
+        Não foi possível subir o Postgres de teste. O Docker Desktop precisa estar em execução — a suíte sobe um contêiner descartável e não usa banco nenhum da sua máquina nem do Supabase.
+
+        Causa original: {causaOriginal.Message}
+        """;
+
     private static int ObterPortaLivre()
     {
         using var listener = new TcpListener(System.Net.IPAddress.Loopback, 0);
@@ -258,6 +294,8 @@ public sealed class AplicacaoEmExecucao : IAsyncDisposable
         }
 
         _processo?.Dispose();
+
+        await _conteinerDoBanco.DisposeAsync();
 
         try
         {

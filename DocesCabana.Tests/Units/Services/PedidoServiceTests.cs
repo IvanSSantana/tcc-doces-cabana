@@ -268,7 +268,7 @@ public class PedidoServiceTests
 
     // Data nasce sempre "agora" no construtor (mesma regra de outras
     // entidades desta base) — reflection é o mesmo contorno de teste que
-    // InfraestruturaSqliteEmMemoria.SemearAvaliacao já usa para controlar
+    // InfraestruturaPostgresDescartavel.SemearAvaliacao já usa para controlar
     // ordenação sem depender de Thread.Sleep.
     private static void DefinirData(Pedido pedido, DateTime data) =>
         typeof(Pedido).GetProperty(nameof(Pedido.Data))!.SetValue(pedido, data);

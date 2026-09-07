@@ -6,7 +6,7 @@ namespace DocesCabana.Tests.Integration.Repositories;
 // Cobre a chave composta de ItemCarrinho(UsuarioId, ProdutoId), mesmo padrão
 // de Favorito (spec 015) — é ela quem garante RN-01 (um produto por linha)
 // no banco, sem barreira de validação adicional.
-public class CarrinhoIntegrationTests : InfraestruturaSqliteEmMemoria
+public class CarrinhoIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
     public async Task Dado_UmParJaNoCarrinho_Quando_TentarAdicionarDeNovo_Entao_DeveSerRecusado()
