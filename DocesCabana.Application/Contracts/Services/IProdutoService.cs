@@ -11,6 +11,8 @@ public interface IProdutoService
 
     Task<ProdutoDTO> Cadastrar(ProdutoDTO dto);
 
+    Task Remover(Guid produtoId);
+
     // RF-04/RF-05/RF-09 (spec 019): "os oito mais bem avaliados", pedidos ao
     // armazenamento com esse limite — não a loja inteira filtrada em memória.
     // usuarioId nulo (visitante) não marca favorito nenhum (RF-10).
