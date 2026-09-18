@@ -11,12 +11,6 @@ public class Produto
 
     public string Nome { get; private set; } = default!;
 
-    // Derivado de Nome nos dois únicos pontos que o alteram — construtor e
-    // AlterarNome — nunca atribuído por fora (spec 016, RN-02). É o que a
-    // busca por texto compara, sem acento e sem caixa: sem esta coluna,
-    // "cafe" não encontraria "Café" — nem no SQLite original (Contains virava
-    // instr, sensível aos dois) nem no Postgres de hoje (Contains vira LIKE,
-    // igualmente sensível aos dois sem a normalização).
     public string NomeNormalizado { get; private set; } = default!;
 
     public decimal Preco { get; private set; }
@@ -27,29 +21,18 @@ public class Produto
 
     public string ImagemUrl { get; private set; } = default!;
 
-    // Opcional: produtos cadastrados antes desta feature ficam sem descrição
-    // até serem recadastrados (spec 008, fora de escopo editar os antigos).
     public string? Descricao { get; private set; }
 
-    // Característica do produto, não lugar na hierarquia (spec 012, RN-04):
-    // "Doces Caseiros" e "Doces Zero" se fundiram em "Doces", e é esta
-    // marcação que preserva a distinção que a fusão apagaria.
     public bool SemAcucar { get; private set; }
 
-    // Peso e dimensões (spec 020, RN-01): sem elas a loja não sabe cotar o
-    // frete de um produto. Atributo essencial, como Nome e Preco — por isso
-    // entram sem valor padrão, ao contrário de Status/Descricao/SemAcucar,
-    // que são de fato opcionais.
-    public decimal Peso { get; private set; }          // kg
+    public decimal Peso { get; private set; }         
 
-    public decimal Altura { get; private set; }        // cm
+    public decimal Altura { get; private set; }        
 
-    public decimal Largura { get; private set; }       // cm
+    public decimal Largura { get; private set; }       
 
-    public decimal Comprimento { get; private set; }   // cm
+    public decimal Comprimento { get; private set; }   
 
-    // Navegações filho -> pai, anuláveis (vêm null sem Include). Ambas as
-    // pontas vivem no domínio, então são navegação normal (RQ-10 da spec 003).
     public Subcategoria? Subcategoria { get; private set; }
 
     public Promocao? Promocao { get; private set; }
@@ -143,10 +126,6 @@ public class Produto
 
     public void AlterarStatus(ProdutoStatus novoStatus) => Status = novoStatus;
 
-    // RN-06 (spec 017): "disponível para compra" é um estado só, com dois
-    // motivos de recusa (inativo ou fora de estoque) — invariante do
-    // domínio, não regra de tela. Método, não propriedade: uma propriedade
-    // computada o EF Core tentaria mapear para coluna.
     public bool DisponivelParaCompra() => Status == ProdutoStatus.Ativo;
 
     public void MarcarComoSemAcucar() => SemAcucar = true;

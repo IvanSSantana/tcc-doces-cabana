@@ -23,14 +23,10 @@ public class FavoritoService : IFavoritoService
         _unitOfWork = unitOfWork;
     }
 
-    // RN-01: favorito é um interruptor, não um contador — pedir de novo o
-    // que já está favoritado desfaz.
     public async Task<bool> Alternar(Guid produtoId, Guid usuarioId)
     {
         var produto = await _produtoRepository.BuscarPorId(produtoId);
 
-        // Produto inativo não existe do lado de fora (RN-01 da 012) — o
-        // mesmo defeito de favoritar um produto que não existe.
         if (produto is null || produto.Status == ProdutoStatus.Inativo)
             throw new KeyNotFoundException($"Produto com ID {produtoId} não encontrado.");
 
@@ -52,16 +48,11 @@ public class FavoritoService : IFavoritoService
     {
         var favoritos = await _favoritoRepository.BuscarPorUsuario(usuarioId);
 
-        // RN-03: produto que saiu do catálogo público some da lista, mas o
-        // favorito em si não é apagado — volta a aparecer se o produto
-        // reativar.
         var produtosDisponiveis = favoritos
             .Select(f => f.Produto!)
             .Where(p => p.Status != ProdutoStatus.Inativo)
             .ToList();
 
-        // Todos aqui são favoritos por definição — o conjunto passado ao
-        // mapeador é o próprio conjunto de identificadores da lista.
         var idsFavoritados = produtosDisponiveis.Select(p => p.ProdutoId).ToHashSet();
 
         return ProdutoMapper.ToDTO(produtosDisponiveis, idsFavoritados);

@@ -12,7 +12,6 @@ public class ItemPedido
 
     public decimal PrecoUnitario { get; private set; }
 
-    // Navegações filho -> pai.
     public Pedido? Pedido { get; private set; }
 
     public Produto? Produto { get; private set; }

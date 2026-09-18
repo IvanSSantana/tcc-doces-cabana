@@ -12,8 +12,6 @@ public class PedidoRepository : Repository<Pedido>, IPedidoRepository
     {
     }
 
-    // Uma consulta só, com os itens (e o produto de cada um) e o endereço
-    // de entrega — nunca uma consulta por linha (spec 023, plano §4/§8).
     public async Task<Pedido?> Buscar(Guid pedidoId, Guid usuarioId) =>
         await _context.Pedidos
             .Include(p => p.Itens)

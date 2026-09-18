@@ -1,17 +1,11 @@
 namespace DocesCabana.Domain.Entities;
 
-/// <summary>
-/// Registra que um usuário marcou uma avaliação como útil. Chave composta
-/// (AvaliacaoId, UsuarioId): uma pessoa vota no máximo uma vez por avaliação
-/// (RN-06), garantido no banco pela chave, não só no código.
-/// </summary>
 public class VotoUtil
 {
     public Guid AvaliacaoId { get; private set; }
 
     public Guid UsuarioId { get; private set; }
 
-    // Navegação filho -> pai, anulável (vem null sem Include).
     public Avaliacao? Avaliacao { get; private set; }
 
     protected VotoUtil() { }

@@ -3,11 +3,6 @@ using System.Text;
 
 namespace DocesCabana.Domain.Helpers;
 
-// Normalização de texto para comparação — sem acento, sem caixa, sem espaço
-// nas pontas (spec 016). Vivia só dentro de Apelido.De (Application); desceu
-// para o Domain porque Produto.NomeNormalizado também precisa dela, e uma
-// entidade de domínio não pode referenciar a Application (Princípio I). Só
-// BCL, como CepHelper e CpfHelper.
 public static class TextoHelper
 {
     public static string Normalizar(string texto)

@@ -16,7 +16,6 @@ public class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
             .IsRequired()
             .HasColumnType("decimal(18,2)");
 
-        // Dados da entrega, congelados no fechamento (spec 022, RN-01).
         builder.Property(p => p.ValorDoFrete)
             .IsRequired()
             .HasColumnType("decimal(10,2)");
@@ -29,10 +28,6 @@ public class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
         builder.Property(p => p.PagamentoAprovado).IsRequired();
         builder.Property(p => p.Data).IsRequired();
 
-        // Pedido é a raiz do agregado (spec 022, plano §3) — a coleção é
-        // exposta só como IReadOnlyCollection, mapeada pelo campo de apoio
-        // privado (suportado pelo EF Core por convenção de nome: `_itens`
-        // para a propriedade `Itens`).
         builder.HasMany(p => p.Itens)
             .WithOne(i => i.Pedido)
             .HasForeignKey(i => i.PedidoId)

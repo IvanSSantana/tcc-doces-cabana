@@ -10,10 +10,7 @@
 <link rel="stylesheet" href="~/css/components/formulario.css" asp-append-version="true">
 <link rel="stylesheet" href="~/css/pages/cadastro_produto.css" asp-append-version="true">
 
-@* pagina-cadastro-produto escopa o empilhamento em tela estreita (RF-17)
-   só a esta tela — .linha-dupla em si não empilha em nenhuma largura
-   (achado ao verificar, plano previa que já empilhava; não é regressão
-   desta feature, então as outras duas telas que a usam não são tocadas). *@
+
 <main class="container-autenticacao pagina-cadastro-produto">
 <h1 class="titulo-tela">Cadastrar Produto</h1>
 
@@ -27,9 +24,6 @@
         <span asp-validation-for="Nome" class="mensagem-erro"></span>
     </div>
 
-    @* Preço e Status dividem a linha em tela larga, empilham na estreita
-       (spec 016, RF-17) — mesmo .linha-dupla que o cadastro de
-       administrador já usa. *@
     <div class="linha-dupla">
         <div class="campo-entrada">
             <label asp-for="Preco">Preço</label>
@@ -48,10 +42,6 @@
         </div>
     </div>
 
-    @* Substitui o campo de endereço (spec 027, RF-01) — quem preenche
-       ImagemUrl passa a ser o servidor, depois do envio. O erro mora na
-       chave "imagem" do ModelState, não numa propriedade do model — mesmo
-       caminho que o CEP usa em _ItensDoCarrinho.cshtml (spec 020). *@
     <div class="campo-entrada">
         <label for="imagem">Imagem</label>
         <input type="file" id="imagem" name="imagem" class="campo-texto" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required />
@@ -83,8 +73,6 @@
         </div>
     </div>
 
-    @* Peso e dimensões (spec 020, RF-02) — mesmo .linha-dupla que Preço/Status
-       já usa, empilhando em tela estreita. *@
     <div class="linha-dupla">
         <div class="campo-entrada">
             <label asp-for="Peso">Peso (kg)</label>

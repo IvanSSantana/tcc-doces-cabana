@@ -20,11 +20,6 @@ public static class CpfHelper
         int[] multiplicador1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
         int[] multiplicador2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
 
-        // RN-01 (spec 019): os dois dígitos verificadores são conferidos
-        // contra o que a pessoa digitou — não só o segundo. O primeiro
-        // (posição 9) é o penúltimo dígito do CPF, e ficava sem conferência
-        // nenhuma: era calculado, concatenado ao parcial e usado para achar
-        // o segundo, mas nunca comparado com o dígito informado.
         var primeiroDigito = CalcularDigito(digitos[..9], multiplicador1);
         if (digitos[9] != primeiroDigito)
             return false;

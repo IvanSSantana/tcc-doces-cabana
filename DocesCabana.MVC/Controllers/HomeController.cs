@@ -16,8 +16,6 @@ public class HomeController : Controller
         _produtoService = produtoService;
     }
 
-    // RF-04 (spec 019): pede só os destaques que a vitrine exibe, não a loja
-    // inteira — mesmo limite que o componente aplicaria de qualquer forma.
     public async Task<IActionResult> Index()
     {
         var produtos = await _produtoService.BuscarDestaquesDaVitrine(VitrineProdutosViewComponent.LimitePadrao, UsuarioAtualId);
@@ -28,10 +26,7 @@ public class HomeController : Controller
     {
         return View();
     }
-
-    // Alvo de app.UseStatusCodePagesWithReExecute — qualquer 404 (produto
-    // inexistente ou inativo, rota que não bate com nada) reexecuta aqui
-    // (spec 008, RF-03/RF-04/CA-04/CA-05).
+    
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult NaoEncontrado()
     {

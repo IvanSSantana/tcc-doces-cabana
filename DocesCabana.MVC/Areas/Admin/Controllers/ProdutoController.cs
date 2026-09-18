@@ -11,9 +11,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DocesCabana.MVC.Areas.Admin.Controllers;
 
-// Era Controllers/CatalogoController.cs (010). Renomeado por RQ-04 da 011:
-// gerencia produto, não catálogo — "catálogo" é a coleção que o cliente
-// percorre (spec 012), e precisava do nome livre.
 [Area("Admin")]
 [Authorize(Roles = Papeis.Administrador)]
 public class ProdutoController : Controller
@@ -40,12 +37,6 @@ public class ProdutoController : Controller
         return View();
     }
 
-    // imagem substitui o campo de endereço (spec 027, RF-01): o formulário
-    // envia o arquivo, e quem preenche ImagemUrl é o servidor, depois do
-    // envio (passo 6). Por isso o teste de existência da própria coluna
-    // (Princípio III) segue no domínio e no ProdutoDTOValidator, mas o
-    // binding automático não pode mais decidir a invalidez desse campo — ver
-    // o ModelState.Remove abaixo.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Cadastro(ProdutoDTO dto, IFormFile? imagem)
@@ -62,10 +53,6 @@ public class ProdutoController : Controller
                 ModelState.AddModelError("imagem", validacao.Errors[0].ErrorMessage);
         }
 
-        // ImagemUrl não é mais campo de formulário — nunca veio do que a
-        // pessoa preencheu, e sim do resultado do envio (passo 6). O erro
-        // que o binding levanta sobre ele não descreve nada de real: mesma
-        // situação do CPF em ContaController.AlterarDados (CA-07, spec 018).
         ModelState.Remove(nameof(ProdutoDTO.ImagemUrl));
 
         if (!ModelState.IsValid)
@@ -89,9 +76,6 @@ public class ProdutoController : Controller
         return RedirectToAction(nameof(Cadastro));
     }
 
-    // RF-28: cada opção mostra a categoria dona da subcategoria — sem isso,
-    // "Cappuccino" aparece duas vezes no seletor sem nenhuma forma de saber
-    // qual é a de Doces e qual é a de Empório (spec 012 §10).
     private async Task CarregarSubcategorias()
     {
         var categorias = await _categoriaService.ListarComSubcategorias();

@@ -21,9 +21,6 @@ public class AvaliacaoRepository : Repository<Avaliacao>, IAvaliacaoRepository
             .Include(a => a.Votos)
             .Where(a => a.ProdutoId == produtoId);
 
-        // RN-05: Relevantes ordena por mais úteis, empate pela mais recente.
-        // "Votos.Count" é seguro como contagem de pessoas distintas porque a
-        // chave composta de VotoUtil impede duplicidade de (Avaliacao, Usuario).
         consulta = ordenacao switch
         {
             OrdenacaoAvaliacao.MaisRecentes => consulta.OrderByDescending(a => a.DataCriacao),
@@ -51,9 +48,6 @@ public class AvaliacaoRepository : Repository<Avaliacao>, IAvaliacaoRepository
     }
 
     public async Task<Avaliacao?> BuscarComVotos(Guid avaliacaoId) =>
-        // Sem AsNoTracking: o voto precisa ficar rastreado para o
-        // ChangeTracker perceber o item acrescentado/removido de Votos
-        // quando AlternarVotoUtil mutar a coleção em memória.
         await _context.Avaliacoes
             .Include(a => a.Votos)
             .FirstOrDefaultAsync(a => a.AvaliacaoId == avaliacaoId);

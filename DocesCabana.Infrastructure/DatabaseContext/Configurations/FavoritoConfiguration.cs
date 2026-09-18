@@ -10,8 +10,6 @@ public class FavoritoConfiguration : IEntityTypeConfiguration<Favorito>
     {
         builder.ToTable("Favorito");
 
-        // Chave primária composta: é o que impede o mesmo par
-        // (produto, usuário) de ser favoritado duas vezes (RN-15).
         builder.HasKey(f => new { f.ProdutoId, f.UsuarioId });
 
         builder.HasOne(f => f.Produto)

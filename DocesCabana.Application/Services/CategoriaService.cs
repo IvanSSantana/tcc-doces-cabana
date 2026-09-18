@@ -16,11 +16,6 @@ public class CategoriaService : ICategoriaService
         _produtoRepository = produtoRepository;
     }
 
-    // RN-06: subcategorias vêm ordenadas pela quantidade de produtos
-    // disponíveis, maior primeiro — é essa ordem que dá sentido a "as oito
-    // principais" no menu do cabeçalho (RF-04) e na barra lateral (RF-10).
-    // A ordenação por Nome como critério final é só para desempate
-    // determinístico entre subcategorias com a mesma contagem.
     public async Task<List<CategoriaDTO>> ListarComSubcategorias()
     {
         var categorias = await _categoriaRepository.BuscarTodasComSubcategorias();
@@ -31,8 +26,6 @@ public class CategoriaService : ICategoriaService
             .ToList();
     }
 
-    // Casamento em memória (plano §8): não há coluna de apelido, então a
-    // comparação percorre as poucas categorias que já foram carregadas.
     public async Task<CategoriaDTO?> BuscarPorApelido(string apelido)
     {
         var categorias = await ListarComSubcategorias();

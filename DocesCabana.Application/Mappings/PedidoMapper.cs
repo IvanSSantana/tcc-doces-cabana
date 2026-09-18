@@ -18,10 +18,7 @@ public static class PedidoMapper
                 i.PrecoUnitario,
                 i.PrecoUnitario * i.Quantidade))
             .ToList(),
-        // ValorDoFrete é gravado à parte (RN-01); ValorDosProdutos é a
-        // diferença — mesma razão de Pedido.ValorDoFrete não ser derivado
-        // de Valor (plano §6), aqui é o caminho inverso, sem terceiro
-        // valor gravado para não duplicar a fonte da verdade.
+
         ValorDosProdutos = pedido.Valor - pedido.ValorDoFrete,
         ValorDoFrete = pedido.ValorDoFrete,
         Transportadora = pedido.Transportadora,
@@ -31,7 +28,6 @@ public static class PedidoMapper
         MetodoPagamento = metodoPagamento
     };
 
-    // spec 023, RF-02: a linha da lista — resume, não aprofunda.
     public static ResumoDePedidoDTO ToResumoDTO(Pedido pedido) => new(
         pedido.PedidoId,
         pedido.NumeroVisivel(),
@@ -40,10 +36,7 @@ public static class PedidoMapper
         pedido.Itens.Sum(i => (int)i.Quantidade),
         pedido.Valor);
 
-    // spec 023, RF-06 a RF-10: o pedido inteiro, como estava no fechamento
-    // (RN-02) — preço, frete, transportadora e prazo vêm gravados, nunca
-    // recalculados.
-    public static DetalheDePedidoDTO ToDetalheDTO(Pedido pedido, Pagamento? pagamento) => new()
+     public static DetalheDePedidoDTO ToDetalheDTO(Pedido pedido, Pagamento? pagamento) => new()
     {
         PedidoId = pedido.PedidoId,
         Numero = pedido.NumeroVisivel(),

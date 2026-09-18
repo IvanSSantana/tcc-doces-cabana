@@ -6,10 +6,6 @@ using DocesCabana.Domain.Contracts;
 
 namespace DocesCabana.Application.Services;
 
-// As invariantes de coleção (RN-01 a RN-04) moram aqui, não em Endereco: a
-// entidade sozinha não conhece os irmãos, e "exatamente um principal" é
-// propriedade do conjunto — mesmo limite que a 015 respeitou ao pôr a regra
-// do interruptor de favorito no serviço, não em Favorito.
 public class EnderecoService : IEnderecoService
 {
     private readonly IEnderecoRepository _enderecoRepository;
@@ -38,8 +34,6 @@ public class EnderecoService : IEnderecoService
         var existentes = await _enderecoRepository.BuscarPorUsuario(usuarioId);
         var endereco = EnderecoMapper.ToEntity(dto, usuarioId);
 
-        // RN-02: o primeiro endereço cadastrado torna-se principal
-        // automaticamente, sem a pessoa precisar escolher.
         if (existentes.Count == 0)
             endereco.MarcarComoPadrao();
 
@@ -65,8 +59,6 @@ public class EnderecoService : IEnderecoService
         var eraPrincipal = endereco.Padrao;
         _enderecoRepository.Remover(endereco);
 
-        // RN-04: excluir o principal promove outro, desde que reste algum —
-        // o mais antigo entre os restantes, pela mesma ordem que a lista usa.
         if (eraPrincipal)
         {
             var proximo = enderecos
@@ -84,8 +76,6 @@ public class EnderecoService : IEnderecoService
     {
         var endereco = await BuscarOuFalhar(enderecoId, usuarioId);
 
-        // RN-03: marcar um endereço como principal desmarca o anterior — é
-        // uma escolha entre os que existem, não um atributo independente.
         var enderecos = await _enderecoRepository.BuscarPorUsuario(usuarioId);
         var anteriorPrincipal = enderecos.FirstOrDefault(e => e.Padrao && e.EnderecoId != enderecoId);
         anteriorPrincipal?.DesmarcarComoPadrao();

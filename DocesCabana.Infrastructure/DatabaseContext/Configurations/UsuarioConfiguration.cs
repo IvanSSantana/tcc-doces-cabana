@@ -11,8 +11,6 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
     {
         builder.ToTable("Usuario");
 
-        // A chave é o próprio UsuarioId (1:1 por chave compartilhada com
-        // ContaDeAcesso) — Usuario é o dependente, ContaDeAcesso a principal.
         builder.HasKey(u => u.UsuarioId);
 
         builder.Property(u => u.Nome)

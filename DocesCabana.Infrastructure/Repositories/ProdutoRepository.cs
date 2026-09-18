@@ -42,8 +42,6 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
             .Select(g => new { SubcategoriaId = g.Key, Quantidade = g.Count() })
             .ToDictionaryAsync(g => g.SubcategoriaId, g => g.Quantidade);
 
-    // RN-01: produto inativo não existe do lado de fora, em nenhum caminho de
-    // consulta do catálogo.
     private IQueryable<Produto> ConstruirConsulta(FiltroCatalogoDTO filtro)
     {
         var consulta = _context.Produtos
@@ -53,47 +51,30 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
         if (filtro.CategoriaId.HasValue)
             consulta = consulta.Where(p => p.Subcategoria!.CategoriaId == filtro.CategoriaId.Value);
 
-        // RN-03: subcategorias marcadas se somam (OR), não intersectam.
         if (filtro.SubcategoriaIds.Count > 0)
             consulta = consulta.Where(p => filtro.SubcategoriaIds.Contains(p.SubcategoriaId));
 
-        // RN-04: "sem açúcar" é característica do produto, combina com
-        // subcategoria em vez de competir com ela (é um AND com o filtro
-        // acima, não um OR).
         if (filtro.ApenasSemAcucar)
             consulta = consulta.Where(p => p.SemAcucar);
 
-        // Busca por texto (spec 016) — mais um filtro, não um caminho à
-        // parte (RN-01). Contains sobre NomeNormalizado vira LIKE no
-        // Postgres (era instr no SQLite original) — o EF Core escapa %/_ na
-        // tradução dos dois jeitos, então nenhum vira curinga por acidente
-        // (spec 028, teste que trava isso em CatalogoRepositoryIntegrationTests).
-        // Comparado contra um texto já sem acento e sem caixa dos dois lados (RN-02).
         if (!string.IsNullOrWhiteSpace(filtro.TermoNormalizado))
             consulta = consulta.Where(p => p.NomeNormalizado.Contains(filtro.TermoNormalizado));
 
         return consulta;
     }
 
-    // RN-05: toda ordenação termina em Nome como desempate — sem isso,
-    // Skip/Take não tem resultado determinístico entre páginas (plano §9).
     private IOrderedQueryable<Produto> AplicarOrdenacao(IQueryable<Produto> consulta, OrdenacaoCatalogo ordenacao) =>
         ordenacao switch
         {
             OrdenacaoCatalogo.MenorPreco => consulta.OrderBy(p => p.Preco).ThenBy(p => p.Nome),
             OrdenacaoCatalogo.MaiorPreco => consulta.OrderByDescending(p => p.Preco).ThenBy(p => p.Nome),
 
-            // Produto sem nenhuma avaliação vai para o fim (média nula vira
-            // -1, que nenhuma nota real alcança), não descartado da consulta.
             OrdenacaoCatalogo.MelhorAvaliados => consulta
                 .OrderByDescending(p => _context.Avaliacoes
                     .Where(a => a.ProdutoId == p.ProdutoId)
                     .Average(a => (double?)a.Nota) ?? -1)
                 .ThenBy(p => p.Nome),
 
-            // RF-24 (spec 022): soma as unidades vendidas em pedido não
-            // cancelado (RN-05) — produto sem venda nenhuma some pra 0, não
-            // da consulta, mesma forma que MelhorAvaliados usa desde a 014.
             OrdenacaoCatalogo.MaisVendidos => consulta
                 .OrderByDescending(p => _context.ItensPedido
                     .Where(i => i.ProdutoId == p.ProdutoId && i.Pedido!.Status != PedidoStatus.Cancelado)

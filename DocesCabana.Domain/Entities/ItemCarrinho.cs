@@ -2,9 +2,6 @@ namespace DocesCabana.Domain.Entities;
 
 public class ItemCarrinho
 {
-    // RN-02 (spec 017): mesmo limite que a 008 fixou no seletor de
-    // quantidade da página do produto (RN-10 de lá) — uma regra só no
-    // sistema inteiro.
     public const short QuantidadeMinima = 1;
     public const short QuantidadeMaxima = 99;
 
@@ -14,7 +11,6 @@ public class ItemCarrinho
 
     public short Quantidade { get; private set; }
 
-    // Navegações filho -> pai. Usuario e Produto vêm null sem Include.
     public Produto? Produto { get; private set; }
 
     public Usuario? Usuario { get; private set; }
@@ -39,9 +35,6 @@ public class ItemCarrinho
         Quantidade = quantidade;
     }
 
-    // RN-01: acrescentar o que já está no carrinho soma à quantidade
-    // existente, não cria linha nova. RN-02: a soma nunca ultrapassa o
-    // teto — corta, não recusa.
     public void Acrescentar(short quantidade)
     {
         ValidarQuantidade(quantidade);

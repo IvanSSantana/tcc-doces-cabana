@@ -4,11 +4,6 @@ using FluentValidation;
 
 namespace DocesCabana.Application.Validators;
 
-// Reaproveita as regras de Nome, Celular e DataNascimento de
-// CadastroDTOValidator (plano §9, risco 7) — mesma validação, mesma
-// mensagem, para que o mesmo dado inválido não passe no cadastro e falhe na
-// conta, ou o contrário. CPF não tem regra aqui: não é campo de formulário
-// (RN-06), viaja no DTO só para exibição.
 public class DadosPessoaisDTOValidator : AbstractValidator<DadosPessoaisDTO>
 {
     public DadosPessoaisDTOValidator()

@@ -6,7 +6,6 @@ public class Estoque
 
     public short Quantidade { get; private set; }
 
-    // Navegação filho -> pai. Chave compartilhada com Produto (1:1).
     public Produto? Produto { get; private set; }
 
     protected Estoque() { }

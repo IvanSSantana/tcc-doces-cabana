@@ -20,9 +20,6 @@ public class EnderecoRepository : IEnderecoRepository
             .OrderBy(e => e.DataCadastro)
             .ToListAsync();
 
-    // Sem AsNoTracking: o endereço volta rastreado porque AtualizarDados,
-    // MarcarComoPadrao e DesmarcarComoPadrao mutam o estado em memória, e
-    // SalvarAlteracoes precisa que o ChangeTracker perceba a mudança.
     public async Task<Endereco?> Buscar(Guid enderecoId, Guid usuarioId) =>
         await _context.Enderecos
             .FirstOrDefaultAsync(e => e.EnderecoId == enderecoId && e.UsuarioId == usuarioId);

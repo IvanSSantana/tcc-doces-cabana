@@ -56,10 +56,6 @@ public class UsuarioService : IUsuarioService
                 ObterMensagensErro(resultado));
         }
 
-        // A partir daqui, se qualquer coisa falhar — cadastro do usuário ou
-        // atribuição do papel —, a conta já criada é desfeita: não deixamos
-        // credencial sem cadastro nem conta de cliente que ninguém pediu
-        // (RN-08 da spec 004, RN-05 da spec 005).
         try
         {
             var usuario = new Usuario(conta.Id, dto.Nome!, dto.CPF!, dto.Celular!, dto.DataNascimento ?? new DateTime());
@@ -77,10 +73,6 @@ public class UsuarioService : IUsuarioService
         }
         catch (DbUpdateException)
         {
-            // ContaJaExiste não pega a corrida entre duas requisições
-            // simultâneas com o mesmo CPF — quem pega é o índice único, aqui.
-            // A consulta vem antes do DeleteAsync de propósito: ela não
-            // descarrega o ChangeTracker, e o DeleteAsync grava (spec 006).
             var cpf = CpfHelper.ApenasDigitos(dto.CPF!);
             var colisaoDeCpf = await _usuarioRepository.BuscarPorCpf(cpf) is not null;
 

@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DocesCabana.MVC.Controllers;
 
-// Público, sem [Authorize] — o catálogo é a coleção que o cliente percorre
-// (spec 012). O nome ficou livre a partir da spec 011.
 public class CatalogoController : Controller
 {
     private readonly ICatalogoService _catalogoService;
@@ -20,9 +18,6 @@ public class CatalogoController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(
         string? apelido = null,
-        // Apelido, não Guid (spec 016): o valor que chega pela URL é
-        // legível — "barras", "potes" — e é CatalogoService.Montar quem
-        // resolve isso contra a categoria atual.
         [FromQuery] string[]? subcategorias = null,
         [FromQuery] bool semAcucar = false,
         OrdenacaoCatalogo ordenacao = OrdenacaoCatalogo.MelhorAvaliados,
@@ -38,11 +33,6 @@ public class CatalogoController : Controller
 
         var catalogo = await _catalogoService.Montar(criterios, pagina, UsuarioAtualId);
 
-        // Um endereço, duas representações (spec 014, plano §5): a mesma
-        // rota devolve só o bloco que mudou para quem pediu via catalogo.js,
-        // e a página inteira para quem navegou por link, F5 ou sem
-        // JavaScript algum. Nenhuma rota nova, nenhuma duplicação de regra
-        // de filtro/ordenação/paginação entre as duas.
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             return PartialView("_ResultadoCatalogo", catalogo);
 

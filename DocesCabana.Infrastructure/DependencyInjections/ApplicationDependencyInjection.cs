@@ -47,9 +47,6 @@ public static class ApplicationDependencyInjection
         return services;
     }
 
-    // Isolado pelo mesmo motivo de AddEmailService: testável sem montar o
-    // grafo inteiro. Uma implementação só (spec 020 §10) — sem simulador ao
-    // lado, então sem o "if" por adaptador que AddEmailService tem.
     public static IServiceCollection AddFreteService(this IServiceCollection services)
     {
         services.AddHttpClient<IFreteService, FreteServiceMelhorEnvio>((provedor, client) =>
@@ -62,9 +59,6 @@ public static class ApplicationDependencyInjection
         return services;
     }
 
-    // Isolado pelo mesmo motivo de AddFreteService: testável sem montar o
-    // grafo inteiro. Uma implementação só (spec 027 §10) — sem adaptador
-    // local, então sem o "if" por adaptador que AddEmailService tem.
     public static IServiceCollection AddArmazenamentoDeImagem(this IServiceCollection services)
     {
         services.AddHttpClient<IArmazenamentoDeImagem, ArmazenamentoSupabase>((provedor, client) =>
@@ -77,9 +71,6 @@ public static class ApplicationDependencyInjection
         return services;
     }
 
-    // Isolado do restante do registro para ser testável sem montar o grafo de
-    // dependências inteiro (repositórios, UnitOfWork, DbContext) — ver
-    // RegistroDeEmailTests (spec 007).
     public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration)
     {
         var adaptador = configuration["EmailSettings:Adaptador"];

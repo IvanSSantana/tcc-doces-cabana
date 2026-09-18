@@ -14,12 +14,6 @@ public class Pedido
 
     public decimal Valor { get; private set; }
 
-    // Dados da entrega, congelados no fechamento (spec 022, RN-01) — mudar o
-    // preço do frete ou a transportadora depois não muda o que a pessoa já
-    // combinou. ValorDoFrete existe separado de Valor, em vez de derivado por
-    // subtração, porque quando cupom ou promoção entrarem no total, a
-    // subtração deixaria de bater e o erro apareceria silenciosamente numa
-    // tela, não num teste (plano §6).
     public decimal ValorDoFrete { get; private set; }
 
     public string Transportadora { get; private set; } = default!;
@@ -34,16 +28,10 @@ public class Pedido
 
     public DateTime Data { get; private set; }
 
-    // Pedido é a raiz do agregado (spec 022, plano §3) — decisão adiada desde
-    // a modelagem, registrada ali como "quem gerencia o agregado é decisão da
-    // spec de carrinho". É esta. Campo de apoio porque a coleção exposta
-    // precisa ser somente-leitura (Princípio II — estado só muda por método
-    // de intenção).
     private readonly List<ItemPedido> _itens = [];
 
     public IReadOnlyCollection<ItemPedido> Itens => _itens.AsReadOnly();
 
-    // Navegações filho -> pai. Usuario é do domínio (spec 004).
     public Endereco? EnderecoEntrega { get; private set; }
 
     public Usuario? Usuario { get; private set; }
@@ -82,17 +70,8 @@ public class Pedido
     public void AcrescentarItem(Guid produtoId, short quantidade, decimal precoUnitario) =>
         _itens.Add(new ItemPedido(PedidoId, produtoId, quantidade, precoUnitario));
 
-    // Método, não propriedade: propriedade computada o EF Core tentaria
-    // mapear para coluna — mesma razão de Produto.DisponivelParaCompra()
-    // (spec 022, plano §4). Curto o bastante para ser ditado (RF-23).
     public string NumeroVisivel() => PedidoId.ToString("N")[..8].ToUpperInvariant();
 
-    // A situação de um pedido criado pela aplicação só avança quando a
-    // processadora de pagamento existir — nenhum caminho real desta entrega
-    // chama estes métodos (spec §10). Existem para os pedidos SEMEADOS
-    // (DbInitializer), que representam compras passadas e por isso nascem
-    // com situação variada de propósito — inclusive cancelado, que RN-05
-    // exige existir para provar que venda cancelada não conta.
     public void Cancelar() => Status = PedidoStatus.Cancelado;
 
     public void Confirmar() => Status = PedidoStatus.Confirmado;

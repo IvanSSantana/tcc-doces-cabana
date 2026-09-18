@@ -2,9 +2,6 @@ using DocesCabana.Domain.Enums;
 
 namespace DocesCabana.Application.DTOs;
 
-// O pedido inteiro (spec 023, RF-06 a RF-10) — o preço de cada item, o
-// frete, a transportadora e o prazo são os gravados no fechamento (RN-02),
-// nunca recalculados aqui: esta tela só lê.
 public class DetalheDePedidoDTO
 {
     public Guid PedidoId { get; init; }

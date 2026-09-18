@@ -16,8 +16,6 @@ public class Usuario
 
     protected Usuario() { }
 
-    // UsuarioId vem de fora (o Id da ContaDeAcesso já criada): a conta é a
-    // principal na relação 1:1, o usuário é o dependente.
     public Usuario(Guid usuarioId, string nome, string cpf, string celular, DateTime dataNascimento)
     {
         ValidarUsuarioId(usuarioId);

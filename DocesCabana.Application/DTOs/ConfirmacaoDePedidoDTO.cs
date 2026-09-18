@@ -2,9 +2,6 @@ using DocesCabana.Domain.Enums;
 
 namespace DocesCabana.Application.DTOs;
 
-// O comprovante (RF-22): número, itens, valores, prazo e a forma de
-// pagamento escolhida — sem link para histórico, que ainda não existe
-// (spec 022, plano §3).
 public class ConfirmacaoDePedidoDTO
 {
     public Guid PedidoId { get; init; }

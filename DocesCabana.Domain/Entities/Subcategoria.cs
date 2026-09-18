@@ -8,9 +8,6 @@ public class Subcategoria
 
     public string Nome { get; private set; } = default!;
 
-    // Navegação filho -> pai. Anulável: vem null a menos que a consulta peça
-    // Include. Ambas as pontas vivem no domínio, então é navegação normal
-    // (RQ-10 da spec 003), diferente da referência a Usuario.
     public Categoria? Categoria { get; private set; }
 
     protected Subcategoria() { }

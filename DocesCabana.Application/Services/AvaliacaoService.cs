@@ -23,13 +23,10 @@ public class AvaliacaoService : IAvaliacaoService
         var total = await _avaliacaoRepository.ContarPorProduto(produtoId);
         var distribuicaoBruta = await _avaliacaoRepository.ContarPorNota(produtoId);
 
-        // RN-04: as cinco chaves sempre presentes, mesmo quando o repositório
-        // só devolve as notas que de fato têm avaliação.
         var distribuicao = new Dictionary<byte, int>();
         for (byte nota = 1; nota <= 5; nota++)
             distribuicao[nota] = distribuicaoBruta.GetValueOrDefault(nota, 0);
 
-        // RN-03: sem avaliação não tem média — não é zero.
         decimal? media = null;
         if (total > 0)
         {
@@ -59,7 +56,6 @@ public class AvaliacaoService : IAvaliacaoService
             Ordenacao = ordenacao,
             Exibindo = itens.Count,
             Total = total,
-            // RF-15: só quando ainda sobra avaliação fora da página atual.
             TemMais = itens.Count < total
         };
     }
@@ -70,8 +66,6 @@ public class AvaliacaoService : IAvaliacaoService
         if (avaliacao is null)
             throw new KeyNotFoundException($"Avaliação com ID {avaliacaoId} não encontrada.");
 
-        // RN-06/RN-07 vivem na entidade — lança InvalidOperationException se
-        // usuarioId for o autor. Nada é persistido nesse caso.
         avaliacao.AlternarVotoUtil(usuarioId);
 
         _avaliacaoRepository.Atualizar(avaliacao);

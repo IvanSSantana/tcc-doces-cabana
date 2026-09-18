@@ -3,12 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DocesCabana.MVC.Helpers;
 
-// Único lugar que monta endereço de catálogo (spec 016, plano §4) — categoria,
-// subcategorias, sem açúcar, ordenação, termo de busca e página, todos por
-// apelido/valor legível, nunca por identificador. Usado pela barra lateral,
-// pela paginação e pelo cabeçalho, para que só exista uma regra de
-// serialização de endereço no lado do servidor (o irmão desta regra, do lado
-// do cliente, é catalogo.js, que serializa o próprio formulário).
 public static class EnderecoDoCatalogo
 {
     public static string Montar(

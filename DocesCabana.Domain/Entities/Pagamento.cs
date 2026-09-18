@@ -16,7 +16,6 @@ public class Pagamento
 
     public DateTime? DataPagamento { get; private set; }
 
-    // Navegação filho -> pai. Chave compartilhada com Pedido (1:1).
     public Pedido? Pedido { get; private set; }
 
     protected Pagamento() { }

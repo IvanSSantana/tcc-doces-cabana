@@ -10,8 +10,6 @@ public class ItemCarrinhoConfiguration : IEntityTypeConfiguration<ItemCarrinho>
     {
         builder.ToTable("ItemCarrinho");
 
-        // Chave primária composta: é o que impede o mesmo produto de
-        // aparecer duas vezes no carrinho de uma pessoa (RN-01).
         builder.HasKey(i => new { i.UsuarioId, i.ProdutoId });
 
         builder.Property(i => i.Quantidade).IsRequired();

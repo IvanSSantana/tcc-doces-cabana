@@ -19,7 +19,6 @@ public class PromocaoConfiguration : IEntityTypeConfiguration<Promocao>
         builder.Property(p => p.Descricao)
             .HasMaxLength(255);
 
-        // Sem HasColumnType em Tipo: o provider mapeia o enum de byte sozinho.
         builder.Property(p => p.Valor)
             .IsRequired()
             .HasColumnType("decimal(18,2)");

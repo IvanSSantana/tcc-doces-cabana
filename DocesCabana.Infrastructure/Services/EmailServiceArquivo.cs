@@ -4,12 +4,6 @@ using Microsoft.Extensions.Options;
 
 namespace DocesCabana.Infrastructure.Services;
 
-/// <summary>
-/// Adaptador de <see cref="IEmailService"/> que grava cada e-mail num arquivo
-/// em vez de enviar por SMTP. Existe para o teste de ponta a ponta (spec 007)
-/// concluir a redefinição de senha sem depender de serviço externo — nunca é
-/// o padrão em produção (ver <see cref="EmailSettings.Adaptador"/>).
-/// </summary>
 public class EmailServiceArquivo : IEmailService
 {
     private readonly EmailSettings _settings;

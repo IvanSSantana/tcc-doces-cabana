@@ -6,7 +6,6 @@ public class Favorito
 
     public Guid UsuarioId { get; private set; }
 
-    // Navegações filho -> pai. Usuario agora é do domínio (spec 004).
     public Produto? Produto { get; private set; }
 
     public Usuario? Usuario { get; private set; }

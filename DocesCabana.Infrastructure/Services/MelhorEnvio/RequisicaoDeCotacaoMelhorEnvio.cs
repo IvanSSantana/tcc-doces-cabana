@@ -2,11 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace DocesCabana.Infrastructure.Services.MelhorEnvio;
 
-// Tipos de (des)serialização confinados a esta pasta (spec 020, plano §4) —
-// é o que torna local o conserto se a API divergir do que a documentação
-// descreve. Nomes em inglês/snake_case de propósito: são o vocabulário da
-// API, não do domínio.
-
 internal class RequisicaoDeCotacaoMelhorEnvio
 {
     [JsonPropertyName("from")]
@@ -45,8 +40,6 @@ internal class ProdutoMelhorEnvio
     [JsonPropertyName("weight")]
     public decimal Weight { get; set; }
 
-    // A API multiplica pela quantity (spec 020 §10) — o preço do produto é
-    // o que a loja declara como valor segurado.
     [JsonPropertyName("insurance_value")]
     public decimal InsuranceValue { get; set; }
 
@@ -56,7 +49,6 @@ internal class ProdutoMelhorEnvio
 
 internal class OpcoesMelhorEnvio
 {
-    // Os dois sempre false (spec 020 §10) — só encarecem.
     [JsonPropertyName("receipt")]
     public bool Receipt { get; set; }
 

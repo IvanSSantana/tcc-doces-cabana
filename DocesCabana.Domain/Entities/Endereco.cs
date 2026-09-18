@@ -8,8 +8,6 @@ public class Endereco
 
     public Guid UsuarioId { get; private set; }
 
-    // Navegação filho -> pai. Usuario agora é do domínio (spec 004), então a
-    // navegação normal (RQ-10 da spec 003) se aplica também aqui.
     public Usuario? Usuario { get; private set; }
 
     public string Estado { get; private set; } = default!;
@@ -26,14 +24,8 @@ public class Endereco
 
     public string? Complemento { get; private set; }
 
-    // RN-01 (spec 018): exatamente um endereço é o principal, entre os que a
-    // pessoa tem — mas isso é invariante de coleção, não deste registro
-    // sozinho (Endereco não conhece os irmãos); ver EnderecoService.
     public bool Padrao { get; private set; }
 
-    // RN-04: sem ordem estável, "qual" endereço promover ao excluir o
-    // principal não teria critério. Com DataCadastro, é o mais antigo entre
-    // os restantes.
     public DateTime DataCadastro { get; private set; }
 
     protected Endereco() { }
@@ -72,11 +64,6 @@ public class Endereco
         DataCadastro = DateTime.UtcNow;
     }
 
-    // Roda as mesmas validações do construtor (plano §5) — o mesmo conjunto
-    // de invariantes, para que um endereço editado nunca fique num estado
-    // que o construtor recusaria. Valida tudo antes de atribuir qualquer
-    // coisa, como o construtor: uma atualização inválida não deixa o
-    // endereço parcialmente alterado.
     public void AtualizarDados(
         string estado, string cidade, string bairro, string cep, string rua, int numero, string? complemento = null)
     {

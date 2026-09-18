@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DocesCabana.MVC.Controllers;
 
-// [Authorize] na classe (RF-03): a área de conta inteira exige autenticação
-// — diferente do Carrinho/Favorito, aqui não existe visitante nenhum a
-// atender.
 [Authorize]
 public class ContaController : Controller
 {
@@ -21,8 +18,6 @@ public class ContaController : Controller
         _usuarioService = usuarioService;
         _enderecoService = enderecoService;
     }
-
-    // ── Dados pessoais ───────────────────────────────────────────────────
 
     [HttpGet]
     public async Task<IActionResult> Index()
@@ -44,10 +39,6 @@ public class ContaController : Controller
     {
         if (!ModelState.IsValid)
         {
-            // CA-07: o CPF continua visível mesmo quando o resto falhou —
-            // ele nunca veio do que a pessoa digitou (não é campo de
-            // formulário, RN-06), então precisa vir do que já está
-            // guardado, não do DTO que voltou do POST.
             dto.CPF = (await _usuarioService.BuscarUsuarioPorId(UsuarioAtualId)).CPF;
             return View("Index", dto);
         }
@@ -62,8 +53,6 @@ public class ContaController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-
-    // ── Endereços ────────────────────────────────────────────────────────
 
     [HttpGet]
     public async Task<IActionResult> Enderecos()
@@ -90,9 +79,6 @@ public class ContaController : Controller
     [HttpGet]
     public async Task<IActionResult> EditarEndereco(Guid id)
     {
-        // Endereço alheio (ou inexistente) lança KeyNotFoundException, que
-        // o FilterException global traduz para 404 — não há try/catch aqui
-        // (Princípio VIII).
         var dto = await _enderecoService.BuscarDoUsuario(id, UsuarioAtualId);
         return View("FormularioEndereco", dto);
     }
@@ -125,6 +111,5 @@ public class ContaController : Controller
         return RedirectToAction(nameof(Enderecos));
     }
 
-    // Sempre autenticado — [Authorize] na classe garante que a claim existe.
     private Guid UsuarioAtualId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }

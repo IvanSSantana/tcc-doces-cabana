@@ -5,8 +5,6 @@ namespace DocesCabana.Application.Validators;
 
 public class ImagemParaEnvioDTOValidator : AbstractValidator<ImagemParaEnvioDTO>
 {
-    // Regra de negócio ("o que a loja aceita publicar"), não configuração —
-    // fica testável sem subir configuração nenhuma (spec 027, plano §4).
     private static readonly string[] ExtensoesAceitas = [".jpg", ".jpeg", ".png", ".webp"];
     private static readonly string[] ContentTypesAceitos = ["image/jpeg", "image/png", "image/webp"];
     private const long TamanhoMaximoEmBytes = 5 * 1024 * 1024;

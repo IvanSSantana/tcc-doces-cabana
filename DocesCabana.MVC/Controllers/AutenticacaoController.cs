@@ -36,9 +36,6 @@ public class AutenticacaoController : Controller
 
         if (resultado.Succeeded)
         {
-            // RF-13/RF-14 (spec 015): só honra retorno para dentro do
-            // próprio site — Url.IsLocalUrl é a guarda contra a tela de
-            // login virar trampolim para outro domínio (RN-04).
             if (returnUrl is not null && Url.IsLocalUrl(returnUrl))
                 return LocalRedirect(returnUrl);
 
@@ -79,9 +76,6 @@ public class AutenticacaoController : Controller
         }
 
         await _usuarioService.CadastrarUsuario(dto);
-        // RF-04 (spec 022): quem criou conta no meio do fechamento precisa
-        // do mesmo retorno que o login já dá — repassa adiante, não perde
-        // no meio do caminho.
         return RedirectToAction("Login", new { returnUrl });
     }
 

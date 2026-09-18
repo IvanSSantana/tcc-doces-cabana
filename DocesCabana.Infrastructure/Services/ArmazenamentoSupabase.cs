@@ -5,9 +5,6 @@ using Microsoft.Extensions.Options;
 
 namespace DocesCabana.Infrastructure.Services;
 
-// Única implementação de IArmazenamentoDeImagem (spec 027 §10) — API REST
-// simples do Supabase Storage, sem SDK novo, no mesmo desenho de
-// FreteServiceMelhorEnvio (spec 020).
 public class ArmazenamentoSupabase : IArmazenamentoDeImagem
 {
     private const string MensagemDeFalhaPadrao = "Não foi possível enviar a imagem agora.";
@@ -21,19 +18,11 @@ public class ArmazenamentoSupabase : IArmazenamentoDeImagem
         _settings = options.Value;
     }
 
-    // Nunca lança por falha de transporte (RN-03, Princípio VIII) —
-    // indisponibilidade, credencial inválida e timeout são condição
-    // esperada, e voltam como Mensagem.
     public async Task<ResultadoDoEnvioDeImagemDTO> Enviar(Stream conteudo, string nomeDoArquivoOriginal, string contentType)
     {
-        // Chave vazia recusa sem tocar a rede (spec 027 §10, plano §4) —
-        // determinístico e faz o E2E rodar offline, a lição que a spec 020
-        // aprendeu tarde com o UserAgent em branco.
         if (string.IsNullOrWhiteSpace(_settings.ChaveDeServico))
             return ResultadoDoEnvioDeImagemDTO.ParaFalha("Armazenamento de imagem não configurado.");
 
-        // RN-02/RF-07: quem nomeia o arquivo guardado é o adaptador, nunca o
-        // nome que veio do computador de quem enviou.
         var extensao = Path.GetExtension(nomeDoArquivoOriginal);
         var nomeNoDestino = $"{Guid.NewGuid()}{extensao}";
         var caminho = $"{_settings.Bucket}/{_settings.Pasta}/{nomeNoDestino}";
@@ -44,10 +33,7 @@ public class ArmazenamentoSupabase : IArmazenamentoDeImagem
         };
         mensagem.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
         mensagem.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.ChaveDeServico);
-        // O formato novo de chave do Supabase (sb_secret_...) não é um JWT —
-        // o Storage recusa com 403 "Invalid Compact JWS" só com Authorization
-        // (achado rodando contra o serviço real, T032). Precisa também do
-        // apikey com a mesma chave.
+
         mensagem.Headers.Add("apikey", _settings.ChaveDeServico);
 
         try

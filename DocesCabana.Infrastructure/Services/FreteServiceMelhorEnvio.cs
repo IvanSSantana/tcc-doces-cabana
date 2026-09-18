@@ -8,10 +8,6 @@ using Microsoft.Extensions.Options;
 
 namespace DocesCabana.Infrastructure.Services;
 
-// Única implementação de IFreteService (spec 020 §10) — sem simulador ao
-// lado: o MelhorEnvio já calcula peso cubado e empacota sozinho, e uma
-// versão nossa criaria uma segunda resposta para a mesma pergunta, sem como
-// conferir uma contra a outra.
 public class FreteServiceMelhorEnvio : IFreteService
 {
     private readonly HttpClient _httpClient;
@@ -23,9 +19,6 @@ public class FreteServiceMelhorEnvio : IFreteService
         _settings = options.Value;
     }
 
-    // Nunca lança por falha de transporte (RN-02, Princípio VIII) —
-    // indisponibilidade, CEP não atendido, credencial inválida e timeout
-    // são condição esperada, e voltam como Mensagem.
     public async Task<CotacaoDeFreteDTO> Cotar(string cepDestino, IReadOnlyList<LinhaDoCarrinhoDTO> itensDisponiveis)
     {
         var requisicao = MontarRequisicao(cepDestino, itensDisponiveis);
@@ -36,7 +29,6 @@ public class FreteServiceMelhorEnvio : IFreteService
         };
         mensagem.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         mensagem.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.Token);
-        // Obrigatório pela API (spec 020 §10) — sem ele a API recusa.
         mensagem.Headers.UserAgent.ParseAdd(_settings.UserAgent);
 
         try
@@ -88,9 +80,6 @@ public class FreteServiceMelhorEnvio : IFreteService
     private static string ApenasDigitos(string valor) =>
         new string(valor.Where(char.IsDigit).ToArray());
 
-    // Armadilha 3 (plano §4): entrada sem preço utilizável é descartada —
-    // a documentação obtida só mostrou o caso de sucesso, então isso é
-    // defensivo, não confirmado.
     private static List<OpcaoDeFreteDTO> MapearOpcoes(IEnumerable<RespostaDeCotacaoMelhorEnvio> respostas) =>
         respostas
             .Where(r => r.Error is null && TryParsePreco(r.CustomPrice, out _) && r.CustomDeliveryRange is not null)
@@ -107,9 +96,6 @@ public class FreteServiceMelhorEnvio : IFreteService
             })
             .ToList();
 
-    // Armadilha 2 (plano §4): o preço vem como string com ponto decimal, e
-    // a aplicação é pt-BR — Parse sem InvariantCulture transformaria
-    // "37.79" em 3779, não 37,79.
     private static bool TryParsePreco(string? valor, out decimal preco) =>
         decimal.TryParse(valor, NumberStyles.Number, CultureInfo.InvariantCulture, out preco);
 

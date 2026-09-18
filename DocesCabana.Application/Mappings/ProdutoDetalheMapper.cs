@@ -7,12 +7,6 @@ public static class ProdutoDetalheMapper
 {
     private const int TamanhoDoResumo = 160;
 
-    /// <summary>
-    /// RN-02: os primeiros 160 caracteres da descrição, cortados no fim de
-    /// uma palavra e encerrados com reticências. Descrição com 160
-    /// caracteres ou menos sai inteira, sem reticências. Nula ou vazia
-    /// gera resumo nulo — RF-08 e CA-03.
-    /// </summary>
     public static string? GerarResumo(string? descricao)
     {
         if (string.IsNullOrWhiteSpace(descricao))

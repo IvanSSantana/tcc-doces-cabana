@@ -4,7 +4,6 @@ namespace DocesCabana.Application.DTOs;
 
 public class ProdutoDTO
 {
-    // O uso do init se dá pois o DTO é imutável e não deve ser alterado após a criação. Afinal é vindo do banco de dados.
     public Guid ProdutoId { get; init; }
 
     public string Nome { get; init; } = string.Empty;
@@ -25,7 +24,6 @@ public class ProdutoDTO
 
     public bool SemAcucar { get; init; }
 
-    // Peso e dimensões (spec 020, RF-01) — kg e cm, mesma unidade do domínio.
     public decimal Peso { get; init; }
 
     public decimal Altura { get; init; }
@@ -34,10 +32,6 @@ public class ProdutoDTO
 
     public decimal Comprimento { get; init; }
 
-    // RF-06 (spec 027): o endereço vem do resultado do envio, não do que a
-    // pessoa digitou — ImagemUrl é init, então a atribuição direta depois do
-    // binding não compila. Devolve cópia, como CarrinhoDTO.ComCotacao
-    // (spec 020) resolveu o mesmo problema.
     public ProdutoDTO ComImagem(string imagemUrl) => new()
     {
         ProdutoId = ProdutoId,

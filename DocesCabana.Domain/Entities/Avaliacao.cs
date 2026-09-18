@@ -18,12 +18,8 @@ public class Avaliacao
 
     public IReadOnlyCollection<VotoUtil> Votos => _votos.AsReadOnly();
 
-    // RN-08: pessoas distintas, nunca negativa — Count sobre a coleção já
-    // garante as duas coisas, já que a chave composta de VotoUtil impede
-    // duplicidade de (AvaliacaoId, UsuarioId).
     public int TotalUteis => _votos.Select(v => v.UsuarioId).Distinct().Count();
 
-    // Navegações filho -> pai. Usuario agora é do domínio (spec 004).
     public Produto? Produto { get; private set; }
 
     public Usuario? Usuario { get; private set; }
@@ -56,11 +52,6 @@ public class Avaliacao
     public bool MarcadaComoUtilPor(Guid usuarioId) =>
         _votos.Any(v => v.UsuarioId == usuarioId);
 
-    /// <summary>
-    /// Marca ou desmarca o voto de útil de <paramref name="usuarioId"/>.
-    /// Devolve <c>true</c> quando marcou, <c>false</c> quando desmarcou.
-    /// RN-06 (alterna), RN-07 (autor não vota na própria avaliação).
-    /// </summary>
     public bool AlternarVotoUtil(Guid usuarioId)
     {
         if (usuarioId == UsuarioId)

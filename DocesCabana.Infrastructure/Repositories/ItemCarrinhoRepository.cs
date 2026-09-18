@@ -20,9 +20,6 @@ public class ItemCarrinhoRepository : IItemCarrinhoRepository
             .Where(i => i.UsuarioId == usuarioId)
             .ToListAsync();
 
-    // Sem AsNoTracking: o item volta rastreado porque AlterarQuantidade e
-    // Acrescentar mutam o estado em memória, e SalvarAlteracoes precisa que
-    // o ChangeTracker perceba a mudança.
     public async Task<ItemCarrinho?> Buscar(Guid usuarioId, Guid produtoId) =>
         await _context.ItensCarrinho
             .FirstOrDefaultAsync(i => i.UsuarioId == usuarioId && i.ProdutoId == produtoId);

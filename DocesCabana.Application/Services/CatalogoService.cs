@@ -30,25 +30,14 @@ public class CatalogoService : ICatalogoService
         {
             categoriaAtual = categorias.FirstOrDefault(c => c.Apelido == criterios.ApelidoDaCategoria);
 
-            // RF-07 (012): apelido que não corresponde a nenhuma categoria é
-            // "não encontrado", não catálogo completo silenciosamente.
             if (categoriaAtual is null)
                 throw new KeyNotFoundException($"Categoria \"{criterios.ApelidoDaCategoria}\" não encontrada.");
         }
 
-        // RN-04 (016): apelido de subcategoria que não existir na categoria
-        // atual é um filtro que não se aplica, não um erro — é ignorado, e
-        // a categoria inteira é exibida. Sem categoria (catálogo completo),
-        // nenhum apelido de subcategoria pode ser resolvido: RN-03 escopa a
-        // unicidade por categoria, então fora de uma categoria o apelido não
-        // tem contra o que ser comparado.
         var subcategoriasResolvidas = categoriaAtual?.Subcategorias
             .Where(s => criterios.ApelidosDeSubcategoria.Contains(s.Apelido))
             .ToList() ?? [];
 
-        // RF-09: campo vazio (ou só espaço) não vira filtro — é o catálogo
-        // completo, não um erro. TextoHelper.Normalizar aparado devolveria
-        // "" para "   ", então o teste de vazio cobre os dois casos.
         var termoNormalizado = string.IsNullOrWhiteSpace(criterios.Termo)
             ? null
             : TextoHelper.Normalizar(criterios.Termo);
@@ -63,14 +52,10 @@ public class CatalogoService : ICatalogoService
         var total = await _produtoRepository.ContarNoCatalogo(filtro);
         var totalDePaginas = Math.Max(1, (int)Math.Ceiling(total / (double)TamanhoDaPagina));
 
-        // RF-21: página fora do intervalo cai no limite válido, nunca numa
-        // grade vazia por página inexistente.
         var paginaSaneada = Math.Clamp(pagina, 1, totalDePaginas);
 
         var produtos = await _produtoRepository.BuscarPaginaDoCatalogo(filtro, paginaSaneada, TamanhoDaPagina);
 
-        // RF-02: sem usuário (visitante), nenhum produto vem marcado — nem
-        // consultamos favoritos, que ninguém tem quando não está logado.
         var idsFavoritados = usuarioId.HasValue
             ? await _favoritoRepository.IdsPorUsuario(usuarioId.Value, produtos.Select(p => p.ProdutoId))
             : [];

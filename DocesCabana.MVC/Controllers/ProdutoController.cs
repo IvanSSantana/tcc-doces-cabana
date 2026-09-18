@@ -38,8 +38,6 @@ public class ProdutoController : Controller
         return Redirect($"{url}#avaliacoes");
     }
 
-    // Mínimo 5, máximo 100, arredondado para baixo em múltiplos de 5 —
-    // impede que a query string vire carga arbitrária (plano §4, risco §8).
     private static int SanearExibir(int exibir)
     {
         var limitado = Math.Clamp(exibir, 5, 100);

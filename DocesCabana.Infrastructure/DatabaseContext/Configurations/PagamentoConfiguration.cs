@@ -16,7 +16,6 @@ public class PagamentoConfiguration : IEntityTypeConfiguration<Pagamento>
             .IsRequired()
             .HasColumnType("decimal(18,2)");
 
-        // 1:1 com Pedido: um pedido tem no máximo um pagamento (RN-23).
         builder.HasOne(p => p.Pedido)
             .WithOne()
             .HasForeignKey<Pagamento>(p => p.PedidoId)
