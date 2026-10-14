@@ -13,6 +13,8 @@ public interface IProdutoService
 
     Task Remover(Guid produtoId);
 
+    Task<ProdutoDTO> Atualizar(ProdutoDTO dto);
+
     Task<List<ProdutoDTO>> BuscarDestaquesDaVitrine(int limite, Guid? usuarioId = null);
 
     Task<ProdutoDetalheDTO> BuscarDetalhe(Guid id, OrdenacaoAvaliacao ordenacao, int avaliacoesExibidas, Guid? usuarioAtual);

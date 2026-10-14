@@ -5,7 +5,6 @@ using DocesCabana.Application.Enums;
 using DocesCabana.Application.Mappings;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Enums;
-using Microsoft.AspNetCore.Mvc;
 
 namespace DocesCabana.Application.Services;
 
@@ -74,10 +73,21 @@ public class ProdutoService : IProdutoService
     public async Task Remover(Guid produtoId)
     {
         var produto = await _produtoRepository.BuscarPorId(produtoId) 
-            ?? throw new KeyNotFoundException("Produo não encontrado.");
+            ?? throw new KeyNotFoundException($"Produo com ID {produtoId} não encontrado.");
 
         _produtoRepository.Remover(produto);
         await _unitOfWork.SalvarAlteracoes();
+    }
+
+    public async Task<ProdutoDTO> Atualizar(ProdutoDTO dto)
+    {
+        var produto = await _produtoRepository.BuscarPorId(dto.ProdutoId) 
+            ?? throw new KeyNotFoundException($"Produto com ID {dto.ProdutoId} não encontrado.");
+
+        var produtoAtualizado = await _produtoRepository.Atualizar(ProdutoMapper.ToEntity(dto));
+        await _unitOfWork.SalvarAlteracoes();
+
+        return ProdutoMapper.ToDTO(produtoAtualizado);
     }
 
     public async Task<ProdutoDetalheDTO> BuscarDetalhe(

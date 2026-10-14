@@ -8,7 +8,7 @@ public interface IRepository<T> where T : class
 
     Task Adicionar(T entity);
 
-    void Atualizar(T entity);
+    Task<T> Atualizar(T entity);
 
     void Remover(T entity);
 }

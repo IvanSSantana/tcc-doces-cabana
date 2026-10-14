@@ -29,9 +29,10 @@ public class Repository<T> : IRepository<T>
         await _context.Set<T>().AddAsync(entity);
     }
 
-    public void Atualizar(T entity)
+    public async Task<T> Atualizar(T entity)
     {
         _context.Set<T>().Update(entity);
+        return entity;
     }
 
     public void Remover(T entity)
