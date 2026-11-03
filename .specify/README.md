@@ -1,17 +1,20 @@
-# SDD — Desenvolvimento Orientado a Especificação
+# Fluxo de trabalho — debate, plano, execução
 
-Neste projeto a especificação é o artefato principal, e o código é o que se
-deriva dela. A ordem é sempre a mesma:
+O projeto trabalha em três etapas. O plano é o único artefato escrito: ele guarda
+as decisões do debate e o desenho técnico, e o código é derivado dele.
 
 ```
-   ideia ──► spec.md ──► plan.md ──► tasks.md ──► código
-             o quê       como         em que      execução
-             e por quê   e onde       ordem
+   debate ──────► plan.md ──────────► código
+   conversa,      decisões + como      execução
+   sem arquivo    e onde, em ordem
 ```
 
-A regra que sustenta tudo: **cada etapa só começa quando a anterior não tem mais
-ambiguidade**. Especificação com dúvida em aberto não vira plano; plano sem
-arquivos nomeados não vira tarefa; tarefa sem teste não vira código.
+A regra que sustenta tudo: **a execução só começa quando o plano não tem mais
+decisão em aberto**.
+
+> Até a feature `028`, o projeto usou o SDD clássico (`spec.md` → `plan.md` →
+> `tasks.md` → `checklist.md`). Essas pastas continuam em `specs/` como
+> histórico. A partir da `029`, cada pasta tem só o `plan.md`.
 
 ## O que tem nesta pasta
 
@@ -19,117 +22,78 @@ arquivos nomeados não vira tarefa; tarefa sem teste não vira código.
 .specify/
 ├── memory/
 │   └── constitution.md      Os 8 princípios inegociáveis do projeto.
-│                            Toda spec, plano e tarefa é validada contra ela.
+│                            Todo plano é validado contra ela.
 ├── templates/
-│   ├── spec-template.md     O quê e por quê. Sem detalhe técnico.
-│   ├── plan-template.md     Como e onde. Arquivo por arquivo.
-│   ├── tasks-template.md    Em que ordem. Uma tarefa, um arquivo, um commit.
-│   └── checklist-template.md  Portão de saída antes do merge.
+│   └── plan-template.md     Decisões, impacto arquivo por arquivo, ordem de
+│                            execução, testes, riscos e resultado.
 └── scripts/
-    └── nova-feature.ps1     Cria specs/NNN-slug já preenchida.
+    └── nova-feature.ps1     Cria specs/NNN-slug/plan.md já preenchido.
 ```
 
 E fora daqui:
 
 ```
-specs/                       Uma pasta por feature.
-├── README.md                Índice e backlog.
-├── 000-baseline/            O que já existe hoje, incluindo as dívidas conhecidas.
-└── 001-cadastro-produto-admin/   Exemplo completo: spec + plan + tasks.
-
-.claude/commands/            Os comandos que executam o fluxo.
+specs/                       Uma pasta por feature, com o índice em README.md.
+.claude/commands/            /planejar e /implementar.
 ```
 
 ## Como usar
 
-### 1. Criar a feature
+### 1. Debater
+
+Converse com o assistente sobre o problema: o que muda, por quê, o que fica de
+fora, quais alternativas existem. Nenhum arquivo é criado nesta etapa. Ela
+termina quando não sobra decisão de negócio em aberto.
+
+### 2. Planejar
+
+```
+/planejar controle de estoque para os produtos do catálogo
+```
+
+Cria `specs/NNN-slug/plan.md` com: as decisões do debate (com motivo e
+alternativa descartada), a verificação constitucional, o impacto arquivo por
+arquivo, os contratos, a ordem de execução, os testes e os riscos.
+
+Para criar só a pasta:
 
 ```powershell
 .\.specify\scripts\nova-feature.ps1 "controle de estoque"
 ```
 
-Cria `specs/004-controle-de-estoque/` com os quatro arquivos já preenchidos com
-nome, ID e data. Use `-CriarBranch` para já criar a branch de mesmo nome.
+Use `-CriarBranch` para já criar a branch de mesmo nome.
 
 > ⚠️ **Ao editar `nova-feature.ps1`, salve como UTF-8 *com BOM*.** O Windows
 > PowerShell 5.1 lê script sem BOM como ANSI e corrompe os acentos, quebrando o
-> parser com `TerminatorExpectedAtEndOfString`. Os `.md` gerados, ao contrário,
-> são gravados sem BOM de propósito.
+> parser com `TerminatorExpectedAtEndOfString`. O `plan.md` gerado, ao
+> contrário, é gravado sem BOM de propósito.
 
-### 2. Especificar
+Revise o plano e mude o status para `Aprovado`.
 
-```
-/especificar controle de estoque para os produtos do catálogo
-```
-
-Produz a `spec.md`. **Só descreve comportamento** — nada de classe, tabela ou
-framework. Toda decisão de negócio que o assistente não pode tomar sozinho vira
-uma linha `[NECESSITA ESCLARECIMENTO: ...]`.
-
-Você responde essas pendências, edita a spec, e só então avança. Essa é a etapa
-que decide a qualidade de tudo o que vem depois — vale mais tempo aqui do que em
-qualquer outra.
-
-### 3. Planejar
+### 3. Executar
 
 ```
-/planejar 004-controle-de-estoque
+/implementar 029-controle-de-estoque
 ```
 
-Produz a `plan.md`: verificação contra a constituição, lista arquivo por arquivo
-do que muda em cada camada, contratos, migration, estratégia de teste,
-alternativas descartadas e riscos.
-
-O comando se recusa a rodar se sobrou pendência na spec.
-
-### 4. Quebrar em tarefas
-
-```
-/tarefas 004-controle-de-estoque
-```
-
-Produz a `tasks.md`: tarefas numeradas, cada uma nomeando um arquivo, com os
-testes vindo obrigatoriamente antes da implementação e a tabela de
-rastreabilidade requisito → tarefa.
-
-### 5. Implementar
-
-```
-/implementar 004-controle-de-estoque
-```
-
-Executa em ordem, testando a cada fase. Ao final, preenche o checklist e atualiza
-o índice.
-
-### 6. Auditar (a qualquer momento)
-
-```
-/analisar 004-controle-de-estoque
-```
-
-Relata requisito sem tarefa, código fora do escopo, violação constitucional e
-critério de aceite não provado. Só lê, não altera.
+Segue a ordem de execução do plano, testando a cada passo, marca os passos
+concluídos e preenche o resultado da execução.
 
 ## Por que a constituição existe
 
-Sem ela, cada spec renegocia as mesmas decisões: onde valida, quem persiste, em
+Sem ela, cada plano renegocia as mesmas decisões: onde valida, quem persiste, em
 que língua nomeia. A `constitution.md` fixa isso uma vez e vira um teste que todo
 plano precisa passar. Quando um plano não passa, ou o plano está errado ou a
 constituição precisa de emenda — nunca "dessa vez tudo bem".
 
-Ela foi extraída da arquitetura que o projeto **já tem**, não imposta de fora.
-Por isso a baseline lista sete dívidas: são os pontos onde o código atual ainda
-não alcançou os próprios princípios.
-
 ## Perguntas frequentes
 
-**Preciso passar pelas quatro etapas para uma correção de uma linha?** Não.
-Correção de bug e ajuste de estilo vão direto. O fluxo existe para feature — algo
-que muda o que o sistema faz.
+**Preciso de plano para uma correção de uma linha?** Não. Correção pequena de
+bug e ajuste de estilo vão direto do debate para o código.
 
-**A spec pode mudar depois de aprovada?** Pode, e vai. O que não pode é o código
-divergir dela em silêncio: mudou o entendimento, atualiza a spec primeiro.
+**O plano pode mudar depois de aprovado?** Pode. O que não pode é o código
+divergir dele em silêncio: mudou o entendimento, atualiza o plano primeiro.
 
 **Onde registro uma dívida que descobri?** Na tabela de dívidas de
-`specs/000-baseline/spec.md`, e ela é resolvida por alguma spec futura que a
+`specs/000-baseline/spec.md`. Ela é resolvida por um plano futuro que a
 referencia explicitamente.

@@ -1,30 +1,29 @@
 ---
-description: Executa as tarefas de uma feature, em ordem, com teste antes de cada implementação
-argument-hint: <ID da feature> [Txxx para retomar de uma tarefa específica]
+description: Executa o plano de uma feature, em ordem, com teste antes de cada implementação
+argument-hint: <ID da feature> [número do passo para retomar]
 ---
 
-Você vai implementar a feature **$ARGUMENTS**.
+Você vai executar o plano **$ARGUMENTS**.
 
 ## Porta de entrada
 
-Leia, nesta ordem: `.specify/memory/constitution.md`,
-`specs/$ARGUMENTS/spec.md`, `specs/$ARGUMENTS/plan.md`, `specs/$ARGUMENTS/tasks.md`.
+Leia `.specify/memory/constitution.md` e `specs/$ARGUMENTS/plan.md`.
 
-Se houver tarefa marcada como bloqueada por pendência da spec, **execute todas as
-demais** e deixe a bloqueada por último, avisando o usuário. Não invente a
-resposta que falta para destravá-la.
+Se o plano estiver como `Rascunho`, confirme com o usuário antes de executar.
 
 ## Executando
 
-1. Trabalhe em ordem numérica. Tarefas `[P]` vizinhas podem ir juntas.
-2. **Escreva o teste, rode, veja falhar, então implemente.** Não pule o passo de
-   ver falhar: um teste que passa antes da implementação está testando a coisa
-   errada.
-3. Rode `dotnet test` ao fim de cada fase. Não acumule fases sem rodar.
-4. Marque `[x]` na tarefa em `tasks.md` **depois** de a suíte ficar verde.
-5. Se uma tarefa se revelar impossível ou errada, pare e diga ao usuário o que o
-   plano não previu. Não improvise um desenho diferente no meio da execução — o
-   plano é que precisa mudar, e isso é decisão dele.
+1. Siga a **Ordem de execução** do plano, passo a passo.
+2. Passo que muda comportamento: escreva o teste, rode, veja falhar, então
+   implemente. Um teste que passa antes da implementação testa a coisa errada.
+   Passo puramente estrutural (mover, renomear): a suíte existente é a prova;
+   ela precisa continuar com o mesmo resultado.
+3. Rode `dotnet build` e o teste relevante ao fim de cada passo. Não acumule
+   passos sem rodar.
+4. Marque `[x]` no passo **depois** de a suíte ficar verde.
+5. Se um passo se revelar impossível ou errado, pare e diga ao usuário o que o
+   plano não previu. Não improvise outro desenho: o plano muda primeiro, e
+   isso é decisão do usuário.
 
 ## Enquanto escreve código
 
@@ -39,12 +38,10 @@ resposta que falta para destravá-la.
 ## Ao terminar
 
 1. `dotnet build` e `dotnet test` completos.
-2. Preencha `specs/$ARGUMENTS/checklist.md`.
-3. Atualize o status da spec e a linha em `specs/README.md`.
-4. Se a feature resolveu dívidas da baseline, risque-as em
-   `specs/000-baseline/spec.md`.
-5. Relate ao usuário: o que passou, o que **não** foi feito e por quê, e o que
-   ele precisa verificar manualmente (os critérios de aceite que nenhum teste
-   automatizado cobre).
+2. Preencha a seção **Resultado da execução** do plano e mude o status para
+   `Executado`.
+3. Atualize a linha da feature em `specs/README.md`.
+4. Relate ao usuário: o que passou, o que **não** foi feito e por quê, e o que
+   ele precisa verificar manualmente.
 
 Não faça commit nem push a menos que o usuário peça.

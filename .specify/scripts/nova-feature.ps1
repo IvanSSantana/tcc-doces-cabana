@@ -1,11 +1,11 @@
 ﻿<#
 .SYNOPSIS
-    Cria a pasta de uma nova feature em specs/ a partir dos templates de SDD.
+    Cria a pasta de uma nova feature em specs/ a partir do template de plano.
 
 .DESCRIPTION
     Descobre o próximo número livre em specs/, gera o slug a partir da descrição,
-    cria a pasta specs/NNN-slug com spec.md, plan.md e tasks.md preenchidos com
-    o nome da feature, e opcionalmente cria a branch de mesmo nome.
+    cria a pasta specs/NNN-slug com o plan.md preenchido com o nome da feature,
+    e opcionalmente cria a branch de mesmo nome.
 
 .PARAMETER Descricao
     Descrição curta da feature, em português. Ex.: "listagem de produtos admin".
@@ -94,10 +94,7 @@ $titulo = $titulo.Substring(0, 1).ToUpperInvariant() + $titulo.Substring(1)
 $utf8SemBom = New-Object Text.UTF8Encoding $false
 
 $mapa = @{
-    'spec-template.md'      = 'spec.md'
-    'plan-template.md'      = 'plan.md'
-    'tasks-template.md'     = 'tasks.md'
-    'checklist-template.md' = 'checklist.md'
+    'plan-template.md' = 'plan.md'
 }
 
 foreach ($origem in $mapa.Keys) {
@@ -114,7 +111,7 @@ foreach ($origem in $mapa.Keys) {
 }
 
 Write-Host "Feature criada: specs/$id" -ForegroundColor Green
-Write-Host "  spec.md, plan.md, tasks.md, checklist.md"
+Write-Host "  plan.md"
 
 # --- Branch -------------------------------------------------------------------
 if ($CriarBranch) {
@@ -131,5 +128,5 @@ else {
 }
 
 Write-Host ""
-Write-Host "Próximo passo: preencher specs/$id/spec.md (ou rodar /especificar)." -ForegroundColor Cyan
-Write-Host "Não adicione a linha no índice à mão — atualize specs/README.md ao final." -ForegroundColor DarkGray
+Write-Host "Próximo passo: preencher specs/$id/plan.md (ou rodar /planejar)." -ForegroundColor Cyan
+Write-Host "Adicione a linha da feature em specs/README.md com status Planejada." -ForegroundColor DarkGray

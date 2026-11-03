@@ -1,19 +1,32 @@
-# Plano Técnico — [NOME DA FEATURE]
+# Plano — [NOME DA FEATURE]
 
-**Spec de origem:** [`spec.md`](./spec.md) · **Criado em:** [AAAA-MM-DD]
+**ID:** [NNN-slug] · **Criado em:** [AAAA-MM-DD]
 **Status:** Rascunho | Aprovado | Executado
 
 ---
 
-## 1. Resumo da abordagem
+## 1. Objetivo
 
-*3 a 5 frases: o caminho escolhido, em alto nível. Alguém que leu a spec deve
-terminar este parágrafo sabendo por onde o código vai passar.*
+*2 a 4 frases: o problema, o que muda para quem usa ou mantém o sistema e por
+que agora. Quem não participou do debate deve entender o pedido só por aqui.*
 
-## 2. Verificação constitucional
+## 2. Decisões
 
-Preencha **antes** de detalhar o desenho. Um ❌ exige justificativa na seção 9 ou
-mudança de abordagem.
+*Tudo o que foi fechado no debate, mais o que o plano decidiu ao ler o código.
+Cada decisão diz o que se escolheu e por quê. Uma decisão sem "por quê" é
+palpite registrado.*
+
+| # | Decisão | Por quê | Alternativa descartada |
+|---|---|---|---|
+| D1 | | | |
+
+**Fora de escopo:** *o que foi discutido e ficou de fora, para não voltar
+pela porta dos fundos na execução.*
+
+## 3. Verificação constitucional
+
+Preencha **antes** de detalhar o desenho. Um ❌ exige justificativa na seção 8
+ou mudança de abordagem.
 
 | # | Princípio | Situação | Observação |
 |---|---|---|---|
@@ -26,89 +39,58 @@ mudança de abordagem.
 | VII | Antiforgery, `await`, autorização, POST-Redirect-Get | ⬜ OK / ❌ / n/a | |
 | VIII | Tratamento de erro por camada | ⬜ OK / ❌ | |
 
-## 3. Impacto por camada
+## 4. Impacto arquivo por arquivo
+
+*Um arquivo por linha, com caminho exato. "Ajustar a aplicação" não é plano;
+`Application/Services/ProdutoService.cs: injetar IUnitOfWork` é. Omita as
+camadas que a feature não toca.*
 
 ### `DocesCabana.Domain`
 | Arquivo | Ação | O quê |
 |---|---|---|
-| `Entities/X.cs` | criar / alterar | |
 
 ### `DocesCabana.Application`
 | Arquivo | Ação | O quê |
 |---|---|---|
-| `DTOs/XDTO.cs` | | |
-| `Contracts/Services/IXService.cs` | | |
-| `Services/XService.cs` | | |
-| `Validators/XDTOValidator.cs` | | |
-| `Mappings/XMapper.cs` | | |
 
 ### `DocesCabana.Infrastructure`
 | Arquivo | Ação | O quê |
 |---|---|---|
-| `Repositories/XRepository.cs` | | |
-| `DatabaseContext/Configurations/XConfiguration.cs` | | |
-| `Migrations/` | | |
-| `DependencyInjections/ApplicationDependencyInjection.cs` | | registro no contêiner |
 
 ### `DocesCabana.MVC`
 | Arquivo | Ação | O quê |
 |---|---|---|
-| `Controllers/XController.cs` | | |
-| `Views/X/Y.cshtml` | | |
-| `ViewComponents/X.cs` | | |
-| `wwwroot/css/pages/x.css` | | |
 
-## 4. Contratos
-
-*Assinaturas novas ou alteradas de interface. Só assinatura — a implementação é
-tarefa, não plano.*
-
-```csharp
-public interface IXService
-{
-    Task<XDTO> Fazer(XDTO dto);
-}
-```
-
-## 5. Modelo de dados
-
-*Só se a feature toca o esquema.*
-
-- **Entidade:** campos, tipos, obrigatoriedade
-- **Relacionamentos:** cardinalidade e comportamento de exclusão
-- **Migration:** nome proposto — `dotnet ef migrations add [Nome] --project DocesCabana.Infrastructure --startup-project DocesCabana.MVC`
-- **Impacto em dados existentes:** [nenhum | precisa de backfill | destrutivo]
-
-## 6. Estratégia de teste
-
-| Nível | Arquivo | O que prova |
+### Testes
+| Arquivo | Ação | O quê |
 |---|---|---|
-| Unidade — entidade | `Units/Entities/XTests.cs` | invariantes RN-xx |
-| Unidade — serviço | `Units/Services/XServiceTests.cs` | RF-xx com repositório mockado |
-| Unidade — validator | `Units/Validators/XDTOValidatorTests.cs` | cada `RuleFor` |
-| Unidade — controller | `Units/Controllers/XControllerTests.cs` | ModelState, redirecionamento |
-| Integração | `Integration/Repositories/XRepositoryIntegrationTests.cs` | persistência real em Postgres descartável |
 
-Mapeamento critério → teste:
+## 5. Contratos e modelo de dados
 
-| Critério de aceite | Teste que o prova |
+*Só assinaturas novas ou alteradas. Migration, se houver:*
+`dotnet ef migrations add [Nome] --project DocesCabana.Infrastructure --startup-project DocesCabana.MVC`
+
+## 6. Ordem de execução
+
+*Passos em ordem de dependência (Domínio → Aplicação → Infraestrutura → MVC).
+Teste antes da implementação quando o passo muda comportamento. Marque `[x]`
+na execução, depois de a suíte ficar verde.*
+
+- [ ] 1.
+- [ ] N. `dotnet build` e `dotnet test` completos
+
+## 7. Testes e verificação
+
+| O que precisa ser provado | Como |
 |---|---|
-| CA-01 | `Dado_..._Quando_..._Entao_...` |
+| | teste `Dado_..._Quando_..._Entao_...` / verificação manual |
 
-## 7. Alternativas descartadas
+## 8. Riscos e desvios
 
-| Alternativa | Por que não |
-|---|---|
+| Risco ou desvio constitucional | Impacto | Mitigação ou justificativa |
+|---|---|---|
 
-## 8. Riscos
+## 9. Resultado da execução
 
-| Risco | Probabilidade | Impacto | Mitigação |
-|---|---|---|---|
-
-## 9. Desvios constitucionais justificados
-
-*Vazio é o resultado esperado. Se houver item aqui, ele precisa dizer por que a
-alternativa conforme foi descartada, não só que o desvio existe.*
-
-| Princípio | Desvio | Justificativa | Alternativa descartada |
-|---|---|---|---|
+*Preenchido na execução: o que passou, o que não foi feito e por quê, o que
+precisa de verificação manual.*

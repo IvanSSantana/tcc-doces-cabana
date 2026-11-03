@@ -1,9 +1,9 @@
 # Constituição — Doces Cabana
 
-**Versão:** 1.4.2 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-09-07
+**Versão:** 1.5.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-11-03
 
-Este documento define os princípios inegociáveis do projeto. Toda `spec`, `plan` e
-`tasks` é validada contra ele antes de virar código. Quando uma decisão técnica
+Este documento define os princípios inegociáveis do projeto. Todo `plan.md` é
+validado contra ele antes de virar código. Quando uma decisão técnica
 conflita com um princípio daqui, ou o plano muda, ou a constituição é emendada
 explicitamente (com registro no histórico ao final) — nunca ignorada em silêncio.
 
@@ -185,7 +185,7 @@ quando a feature toca persistência.
 ## Princípio VII — Seguro por padrão na borda web
 
 Toda ação de controller nasce com estas garantias, e removê-las precisa de
-justificativa escrita na `spec`:
+justificativa escrita no `plan.md`:
 
 - `[HttpPost]` **sempre** com `[ValidateAntiForgeryToken]`.
 - Ação que muda estado é `async Task<IActionResult>` e **aguarda** o serviço.
@@ -217,14 +217,17 @@ justificativa escrita na `spec`:
 1. Esta constituição prevalece sobre preferência pessoal e sobre o que "já está
    assim" no código. Código legado que a viola é dívida a ser registrada, não
    precedente a ser seguido.
-2. Toda `plan.md` contém uma seção **Verificação Constitucional**. Se algum item
-   ficar marcado como violado, a `plan` precisa de uma justificativa explícita
+2. Todo `plan.md` contém uma seção **Verificação constitucional**. Se algum item
+   ficar marcado como violado, o plano precisa de uma justificativa explícita
    dizendo por que a alternativa conforme foi descartada.
-3. Emendas seguem versionamento semântico:
+3. O fluxo de trabalho tem três etapas: debate (sem arquivo), planejamento
+   (`plan.md`, com as decisões do debate) e execução (código). Ver
+   `.specify/README.md`.
+4. Emendas seguem versionamento semântico:
    - **MAJOR** — remoção ou redefinição incompatível de um princípio.
    - **MINOR** — novo princípio ou expansão material de um existente.
    - **PATCH** — correção de texto, exemplo ou link.
-4. Toda emenda registra data e motivo no histórico abaixo.
+5. Toda emenda registra data e motivo no histórico abaixo.
 
 ### Histórico de emendas
 
@@ -237,3 +240,4 @@ justificativa escrita na `spec`:
 | 1.4.0 | 2026-08-18 | Feature `010-organizacao-de-nomenclatura`. Princípio IV ganha duas regras normativas novas, mesmo padrão da 1.1.0: nome de classe é único por conceito de negócio (motivada pela colisão `AdminController`/`AdministradorController`, corrigida por esta feature) e tela parcial de uso único mora com o controlador dono, `Views/Shared/` reservado ao que é reaproveitado (regra que a base já praticava desde a `008`, agora escrita). MINOR — expansão material do princípio, não correção de texto. |
 | 1.4.1 | 2026-08-19 | Feature `011-area-administrativa`. Ressalva ao parágrafo de unicidade de nome que a 1.4.0 introduziu: o escopo é a *area*, não a solução inteira — `Admin/Produto` e `/Produto` são telas de públicos distintos, separadas pelo framework. PATCH — corrige o alcance de uma regra existente, não introduz regra nova. |
 | 1.4.2 | 2026-09-07 | Feature `028-banco-postgres-supabase`. Princípio V: `Integration/Repositories` passa a descrever Postgres descartável via `InfraestruturaPostgresDescartavel`, no lugar do SQLite em memória via `InfraestruturaSqliteEmMemoria` — o banco trocou de motor, a organização de teste não mudou. PATCH — corrige referência e exemplo, não introduz regra nova. |
+| 1.5.0 | 2026-11-03 | Troca de processo: o SDD clássico (`spec` → `plan` → `tasks` → `checklist`) dá lugar a três etapas — debate sem arquivo, `plan.md` com as decisões e execução. Preâmbulo, Princípio VII e Governança passam a citar só o `plan.md`; a Governança ganha o item 3 descrevendo o fluxo. Nenhum princípio técnico muda. MINOR — redefine o processo de governança, não um princípio. |
