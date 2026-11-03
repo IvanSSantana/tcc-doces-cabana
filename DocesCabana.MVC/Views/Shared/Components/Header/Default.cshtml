@@ -17,18 +17,6 @@
           alt="Logo Doce Cabana">
       </a>
 
-      @* Busca por nome de produto (spec 016, RF-01/RF-02): varre a loja
-         inteira, sempre no catálogo, sem categoria — a barra vive aqui, no
-         cabeçalho, presente inclusive na home, onde não há categoria
-         nenhuma. Formulário comum, GET, sem interceptação — sempre navega
-         de verdade para /Catalogo, com ou sem JavaScript (RF-10). É só a
-         partir daí, já dentro do catálogo, que #formulario-catalogo (com o
-         termo como campo oculto) assume o refinamento sem recarga. *@
-      @* asp-route-apelido="null" explícito (não omitido) é o que impede o
-         gerador de endereço de herdar o apelido de categoria da página
-         atual como valor ambiente — sem isso, buscar de dentro de
-         /Catalogo/doces submeteria para /Catalogo/doces, não para o
-         catálogo inteiro (RF-02). *@
       <form asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="@((string?)null)"
             method="get" class="barra-pesquisa">
         <input type="text" name="termo" value="@ViewData["TermoDeBusca"]"
@@ -45,8 +33,6 @@
       <div class="acoes-usuario">
         @if (User.Identity!.IsAuthenticated)
         {
-          @* CA-01/RN-08 (spec 018): o atalho deixou de ser desabilitado —
-             a área de conta existe de verdade agora. *@
           <a class="botao-acao" asp-area="" asp-controller="Conta" asp-action="Index">
             <i class="fa-solid fa-user icone-acao"></i>
 
@@ -61,9 +47,6 @@
               <span>Administradores</span>
             </a>
 
-            @* RF-26 (spec 015): a tela de cadastro de produto sempre
-               existiu, protegida por [Authorize], mas só era alcançável
-               digitando o endereço — nenhuma view tinha link para ela. *@
             <a class="botao-acao" asp-area="Admin" asp-controller="Produto" asp-action="Cadastro">
               <i class="fa-solid fa-plus icone-acao"></i>
 
@@ -92,9 +75,6 @@
         @{
             var itensCarrinho = (int)(ViewData["ItensCarrinho"] ?? 0);
         }
-        @* CA-16: o atalho deixa de ser href="#" — chega à tela do carrinho de
-           verdade. CA-15: a bolha só aparece com item — não é um "0"
-           desenhado (plano §3). *@
         <a asp-area="" asp-controller="Carrinho" asp-action="Index" class="botao-acao">
           <span class="icone-com-bolha">
             <i class="fa-solid fa-cart-shopping icone-acao"></i>
@@ -116,11 +96,6 @@
 
         @foreach (var categoria in Model)
         {
-          @* Menu suspenso por CSS puro (:hover/:focus-within), sem
-             JavaScript — abre ao passar o mouse ou ao tabular até o link
-             (spec 012, plano §3/§9). Só as 8 subcategorias com mais produto
-             disponível aparecem aqui (RF-04/RN-06); a lista completa mora na
-             barra lateral do catálogo. *@
           <div class="item-categoria-nav">
             <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="@categoria.Apelido" class="link-nav">
               <p>@categoria.Nome</p>
@@ -152,9 +127,6 @@
 
       </nav>
 
-      @* Levava a lugar nenhum (href="#") até a lista existir de verdade
-         (spec 015) — o mesmo defeito que o cadastro de produto sem link
-         tinha, ao contrário: aqui a tela existia e faltava o caminho. *@
       <a asp-area="" asp-controller="Favorito" asp-action="Index" class="botao-favoritos">
         <span>Favoritos</span>
 

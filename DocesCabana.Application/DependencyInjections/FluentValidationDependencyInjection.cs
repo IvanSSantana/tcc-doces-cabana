@@ -11,7 +11,7 @@ public static class FluentValidationDependencyInjection
     {
         services.AddFluentValidationAutoValidation();
         services.AddFluentValidationClientsideAdapters();
-        services.AddValidatorsFromAssemblyContaining<CadastroDTOValidator>(); // Nome de qualquer classe somente para o Assembly encontrar os validators.
+        services.AddValidatorsFromAssemblyContaining<CadastroDTOValidator>();
 
         return services;
     }

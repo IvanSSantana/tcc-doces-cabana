@@ -4,15 +4,8 @@ namespace DocesCabana.Tests.E2E.Paginas;
 
 public class PaginaCadastroProduto
 {
-    // Rótulo exato da opção no seletor de subcategoria, qualificado por
-    // categoria desde a spec 012 (RF-28) — "Categoria › Subcategoria", não
-    // só o nome da subcategoria. É a mesma subcategoria do produto curado
-    // que o DbInitializer semeia ("Raspa Tacho").
     public const string SubcategoriaConhecida = "Doces › Raspa de Tachos";
 
-    // PNG 1x1 mínimo, em memória (spec 027, T021) — sem arquivo no disco,
-    // sem fixture para manter. Só precisa ser um PNG válido: o cadastro não
-    // inspeciona bytes além do que a extensão e o Content-Type já verificam.
     private static readonly byte[] PngMinimo = Convert.FromBase64String(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=");
 
@@ -24,14 +17,6 @@ public class PaginaCadastroProduto
     public async Task Abrir(string urlBase) =>
         await _pagina.GotoAsync($"{urlBase}/Admin/Produto/Cadastro");
 
-    // Peso/Altura/Largura/Comprimento (spec 020, RF-02) são obrigatórios no
-    // formulário desde então — parâmetros opcionais para não obrigar todo
-    // teste já existente a conhecer o detalhe, com o mesmo valor-padrão dos
-    // testes de unidade (ProdutoTests).
-    //
-    // imagemUrl saiu (spec 027, RF-01) — o campo de endereço não existe
-    // mais. anexarImagem controla só se o arquivo é anexado: o teste de
-    // CA-02 (sem imagem) precisa poder chamar Preencher sem anexar nada.
     public async Task Preencher(
         string nome, decimal preco, string subcategoria = SubcategoriaConhecida,
         decimal peso = 0.5m, decimal altura = 10m, decimal largura = 15m, decimal comprimento = 20m,

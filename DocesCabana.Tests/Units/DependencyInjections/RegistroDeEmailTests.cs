@@ -56,8 +56,6 @@ public class RegistroDeEmailTests
     [Fact]
     public void Dado_AdaptadorDesconhecido_Quando_AddEmailService_Entao_DeveResolverEmailService()
     {
-        // O padrão nasce "Smtp"; qualquer valor não reconhecido cai aqui, não
-        // no arquivo — é a trava do risco 2 do plano §8 da 007.
         var emailService = ResolverEmailService("Sendgrid");
 
         Assert.IsType<EmailService>(emailService);

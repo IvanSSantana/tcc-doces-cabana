@@ -66,9 +66,6 @@ public class ProdutoMapperTests
         Assert.Empty(resultado);
     }
 
-    // ComImagem vive em ProdutoDTO (não em ProdutoMapper), mas é provado
-    // aqui — vizinho mais próximo do DTO — em vez de uma pasta Units/DTOs
-    // nova para um método de duas linhas (spec 027, T005).
     [Fact]
     public void Dado_UmDTO_Quando_ComImagem_Entao_DeveDevolverCopiaComEnderecoPreenchidoPreservandoOResto()
     {

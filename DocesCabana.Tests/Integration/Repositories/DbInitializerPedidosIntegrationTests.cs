@@ -5,10 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-// T038 (spec 022): confere na base semeada que os pedidos existem, têm
-// itens, e que as quantidades vendidas diferem o bastante entre produtos
-// para uma ordenação por venda ser visível — sem subir Identity inteiro
-// (SemearPedidosDeExemplo não depende dele, só de DbContext).
 public class DbInitializerPedidosIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
@@ -32,13 +28,8 @@ public class DbInitializerPedidosIntegrationTests : InfraestruturaPostgresDescar
         var pagamentos = await Contexto.Pagamentos.ToListAsync();
         Assert.Equal(pedidos.Count, pagamentos.Count);
 
-        // RN-05/CA-22: existe ao menos um pedido cancelado, para a
-        // ordenação por venda ter o que excluir.
         Assert.Contains(pedidos, p => p.Status == PedidoStatus.Cancelado);
 
-        // RF-24/CA-20: quantidades vendidas visivelmente diferentes entre
-        // produtos, contando só pedido não cancelado (mesma regra que
-        // ProdutoRepository.AplicarOrdenacao vai usar).
         var vendasPorProduto = pedidos
             .Where(p => p.Status != PedidoStatus.Cancelado)
             .SelectMany(p => p.Itens)
@@ -58,8 +49,6 @@ public class DbInitializerPedidosIntegrationTests : InfraestruturaPostgresDescar
         return produto;
     }
 
-    // CPFs válidos distintos — o índice único de Usuario.CPF não aceita
-    // repetição (mesma restrição que SemearUsuario da base já respeita).
     private static string CpfValido(int indice) =>
         new[]
         {

@@ -2,19 +2,6 @@
 @using DocesCabana.Application.Enums
 @model CarrinhoDTO
 
-@* Bloco que a atualização sem recarga substitui inteiro (mesmo padrão da
-   014/016 — um endereço, duas representações): itens, resumo e subtotal
-   vivem juntos aqui, porque alterar quantidade muda os três ao mesmo tempo.
-   data-total-itens é o que carrinho.js lê para atualizar a bolha do
-   cabeçalho, esteja esta resposta vindo da própria tela do carrinho ou de
-   um "acrescentar" disparado de outra página (spec 017, plano §4).
-
-   O redesenho da spec 021 muda a aparência, não a raiz: #itens-carrinho
-   continua sendo o único container que a troca sem recarga substitui — as
-   duas colunas do protótipo saem de CSS (display: grid) sobre a mesma
-   .grade-carrinho de sempre. Separar o resumo num container irmão faria a
-   troca deixar de ser atômica (itens novos com subtotal velho por um
-   instante). Ver plano §1. *@
 <div id="itens-carrinho" data-total-itens="@Model.TotalDeItens" tabindex="-1">
     @if (Model.Linhas.Count == 0)
     {
@@ -25,9 +12,6 @@
     }
     else
     {
-        // RF-01 (spec 022): o passo é montado pelo controlador (Carrinho
-        // ou Pedido, na recusa) e chega aqui pronto — a view só decide o
-        // que mostrar, nunca calcula passo nenhum.
         var passoDoFechamento = ViewData["PassoDoFechamento"] as PassoDoFechamentoDTO;
         var passoAtivo = passoDoFechamento?.PassoAtivo ?? PassoDoFechamento.Carrinho;
 
@@ -40,8 +24,6 @@
             <div class="coluna-itens-carrinho">
             @if (passoAtivo != PassoDoFechamento.Carrinho && passoDoFechamento is not null)
             {
-                @* A coluna esquerda troca de parcial ao trocar de passo — o
-                   resumo à direita permanece o mesmo (plano §1). *@
                 if (passoAtivo == PassoDoFechamento.Conta)
                 {
                     <partial name="_PassoConta" />
@@ -68,10 +50,6 @@
 
                                 @if (linha.Disponivel)
                                 {
-                                    @* Os rótulos de coluna se repetem em cada cartão, não uma
-                                       vez como cabeçalho de tabela (spec 021, plano §3) — é o
-                                       que faz o cartão se sustentar sozinho ao empilhar em
-                                       tela estreita. *@
                                     <div class="colunas-item-carrinho">
                                         <div class="coluna-item-carrinho">
                                             <span class="rotulo-coluna-carrinho">Preço unitário (R$)</span>
@@ -81,10 +59,6 @@
                                         <div class="coluna-item-carrinho">
                                             <span class="rotulo-coluna-carrinho">Quantidade</span>
 
-                                            @* Cada botão já carrega o valor final como
-                                               name/value — funciona sem JavaScript
-                                               (RF-18 da 017): o servidor recebe a quantidade
-                                               pronta, não precisa somar nada. *@
                                             <form method="post" asp-action="AlterarQuantidade" class="formulario-quantidade-carrinho">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="produtoId" value="@linha.ProdutoId" />
@@ -104,7 +78,6 @@
                                 }
                                 else
                                 {
-                                    @* RF-16/RN-06 (spec 017): a mensagem distingue o motivo — só ela muda. *@
                                     <span class="motivo-indisponivel-carrinho">
                                         @(linha.MotivoIndisponibilidade == MotivoIndisponibilidade.ForaDeEstoque
                                             ? "Fora de estoque — não entra no total"
@@ -123,11 +96,6 @@
                 </ul>
 
                 <div class="acoes-lista-carrinho">
-                    @* RF-10/RF-11 (spec 021): navegação de verdade por padrão — a
-                       pergunta existe como página própria porque um <dialog>
-                       sozinho não abre sem script (RN-04). Com script,
-                       carrinho.js intercepta este link e mostra a mesma
-                       pergunta no diálogo abaixo, sem sair da tela. *@
                     <a asp-action="ConfirmarEsvaziar" class="botao-esvaziar-lista-carrinho" data-abrir-confirmacao-esvaziar>
                         Esvaziar carrinho
                     </a>
@@ -142,10 +110,6 @@
             <aside class="resumo-carrinho">
                 <h2 class="titulo-resumo-carrinho">Resumo do pedido</h2>
 
-                @* RF-08 (spec 021): visível e desabilitado, não funcional —
-                   RN-01 (herdada da 017/019): um controle entrega o que
-                   anuncia; um campo cinza que explica por que está cinza não
-                   mente, um campo que aceita texto e não faz nada, sim. *@
                 <div class="campo-cupom-carrinho">
                     <label for="cupom-carrinho">Cupom de desconto</label>
                     <div class="entrada-cupom-carrinho">
@@ -158,18 +122,12 @@
                 <p class="total-itens-carrinho">@Model.TotalDeItens ite@(Model.TotalDeItens == 1 ? "m" : "ns")</p>
 
                 @{
-                    // RF-11 (spec 020): sem item disponível não há o que
-                    // despachar — a caixa de CEP nem aparece.
                     var haItemDisponivel = Model.Linhas.Any(l => l.Disponivel);
                     var erroCep = ViewData.ModelState["Cep"]?.Errors.FirstOrDefault()?.ErrorMessage;
                 }
 
                 @if (haItemDisponivel)
                 {
-                    @* RF-04 (spec 020): GET, irmão dos formulários de
-                       quantidade — nunca aninhado. Funciona sem JavaScript
-                       (RF-12/RN-04); com script, carrinho.js troca só o
-                       #itens-carrinho, mesmo caminho assíncrono da 017. *@
                     <form method="get" asp-action="Index" class="formulario-frete-carrinho">
                         <label for="cep-carrinho">Calcular frete</label>
                         <div class="entrada-cep-carrinho">
@@ -189,10 +147,6 @@
                     }
                 }
 
-                @* RF-05/RF-06/RF-07/RN-02 (spec 021): o rótulo diz a verdade
-                   nos dois estados — sem entrega calculada, o valor é
-                   subtotal; com ela, passa a incluir a entrega e vira "total
-                   a pagar" (a mais barata, entre opções — RN-06). *@
                 @if (Model.TemEntregaCalculada)
                 {
                     <p class="linha-frete-carrinho">
@@ -210,10 +164,6 @@
                     </p>
                 }
 
-                @* RF-01 (spec 022): o botão passa a levar ao fechamento de
-                   verdade — só faz sentido no próprio passo do carrinho, com
-                   item disponível; nos demais passos, a chamada para ação
-                   já vive no conteúdo de cada passo (endereço/pagamento). *@
                 @if (passoAtivo == PassoDoFechamento.Carrinho && haItemDisponivel)
                 {
                     var proximoPasso = User.Identity is { IsAuthenticated: true } ? PassoDoFechamento.Endereco : PassoDoFechamento.Conta;
@@ -225,11 +175,6 @@
             </aside>
         </div>
 
-        @* RF-11 (spec 021): o diálogo que o script abre no lugar de navegar
-           para /Carrinho/ConfirmarEsvaziar. O <form> aqui dentro recebe o
-           mesmo tratamento assíncrono dos demais formulários do carrinho —
-           carrinho.js intercepta pela classe, não por estar dentro do
-           diálogo. *@
         <dialog id="dialogo-esvaziar-carrinho" class="dialogo-esvaziar-carrinho">
             <form method="post" asp-action="Esvaziar" class="formulario-esvaziar-carrinho">
                 @Html.AntiForgeryToken()

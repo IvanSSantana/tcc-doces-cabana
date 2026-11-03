@@ -1,9 +1,3 @@
-// Carrinho sem recarga (spec 017, Fase 8, RF-06/RF-09/RF-19/CA-21). Três
-// caminhos batem na mesma resposta (_ItensDoCarrinho): acrescentar
-// (cartão/página do produto, pelo formulário compartilhado do layout),
-// alterar quantidade e remover (só existem na própria tela do carrinho, um
-// <form> por linha). Uma função só trata a resposta dos três — o bloco
-// devolvido é sempre o mesmo; a diferença mora em montar o pedido.
 (function () {
   "use strict";
 
@@ -29,10 +23,6 @@
 
     atualizarBolha(parseInt(blocoNovo.getAttribute("data-total-itens"), 10) || 0);
 
-    // A troca do bloco inteiro só faz sentido na própria tela do carrinho —
-    // nas demais páginas (cartão, produto) não existe #itens-carrinho para
-    // substituir, e não deveria existir: as três ações devolvem sempre o
-    // carrinho inteiro, mas só a tela do carrinho tem onde colocá-lo.
     var blocoAtual = document.querySelector("#itens-carrinho");
     if (blocoAtual) blocoAtual.replaceWith(blocoNovo);
   }
@@ -46,22 +36,15 @@
       .then(tratarResposta)
       .then(aplicarBloco)
       .catch(function () {
-        // Falha de rede não é crítica o bastante para navegação cheia
-        // (mesmo critério do favorito, spec 015) — o carrinho simplesmente
-        // não muda na tela; a pessoa tenta de novo.
       });
   }
 
-  // Cotação de frete (spec 020) é GET, não POST — cotar não muda estado
-  // nenhum (plano §4, "por que GET"). A URL carrega o cep na query, para o
-  // caminho sem script continuar funcionando por navegação comum.
   function enviarConsulta(formulario, dados) {
     var url = formulario.action + "?" + new URLSearchParams(dados).toString();
     fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
       .then(tratarResposta)
       .then(aplicarBloco)
       .catch(function () {
-        // Mesmo critério de enviar(): falha de rede não trava a tela.
       });
   }
 
@@ -73,17 +56,8 @@
       if (!botao) return;
       evento.preventDefault();
 
-      // FormData(form, submitter) — segundo argumento inclui o name/value
-      // do botão que submeteu, exatamente como o navegador faria sozinho
-      // (mesmo recurso do favorito.js).
       var dados = new FormData(formulario, botao);
 
-      // Só o cartão precisa de reforço manual: a quantidade dele vive num
-      // <span>, não num campo do formulário (plano §3) — um hidden
-      // compartilhado por form= levaria a quantidade de TODOS os cartões
-      // da grade, não só a do que foi clicado. A página do produto já manda
-      // a dela sozinha, porque o <input> é form=-associado a este mesmo
-      // formulário.
       var cartao = botao.closest(".card-produto");
       if (cartao) {
         var valorNoCartao = cartao.querySelector("[data-quantidade-valor]");
@@ -102,10 +76,6 @@
       evento.preventDefault();
       enviar(formulario, new FormData(formulario, botao));
 
-      // O diálogo (spec 021) não tem por que continuar aberto enquanto a
-      // resposta chega — falha de rede não é crítica o bastante para travar
-      // a tela (mesmo critério do enviar() acima); o carrinho simplesmente
-      // não muda, e a pessoa tenta de novo pelo link.
       var dialogoDoFormulario = formulario.closest("dialog");
       if (dialogoDoFormulario) dialogoDoFormulario.close();
       return;
@@ -117,20 +87,12 @@
       return;
     }
 
-    // Cadastro de endereço no passo do fechamento (spec 022, RF-07) — o
-    // mesmo formulário que a Conta usa, aqui postando para
-    // Carrinho/CadastrarEndereco (ViewData troca o alvo, não o marcador).
-    // Só intercepta quando está dentro de #itens-carrinho: fora dali (na
-    // área de conta), o formulário segue navegação comum.
     if (formulario.classList.contains("formulario-endereco") && formulario.closest("#itens-carrinho")) {
       evento.preventDefault();
       enviar(formulario, new FormData(formulario));
     }
   });
 
-  // Navegação entre os passos do fechamento (spec 022, RF-05) — GET puro,
-  // funciona sem script por padrão (RN-04); com script, troca só
-  // #itens-carrinho, sem recarregar a página inteira.
   document.addEventListener("click", function (evento) {
     var link = evento.target.closest("[data-navegacao-fechamento]");
     if (!link) return;
@@ -140,15 +102,9 @@
       .then(tratarResposta)
       .then(aplicarBloco)
       .catch(function () {
-        // Mesmo critério de enviar(): falha de rede não trava a tela —
-        // sem script funcionaria por navegação comum; aqui, só não troca.
       });
   });
 
-  // Diálogo de confirmação para esvaziar (spec 021, RF-11). Sem JavaScript,
-  // o link de "Esvaziar carrinho" navega para /Carrinho/ConfirmarEsvaziar —
-  // uma página própria com a mesma pergunta (RN-04). Com script, o mesmo
-  // link abre este diálogo inline, e a navegação nunca acontece.
   document.addEventListener("click", function (evento) {
     var abrirConfirmacao = evento.target.closest("[data-abrir-confirmacao-esvaziar]");
     if (abrirConfirmacao) {
@@ -167,11 +123,6 @@
     }
   });
 
-  // Os ± do cartão ficam fora do <form> (type="button") — só ajustam o
-  // número que o clique em "Adicionar" lê depois. Sem script, eles não
-  // fazem nada, e o botão acrescenta uma unidade: o comportamento honesto
-  // de um controle de grade (plano §3), já garantido pelo default do
-  // controlador quando "quantidade" não vem na requisição.
   function ajustarQuantidadeDoCartao(botao, delta) {
     var cartao = botao.closest(".card-produto");
     if (!cartao) return;

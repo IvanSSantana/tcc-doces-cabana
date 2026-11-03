@@ -3,9 +3,6 @@ using DocesCabana.Infrastructure.Repositories;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-// Cobre a chave composta de ItemCarrinho(UsuarioId, ProdutoId), mesmo padrão
-// de Favorito (spec 015) — é ela quem garante RN-01 (um produto por linha)
-// no banco, sem barreira de validação adicional.
 public class CarrinhoIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
@@ -20,9 +17,6 @@ public class CarrinhoIntegrationTests : InfraestruturaPostgresDescartavel
         Contexto.ItensCarrinho.Add(new ItemCarrinho(usuarioId, produto.ProdutoId, 2));
         await Contexto.SaveChangesAsync();
 
-        // (UsuarioId, ProdutoId) é a própria chave primária de ItemCarrinho,
-        // não um índice único à parte — o ChangeTracker já recusa a segunda
-        // instância em memória, antes de chegar ao banco.
         Assert.Throws<InvalidOperationException>(() =>
             Contexto.ItensCarrinho.Add(new ItemCarrinho(usuarioId, produto.ProdutoId, 1)));
     }
@@ -52,9 +46,6 @@ public class CarrinhoIntegrationTests : InfraestruturaPostgresDescartavel
     [Fact]
     public async Task Dado_BuscarPorUsuario_Quando_Consultar_Entao_DeveTrazerOProdutoIncluido()
     {
-        // O carrinho precisa do produto inteiro (nome, imagem, preço,
-        // status) para montar a tela — sem Include, cada linha viria com
-        // Produto nulo.
         var subcategoriaId = await SemearSubcategoria();
         var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);

@@ -15,8 +15,6 @@ public class PaginaCatalogo
     public ILocator Trilha => Container.Locator(".trilha-catalogo");
     public ILocator Categorias => Container.Locator(".link-categoria-catalogo");
     public ILocator CategoriaAtiva => Container.Locator(".link-categoria-catalogo--ativa");
-    // Filho direto do fieldset: exclui as que estão dentro do <details>
-    // "Ver todas", que existem no DOM mesmo fechado (RF-10).
     public ILocator CaixasDeSubcategoria => Container.Locator(".filtro-subcategorias > .opcao-filtro-catalogo input");
     public ILocator VerTodas => Container.Locator(".ver-todas-subcategorias summary");
     public ILocator CaixaSemAcucar => Container.Locator(".filtro-sem-acucar input");
@@ -27,36 +25,22 @@ public class PaginaCatalogo
     public ILocator Paginacao => Container.Locator(".paginacao-catalogo");
     public ILocator LinkPaginaAtual => Container.Locator(".link-paginacao--atual");
     public ILocator Contagem => Container.Locator(".contagem-catalogo");
-    // Alvo do foco depois da troca parcial (spec 014, RF-18) e ancestral que
-    // a atualização sem recarga substitui (RF-01).
     public ILocator ResultadoCatalogo => Container.Locator("#resultado-catalogo");
     public ILocator SeletorDeOrdenacaoNoResultado => ResultadoCatalogo.Locator("#select-ordenacao");
     public ILocator LinkDeCategoria(string nome) => Container.Locator(".link-categoria-catalogo", new() { HasText = nome });
 
-    // Busca por nome de produto (spec 016) — a barra vive no cabeçalho,
-    // reexibindo o termo vigente; a etiqueta e a remoção vivem no resultado.
     public ILocator BarraDePesquisa => _pagina.Locator(".barra-pesquisa input[name='termo']");
     public ILocator EtiquetaDeBusca => ResultadoCatalogo.Locator(".etiqueta-busca-catalogo");
     public ILocator BotaoRemoverBusca => ResultadoCatalogo.Locator(".botao-remover-busca");
-    // A caixa em si não tem texto (é um <input>) — para achar por nome é
-    // preciso passar pelo rótulo que a envolve, mesmo caminho que
-    // MarcarSubcategoriaPeloNome já usa.
     public ILocator CaixaDeSubcategoriaPeloNome(string nome) =>
         Container.Locator(".opcao-filtro-catalogo", new() { HasText = nome }).Locator("input");
 
-    // CheckAsync() só espera a própria marcação — o reenvio do formulário
-    // (onchange="this.form.requestSubmit()", spec 014) é efeito colateral de
-    // script, e sem esperar a rede explicitamente a leitura seguinte da
-    // grade corre risco de pegar o resultado antigo a meio caminho da troca.
     public async Task MarcarSubcategoriaPeloNome(string nome)
     {
         await Container.Locator(".opcao-filtro-catalogo", new() { HasText = nome }).Locator("input").CheckAsync();
         await _pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 
-    // A subcategoria pode estar nas 8 principais ou atrás do "Ver todas"
-    // (RF-10 da 012) — abre o <details> se for o caso, antes de marcar
-    // (spec 016, CA-15).
     public async Task GarantirSubcategoriaVisivel(string nome)
     {
         if (!await CaixaDeSubcategoriaPeloNome(nome).IsVisibleAsync())
@@ -69,8 +53,6 @@ public class PaginaCatalogo
         await _pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 
-    // A troca de página passou a ser parcial (spec 014, RF-01): não há mais
-    // navegação para o Playwright esperar sozinho, só a rede.
     public async Task IrParaPagina(int pagina)
     {
         await Container.GetByRole(AriaRole.Link, new() { Name = pagina.ToString(), Exact = true }).ClickAsync();

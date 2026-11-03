@@ -5,11 +5,8 @@ using Microsoft.Extensions.Options;
 
 namespace DocesCabana.Tests.Units.Services;
 
-// Prova o adaptador contra um handler falso, sem tocar a rede (spec 027,
-// plano §7) — mesmo padrão de FreteServiceMelhorEnvioTests.
 public class ArmazenamentoSupabaseTests
 {
-    // Handler falso — só devolve o que o teste configurar, sem tocar rede.
     private sealed class HandlerFalso : HttpMessageHandler
     {
         private readonly HttpStatusCode _status;
@@ -63,8 +60,6 @@ public class ArmazenamentoSupabaseTests
     [Fact]
     public async Task Dado_NomeOriginalComCaminhoEAcento_Quando_Enviar_Entao_OCaminhoNaoContemONomeRecebido()
     {
-        // RN-02/RF-07, CA-07: quem nomeia o arquivo guardado é o adaptador —
-        // um Guid, nunca o nome que veio do computador de quem enviou.
         var handler = new HandlerFalso(HttpStatusCode.OK, "{}");
         var servico = CriarServico(handler);
         using var conteudo = new MemoryStream([1, 2, 3]);
@@ -90,10 +85,6 @@ public class ArmazenamentoSupabaseTests
 
         Assert.NotNull(handler.UltimaRequisicao);
         Assert.Equal("Bearer chave-de-teste", handler.UltimaRequisicao!.Headers.Authorization?.ToString());
-        // O formato novo de chave do Supabase (sb_secret_...) não é um JWT —
-        // o Storage recusa com 403 "Invalid Compact JWS" só com Authorization
-        // (achado rodando contra o serviço real, T032): precisa também do
-        // cabeçalho apikey com a mesma chave.
         Assert.True(handler.UltimaRequisicao.Headers.TryGetValues("apikey", out var apikey));
         Assert.Equal("chave-de-teste", apikey!.Single());
         Assert.Equal("image/jpeg", handler.UltimaRequisicao.Content?.Headers.ContentType?.MediaType);
@@ -119,7 +110,6 @@ public class ArmazenamentoSupabaseTests
     [Fact]
     public async Task Dado_ChaveDeServicoEmBranco_Quando_Enviar_Entao_DeveRecusarSemFazerRequisicaoNenhuma()
     {
-        // CA-09: determinístico e offline — a chave vazia nunca toca a rede.
         var handler = new HandlerFalso(HttpStatusCode.OK, "{}");
         var servico = CriarServico(handler, chaveDeServico: "");
         using var conteudo = new MemoryStream([1, 2, 3]);

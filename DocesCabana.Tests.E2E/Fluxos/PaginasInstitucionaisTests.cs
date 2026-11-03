@@ -26,9 +26,6 @@ public class PaginasInstitucionaisTests : TesteE2E
         await Executar(async () =>
         {
             await Pagina.GotoAsync(UrlBase);
-            // O <a onclick="abrirModal()"> do cabeçalho não tem href — sem
-            // href, um <a> não expõe papel ARIA "link" (regra do HTML), por
-            // isso o locator é por texto, não por role, aqui.
             await Pagina.Locator("header").GetByText("Entrar", new() { Exact = true }).ClickAsync();
 
             await Pagina.Locator("#modal-login").GetByRole(AriaRole.Link, new() { Name = "Política de Privacidade" }).ClickAsync();
@@ -107,7 +104,6 @@ public class PaginasInstitucionaisTests : TesteE2E
             var tituloInvertido = await pagina.BlocoInvertido.Locator(".bloco-institucional__titulo").TextContentAsync();
             Assert.Equal("Propósito", tituloInvertido);
 
-            // O eixo é estrutura do ziguezague (RN-05): existe enquanto há duas colunas.
             var existeEixo = await pagina.Eixo.EvaluateAsync<bool>(
                 "el => getComputedStyle(el, '::before').display !== 'none'");
             Assert.True(existeEixo);
@@ -126,11 +122,6 @@ public class PaginasInstitucionaisTests : TesteE2E
     public async Task Dado_TelaDe375px_Quando_AbrirCadaPagina_Entao_NaoDeveHaverRolagemHorizontal() =>
         await Executar(async () =>
         {
-            // Escopado ao conteúdo desta feature (.pagina-institucional), não
-            // ao documento inteiro: o cabeçalho compartilhado já estoura a
-            // 375px antes desta feature existir — achado registrado no
-            // checklist, fora do escopo declarado (spec §8), não silenciado
-            // nem corrigido aqui.
             await Pagina.SetViewportSizeAsync(375, 800);
 
             await new PaginaPrivacidade(Pagina).Abrir(UrlBase);

@@ -8,9 +8,6 @@ public class CadastroDeProdutoTests : TesteE2E
 {
     public CadastroDeProdutoTests(FixtureE2E fixture) : base(fixture) { }
 
-    // Caminho feliz exige a imagem realmente subindo ao Storage — só roda
-    // com SupabaseSettings__ChaveDeServico no ambiente (spec 027 §10, mesma
-    // consequência aceita que a cotação de frete real já tem desde a 020).
     [Fact]
     [Trait("Categoria", "Externo")]
     public async Task Dado_Administrador_Quando_CadastrarProduto_Entao_DeveConfirmar() =>
@@ -41,11 +38,6 @@ public class CadastroDeProdutoTests : TesteE2E
             await Expect(paginaProduto.MensagemDeConfirmacao).Not.ToBeVisibleAsync();
         });
 
-    // CA-09: sem credencial no ambiente (a suíte padrão nunca a tem), o
-    // cadastro recusa com a mensagem específica de "não configurado" — não
-    // só "houve uma falha". Afirmar a mensagem exata é o que faz este teste
-    // apontar para o enctype esquecido, em vez de mascarar o sintoma
-    // (tasks.md, nota das "duas coisas não negociáveis").
     [Fact]
     public async Task Dado_SemCredencialDeArmazenamento_Quando_CadastrarProduto_Entao_DeveRecusarComMensagemEspecificaSemCadastrar() =>
         await Executar(async () =>
@@ -65,8 +57,6 @@ public class CadastroDeProdutoTests : TesteE2E
     public async Task Dado_Administrador_Quando_AbrirOCadastroDeProduto_Entao_DeveTerTituloEContencao() =>
         await Executar(async () =>
         {
-            // CA-17 (spec 016): mesmo padrão do cadastro de administrador —
-            // título, largura contida, campos no desenho da marca.
             await EntrarComoAdministrador();
 
             var paginaProduto = new PaginaCadastroProduto(Pagina);
@@ -84,12 +74,6 @@ public class CadastroDeProdutoTests : TesteE2E
     public async Task Dado_TelaEstreita_Quando_AbrirOCadastroDeProduto_Entao_OFormularioNaoDeveTransbordar() =>
         await Executar(async () =>
         {
-            // Escopo é o formulário desta feature, não a página inteira: o
-            // cabeçalho (via _Layout) já estoura horizontalmente a 375px
-            // desde a spec 009, registrado como pré-existente e fora de
-            // escopo em toda feature desde então (013 §10, 015 checklist) —
-            // não é este formulário que o causa, e corrigi-lo aqui seria
-            // escopo que ninguém pediu.
             await EntrarComoAdministrador();
 
             await Pagina.SetViewportSizeAsync(375, 900);
@@ -103,19 +87,12 @@ public class CadastroDeProdutoTests : TesteE2E
             Assert.True(larguraDoContainer <= larguraDaTela,
                 $"Container do formulário ({larguraDoContainer}px) excede a tela ({larguraDaTela}px).");
 
-            // Largura de conteúdo do container: sua própria largura menos o
-            // padding horizontal — não a largura do container em si, que
-            // inclui esse padding (root font-size cai para 14px abaixo de
-            // 768px, então 1.5rem de padding vale 21px aqui, não 24px).
             var larguraDeConteudo = await container.EvaluateAsync<double>(@"el => {
                 const estilo = getComputedStyle(el);
                 return el.getBoundingClientRect().width
                     - parseFloat(estilo.paddingLeft) - parseFloat(estilo.paddingRight);
             }");
 
-            // Os pares em linha dupla empilham (RF-17): o campo de Preço
-            // (dentro do primeiro .linha-dupla) ocupa a largura de
-            // conteúdo inteira, não a metade dela.
             var larguraDoCampoPreco = await container.Locator(".linha-dupla .campo-texto").First.EvaluateAsync<double>(
                 "el => el.getBoundingClientRect().width");
             Assert.True(larguraDoCampoPreco >= larguraDeConteudo * 0.95,

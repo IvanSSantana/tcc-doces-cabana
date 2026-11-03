@@ -58,8 +58,6 @@ public class RecuperacaoDeSenhaTests : TesteE2E
             await paginaLogin.Entrar(email, senhaNova);
             await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/");
 
-            // Confirma que a senha antiga deixou de valer — RF-07 pede a
-            // troca de ponta a ponta, não só que a nova funcione.
             await paginaLogin.Abrir(UrlBase);
             await paginaLogin.Entrar(email, SenhaValida);
             await Expect(paginaLogin.MensagemDeErro).ToHaveTextAsync("E-mail ou senha incorreto(s).");

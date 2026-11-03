@@ -34,15 +34,12 @@ public class ContaControllerTests
     [Fact]
     public void Dado_OControlador_Quando_OlharAClasse_Entao_DeveExigirAutenticacao()
     {
-        // RF-03: o visitante não alcança a área de conta.
         var exigeAutorizacao = typeof(ContaController)
             .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
             .Any();
 
         Assert.True(exigeAutorizacao);
     }
-
-    // ── Dados pessoais ───────────────────────────────────────────────────
 
     [Fact]
     public async Task Dado_UsuarioAutenticado_Quando_Index_Entao_DeveDevolverOsDadosDoUsuario()
@@ -69,9 +66,6 @@ public class ContaControllerTests
 
         var view = Assert.IsType<ViewResult>(resultado);
         var dto = Assert.IsType<DadosPessoaisDTO>(view.Model);
-        // CA-07: o CPF continua visível mesmo quando o resto falhou — não
-        // veio do que a pessoa digitou (não é campo de formulário), então
-        // precisa ser recuperado do que já está guardado.
         Assert.Equal("52998224725", dto.CPF);
         _usuarioServiceMock.Verify(s => s.AlterarDadosUsuario(It.IsAny<UsuarioDTO>()), Times.Never);
     }
@@ -90,8 +84,6 @@ public class ContaControllerTests
         var redirect = Assert.IsType<RedirectToActionResult>(resultado);
         Assert.Equal(nameof(ContaController.Index), redirect.ActionName);
     }
-
-    // ── Endereços ────────────────────────────────────────────────────────
 
     [Fact]
     public async Task Dado_UsuarioComEnderecos_Quando_Enderecos_Entao_DeveDevolverALista()
@@ -156,8 +148,6 @@ public class ContaControllerTests
     [Fact]
     public async Task Dado_EnderecoDeOutraPessoa_Quando_EditarEnderecoGet_Entao_DevePropagarAExcecao()
     {
-        // Princípio VIII: o controlador não trata a exceção — quem faz isso
-        // é o FilterException global. Aqui só provamos que ela sobe.
         var enderecoId = Guid.NewGuid();
         _enderecoServiceMock.Setup(s => s.BuscarDoUsuario(enderecoId, _usuarioId))
             .ThrowsAsync(new KeyNotFoundException("Endereço não encontrado."));

@@ -31,8 +31,6 @@ public class PedidoControllerTests
             ControllerContext = new ControllerContext { HttpContext = httpContext }
         };
 
-        // Padrão para os testes que chegam a reexibir a tela do carrinho —
-        // sobrescrito nos testes que precisam de valores específicos.
         _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(_usuarioId)).ReturnsAsync(new CarrinhoDTO());
         _pedidoServiceMock
             .Setup(s => s.MontarPasso(It.IsAny<PassoDoFechamento>(), It.IsAny<CarrinhoDTO>(), It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<int?>()))
@@ -111,8 +109,6 @@ public class PedidoControllerTests
         Assert.IsType<NotFoundResult>(resultado);
     }
 
-    // ── Meus pedidos (spec 023) ───────────────────────────────────────────
-
     [Fact]
     public async Task Dado_UsuarioComPedidos_Quando_Meus_Entao_DeveDevolverAViewComOsResumos()
     {
@@ -131,7 +127,6 @@ public class PedidoControllerTests
     [Fact]
     public async Task Dado_UsuarioSemPedidoNenhum_Quando_Meus_Entao_DeveDevolverAViewMesmoAssim()
     {
-        // CA-04: lista vazia é tela própria, não erro.
         _pedidoServiceMock.Setup(s => s.ListarDoUsuario(_usuarioId)).ReturnsAsync(new List<ResumoDePedidoDTO>());
 
         var resultado = await _controller.Meus();

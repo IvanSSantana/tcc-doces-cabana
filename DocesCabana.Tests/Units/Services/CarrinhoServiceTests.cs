@@ -31,8 +31,6 @@ public class CarrinhoServiceTests
     private static Produto CriarProduto(ProdutoStatus status = ProdutoStatus.Ativo, decimal preco = 10m) =>
         new(Guid.NewGuid(), "Brigadeiro", preco, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m, status);
 
-    // ── Acrescentar ─────────────────────────────────────────────────────
-
     [Fact]
     public async Task Dado_ProdutoDisponivelAindaNaoNoCarrinho_Quando_Acrescentar_Entao_DeveAdicionarNovoItem()
     {
@@ -52,7 +50,6 @@ public class CarrinhoServiceTests
     [Fact]
     public async Task Dado_ProdutoJaNoCarrinho_Quando_AcrescentarDeNovo_Entao_DeveSomarNumaLinhaSo()
     {
-        // RF-03/RN-01: acrescentar o que já está soma, não duplica.
         var produto = CriarProduto();
         var usuarioId = Guid.NewGuid();
         var itemExistente = new ItemCarrinho(usuarioId, produto.ProdutoId, 2);
@@ -97,7 +94,6 @@ public class CarrinhoServiceTests
     [InlineData(ProdutoStatus.ForaDeEstoque)]
     public async Task Dado_ProdutoIndisponivel_Quando_Acrescentar_Entao_DeveLancarInvalidOperationException(ProdutoStatus status)
     {
-        // RN-06: os dois motivos são igualmente incompráveis (RF-04).
         var produto = CriarProduto(status);
         var usuarioId = Guid.NewGuid();
         _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
@@ -106,8 +102,6 @@ public class CarrinhoServiceTests
 
         _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
     }
-
-    // ── AlterarQuantidade ───────────────────────────────────────────────
 
     [Fact]
     public async Task Dado_ItemNoCarrinho_Quando_AlterarQuantidade_Entao_DeveAtualizar()
@@ -139,7 +133,6 @@ public class CarrinhoServiceTests
     [Fact]
     public async Task Dado_QuantidadeAbaixoDeUm_Quando_AlterarQuantidade_Entao_DeveRemoverOItem()
     {
-        // RN-02: reduzir abaixo de 1 remove o item.
         var usuarioId = Guid.NewGuid();
         var produtoId = Guid.NewGuid();
         var item = new ItemCarrinho(usuarioId, produtoId, 1);
@@ -160,8 +153,6 @@ public class CarrinhoServiceTests
 
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _carrinhoService.AlterarQuantidade(usuarioId, produtoId, 5));
     }
-
-    // ── Remover ─────────────────────────────────────────────────────────
 
     [Fact]
     public async Task Dado_ItemNoCarrinho_Quando_Remover_Entao_DeveRemover()
@@ -187,8 +178,6 @@ public class CarrinhoServiceTests
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _carrinhoService.Remover(usuarioId, produtoId));
     }
 
-    // ── ObterDoUsuario / subtotal ───────────────────────────────────────
-
     [Fact]
     public async Task Dado_CarrinhoComItensDisponiveis_Quando_ObterDoUsuario_Entao_SubtotalDeveSomarTudo()
     {
@@ -203,7 +192,6 @@ public class CarrinhoServiceTests
 
         var carrinho = await _carrinhoService.ObterDoUsuario(usuarioId);
 
-        // 10*2 + 5*3 = 35
         Assert.Equal(35m, carrinho.Subtotal);
         Assert.Equal(5, carrinho.TotalDeItens);
     }
@@ -211,7 +199,6 @@ public class CarrinhoServiceTests
     [Fact]
     public async Task Dado_ItemIndisponivel_Quando_ObterDoUsuario_Entao_NaoDeveSomarNoSubtotal()
     {
-        // RF-17/RN-06.
         var usuarioId = Guid.NewGuid();
         var produtoDisponivel = CriarProduto(ProdutoStatus.Ativo, preco: 10m);
         var produtoIndisponivel = CriarProduto(ProdutoStatus.Inativo, preco: 20m);
@@ -224,7 +211,6 @@ public class CarrinhoServiceTests
         var carrinho = await _carrinhoService.ObterDoUsuario(usuarioId);
 
         Assert.Equal(10m, carrinho.Subtotal);
-        // Mas o item continua na lista, sinalizado (RN-07) — não some.
         Assert.Equal(2, carrinho.Linhas.Count);
         var linhaIndisponivel = carrinho.Linhas.Single(l => l.ProdutoId == produtoIndisponivel.ProdutoId);
         Assert.Equal(MotivoIndisponibilidade.ForaDoCatalogo, linhaIndisponivel.MotivoIndisponibilidade);
@@ -248,7 +234,6 @@ public class CarrinhoServiceTests
     [Fact]
     public async Task Dado_PrecoDoProdutoMudou_Quando_ObterDoUsuario_Entao_DeveUsarOPrecoAtual()
     {
-        // RN-04: o carrinho não tem coluna de preço — sempre lê do produto.
         var usuarioId = Guid.NewGuid();
         var produto = CriarProduto(preco: 25m);
         var item = new ItemCarrinho(usuarioId, produto.ProdutoId, 1);
@@ -260,8 +245,6 @@ public class CarrinhoServiceTests
         Assert.Equal(25m, carrinho.Linhas.Single().PrecoUnitario);
     }
 
-    // ── ContarItens ─────────────────────────────────────────────────────
-
     [Fact]
     public async Task Dado_Usuario_Quando_ContarItens_Entao_DeveRepassarAoRepositorio()
     {
@@ -272,9 +255,6 @@ public class CarrinhoServiceTests
 
         Assert.Equal(7, total);
     }
-
-    // ── Avulso (Fase 6) — mesmas regras da versão persistida, sobre uma
-    // lista em vez do banco. ────────────────────────────────────────────
 
     [Fact]
     public async Task Dado_ProdutoDisponivelAindaNaoNaLista_Quando_AcrescentarAvulso_Entao_DeveAdicionarNovoItem()
@@ -407,7 +387,6 @@ public class CarrinhoServiceTests
 
         var carrinho = await _carrinhoService.MontarAvulso(itens);
 
-        // 10*2 + 5*3 = 35
         Assert.Equal(35m, carrinho.Subtotal);
         Assert.Equal(5, carrinho.TotalDeItens);
     }
@@ -427,9 +406,6 @@ public class CarrinhoServiceTests
         Assert.Equal(2, carrinho.Linhas.Count);
     }
 
-    // ── Fundir (Fase 7) — RN-05: as quantidades do mesmo produto se somam,
-    // limitadas ao teto; o que só existia num dos lados entra também. ───
-
     [Fact]
     public async Task Dado_ProdutoJaNoCarrinhoGuardado_Quando_Fundir_Entao_DeveSomarAsQuantidades()
     {
@@ -441,7 +417,6 @@ public class CarrinhoServiceTests
 
         await _carrinhoService.Fundir(usuarioId, itensDaSessao);
 
-        // CA-13: 3 (guardado) + 2 (avulso) = 5.
         Assert.Equal(5, itemGuardado.Quantidade);
         _itemCarrinhoRepositoryMock.Verify(r => r.Adicionar(It.IsAny<ItemCarrinho>()), Times.Never);
         _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
@@ -488,8 +463,6 @@ public class CarrinhoServiceTests
 
         await _carrinhoService.Fundir(usuarioId, itensDaSessao);
 
-        // O item guardado (produtoGuardado) não é tocado — só o repositório
-        // decide o que existe; aqui só provamos que o avulso entrou.
         _itemCarrinhoRepositoryMock.Verify(r => r.Adicionar(
             It.Is<ItemCarrinho>(i => i.ProdutoId == produtoAvulso)), Times.Once);
     }
@@ -504,8 +477,6 @@ public class CarrinhoServiceTests
         _itemCarrinhoRepositoryMock.Verify(r => r.Adicionar(It.IsAny<ItemCarrinho>()), Times.Never);
         _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
     }
-
-    // ── Esvaziar (spec 021) ──────────────────────────────────────────────
 
     [Fact]
     public async Task Dado_CarrinhoComItens_Quando_Esvaziar_Entao_DeveRemoverTodosEChamarSalvarAlteracoesUmaVez()

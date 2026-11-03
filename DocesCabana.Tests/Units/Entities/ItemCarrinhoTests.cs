@@ -90,7 +90,6 @@ public class ItemCarrinhoTests
     [Fact]
     public void Dado_ItemPertoDoTeto_Quando_AcrescentarAlemDoLimite_Entao_DeveLimitarA99()
     {
-        // RN-02: a soma nunca ultrapassa o teto — corta, não recusa.
         var item = new ItemCarrinho(UsuarioValido, ProdutoValido, 95);
 
         item.Acrescentar(10);

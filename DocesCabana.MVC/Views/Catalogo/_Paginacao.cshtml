@@ -2,10 +2,6 @@
 @using DocesCabana.MVC.Helpers
 @model CatalogoDTO
 @{
-    // Links comuns, não botões de formulário — cada página precisa de
-    // endereço próprio para poder ser compartilhada e voltar no histórico
-    // (RF-20/RF-22). Preserva categoria, subcategorias, "sem açúcar",
-    // ordenação e termo de busca; só a página muda (spec 016).
     string ConstruirEndereco(int pagina) => EnderecoDoCatalogo.Montar(
         Url,
         Model.CategoriaAtual?.Apelido,

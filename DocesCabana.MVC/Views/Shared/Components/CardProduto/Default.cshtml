@@ -2,10 +2,6 @@
 @using DocesCabana.Domain.Enums
 @model DocesCabana.Application.DTOs.ProdutoDTO
 @{
-    // Rótulo do botão de carrinho, parametrizado pela invocação (spec 015,
-    // RF-15): o catálogo pede "Adicionar ao carrinho", fiel à referência; o
-    // carrossel não passa nada e mantém "Adicionar", que sempre teve, no seu
-    // cartão mais estreito (RF-17).
     var rotuloBotaoCarrinho = ViewData["RotuloBotaoCarrinho"] as string ?? "Adicionar";
     var foraDeEstoque = Model.Status == ProdutoStatus.ForaDeEstoque;
 
@@ -15,14 +11,12 @@
 
         if (url.Contains("drive.google.com"))
         {
-            // Tenta obter o ID a partir do padrão /d/{id}/
             var match = Regex.Match(url, @"/d/([a-zA-Z0-9_-]+)");
             if (match.Success)
             {
                 return $"https://drive.google.com/thumbnail?id={match.Groups[1].Value}";
             }
 
-            // Tenta obter o ID caso venha no formato query string id={id}
             match = Regex.Match(url, @"id=([a-zA-Z0-9_-]+)");
             if (match.Success)
             {
@@ -34,19 +28,6 @@
 }
 
 <div class="card-produto" data-produto-id="@Model.ProdutoId">
-    @* Quantidade e adicionar ao carrinho continuam desabilitados até o
-       carrinho existir de verdade (spec 012, RF-24; spec 015, RF-18) — mas o
-       favorito, que não depende de carrinho nenhum, passou a funcionar
-       (spec 015). O botão não fica dentro de um <form> próprio — o cartão
-       pode estar dentro do <form method="get"> do catálogo, e HTML não
-       aceita form dentro de form (o navegador ignora o aninhamento e
-       submete o de fora). Em vez disso, ele se associa ao
-       #formulario-favorito do layout pelo atributo form= do HTML5, que
-       funciona não importa onde o botão esteja no documento — inclusive
-       sem JavaScript nenhum. O produtoId vai no próprio botão (name/value),
-       não num <input> hidden à parte: um hidden com form= levaria o
-       produtoId de TODOS os cartões da página na mesma submissão; o do
-       botão só vai junto quando é ele o acionado. *@
     <div class="acao-favoritar-card">
         <button type="submit" form="formulario-favorito" name="produtoId" value="@Model.ProdutoId"
                 class="botao-favorito-card" aria-label="@(Model.EstaFavorito ? "Desfavoritar" : "Favoritar")">
@@ -55,10 +36,6 @@
     </div>
 
     <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="container-imagem-card @(foraDeEstoque ? "container-imagem-card--fora-de-estoque" : "")">
-        @* RF-26 (spec 012) / RF-10 (spec 014): produto fora de estoque
-           continua listado, sinalizado sobre a própria imagem — dentro do
-           link da imagem, não irmã dele, para que o posicionamento absoluto
-           se ancore nela e não no cartão inteiro. *@
         @if (foraDeEstoque)
         {
             <span class="etiqueta-fora-de-estoque">Fora de estoque</span>
@@ -67,11 +44,6 @@
         <img src="@ObterUrlImagem(Model.ImagemUrl)" alt="@Model.Nome" class="imagem-card" />
     </a>
 
-    @* Caixa alta saiu daqui (spec 015, RF-16): era o .ToUpper() que fazia o
-       catálogo mostrar tudo maiúsculo, contra a referência visual. Quem
-       decide agora é o CSS — o carrossel aplica text-transform: uppercase
-       sobre si mesmo (vitrine-produtos.css); o catálogo não aplica nada,
-       então mostra a caixa normal do nome de verdade (RF-17). *@
     <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="nome-card">@Model.Nome</a>
 
     <div class="preco-card">R$ @Model.Preco.ToString("N2")</div>
@@ -81,14 +53,6 @@
     }
 
     <div class="acoes-card">
-        @* RF-01/RF-18 (spec 017): sem script, os ± não fazem nada (não são
-           type=submit) e o botão "Adicionar" acrescenta uma unidade — o
-           comportamento honesto de um controle de grade (plano §3). Com
-           script, carrinho.js lê o valor deste <span> a partir do cartão do
-           botão que disparou o envio e o leva junto na requisição. Não é um
-           <input hidden form="..."> de propósito: um hidden associado ao
-           formulário compartilhado por form= entraria na submissão de
-           QUALQUER cartão da grade, não só do que foi clicado. *@
         <div class="controles-card">
             <button type="button" class="botao-quantidade-card menos" data-quantidade-menos aria-label="Diminuir quantidade" @(foraDeCompra ? "disabled" : null)>−</button>
             <span class="valor-quantidade-card" data-quantidade-valor>1</span>

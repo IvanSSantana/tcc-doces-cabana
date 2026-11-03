@@ -1,4 +1,3 @@
-// --- Lógica de Mostrar/Ocultar Senha (Login e Cadastro) ---
 function toggleSenha(idInput, idOlho) {
     const input = document.getElementById(idInput);
     const olho = document.getElementById(idOlho);
@@ -19,7 +18,6 @@ function toggleSenha(idInput, idOlho) {
 document.addEventListener("DOMContentLoaded", function () {
 
 
-    // --- Lógica de Máscaras dos Campos (Cadastro) ---
     const inputCelular = document.getElementById("Celular");
     const inputData = document.getElementById("DataNascimento");
     const inputCpf = document.getElementById("CPF");
@@ -90,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // --- Validação em tempo real da senha (Cadastro) ---
     const inputSenhaCadastro = document.getElementById("input-senha-cadastro");
     const containerRequisitos = document.getElementById("requisitos-senha");
 
@@ -108,27 +105,21 @@ document.addEventListener("DOMContentLoaded", function () {
         inputSenhaCadastro.addEventListener("input", function () {
             const senha = inputSenhaCadastro.value;
 
-            // 1. Comprimento (mínimo 6 caracteres)
             const temComprimento = senha.length >= 6;
             atualizarRequisito(reqComprimento, temComprimento);
 
-            // 2. Letra Maiúscula
             const temMaiuscula = /[A-Z]/.test(senha);
             atualizarRequisito(reqMaiuscula, temMaiuscula);
 
-            // 3. Letra Minúscula
             const temMinuscula = /[a-z]/.test(senha);
             atualizarRequisito(reqMinuscula, temMinuscula);
 
-            // 4. Número
             const temNumero = /[0-9]/.test(senha);
             atualizarRequisito(reqNumero, temNumero);
 
-            // 5. Caractere Especial
             const temEspecial = /[^A-Za-z0-9]/.test(senha);
             atualizarRequisito(reqEspecial, temEspecial);
 
-            // Se tiver todos os requisitos corretos, muda a cor do fundo e a borda
             if (temComprimento && temMaiuscula && temMinuscula && temNumero && temEspecial) {
                 containerRequisitos.style.backgroundColor = "#E9F7EF";
                 containerRequisitos.style.borderColor = "#D4EFDF";

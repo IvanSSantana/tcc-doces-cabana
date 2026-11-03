@@ -1,4 +1,3 @@
-// Script de controle interativo para a Vitrine Carrossel de Produtos
 
 function pegarEstadoCarrossel(elemento) {
     const container = elemento.closest('.vitrine-carrossel');

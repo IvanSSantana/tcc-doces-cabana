@@ -91,8 +91,6 @@ public class PedidoServiceTests
                 [new OpcaoDeFreteDTO(_servicoDeEntregaId, "Correios", "PAC", preco, prazoMin, prazoMax)],
                 null));
 
-    // ── Recusas ─────────────────────────────────────────────────────────
-
     [Fact]
     public async Task Dado_CarrinhoVazio_Quando_Fechar_Entao_DeveRecusarSemLancar()
     {
@@ -133,8 +131,6 @@ public class PedidoServiceTests
     [Fact]
     public async Task Dado_ValoresDeCentavo_Quando_Fechar_Entao_ArredondamentoNaoDeveRecusarFechamentoLegitimo()
     {
-        // Plano §9: comparação sobre decimal, nunca double — 9.99 * 3 é um
-        // caso clássico de perda de precisão se convertido para double.
         var linha = CriarLinha(preco: 9.99m, quantidade: 3);
         _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(_usuarioId)).ReturnsAsync(CriarCarrinho(linha));
         PrepararEnderecoValido();
@@ -197,8 +193,6 @@ public class PedidoServiceTests
         _pedidoRepositoryMock.Verify(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()), Times.Never);
     }
 
-    // ── Caminho feliz ───────────────────────────────────────────────────
-
     [Fact]
     public async Task Dado_TudoValido_Quando_Fechar_Entao_DeveGravarPedidoItensEPagamentoEEsvaziarComUmSalvarAlteracoes()
     {
@@ -222,8 +216,8 @@ public class PedidoServiceTests
         Assert.True(resultado.Sucesso);
         Assert.NotNull(pedidoGravado);
         Assert.Single(pedidoGravado!.Itens);
-        Assert.Equal(10m, pedidoGravado.Itens.First().PrecoUnitario); // RF-19: preço de agora, não o exibido
-        Assert.Equal(28m, pedidoGravado.Valor); // 20 (produtos) + 8 (frete)
+        Assert.Equal(10m, pedidoGravado.Itens.First().PrecoUnitario);
+        Assert.Equal(28m, pedidoGravado.Valor);
         Assert.Equal(8m, pedidoGravado.ValorDoFrete);
         Assert.NotNull(pagamentoGravado);
         Assert.Equal(MetodoPagamento.Pix, pagamentoGravado!.Metodo);
@@ -235,8 +229,6 @@ public class PedidoServiceTests
     [Fact]
     public async Task Dado_PrecoDoProdutoMudouAposRevisao_Quando_FecharComValorDeAgora_Entao_DevePersistirOPrecoCongelado()
     {
-        // RF-19/CA-12: o preço gravado no ItemPedido é o de agora
-        // (linha.PrecoUnitario), nunca o que veio no formulário.
         var linha = CriarLinha(preco: 11m, quantidade: 1);
         _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(_usuarioId)).ReturnsAsync(CriarCarrinho(linha));
         PrepararEnderecoValido();
@@ -255,8 +247,6 @@ public class PedidoServiceTests
         Assert.Equal(11m, pedidoGravado!.Itens.First().PrecoUnitario);
     }
 
-    // ── Meus pedidos (spec 023) ───────────────────────────────────────────
-
     private Pedido CriarPedidoPersistido(DateTime data, PedidoStatus status = PedidoStatus.Pendente)
     {
         var pedido = new Pedido(_usuarioId, _enderecoId, 28m, 8m, "Correios", "PAC", 3, 7);
@@ -266,10 +256,6 @@ public class PedidoServiceTests
         return pedido;
     }
 
-    // Data nasce sempre "agora" no construtor (mesma regra de outras
-    // entidades desta base) — reflection é o mesmo contorno de teste que
-    // InfraestruturaPostgresDescartavel.SemearAvaliacao já usa para controlar
-    // ordenação sem depender de Thread.Sleep.
     private static void DefinirData(Pedido pedido, DateTime data) =>
         typeof(Pedido).GetProperty(nameof(Pedido.Data))!.SetValue(pedido, data);
 
@@ -307,9 +293,6 @@ public class PedidoServiceTests
     [Fact]
     public async Task Dado_PedidoDeOutroUsuario_Quando_BuscarDetalhe_Entao_DeveLancarKeyNotFoundException()
     {
-        // RN-01/CA-07: pedido alheio nunca chega ao serviço — a busca já
-        // filtra por (pedidoId, usuarioId) no repositório, então "alheio" e
-        // "inexistente" são o mesmo caso aqui, não dois ramos a distinguir.
         var pedidoId = Guid.NewGuid();
         _pedidoRepositoryMock.Setup(r => r.Buscar(pedidoId, _usuarioId)).ReturnsAsync((Pedido?)null);
 
@@ -319,8 +302,6 @@ public class PedidoServiceTests
     [Fact]
     public async Task Dado_PrecoDoProdutoMudouDepoisDaCompra_Quando_BuscarDetalhe_Entao_DeveTrazerOPrecoGravado()
     {
-        // RN-02/CA-06: o preço vem do ItemPedido (congelado no fechamento),
-        // nunca do Produto.Preco atual.
         var pedido = CriarPedidoPersistido(new DateTime(2026, 1, 1));
         _pedidoRepositoryMock.Setup(r => r.Buscar(pedido.PedidoId, _usuarioId)).ReturnsAsync(pedido);
         _pedidoRepositoryMock.Setup(r => r.BuscarPagamentoPorPedido(pedido.PedidoId)).ReturnsAsync((Pagamento?)null);

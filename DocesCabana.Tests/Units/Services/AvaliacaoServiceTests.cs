@@ -23,8 +23,6 @@ public class AvaliacaoServiceTests
     [Fact]
     public async Task Dado_AvaliacoesComNotasVariadas_Quando_ResumirPorProduto_Entao_DeveCalcularMediaComUmaCasa()
     {
-        // RN-03: média aritmética arredondada para uma casa. 4,5+4,5+5+4 / 3 -> na
-        // prática usamos a distribuição por nota, que é o que o repositório expõe.
         var produtoId = Guid.NewGuid();
         _avaliacaoRepositoryMock.Setup(r => r.ContarPorProduto(produtoId)).ReturnsAsync(3);
         _avaliacaoRepositoryMock.Setup(r => r.ContarPorNota(produtoId)).ReturnsAsync(
@@ -32,7 +30,6 @@ public class AvaliacaoServiceTests
 
         var resumo = await _avaliacaoService.ResumirPorProduto(produtoId);
 
-        // (5*2 + 4*1) / 3 = 4,666... -> 4,7
         Assert.Equal(4.7m, resumo.Media);
         Assert.Equal(3, resumo.Total);
     }
@@ -40,7 +37,6 @@ public class AvaliacaoServiceTests
     [Fact]
     public async Task Dado_ProdutoSemAvaliacao_Quando_ResumirPorProduto_Entao_MediaDeveSerNula()
     {
-        // CA-08: produto sem avaliação não tem média — não é zero.
         var produtoId = Guid.NewGuid();
         _avaliacaoRepositoryMock.Setup(r => r.ContarPorProduto(produtoId)).ReturnsAsync(0);
         _avaliacaoRepositoryMock.Setup(r => r.ContarPorNota(produtoId)).ReturnsAsync(
@@ -55,9 +51,6 @@ public class AvaliacaoServiceTests
     [Fact]
     public async Task Dado_DistribuicaoParcialDoRepositorio_Quando_ResumirPorProduto_Entao_DeveCompletarAsCincoChaves()
     {
-        // RN-04: cada faixa é proporção sobre o total; a distribuição sempre
-        // tem as cinco chaves, mesmo quando o repositório só devolve as notas
-        // que de fato existem.
         var produtoId = Guid.NewGuid();
         _avaliacaoRepositoryMock.Setup(r => r.ContarPorProduto(produtoId)).ReturnsAsync(5);
         _avaliacaoRepositoryMock.Setup(r => r.ContarPorNota(produtoId)).ReturnsAsync(
@@ -94,7 +87,6 @@ public class AvaliacaoServiceTests
     [Fact]
     public async Task Dado_OitoAvaliacoesEExibindoCinco_Quando_ListarPorProduto_Entao_TemMaisDeveSerVerdadeiro()
     {
-        // RF-14, CA-09
         var produtoId = Guid.NewGuid();
         var cincoAvaliacoes = CriarAvaliacoes(produtoId, 5);
         _avaliacaoRepositoryMock.Setup(r => r.ContarPorProduto(produtoId)).ReturnsAsync(8);
@@ -112,7 +104,6 @@ public class AvaliacaoServiceTests
     [Fact]
     public async Task Dado_OitoAvaliacoesEExibindoOito_Quando_ListarPorProduto_Entao_TemMaisDeveSerFalso()
     {
-        // RF-15, CA-09
         var produtoId = Guid.NewGuid();
         var oitoAvaliacoes = CriarAvaliacoes(produtoId, 8);
         _avaliacaoRepositoryMock.Setup(r => r.ContarPorProduto(produtoId)).ReturnsAsync(8);
@@ -160,7 +151,6 @@ public class AvaliacaoServiceTests
     [Fact]
     public async Task Dado_AutorDaAvaliacao_Quando_AlternarVotoUtil_Entao_DeveLancarInvalidOperationExceptionSemSalvar()
     {
-        // CA-14: um envio forçado do voto na própria avaliação não altera nada.
         var autor = Guid.NewGuid();
         var avaliacao = new Avaliacao(autor, Guid.NewGuid(), 5);
         _avaliacaoRepositoryMock.Setup(r => r.BuscarComVotos(avaliacao.AvaliacaoId)).ReturnsAsync(avaliacao);

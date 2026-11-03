@@ -1,10 +1,6 @@
 @using DocesCabana.Application.DTOs
 @model EnderecoDTO
 @{
-    // Reaproveitado fora de Conta (spec 022, plano §6): o passo de endereço
-    // do fechamento posta para CarrinhoController.CadastrarEndereco, não
-    // para ContaController — os dois nomes chegam por ViewData, com o
-    // padrão de Conta (edição por EnderecoId) como default.
     var eEdicao = Model.EnderecoId != Guid.Empty;
     var controlador = ViewData["ControladorFormulario"] as string ?? "Conta";
     var acao = ViewData["AcaoFormulario"] as string ?? (eEdicao ? "EditarEndereco" : "NovoEndereco");
@@ -14,9 +10,6 @@
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="EnderecoId" />
 
-    @* CEP é o primeiro campo — é ele que preenche os demais (plano §3,
-       RF-16). Sem script, é só mais um campo de texto: RF-19/CA-21 exigem
-       que o cadastro funcione assim mesmo. *@
     <div class="campo-entrada">
         <label asp-for="CEP">CEP</label>
         <input asp-for="CEP" type="text" placeholder="00000-000" class="campo-texto" required data-campo-cep />

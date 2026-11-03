@@ -269,9 +269,6 @@ public class ProdutoTests
         Assert.False(produto.SemAcucar);
     }
 
-    // spec 016: NomeNormalizado é derivado, nunca atribuído — os dois únicos
-    // pontos que mudam o nome (construtor e AlterarNome) têm de produzir o
-    // mesmo derivado que TextoHelper.Normalizar produziria.
     [Fact]
     public void Dado_NomeComAcentoECaixaAlta_Quando_CriarProduto_Entao_NomeNormalizadoDeveSairSemAcentoEEmCaixaBaixa()
     {
@@ -303,8 +300,6 @@ public class ProdutoTests
     [Fact]
     public void Dado_ProdutoInativo_Quando_VerificarDisponivelParaCompra_Entao_DeveSerFalso()
     {
-        // RN-06 (spec 017): produto que saiu do catálogo é incomprável, com
-        // o mesmo efeito de produto fora de estoque.
         var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida,
             _pesoValido, _alturaValida, _larguraValida, _comprimentoValido, ProdutoStatus.Inativo);
 
@@ -319,11 +314,6 @@ public class ProdutoTests
 
         Assert.False(produto.DisponivelParaCompra());
     }
-
-    // ── Peso e dimensões (spec 020) ──────────────────────────────────────
-    // RN-01: produto sem medida não é despachável, e a loja não deve
-    // conseguir criar um — a recusa vale para qualquer caminho de criação,
-    // não só o formulário (Princípio III, a outra barreira).
 
     [Theory]
     [InlineData(0)]

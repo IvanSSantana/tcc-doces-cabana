@@ -38,9 +38,6 @@ public class CatalogoServiceTests
                     [
                         new() { SubcategoriaId = _subcategoriaBarrasId, Nome = "Barras", Apelido = "barras" },
                         new() { SubcategoriaId = _subcategoriaPotesId, Nome = "Potes", Apelido = "potes" },
-                        // Mesmo apelido de uma subcategoria de Empório
-                        // (spec 016, RN-03) — a colisão só existiria se a
-                        // resolução vazasse entre categorias.
                         new() { SubcategoriaId = Guid.NewGuid(), Nome = "Cappuccino", Apelido = "cappuccino" },
                     ]
                 },
@@ -119,8 +116,6 @@ public class CatalogoServiceTests
     [Fact]
     public async Task Dado_ApelidoDeSubcategoriaDesconhecidoNaCategoria_Quando_Montar_Entao_DeveIgnorarEMostrarACategoriaInteira()
     {
-        // RN-04 (spec 016): filtro que não pode ser aplicado não impede a
-        // página — só a categoria (o endereço em si) produz "não encontrado".
         _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
@@ -137,8 +132,6 @@ public class CatalogoServiceTests
     [Fact]
     public async Task Dado_MesmoApelidoDeSubcategoriaEmDuasCategorias_Quando_Montar_Entao_NaoDeveConfundir()
     {
-        // RN-03: "cappuccino" existe em Doces e em Adega. Resolver dentro de
-        // Doces não pode acidentalmente casar com a subcategoria de Adega.
         _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
@@ -159,8 +152,6 @@ public class CatalogoServiceTests
     [Fact]
     public async Task Dado_ApelidosDeSubcategoriaSemCategoria_Quando_Montar_Entao_DeveIgnorarPorNaoTerContraOQueComparar()
     {
-        // Fora de uma categoria, RN-03 não tem escopo contra o que resolver
-        // um apelido — o catálogo completo não filtra por subcategoria.
         _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
@@ -190,9 +181,6 @@ public class CatalogoServiceTests
     [Fact]
     public async Task Dado_TermoComAcentoECaixaAlta_Quando_Montar_Entao_DevePassarNormalizadoAoRepositorio()
     {
-        // RN-02 (spec 016): a comparação ignora acento e caixa dos dois
-        // lados — é CatalogoService quem normaliza o termo antes de
-        // repassar, o repositório só compara texto já normalizado.
         _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
@@ -210,7 +198,6 @@ public class CatalogoServiceTests
     [InlineData("   ")]
     public async Task Dado_TermoNuloOuEmBranco_Quando_Montar_Entao_NaoDeveVirarFiltro(string? termo)
     {
-        // RF-09: buscar com o campo vazio é o catálogo completo, sem erro.
         _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
@@ -225,7 +212,6 @@ public class CatalogoServiceTests
     [Fact]
     public async Task Dado_UmaBuscaComTermo_Quando_Montar_Entao_CatalogoDTODeveDevolverOTermoCru()
     {
-        // RF-06: a tela reexibe o que a pessoa digitou, não o normalizado.
         _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(0);
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync([]);
@@ -253,8 +239,6 @@ public class CatalogoServiceTests
     [Fact]
     public async Task Dado_PaginaAlemDoTotal_Quando_Montar_Entao_DeveLimitarAUltimaValida()
     {
-        // 25 produtos, 12 por página -> 3 páginas. Pedir a página 99 deve
-        // resultar na 3, não numa consulta vazia (RF-21).
         _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(25);
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), 3, CatalogoService.TamanhoDaPagina))
             .ReturnsAsync([CriarProduto("Produto da página 3")]);
@@ -281,8 +265,6 @@ public class CatalogoServiceTests
     [Fact]
     public async Task Dado_UsuarioAutenticado_Quando_Montar_Entao_DeveMarcarOsProdutosFavoritados()
     {
-        // RF-02 (spec 015): o cartão precisa saber se o produto já está
-        // favoritado por quem está vendo.
         var produtoFavoritado = CriarProduto("Favoritado");
         var produtoNaoFavoritado = CriarProduto("Não favoritado");
         var usuarioId = Guid.NewGuid();
@@ -300,7 +282,6 @@ public class CatalogoServiceTests
         Assert.True(dtoFavoritado.EstaFavorito);
         Assert.False(dtoNaoFavoritado.EstaFavorito);
 
-        // Uma consulta para a página inteira, não uma por produto (plano §5).
         _favoritoRepositoryMock.Verify(r => r.IdsPorUsuario(usuarioId, It.IsAny<IEnumerable<Guid>>()), Times.Once);
     }
 

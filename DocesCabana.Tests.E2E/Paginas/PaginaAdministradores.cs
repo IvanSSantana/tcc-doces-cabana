@@ -2,7 +2,6 @@ using Microsoft.Playwright;
 
 namespace DocesCabana.Tests.E2E.Paginas;
 
-/// <summary>Cobre as duas telas da gestão de administradores: lista e cadastro.</summary>
 public class PaginaAdministradores
 {
     private readonly IPage _pagina;
@@ -38,7 +37,5 @@ public class PaginaAdministradores
     public async Task EnviarCadastro() =>
         await ContainerCadastro.GetByRole(AriaRole.Button, new() { Name = "Cadastrar Administrador" }).ClickAsync();
 
-    // Mesma colisão de ".resumo-erros" da tela de cadastro de cliente — ver
-    // PaginaCadastro.MensagemDeErroGeral.
     public ILocator MensagemDeErroCadastro => FormularioCadastro.Locator("> div.resumo-erros .mensagem-erro");
 }

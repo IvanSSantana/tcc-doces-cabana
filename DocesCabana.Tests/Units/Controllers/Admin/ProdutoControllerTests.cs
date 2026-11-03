@@ -10,10 +10,6 @@ using Moq;
 
 namespace DocesCabana.Tests.Units.Controllers.Admin;
 
-// Era CatalogoControllerTests (010). Renomeado para acompanhar
-// Areas/Admin/Controllers/ProdutoController (011, RQ-04). O alias evita
-// colidir com o DocesCabana.MVC.Controllers.ProdutoController público, que
-// já tem teste próprio em Units/Controllers/ProdutoControllerTests.cs.
 public class ProdutoControllerTests
 {
     private readonly Mock<IProdutoService> _produtoServiceMock;
@@ -30,8 +26,6 @@ public class ProdutoControllerTests
             _produtoServiceMock.Object, _categoriaServiceMock.Object, _armazenamentoMock.Object, new ImagemParaEnvioDTOValidator());
     }
 
-    // FormFile concreto (Microsoft.AspNetCore.Http) — sem lib nova, sem
-    // arquivo em disco: o conteúdo é uma stream em memória.
     private static IFormFile CriarArquivo(string nome = "brigadeiro.jpg", string contentType = "image/jpeg", int tamanhoEmBytes = 1024)
     {
         var stream = new MemoryStream(new byte[tamanhoEmBytes]);
@@ -63,8 +57,6 @@ public class ProdutoControllerTests
     [Fact]
     public async Task Dado_SubcategoriaComMesmoNomeEmDuasCategorias_Quando_CadastroGet_Entao_DeveQualificarPelaCategoria()
     {
-        // RF-28/CA-24: "Cappuccino" existe em Doces e em Empório. O seletor
-        // precisa distinguir as duas, não listar "Cappuccino" duas vezes.
         var idCappuccinoDoces = Guid.NewGuid();
         var idCappuccinoEmporio = Guid.NewGuid();
         var categorias = new List<CategoriaDTO>
@@ -102,8 +94,6 @@ public class ProdutoControllerTests
         _armazenamentoMock.Verify(s => s.Enviar(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
-    // RF-02, CA-02: sem arquivo nenhum, o produto não é cadastrado e o
-    // armazenamento nunca é chamado.
     [Fact]
     public async Task Dado_SemArquivo_Quando_CadastroPost_Entao_DeveInvalidarModelStateSemChamarArmazenamento()
     {
@@ -119,8 +109,6 @@ public class ProdutoControllerTests
         _produtoServiceMock.Verify(s => s.Cadastrar(It.IsAny<ProdutoDTO>()), Times.Never);
     }
 
-    // RF-03/RF-04, CA-03/CA-04: arquivo recusado pelo validador (formato ou
-    // tamanho) tem o mesmo efeito — nunca chega a chamar o armazenamento.
     [Fact]
     public async Task Dado_ArquivoDeFormatoInvalido_Quando_CadastroPost_Entao_DeveInvalidarModelStateSemChamarArmazenamento()
     {
@@ -136,7 +124,6 @@ public class ProdutoControllerTests
         _produtoServiceMock.Verify(s => s.Cadastrar(It.IsAny<ProdutoDTO>()), Times.Never);
     }
 
-    // RF-08, CA-08: envio falhou → volta à view e o cadastro nunca roda.
     [Fact]
     public async Task Dado_EnvioDaImagemFalhou_Quando_CadastroPost_Entao_DeveVoltarAViewSemCadastrar()
     {
@@ -153,8 +140,6 @@ public class ProdutoControllerTests
         _produtoServiceMock.Verify(s => s.Cadastrar(It.IsAny<ProdutoDTO>()), Times.Never);
     }
 
-    // CA-06: o endereço devolvido pelo armazenamento chega ao DTO gravado, e
-    // a ação redireciona.
     [Fact]
     public async Task Dado_ProdutoValido_Quando_CadastroPost_Entao_DeveCadastrarComOEnderecoDoEnvioERedirecionarComConfirmacao()
     {

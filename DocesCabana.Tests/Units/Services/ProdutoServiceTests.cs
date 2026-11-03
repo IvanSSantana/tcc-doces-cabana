@@ -51,9 +51,6 @@ public class ProdutoServiceTests
     [Fact]
     public async Task Dado_ProdutoInativo_Quando_BuscarTodosProdutos_Entao_NaoDeveIncluiLo()
     {
-        // Defeito encontrado na spec 012 §10: a vitrine da home listava
-        // produto inativo, que ao ser clicado devolvia 404 (a 008 já bloqueia
-        // inativo na página do produto). RF-25/RN-01 corrigem aqui.
         var produtos = new List<Produto>
         {
             new Produto(Guid.NewGuid(), "Bolo Ativo", 15.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m, ProdutoStatus.Ativo),
@@ -166,7 +163,6 @@ public class ProdutoServiceTests
     [Fact]
     public async Task Dado_ProdutoAtivo_Quando_BuscarDetalhe_Entao_DeveTrazerNomePrecoEResumo()
     {
-        // CA-01
         var produtoId = Guid.NewGuid();
         var produto = new Produto(Guid.NewGuid(), "Pé de Moleque Doce de Matar", 29.99m,
             "https://imagem.com/pe-de-moleque.jpg", 0.5m, 10m, 15m, 20m, id: produtoId, descricao: "Feito com amendoim torrado na hora.");
@@ -188,7 +184,6 @@ public class ProdutoServiceTests
     [Fact]
     public async Task Dado_IdInexistente_Quando_BuscarDetalhe_Entao_DeveLancarKeyNotFoundException()
     {
-        // CA-04
         var idInexistente = Guid.NewGuid();
         _produtoRepositoryMock.Setup(r => r.BuscarDetalhePorId(idInexistente)).ReturnsAsync((Produto?)null);
 
@@ -199,7 +194,6 @@ public class ProdutoServiceTests
     [Fact]
     public async Task Dado_ProdutoInativo_Quando_BuscarDetalhe_Entao_DeveLancarKeyNotFoundException()
     {
-        // CA-05, RN-12: produto inativo não é visível ao cliente por nenhum caminho.
         var produtoId = Guid.NewGuid();
         var produto = new Produto(Guid.NewGuid(), "Bolo de Teste", 10.00m,
             "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m, ProdutoStatus.Inativo, produtoId);
@@ -210,15 +204,9 @@ public class ProdutoServiceTests
             _produtoService.BuscarDetalhe(produtoId, OrdenacaoAvaliacao.Relevantes, 5, usuarioAtual: null));
     }
 
-    // RF-04/RF-05/RF-09 (spec 019): a vitrine da home passa a pedir só o que
-    // exibe, reaproveitando a mesma consulta paginada do catálogo com filtro
-    // vazio — não mais BuscarTodosProdutos. A ordenação por avaliação virou
-    // ordenação por venda na spec 022 (RF-24) — reescrito pela mesma razão
-    // que a 019 reescreveu os testes que sabia que a 022 ia derrubar.
     [Fact]
     public async Task Dado_UmLimite_Quando_BuscarDestaquesDaVitrine_Entao_DevePedirAoRepositorioExatamenteEsseLimite()
     {
-        // CA-06 da spec 019; RF-24 da 022 (mais vendidos, não mais avaliados)
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(
                 It.Is<FiltroCatalogoDTO>(f =>
                     f.CategoriaId == null &&
@@ -238,7 +226,6 @@ public class ProdutoServiceTests
     [Fact]
     public async Task Dado_VisitanteSemAutenticacao_Quando_BuscarDestaquesDaVitrine_Entao_NaoDeveConsultarFavoritos()
     {
-        // CA-12
         _produtoRepositoryMock.Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), 1, 8))
             .ReturnsAsync([]);
 
@@ -251,7 +238,6 @@ public class ProdutoServiceTests
     [Fact]
     public async Task Dado_UsuarioAutenticado_Quando_BuscarDestaquesDaVitrine_Entao_DeveMarcarOsFavoritados()
     {
-        // CA-11
         var usuarioId = Guid.NewGuid();
         var produtoFavoritado = new Produto(Guid.NewGuid(), "Bolo Favorito", 15.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m);
         var produtoNaoFavoritado = new Produto(Guid.NewGuid(), "Doce Comum", 8.50m, "https://imagem.com/doce.jpg", 0.5m, 10m, 15m, 20m);

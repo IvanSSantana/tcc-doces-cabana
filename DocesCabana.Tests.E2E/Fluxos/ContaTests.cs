@@ -10,9 +10,6 @@ public class ContaTests : TesteE2E
 
     public ContaTests(FixtureE2E fixture) : base(fixture) { }
 
-    // Cada teste entra com uma conta nova, sem endereço nenhum — mesmo
-    // motivo da 017: acoplamento zero entre testes desta classe (RN-03 da
-    // 007), e CA-08/CA-09 dependem de partir de um estado conhecido.
     private async Task<(string Email, string Nome, string Celular, string Cpf)> CriarClienteEEntrar()
     {
         var email = GeradorDeDados.EmailUnico("conta");
@@ -83,8 +80,6 @@ public class ContaTests : TesteE2E
             await pagina.CampoCelular.FillAsync("(14) 97777-6666");
             await pagina.BotaoSalvarDados.ClickAsync();
 
-            // Usuario.AtualizarDados guarda só os dígitos (TelefoneHelper),
-            // mesma convenção do CPF — o formulário devolve sem máscara.
             await pagina.Abrir(UrlBase);
             await Expect(pagina.CampoCelular).ToHaveValueAsync("14977776666");
         });
@@ -93,8 +88,6 @@ public class ContaTests : TesteE2E
     public async Task Dado_DadosPessoais_Quando_TentarAlterarOCpf_Entao_NaoDeveConseguir() =>
         await Executar(async () =>
         {
-            // RN-06/CA-06: o CPF não é campo de formulário — não existe
-            // input para tentar alterar.
             await CriarClienteEEntrar();
             var pagina = new PaginaConta(Pagina);
             await pagina.Abrir(UrlBase);
@@ -278,21 +271,14 @@ public class ContaTests : TesteE2E
             await pagina.PreencherEndereco(EnderecoValido());
             await pagina.BotaoSalvarEndereco.ClickAsync();
 
-            // Captura a URL real de edição (com o identificador de verdade)
-            // antes de trocar de conta — testar contra um Guid aleatório não
-            // provaria isolamento nenhum, só que um id inexistente falha.
             await pagina.BotaoEditar(pagina.Cartoes.First).ClickAsync();
             var urlDeEdicaoAlheia = Pagina.Url;
 
             await Sair();
-            await CriarClienteEEntrar(); // outra conta, sem endereço nenhum
+            await CriarClienteEEntrar();
 
             await Pagina.GotoAsync(urlDeEdicaoAlheia);
 
-            // RF-15/RN-05: KeyNotFoundException vira 404, reexecutado em
-            // /Home/NaoEncontrado (FilterException, spec 008) — a
-            // reexecução é do lado do servidor, então a URL na barra
-            // continua sendo a tentada; o que muda é o conteúdo.
             await Expect(Pagina.GetByRole(Microsoft.Playwright.AriaRole.Heading, new() { Name = "Não encontrado" })).ToBeVisibleAsync();
             await Expect(Pagina.Locator("input[name='Rua']")).ToHaveCountAsync(0);
         });
@@ -311,10 +297,6 @@ public class ContaTests : TesteE2E
             await Expect(pagina.MenuDados).ToBeVisibleAsync();
         });
 
-    // CA-18/CA-20: um teste que dependesse do ViaCEP de verdade falharia
-    // quando a internet oscilasse, e a única forma de provar CA-20 (busca
-    // indisponível) é derrubá-la de propósito — interceptação de rota é o
-    // único jeito de os três existirem (plano §7).
     [Fact]
     public async Task Dado_FormularioDeEndereco_Quando_InformarCepValido_Entao_DevePreencherOsDemaisCampos() =>
         await Executar(async () =>
@@ -375,8 +357,6 @@ public class ContaTests : TesteE2E
             await pagina.CampoCep.FillAsync("17340-000");
             await pagina.CampoCep.PressAsync("Tab");
 
-            // A busca falhou, mas os campos continuam preenchíveis à mão
-            // (RN-07) — nenhuma mensagem alarmante os bloqueia.
             await pagina.PreencherEndereco(EnderecoValido());
             await pagina.BotaoSalvarEndereco.ClickAsync();
 
@@ -387,12 +367,6 @@ public class ContaTests : TesteE2E
     public async Task Dado_JavaScriptDesligado_Quando_CadastrarEndereco_Entao_DeveFuncionar() =>
         await Executar(async () =>
         {
-            // RF-19: sem script não há máscara nem busca por CEP, mas o
-            // cadastro continua funcionando — os campos já nascem
-            // preenchíveis à mão (RN-07). Usa o cliente do seed em vez de
-            // cadastrar (mesmo motivo de CarrinhoTests): o cadastro de
-            // conta depende de JavaScript para as máscaras de celular/CPF/
-            // data.
             await using var contextoSemScript = await Navegador.NewContextAsync(new() { JavaScriptEnabled = false });
             var paginaSemScript = await contextoSemScript.NewPageAsync();
 
@@ -407,7 +381,6 @@ public class ContaTests : TesteE2E
 
             await Expect(pagina.Cartoes.Filter(new() { HasText = "Rua Sem Script" })).ToBeVisibleAsync();
 
-            // Desfaz — o cliente do seed é compartilhado pela suíte inteira.
             await pagina.BotaoExcluir(pagina.Cartoes.Filter(new() { HasText = "Rua Sem Script" })).ClickAsync();
         });
 

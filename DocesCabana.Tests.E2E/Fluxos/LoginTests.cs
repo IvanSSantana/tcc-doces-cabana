@@ -31,9 +31,6 @@ public class LoginTests : TesteE2E
     public async Task Dado_SenhaErrada_Quando_Entrar_Entao_DeveMostrarCredencialIncorreta() =>
         await Executar(async () =>
         {
-            // Conta descartável, não a semeada: 5 tentativas erradas
-            // bloqueiam por 15 minutos, e travar o administrador compartilhado
-            // derrubaria os outros testes da suíte.
             var (email, _) = await CadastrarClienteDescartavel();
 
             var paginaLogin = new PaginaLogin(Pagina);

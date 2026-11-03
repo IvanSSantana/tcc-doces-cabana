@@ -13,9 +13,6 @@ public class AvaliacaoRepositoryIntegrationTests : InfraestruturaPostgresDescart
         var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
-        // Autores distintos: o índice único de Avaliacao(UsuarioId, ProdutoId)
-        // (spec 014, RF-15) não permite a mesma pessoa avaliar o mesmo
-        // produto mais de uma vez.
         var autorUmId = await SemearUsuario("Autor Um", "52998224725");
         var autorDoisId = await SemearUsuario("Autor Dois", "11144477735");
         var autorTresId = await SemearUsuario("Autor Três", "39053344705");
@@ -53,7 +50,6 @@ public class AvaliacaoRepositoryIntegrationTests : InfraestruturaPostgresDescart
     [Fact]
     public async Task Dado_AvaliacoesComVotosDiferentes_Quando_BuscarPorProdutoOrdenandoPorRelevantes_Entao_DeveTrazerAMaisVotadaPrimeiro()
     {
-        // RN-05: Relevantes ordena pela mais útil primeiro.
         var subcategoriaId = await SemearSubcategoria();
         var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);

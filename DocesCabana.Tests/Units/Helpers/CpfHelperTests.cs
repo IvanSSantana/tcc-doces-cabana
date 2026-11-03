@@ -23,11 +23,6 @@ public class CpfHelperTests
         Assert.False(CpfHelper.CpfValido(cpf));
     }
 
-    // RF-01/RN-01: o penúltimo dígito (primeiro verificador) nunca era
-    // conferido — só o último. Estes três têm o segundo dígito "certo" por
-    // coincidência (foi recalculado a partir do primeiro, errado, então
-    // "EndsWith" batia) e o primeiro digitado errado, e passavam antes desta
-    // correção (spec 019).
     [Theory]
     [InlineData("52998224795")]
     [InlineData("52998224705")]
@@ -60,13 +55,6 @@ public class CpfHelperTests
         Assert.Equal("52998224725", resultado);
     }
 
-    // CA-05: os nove CPFs que o seed grava na subida da aplicação — os oito
-    // clientes de DbInitializer.SemearContasDeDemonstracao e o administrador
-    // de SemearAdministrador (DocesCabana.MVC/Helpers/DbInitializer.cs:362) —
-    // conferidos dígito a dígito ao especificar a spec 019. Se algum falhar
-    // aqui, o seed tem CPF inválido e a correção do CpfHelper derruba a
-    // aplicação na subida: é o teste de guarda que a Fase 2 pede rodar antes
-    // de tudo o mais.
     [Theory]
     [InlineData("87654321937")]
     [InlineData("11144477735")]

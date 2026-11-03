@@ -3,10 +3,6 @@ using Microsoft.Playwright;
 
 namespace DocesCabana.Tests.E2E.Infraestrutura;
 
-/// <summary>
-/// Base de todo teste de fluxo. Um contexto de navegador novo por teste —
-/// cookie de um não vaza para o outro (RN-02 da 007).
-/// </summary>
 [Collection(ColecaoE2E.Nome)]
 [Trait("Categoria", "E2E")]
 public abstract class TesteE2E : IAsyncLifetime
@@ -17,9 +13,6 @@ public abstract class TesteE2E : IAsyncLifetime
     protected IPage Pagina { get; private set; } = null!;
     protected AplicacaoEmExecucao Aplicacao => _fixture.Aplicacao;
     protected string UrlBase => Aplicacao.UrlBase;
-    // Exposto para o teste que precisa de um segundo contexto com opções
-    // diferentes das do contexto padrão — hoje só o de JavaScript desligado
-    // (spec 014, CA-07). O navegador é compartilhado pela suíte inteira.
     protected IBrowser Navegador => _fixture.Navegador;
 
     protected TesteE2E(FixtureE2E fixture)
@@ -44,13 +37,6 @@ public abstract class TesteE2E : IAsyncLifetime
         await _contexto.CloseAsync();
     }
 
-    /// <summary>
-    /// Envolve o corpo de cada teste para gravar o rastro do Playwright em
-    /// <c>rastros-e2e/</c> quando ele falha (RF-08). O xUnit v2 não expõe o
-    /// resultado do teste em <see cref="IAsyncLifetime.DisposeAsync"/> — sem
-    /// um adaptador de framework (que a constituição não permite: seria um
-    /// segundo runner), a captura só é alcançável envolvendo o corpo aqui.
-    /// </summary>
     protected async Task Executar(Func<Task> corpo, [CallerMemberName] string nomeDoTeste = "")
     {
         try

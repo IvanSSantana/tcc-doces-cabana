@@ -2,10 +2,6 @@ using Microsoft.Playwright;
 
 namespace DocesCabana.Tests.E2E.Paginas;
 
-/// <summary>
-/// Os passos do fechamento (spec 022) — todos vivem dentro de
-/// <c>#itens-carrinho</c>, a mesma tela do carrinho (<see cref="PaginaCarrinho"/>).
-/// </summary>
 public class PaginaFechamento
 {
     private readonly IPage _pagina;
@@ -31,16 +27,10 @@ public class PaginaFechamento
     {
         var formulario = DetalhesNovoEndereco.Locator("form.formulario-endereco");
 
-        // <details> já vem aberto quando não há nenhum endereço (server-
-        // rendered) — clicar no <summary> de qualquer jeito arriscaria
-        // fechar em vez de abrir.
         if (!await formulario.IsVisibleAsync())
             await DetalhesNovoEndereco.Locator("summary").ClickAsync();
 
         await formulario.Locator("[data-campo-cep]").FillAsync(cep);
-        // Sem script no navegador de teste que roda sem CEP-lookup ligado
-        // (a máscara/preenchimento automático é conveniência visual, spec
-        // 018) — preenche os campos obrigatórios manualmente.
         await formulario.GetByLabel("Estado").FillAsync("SP");
         await formulario.GetByLabel("Cidade").FillAsync("Cidade Teste");
         await formulario.GetByLabel("Bairro").FillAsync("Bairro Teste");

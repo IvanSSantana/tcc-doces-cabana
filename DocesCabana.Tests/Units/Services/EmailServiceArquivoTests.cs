@@ -75,9 +75,6 @@ public class EmailServiceArquivoTests : IDisposable
     [Fact]
     public async Task Dado_PastaNaoConfigurada_Quando_EnviarEmail_Entao_DeveLancarInvalidOperationException()
     {
-        // O adaptador não escolhe um diretório sozinho — inventar um é como
-        // e-mail acaba servido por HTTP se cair sob o content root (risco 1,
-        // plano §8 da 007).
         var servico = CriarServico(string.Empty);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>

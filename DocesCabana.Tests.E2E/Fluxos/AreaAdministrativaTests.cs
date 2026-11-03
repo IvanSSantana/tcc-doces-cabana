@@ -59,8 +59,6 @@ public class AreaAdministrativaTests : TesteE2E
 
             var paginaAdmins = new PaginaAdministradores(Pagina);
             await paginaAdmins.AbrirIndice(UrlBase);
-            // O próprio administrador semeado consta na lista (CA-01 da 005,
-            // reconfirmado aqui como pré-condição).
             await Expect(paginaAdmins.LinhaComEmail(AplicacaoEmExecucao.EmailAdministrador)).ToBeVisibleAsync();
 
             await paginaAdmins.IrParaCadastro();
@@ -76,8 +74,6 @@ public class AreaAdministrativaTests : TesteE2E
             await paginaLogin.Entrar(email, SenhaValida);
             await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/");
 
-            // "usa a área administrativa" — não só entra, também acessa sem
-            // ser barrado (CA-03 da 005, provado de novo pela porta nova).
             await paginaAdmins.AbrirIndice(UrlBase);
             Assert.Contains("/Admin/Administrador", Pagina.Url);
             Assert.DoesNotContain("AcessoNegado", Pagina.Url);
@@ -87,10 +83,6 @@ public class AreaAdministrativaTests : TesteE2E
     public async Task Dado_EnderecosAntigosDaAreaAdministrativa_Quando_Acessados_Entao_DevemResponder404() =>
         await Executar(async () =>
         {
-            // Os dois endereços antigos (`/Catalogo/Cadastro`, criado pela
-            // 010, e `/Administrador`, da 005) não existem mais — nem para
-            // quem está autenticado como administrador, que é quem tinha
-            // motivo para acessá-los.
             var paginaLogin = new PaginaLogin(Pagina);
             await paginaLogin.Abrir(UrlBase);
             await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
@@ -138,8 +130,6 @@ public class AreaAdministrativaTests : TesteE2E
     public async Task Dado_Administrador_Quando_ProcurarOCadastroDeProduto_Entao_DeveHaverCaminhoDeNavegacao() =>
         await Executar(async () =>
         {
-            // RF-26 (spec 015): a tela sempre existiu, mas só era alcançável
-            // digitando o endereço — sem link em lugar nenhum do site.
             var paginaLogin = new PaginaLogin(Pagina);
             await paginaLogin.Abrir(UrlBase);
             await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
@@ -154,9 +144,6 @@ public class AreaAdministrativaTests : TesteE2E
     public async Task Dado_TelasDaLoja_Quando_ObservarAsRequisicoes_Entao_NenhumaDeveTerminarEmNaoEncontrado() =>
         await Executar(async () =>
         {
-            // RF-24/RF-25 (spec 015): o cabeçalho pedia um script inexistente
-            // (~/js/modal-login.js) em toda página — 404 silencioso que
-            // ninguém via, porque não quebrava nada visualmente.
             var requisicoesComFalha = new List<string>();
             Pagina.Response += (_, resposta) =>
             {
@@ -177,13 +164,8 @@ public class AreaAdministrativaTests : TesteE2E
     public async Task Dado_ModalDeLogin_Quando_Abrir_Entao_DeveContinuarFuncionando() =>
         await Executar(async () =>
         {
-            // Confirma que remover o <script> morto e o <dialog> vazio (RF-24,
-            // RF-25) não levou junto o modal de verdade — abrirModal() vem de
-            // ~/js/components/modal-login.js, que o layout já carregava.
             await Pagina.GotoAsync(UrlBase);
 
-            // O <a onclick="abrirModal()"> não tem href — sem href, um <a>
-            // não expõe papel ARIA "link", por isso o locator é por texto.
             await Pagina.Locator("header").GetByText("Entrar", new() { Exact = true }).ClickAsync();
 
             await Expect(Pagina.Locator("#modal-login")).ToBeVisibleAsync();

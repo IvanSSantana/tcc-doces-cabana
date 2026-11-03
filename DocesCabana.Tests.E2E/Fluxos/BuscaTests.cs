@@ -5,9 +5,6 @@ using static Microsoft.Playwright.Assertions;
 
 namespace DocesCabana.Tests.E2E.Fluxos;
 
-// Busca por nome de produto (spec 016) — CA-01 a CA-11. A barra vive no
-// cabeçalho, presente em qualquer página; o resultado é o catálogo comum,
-// filtrado por termo.
 public class BuscaTests : TesteE2E
 {
     public BuscaTests(FixtureE2E fixture) : base(fixture) { }
@@ -30,7 +27,6 @@ public class BuscaTests : TesteE2E
         await Executar(async () =>
         {
             var catalogo = new PaginaCatalogo(Pagina);
-            // Dentro de "Doces" — "Café" só existe em "Empório" (DbInitializer).
             await catalogo.Abrir(UrlBase, "doces");
 
             await catalogo.BarraDePesquisa.FillAsync("Café");
@@ -65,8 +61,6 @@ public class BuscaTests : TesteE2E
             await Expect(catalogo.SeletorDeOrdenacao).ToBeVisibleAsync();
             await Expect(catalogo.Categorias.First).ToBeVisibleAsync();
             await Expect(catalogo.Cards.First).ToBeVisibleAsync();
-            // Favorito é parte do cartão de sempre — mesmo componente,
-            // nenhuma tela nova (RF-04).
             await Expect(catalogo.Cards.First.Locator(".botao-favorito-card")).ToBeVisibleAsync();
         });
 
@@ -163,8 +157,6 @@ public class BuscaTests : TesteE2E
     public async Task Dado_ProdutoForaDoCatalogoPublico_Quando_BuscarPeloNomeExato_Entao_NaoDeveAparecer() =>
         await Executar(async () =>
         {
-            // "Bolachas / Rosquinhas 2" é o produto Inativo semeado pelo
-            // DbInitializer (spec 012, CA-20) — RN-06 vale também na busca.
             await Pagina.GotoAsync($"{UrlBase}/Catalogo?termo=" + Uri.EscapeDataString("Bolachas / Rosquinhas 2"));
 
             var catalogo = new PaginaCatalogo(Pagina);

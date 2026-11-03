@@ -18,7 +18,6 @@
 <main class="pagina-confirmacao-pedido">
     <h1 class="titulo-confirmacao-pedido">Pedido confirmado!</h1>
 
-    @* RF-23: número curto o bastante para ser ditado. *@
     <p class="numero-confirmacao-pedido">Pedido nº <strong>@Model.Numero</strong></p>
 
     <ul class="itens-confirmacao-pedido">
@@ -48,8 +47,6 @@
         <p>Forma de pagamento: @rotulosDePagamento[Model.MetodoPagamento]</p>
     </div>
 
-    @* RF-12/CA-15: o pagamento ainda será combinado — sem link para
-       histórico de pedidos, que é a entrega seguinte (spec 022, §3). *@
     <p class="proximos-passos-confirmacao-pedido">
         O pagamento ainda será combinado diretamente com a loja. Guarde o número do pedido — é com ele que você
         fala com a gente se precisar.

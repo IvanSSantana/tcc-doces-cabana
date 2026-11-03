@@ -28,8 +28,6 @@ public class HomeControllerTests
         };
     }
 
-    // RF-04/RF-09 (spec 019): a home passa a pedir só os destaques, com o
-    // mesmo limite que a vitrine exibe — não mais a loja inteira.
     [Fact]
     public async Task Dado_ProdutosCadastrados_Quando_Index_Entao_DeveRetornarViewComProdutos()
     {
@@ -53,7 +51,6 @@ public class HomeControllerTests
     [Fact]
     public async Task Dado_VisitanteSemAutenticacao_Quando_Index_Entao_DevePedirDestaquesSemUsuario()
     {
-        // CA-12
         _produtoServiceMock
             .Setup(s => s.BuscarDestaquesDaVitrine(VitrineProdutosViewComponent.LimitePadrao, null))
             .ReturnsAsync([]);
@@ -67,7 +64,6 @@ public class HomeControllerTests
     [Fact]
     public async Task Dado_UsuarioAutenticado_Quando_Index_Entao_DevePedirDestaquesComOIdDoUsuario()
     {
-        // CA-11
         var usuarioId = Guid.NewGuid();
         var identidade = new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, usuarioId.ToString())], "TesteAutenticacao");

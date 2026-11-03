@@ -19,7 +19,6 @@ public class AvaliacaoTests
     [Fact]
     public void Dado_AvaliacaoRecemCriada_Quando_CriarAvaliacao_Entao_DataCriacaoDeveSerPreenchida()
     {
-        // RN-09: toda avaliação registra a data em que foi escrita.
         var antes = DateTime.UtcNow;
 
         var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5);
@@ -90,7 +89,6 @@ public class AvaliacaoTests
     [Fact]
     public void Dado_VotoJaMarcado_Quando_AlternarVotoUtil_Entao_DeveDesmarcarEDecrementarTotalUteis()
     {
-        // RN-06: uma pessoa marca no máximo uma vez; marcar de novo desfaz.
         var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5);
         var votante = Guid.NewGuid();
         avaliacao.AlternarVotoUtil(votante);
@@ -105,7 +103,6 @@ public class AvaliacaoTests
     [Fact]
     public void Dado_AutorDaAvaliacao_Quando_AlternarVotoUtil_Entao_DeveLancarInvalidOperationException()
     {
-        // RN-07: ninguém marca como útil a própria avaliação.
         var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5);
 
         Assert.Throws<InvalidOperationException>(() => avaliacao.AlternarVotoUtil(_usuarioValido));
@@ -114,7 +111,6 @@ public class AvaliacaoTests
     [Fact]
     public void Dado_VariosVotantesDistintos_Quando_AlternarVotoUtil_Entao_TotalUteisContaCadaUmUmaVezENuncaFicaNegativo()
     {
-        // RN-08: contagem de pessoas distintas, nunca negativa.
         var avaliacao = new Avaliacao(_usuarioValido, _produtoValido, 5);
         var votanteUm = Guid.NewGuid();
         var votanteDois = Guid.NewGuid();

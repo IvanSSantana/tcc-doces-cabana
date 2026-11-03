@@ -13,21 +13,11 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaPostgresDescarta
     [Fact]
     public async Task Dado_ProdutoComNomeNormalizadoVazio_Quando_PreencherRetroativamente_Entao_DeveFicarEncontravel()
     {
-        // Simula uma linha gravada antes desta migration: NomeNormalizado
-        // vazio, exatamente o que a migration deixa nas linhas antigas
-        // (spec 016, plano §6). Grava direto no contexto, sem passar pelo
-        // construtor de Produto, para não preencher o campo de propósito.
         var (_, subId, _) = await SemearCategoriaDoces();
         var produto = new Produto(subId, "Café Especial", 15m, "https://imagem.com/produto.jpg", 0.5m, 10m, 15m, 20m);
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
 
-        // "Apaga" o derivado via SQL cru — Produto não expõe um jeito de
-        // deixá-lo divergente do nome por fora do construtor (RN-02), então
-        // simular a base antiga exige contornar a entidade.
-        // Identificadores entre aspas (spec 028): sem elas, o Postgres dobra
-        // para minúsculo e procura uma tabela "produto" que não existe — o
-        // EF cria "Produto".
         await Contexto.Database.ExecuteSqlRawAsync(
             """UPDATE "Produto" SET "NomeNormalizado" = '' WHERE "ProdutoId" = {0}""", produto.ProdutoId);
         Contexto.ChangeTracker.Clear();
@@ -45,9 +35,6 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaPostgresDescarta
         var (_, subId, _) = await SemearCategoriaDoces();
         await SemearProduto(subId, "Brigadeiro", 5m);
 
-        // Idempotente: rodar sobre uma base já correta (como a recém-criada,
-        // onde o construtor já preencheu tudo) não pode falhar nem duplicar
-        // nada — só não encontra ninguém para corrigir.
         await DbInitializer.PreencherNomesNormalizados(Contexto);
         await DbInitializer.PreencherNomesNormalizados(Contexto);
 
@@ -176,8 +163,6 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaPostgresDescarta
     [Fact]
     public async Task Dado_CategoriaComMaisDeUmaPagina_Quando_PercorrerTodasAsPaginas_Entao_CadaProdutoApareceUmaVez()
     {
-        // CA-16: com ordenação sem empate (RN-05), Skip/Take determinístico
-        // não repete nem descarta nenhum produto ao longo das páginas.
         var (categoriaId, subId, _) = await SemearCategoriaDoces();
         var nomesEsperados = new List<string>();
         for (var i = 1; i <= 25; i++)
@@ -211,9 +196,6 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaPostgresDescarta
         await SemearProduto(subId, "Café Especial", 10m);
 
         var repositorio = new ProdutoRepository(Contexto);
-        // TermoNormalizado chega já normalizado do CatalogoService (RN-02)
-        // — o repositório só compara, não normaliza. "cafe" é o que
-        // TextoHelper.Normalizar("CAFÉ") produziria.
         var filtro = new FiltroCatalogoDTO(categoriaId, [], false, OrdenacaoCatalogo.NomeAZ, "cafe");
 
         var pagina = await repositorio.BuscarPaginaDoCatalogo(filtro, 1, 12);
@@ -239,8 +221,6 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaPostgresDescarta
     [Fact]
     public async Task Dado_ProdutoInativo_Quando_BuscarPeloNomeExato_Entao_NaoDeveEncontrar()
     {
-        // RN-06: produto fora do catálogo público não existe do lado de
-        // fora em nenhum caminho — inclusive na busca.
         var (categoriaId, subId, _) = await SemearCategoriaDoces();
         await SemearProduto(subId, "Produto Escondido", 10m, status: ProdutoStatus.Inativo);
 
@@ -255,14 +235,6 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaPostgresDescarta
     [Fact]
     public async Task Dado_TermoComCaracteresDeCuringaSql_Quando_Buscar_Entao_NaoDeveTratarComoCuringa()
     {
-        // No SQLite, Contains virava instr — literal, sem interpretar % ou _
-        // como curinga (plano §9 da 016). No Postgres (spec 028), Contains
-        // vira LIKE, que trata os dois como curinga — mas o EF Core escapa o
-        // termo automaticamente antes de montar o LIKE, então o resultado é
-        // o mesmo por um caminho diferente: continua sendo o EF, não o
-        // provider, quem garante isso. Este teste prova o comportamento
-        // observável, não o mecanismo por baixo — por isso segue válido
-        // trocando de motor.
         var (categoriaId, subId, _) = await SemearCategoriaDoces();
         await SemearProduto(subId, "100% Cacau", 10m);
         await SemearProduto(subId, "1000 Cacau", 12m);
@@ -290,8 +262,6 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaPostgresDescarta
         Assert.Equal(2, await repositorio.ContarNoCatalogo(filtroNulo));
         Assert.Equal(2, await repositorio.ContarNoCatalogo(filtroVazio));
     }
-
-    // ── Ordenação por mais vendidos (spec 022) ──────────────────────────
 
     [Fact]
     public async Task Dado_ProdutosComVendasDiferentes_Quando_OrdenarPorMaisVendidos_Entao_OMaisVendidoDeveVirPrimeiro()
@@ -338,8 +308,6 @@ public class CatalogoRepositoryIntegrationTests : InfraestruturaPostgresDescarta
     [Fact]
     public async Task Dado_PedidoCancelado_Quando_OrdenarPorMaisVendidos_Entao_ANaoDeveContar()
     {
-        // RN-05/CA-22: um pedido cancelado com quantidade enorme não deve
-        // fazer o produto vencer um concorrente com menos vendas de verdade.
         var (categoriaId, subId, _) = await SemearCategoriaDoces();
         var vendidoDeVerdade = await SemearProduto(subId, "Vendido De Verdade", 10m);
         var soCancelado = await SemearProduto(subId, "So Cancelado", 10m);

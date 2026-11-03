@@ -43,9 +43,6 @@ public class CatalogoTests : TesteE2E
             Assert.Contains("/Catalogo/emporio", Pagina.Url);
         });
 
-    // CA-12 a CA-16 (spec 016): o endereço do catálogo identifica
-    // subcategoria por nome legível, não por identificador técnico.
-
     [Fact]
     public async Task Dado_Catalogo_Quando_MarcarSubcategoria_Entao_OEnderecoDeveConterONomeLegivel() =>
         await Executar(async () =>
@@ -55,11 +52,6 @@ public class CatalogoTests : TesteE2E
 
             await pagina.MarcarSubcategoriaPeloNome("Barras");
 
-            // Assert.Contains(Pagina.Url) é leitura única: o pushState do
-            // catalogo.js acontece no .then() do fetch, que pode terminar
-            // depois de NetworkIdle (mesma corrida documentada na spec 015).
-            // ToHaveURLAsync tem retry automático — espera o endereço
-            // convergir em vez de ler um instante arbitrário.
             await Expect(Pagina).ToHaveURLAsync(new Regex("subcategorias=barras"));
         });
 
@@ -83,8 +75,6 @@ public class CatalogoTests : TesteE2E
             await Pagina.GotoAsync($"{UrlBase}/Catalogo/doces?subcategorias=nao-existe");
 
             var pagina = new PaginaCatalogo(Pagina);
-            // RN-04: filtro que não se aplica não impede a página — a
-            // categoria inteira aparece, sem erro.
             await Expect(pagina.CategoriaAtiva).ToHaveTextAsync("Doces");
             await Expect(pagina.Cards).ToHaveCountAsync(12);
         });
@@ -93,9 +83,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_MesmoNomeEmDuasCategorias_Quando_FiltrarEmCadaUma_Entao_NaoDevemSeConfundir() =>
         await Executar(async () =>
         {
-            // "Cappuccino" existe em Doces e em Empório (DbInitializer) —
-            // RN-03 escopa a unicidade do apelido por categoria, não pela
-            // loja inteira.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
             await pagina.GarantirSubcategoriaVisivel("Cappuccino");
@@ -109,11 +96,6 @@ public class CatalogoTests : TesteE2E
 
             Assert.True(totalEmDoces > 0);
             Assert.True(totalEmEmporio > 0);
-            // Cada filtro só traz produto da própria categoria — a soma dos
-            // dois nunca poderia superar o total das duas categorias juntas
-            // se tivessem se confundido, mas a prova direta é: o catálogo de
-            // "emporio" com o filtro nunca inclui produto de Doces, e
-            // vice-versa (implícito por CategoriaId no filtro).
             var pagina2 = new PaginaCatalogo(Pagina);
             await Expect(pagina2.CategoriaAtiva).ToHaveTextAsync("Empório");
         });
@@ -124,16 +106,10 @@ public class CatalogoTests : TesteE2E
         {
             await Pagina.GotoAsync(UrlBase);
 
-            // O submenu só é visível em :hover/:focus-within (spec 012) —
-            // precisa passar o mouse sobre o item antes de alcançar o link.
             var itemDoces = Pagina.Locator(".item-categoria-nav", new() { HasText = "Doces" });
             await itemDoces.HoverAsync();
             var linkBarras = itemDoces.Locator(".submenu-categoria")
                 .GetByRole(AriaRole.Link, new() { Name = "Barras", Exact = true });
-            // A transição de opacidade/transform do submenu (header.css)
-            // deixa o link "instável" para a checagem padrão de clique
-            // durante os 0.15s da animação — Force ignora essa checagem,
-            // o link já está clicável de verdade (RF-03/RF-09 da 012).
             await linkBarras.ClickAsync(new() { Force = true });
 
             await Expect(Pagina).ToHaveURLAsync(new Regex(@"/Catalogo/doces\?.*subcategorias=barras"));
@@ -207,8 +183,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_CatalogoSemOrdenacaoEscolhida_Quando_Abrir_Entao_DeveOrdenarPorMelhorAvaliados() =>
         await Executar(async () =>
         {
-            // RF-16: o padrão deixou de ser "Nome (A-Z)" — a spec 014 semeou
-            // avaliação suficiente para "melhor avaliados" fazer sentido.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase);
 
@@ -219,9 +193,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_OrdenacaoInicial_Quando_PercorrerDuasPaginas_Entao_NenhumProdutoDeveSeRepetir() =>
         await Executar(async () =>
         {
-            // RN-04/CA-19: o desempate por Nome garante paginação
-            // determinística mesmo quando o critério principal (nota média)
-            // empata entre muitos produtos sem avaliação.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
 
@@ -238,11 +209,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_SeletorDeOrdenacao_Quando_EscolherMaisVendidos_Entao_DeveOrdenarPorIsso() =>
         await Executar(async () =>
         {
-            // RF-26 (spec 022): "Mais vendidos" deixou de ser anunciada e
-            // recusada (RN-07 da 014, CA-19 daquela entrega) — a 022
-            // reescreve este teste pela mesma razão que a 019 já reescreveu
-            // os que sabia que cairiam aqui: correção esperada, não
-            // regressão.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase);
 
@@ -299,10 +265,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_Catalogo_Quando_OlharOsControlesDoCard_Entao_QuantidadeECarrinhoDevemFuncionar() =>
         await Executar(async () =>
         {
-            // Correção esperada, não regressão (spec 017, tasks T045): os
-            // controles do cartão saíram de "desabilitados até o carrinho
-            // existir" (spec 012, RF-24) para funcionando de verdade — CA-01
-            // não pede login, o carrinho de visitante já existe (Fase 6).
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase);
             var cartao = pagina.Cards.First;
@@ -323,8 +285,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_ProdutoInativo_Quando_AbrirCatalogoEVitrine_Entao_NaoDeveAparecerEmNenhum() =>
         await Executar(async () =>
         {
-            // "Bolachas / Rosquinhas 2" é o produto que o seed marca como
-            // inativo em Doces (DbInitializer.GerarProdutosMock).
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
             await Expect(Pagina.GetByText("BOLACHAS / ROSQUINHAS 2", new() { Exact = true })).Not.ToBeVisibleAsync();
@@ -337,12 +297,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_ProdutoForaDeEstoque_Quando_AbrirOCatalogo_Entao_DeveAparecerSinalizado() =>
         await Executar(async () =>
         {
-            // "Box 3" é o produto que o seed marca como fora de estoque em
-            // Doces (DbInitializer.GerarProdutosMock). Ordenação fixada em
-            // Nome (A-Z): o padrão do catálogo virou "melhor avaliados" na
-            // spec 014, e a posição de "Box 3" nessa ordem depende da nota
-            // aleatória que o seed sorteou para ele — o teste quer achar o
-            // produto pelo nome, não exercitar a ordenação padrão.
             var pagina = new PaginaCatalogo(Pagina);
             await Pagina.GotoAsync($"{UrlBase}/Catalogo/doces?ordenacao=NomeAZ");
 
@@ -356,8 +310,6 @@ public class CatalogoTests : TesteE2E
         await Executar(async () =>
         {
             var pagina = new PaginaCatalogo(Pagina);
-            // "Bijuterias" (Souvenir) não tem produto sem açúcar — combinação
-            // impossível por design do seed.
             await pagina.Abrir(UrlBase, "souvenir");
 
             await pagina.MarcarSemAcucar();
@@ -378,9 +330,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_CatalogoAberto_Quando_MarcarSubcategoria_Entao_NaoDeveRecarregarAPagina() =>
         await Executar(async () =>
         {
-            // RF-01/CA-01: marca a página com uma variável em memória antes
-            // do filtro — uma recarga de verdade reinicia o contexto de
-            // JavaScript e a apaga; a troca parcial não.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
             await Pagina.EvaluateAsync("() => { window.__marcadorDeRecarga = true; }");
@@ -395,7 +344,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_FiltroAplicado_Quando_OlharOEndereco_Entao_DeveConterOFiltro() =>
         await Executar(async () =>
         {
-            // RF-02/CA-02.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
 
@@ -412,8 +360,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_FiltroAplicado_Quando_VoltarNoNavegador_Entao_DeveRestaurarAListaAnterior() =>
         await Executar(async () =>
         {
-            // RF-02/CA-03: o botão voltar precisa desfazer a filtragem —
-            // aqui, ativada via history.pushState, não navegação comum.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
             var enderecoOriginal = Pagina.Url;
@@ -432,7 +378,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_PaginaRolada_Quando_TrocarAOrdenacao_Entao_DevePreservarARolagem() =>
         await Executar(async () =>
         {
-            // RF-03/CA-04.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
             await Pagina.EvaluateAsync("() => window.scrollTo(0, 400)");
@@ -450,9 +395,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_FimDaPrimeiraPagina_Quando_IrParaASegunda_Entao_DeveMostrarOInicioDaLista() =>
         await Executar(async () =>
         {
-            // RF-03/CA-05: "início da lista", não do documento — o resultado
-            // fica abaixo da trilha de navegação, então o alvo é o topo do
-            // próprio bloco de resultado ficar visível, não scrollY = 0.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
             await Pagina.EvaluateAsync("() => window.scrollTo(0, document.body.scrollHeight)");
@@ -469,8 +411,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_FiltroAplicado_Quando_OResultadoMuda_Entao_DeveSerAnunciado() =>
         await Executar(async () =>
         {
-            // RF-04/CA-06: a contagem é a região viva — sem isso, quem usa
-            // leitor de tela filtra e não recebe aviso nenhum de mudança.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
 
@@ -487,8 +427,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_AtualizacaoParcialFalha_Quando_Filtrar_Entao_DeveCarregarAPaginaCompleta() =>
         await Executar(async () =>
         {
-            // RF-06/CA-08: interrompe a requisição assíncrona e confirma que
-            // o navegador cai para a navegação completa, não uma tela presa.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
 
@@ -510,19 +448,12 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_CategoriaAberta_Quando_TrocarDeCategoria_Entao_DeveTrocarAsSubcategorias() =>
         await Executar(async () =>
         {
-            // RF-07/CA-09: trocar de categoria continua navegação comum
-            // (spec 014 §10) — a barra lateral inteira é reconstruída. A
-            // ordem das subcategorias depende da contagem de produtos do
-            // seed, então o teste checa presença por nome, não posição.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
             await Expect(pagina.CaixaDeSubcategoriaPeloNome("Barras")).ToBeVisibleAsync();
 
             await pagina.LinkDeCategoria("Adega").ClickAsync();
 
-            // O link de categoria carrega a ordenação atual na URL desde a
-            // 012 (preserva o estado entre categorias) — o teste checa o
-            // caminho, não a query inteira.
             await Expect(Pagina).ToHaveURLAsync(new System.Text.RegularExpressions.Regex(
                 System.Text.RegularExpressions.Regex.Escape($"{UrlBase}/Catalogo/adega")));
             await Expect(pagina.CaixaDeSubcategoriaPeloNome("Barras")).Not.ToBeVisibleAsync();
@@ -533,8 +464,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_NavegacaoPorTeclado_Quando_TrocarDePaginaPelaPaginacao_Entao_OFocoDeveFicarNoResultado() =>
         await Executar(async () =>
         {
-            // RF-18/CA-21: sem isso, o foco é jogado para o início do
-            // documento a cada troca de página — hostil a quem usa teclado.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
 
@@ -549,9 +478,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_JavaScriptDesligado_Quando_FiltrarOrdenarEPaginar_Entao_TudoDeveFuncionar() =>
         await Executar(async () =>
         {
-            // RF-05/CA-07: contexto com JavaScript de verdade desligado — o
-            // teste anterior só navegava direto pela URL com script ligado
-            // e não provava a degradação (spec 014, plano §7).
             await using var contextoSemScript = await Navegador.NewContextAsync(new() { JavaScriptEnabled = false });
             var paginaSemScript = await contextoSemScript.NewPageAsync();
             var pagina = new PaginaCatalogo(paginaSemScript);
@@ -571,16 +497,11 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_CatalogoAberto_Quando_MedirOCartao_Entao_DevePreencherAColuna() =>
         await Executar(async () =>
         {
-            // RF-08/CA-10: o cartão foi desenhado para o carrossel e
-            // reaproveitado na grade sem revisão — width:85% deixava faixa
-            // vazia ao lado (spec 014, plano §3).
             await Pagina.SetViewportSizeAsync(1440, 1000);
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
 
             var larguraCartao = await pagina.Cards.First.EvaluateAsync<double>("el => el.getBoundingClientRect().width");
-            // Largura de uma coluna descontando o gap entre elas — sem isso
-            // a medição confunde "gap da grade" com "faixa vazia no cartão".
             var larguraColuna = await pagina.Grade.EvaluateAsync<double>(@"el => {
                 const estilo = getComputedStyle(el);
                 const colunas = estilo.gridTemplateColumns.split(' ').length;
@@ -596,9 +517,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_LinhaComNomeCurtoENomeLongo_Quando_CompararOsBotoes_Entao_DevemEstarNaMesmaAltura() =>
         await Executar(async () =>
         {
-            // RF-09/CA-11: "Bolachas / Rosquinhas 14" quebra em duas linhas e
-            // empurra o botão do card para baixo — sem altura reservada para
-            // o nome, produtos da mesma linha desalinham (spec 014, plano §3).
             await Pagina.SetViewportSizeAsync(1440, 1000);
             var pagina = new PaginaCatalogo(Pagina);
             await Pagina.GotoAsync($"{UrlBase}/Catalogo/doces?ordenacao=NomeAZ");
@@ -616,8 +534,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_ProdutoForaDeEstoque_Quando_OlharAEtiqueta_Entao_DeveEstarSobreAImagem() =>
         await Executar(async () =>
         {
-            // RF-10/CA-12: a etiqueta aparecia solta, acima da imagem, no
-            // vão entre as linhas da grade (spec 014, plano §3).
             var pagina = new PaginaCatalogo(Pagina);
             await Pagina.GotoAsync($"{UrlBase}/Catalogo/doces?ordenacao=NomeAZ");
 
@@ -635,8 +551,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_PaginaInicial_Quando_OlharOCarrossel_Entao_NaoDeveTerRegredido() =>
         await Executar(async () =>
         {
-            // RF-11/CA-13: o ajuste do cartão para a grade do catálogo não
-            // pode mudar a aparência dele no carrossel da página inicial.
             await Pagina.SetViewportSizeAsync(1440, 1000);
             await Pagina.GotoAsync(UrlBase);
 
@@ -645,14 +559,9 @@ public class CatalogoTests : TesteE2E
             var larguraItem = await Pagina.Locator(".item-carrossel").First
                 .EvaluateAsync<double>("el => el.getBoundingClientRect().width");
 
-            // O cartão continua menor que o item que o envolve — é a folga
-            // que o carrossel sempre teve (spec 014, plano §4).
             Assert.True(larguraCartao < larguraItem - 10,
                 $"Cartão do carrossel com {larguraCartao}px, item com {larguraItem}px — folga esperada não apareceu.");
 
-            // RF-16 tirou o text-transform da base do cartão — o carrossel
-            // precisa continuar em caixa alta por conta própria, ou regride
-            // visualmente mesmo com a largura certa (spec 015, plano §1).
             var transformacaoDoNome = await Pagina.Locator(".vitrine-carrossel .nome-card").First
                 .EvaluateAsync<string>("el => getComputedStyle(el).textTransform");
             Assert.Equal("uppercase", transformacaoDoNome);
@@ -662,9 +571,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_ClienteAutenticado_Quando_OlharOCabecalho_Entao_DeveOferecerContaClicavel() =>
         await Executar(async () =>
         {
-            // Correção esperada, não regressão (spec 018, tasks T041): o
-            // atalho "Conta" saiu de "desabilitado até a tela existir"
-            // (spec 014, RF-17) para funcionando de verdade (spec 018).
             var paginaLogin = new PaginaLogin(Pagina);
             await paginaLogin.Abrir(UrlBase);
             await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
@@ -680,9 +586,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_CatalogoAberto_Quando_MedirOArranjoDoCartao_Entao_DeveSeguirAReferencia() =>
         await Executar(async () =>
         {
-            // RF-15/CA-16 (spec 015): imagem com fundo próprio, preço e
-            // seletor de quantidade na mesma linha, botão de carrinho
-            // ocupando a largura na base.
             await Pagina.SetViewportSizeAsync(1440, 1000);
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
@@ -697,8 +600,6 @@ public class CatalogoTests : TesteE2E
             var caixaDoSeletor = await card.Locator(".controles-card").BoundingBoxAsync();
             Assert.NotNull(caixaDoPreco);
             Assert.NotNull(caixaDoSeletor);
-            // Mesma linha: os centros verticais ficam a poucos pixels um do
-            // outro, bem menos que a altura de qualquer um dos dois.
             Assert.True(System.Math.Abs(caixaDoPreco!.Y - caixaDoSeletor!.Y) < caixaDoPreco.Height,
                 $"Preço (y={caixaDoPreco.Y}) e seletor (y={caixaDoSeletor.Y}) não estão na mesma linha.");
 
@@ -706,8 +607,6 @@ public class CatalogoTests : TesteE2E
             var caixaDoBotao = await card.Locator(".botao-adicionar-card").BoundingBoxAsync();
             Assert.NotNull(caixaDoCartao);
             Assert.NotNull(caixaDoBotao);
-            // "Ocupa a largura na base": bem mais largo que alto, e
-            // preenchendo a maior parte da largura do cartão.
             Assert.True(caixaDoBotao!.Width > caixaDoCartao!.Width * 0.7,
                 $"Botão com {caixaDoBotao.Width}px num cartão de {caixaDoCartao.Width}px — não parece uma faixa larga.");
         });
@@ -716,19 +615,12 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_CatalogoAberto_Quando_LerONomeDoProduto_Entao_NaoDeveEstarTodoEmMaiusculas() =>
         await Executar(async () =>
         {
-            // RF-16/CA-17: a referência mostra o nome em caixa normal — o
-            // .ToUpper() saiu da view (spec 012 fazia isso na marcação).
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
 
             var nomeElemento = pagina.Cards.First.Locator(".nome-card");
             var nome = (await nomeElemento.TextContentAsync())!.Trim();
 
-            // TextContent não é afetado por CSS — por si só, não prova nada
-            // sobre a aparência. text-transform: uppercase na base do
-            // cartão (existia desde antes da 015) fazia o nome renderizar
-            // maiúsculo mesmo com o texto certo no DOM; só a transformação
-            // computada prova o que a pessoa realmente vê.
             var transformacaoComputada = await nomeElemento.EvaluateAsync<string>("el => getComputedStyle(el).textTransform");
 
             Assert.NotEqual(nome.ToUpperInvariant(), nome);
@@ -739,8 +631,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_CatalogoDeCategoria_Quando_OlharATrilha_Entao_DeveEstarEmCaixaAltaComUltimoDestacado() =>
         await Executar(async () =>
         {
-            // RF-19/RF-20/CA-20 (spec 015): a referência mostra a trilha em
-            // caixa alta, com o último item na cor de destaque do tema.
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
 
@@ -761,17 +651,10 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_CategoriaComMaisDeOitoSubcategorias_Quando_Revelar_Entao_OControleDeveIrParaOFimEOferecerRecolher() =>
         await Executar(async () =>
         {
-            // RF-21/RF-22/CA-21: fechado, o controle vem logo depois das
-            // oito principais; revelado, ele desce para depois das
-            // subcategorias restantes e passa a oferecer "Ver menos".
             var pagina = new PaginaCatalogo(Pagina);
             await pagina.Abrir(UrlBase, "doces");
 
             var detalhes = Pagina.Locator(".ver-todas-subcategorias");
-            // Os dois rótulos vivem na marcação o tempo todo (RF-21/RF-22) —
-            // só um fica visível por vez, alternado pelo [open] do próprio
-            // <details>. Checar visibilidade em vez de texto porque
-            // textContent enxerga os dois rótulos juntos, escondido ou não.
             await Expect(detalhes.Locator(".rotulo-fechado")).ToBeVisibleAsync();
             await Expect(detalhes.Locator(".rotulo-aberto")).Not.ToBeVisibleAsync();
 
@@ -788,9 +671,6 @@ public class CatalogoTests : TesteE2E
             var topoDaPrimeiraRevelada = (await opcoesReveladas.First.BoundingBoxAsync())!.Y;
             var topoDoControleAberto = (await detalhes.Locator("summary").BoundingBoxAsync())!.Y;
 
-            // O ponto que prova o requisito: aberto, o controle desce para
-            // depois das subcategorias que ele mesmo revelou, em vez de
-            // ficar preso acima delas como hoje.
             Assert.True(topoDoControleAberto > topoDaPrimeiraRevelada,
                 "Aberto, o controle deveria estar abaixo das subcategorias reveladas, não continuar acima delas.");
 
@@ -802,8 +682,6 @@ public class CatalogoTests : TesteE2E
     public async Task Dado_JavaScriptDesligado_Quando_RevelarERecolherSubcategorias_Entao_DeveFuncionarNosDoisSentidos() =>
         await Executar(async () =>
         {
-            // RF-23/CA-22: o <details> nativo não depende de script — só a
-            // posição (CSS order) e o rótulo (dois <summary>) mudam com ele.
             await using var contextoSemScript = await Navegador.NewContextAsync(new() { JavaScriptEnabled = false });
             var paginaSemScript = await contextoSemScript.NewPageAsync();
             var pagina = new PaginaCatalogo(paginaSemScript);

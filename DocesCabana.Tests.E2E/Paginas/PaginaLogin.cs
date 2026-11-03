@@ -15,8 +15,6 @@ public class PaginaLogin
     public async Task Entrar(string login, string senha)
     {
         await Container.GetByLabel("E-mail ou CPF").FillAsync(login);
-        // O <label asp-for="Senha"> gera for="Senha", mas o input tem id
-        // explícito "input-senha" — GetByLabel não associa os dois.
         await Container.Locator("#input-senha").FillAsync(senha);
         await Container.GetByRole(AriaRole.Button, new() { Name = "Entrar" }).ClickAsync();
     }

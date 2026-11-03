@@ -40,8 +40,6 @@ public class EnderecoServiceTests
         return endereco;
     }
 
-    // ── Cadastrar — RN-02 ───────────────────────────────────────────────
-
     [Fact]
     public async Task Dado_NenhumEnderecoExistente_Quando_Cadastrar_Entao_DeveNascerPrincipal()
     {
@@ -69,8 +67,6 @@ public class EnderecoServiceTests
         Assert.True(existente.Padrao);
     }
 
-    // ── TornarPrincipal — RN-03 ─────────────────────────────────────────
-
     [Fact]
     public async Task Dado_DoisEnderecos_Quando_TornarOSegundoPrincipal_Entao_OPrimeiroDeveDeixarDeSer()
     {
@@ -86,8 +82,6 @@ public class EnderecoServiceTests
         Assert.True(segundo.Padrao);
         _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
     }
-
-    // ── Excluir — RN-04 ─────────────────────────────────────────────────
 
     [Fact]
     public async Task Dado_DoisEnderecos_Quando_ExcluirOPrincipal_Entao_OMaisAntigoDosRestantesDevePromover()
@@ -145,8 +139,6 @@ public class EnderecoServiceTests
         _enderecoRepositoryMock.Verify(r => r.Remover(It.IsAny<Endereco>()), Times.Never);
     }
 
-    // ── Editar ────────────────────────────────────────────────────────
-
     [Fact]
     public async Task Dado_EnderecoDoUsuario_Quando_Editar_Entao_DeveAtualizarDados()
     {
@@ -171,8 +163,6 @@ public class EnderecoServiceTests
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _enderecoService.Editar(CriarDTO(Guid.NewGuid()), usuarioId));
     }
 
-    // ── Listar / Buscar ───────────────────────────────────────────────
-
     [Fact]
     public async Task Dado_EnderecosCadastrados_Quando_ListarDoUsuario_Entao_DeveMapearTodos()
     {
@@ -196,14 +186,6 @@ public class EnderecoServiceTests
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _enderecoService.BuscarDoUsuario(Guid.NewGuid(), usuarioId));
     }
 
-    // ── Isolamento entre pessoas — RN-05 (Fase 5) ───────────────────────
-    // Buscar, Editar e Excluir já são cobertos acima ("inexistente para o
-    // usuário" e "endereço de outra pessoa" são, do ponto de vista do
-    // serviço, exatamente a mesma coisa: o repositório busca sempre pelo
-    // par (enderecoId, usuarioId) e devolve null nos dois casos — é esse
-    // desenho (T015) que torna a RN-05 difícil de violar por esquecimento.
-    // Falta só TornarPrincipal.
-
     [Fact]
     public async Task Dado_EnderecoDeOutraPessoa_Quando_TentarTornarPrincipal_Entao_DeveLancarKeyNotFoundExceptionSemAlterarNada()
     {
@@ -214,8 +196,6 @@ public class EnderecoServiceTests
         await Assert.ThrowsAsync<KeyNotFoundException>(
             () => _enderecoService.TornarPrincipal(enderecoDeOutraPessoa.EnderecoId, usuarioId));
 
-        // Nada foi alterado: o endereço alheio continua principal, e nenhum
-        // BuscarPorUsuario/SalvarAlteracoes chegou a rodar.
         Assert.True(enderecoDeOutraPessoa.Padrao);
         _enderecoRepositoryMock.Verify(r => r.BuscarPorUsuario(It.IsAny<Guid>()), Times.Never);
         _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);

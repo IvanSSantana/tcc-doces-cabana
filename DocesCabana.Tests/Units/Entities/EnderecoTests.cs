@@ -68,8 +68,6 @@ public class EnderecoTests
         Assert.Null(endereco.Complemento);
     }
 
-    // ── Padrao/DataCadastro (spec 018) ──────────────────────────────────
-
     [Fact]
     public void Dado_EnderecoNovo_Quando_Criar_Entao_NaoDeveNascerPadraoEDeveMarcarDataCadastro()
     {
@@ -101,8 +99,6 @@ public class EnderecoTests
 
         Assert.False(endereco.Padrao);
     }
-
-    // ── AtualizarDados: mesmas validações do construtor ─────────────────
 
     [Fact]
     public void Dado_DadosValidos_Quando_AtualizarDados_Entao_DeveSubstituirTudo()
@@ -156,8 +152,6 @@ public class EnderecoTests
     [Fact]
     public void Dado_AtualizacaoInvalida_Quando_AtualizarDados_Entao_NaoDeveAlterarNadaAntesDeValidar()
     {
-        // A validação roda antes de qualquer atribuição — o mesmo desenho do
-        // construtor: um endereço nunca fica parcialmente atualizado.
         var endereco = CriarEndereco();
 
         Assert.Throws<ArgumentException>(() =>

@@ -29,8 +29,6 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartave
         Assert.Single(encontrado.Itens);
         Assert.Equal(produto.ProdutoId, encontrado.Itens.First().ProdutoId);
         Assert.Equal(2, encontrado.Itens.First().Quantidade);
-        // spec 023: o detalhe precisa do produto de cada item e do endereço,
-        // sem consulta extra — os dois vêm na mesma chamada.
         Assert.Equal("Brigadeiro", encontrado.Itens.First().Produto?.Nome);
         Assert.NotNull(encontrado.EnderecoEntrega);
         Assert.Equal(enderecoId, encontrado.EnderecoEntrega!.EnderecoId);
@@ -39,8 +37,6 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartave
     [Fact]
     public async Task Dado_PedidoDeOutroUsuario_Quando_Buscar_Entao_DeveRetornarNulo()
     {
-        // RN-01/CA-07 (spec 023): o par pedido-e-dono é a própria barreira —
-        // não existe caminho que ache o pedido só pelo identificador.
         var unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new PedidoRepository(Contexto);
         var dono = await SemearUsuario("Dono", "52998224725");

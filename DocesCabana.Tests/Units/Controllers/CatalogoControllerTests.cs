@@ -18,9 +18,6 @@ public class CatalogoControllerTests
         _catalogoServiceMock = new Mock<ICatalogoService>();
         _controller = new CatalogoController(_catalogoServiceMock.Object)
         {
-            // spec 014: o Index passou a ler Request.Headers para decidir
-            // entre página inteira e partial — precisa de um HttpContext de
-            // verdade, não do padrão nulo do Controller fora do pipeline MVC.
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
 
@@ -40,8 +37,6 @@ public class CatalogoControllerTests
     [Fact]
     public async Task Dado_RequisicaoAssincrona_Quando_Index_Entao_DeveRetornarPartialView()
     {
-        // RF-01 (spec 014): um endereço, duas representações — quem pede via
-        // catalogo.js recebe só o bloco do resultado, não a página inteira.
         _controller.ControllerContext.HttpContext.Request.Headers["X-Requested-With"] = "XMLHttpRequest";
 
         var resultado = await _controller.Index();
@@ -53,8 +48,6 @@ public class CatalogoControllerTests
     [Fact]
     public async Task Dado_ParametrosOmitidos_Quando_Index_Entao_DeveUsarOrdenacaoMelhorAvaliadosEPaginaUm()
     {
-        // RF-16 (spec 014): o padrão deixou de ser "Nome (A-Z)" — a base de
-        // demonstração passou a ter avaliação suficiente para sustentar isso.
         await _controller.Index();
 
         _catalogoServiceMock.Verify(s => s.Montar(
@@ -66,10 +59,6 @@ public class CatalogoControllerTests
     [Fact]
     public async Task Dado_OrdenacaoMaisVendidos_Quando_Index_Entao_DeveExecutarSemSanear()
     {
-        // RF-26 (spec 022): "Mais vendidos" passa a ser oferecida de
-        // verdade — SanearOrdenacao foi removido, existia só para recusar
-        // esta ordenação enquanto ela não tinha sentido (RN-07 da 014,
-        // superada por esta entrega).
         await _controller.Index(ordenacao: OrdenacaoCatalogo.MaisVendidos);
 
         _catalogoServiceMock.Verify(s => s.Montar(
@@ -92,8 +81,6 @@ public class CatalogoControllerTests
     [Fact]
     public async Task Dado_TermoNaQuery_Quando_Index_Entao_DeveChegarAoServicoSemDeformacao()
     {
-        // spec 016: o controller repassa o termo cru — normalizar é
-        // trabalho do CatalogoService, não do controller.
         await _controller.Index(termo: "Café");
 
         _catalogoServiceMock.Verify(s => s.Montar(
@@ -105,9 +92,6 @@ public class CatalogoControllerTests
     [Fact]
     public async Task Dado_ApelidosDeSubcategoria_Quando_Index_Entao_DevemChegarAoServicoSemDeformacao()
     {
-        // spec 016: subcategorias chegam pela URL como texto legível, não
-        // como Guid — este teste prova que o controller repassa o que
-        // recebeu, sem tentar resolver nada por conta própria.
         await _controller.Index(apelido: "doces", subcategorias: ["barras", "potes"]);
 
         _catalogoServiceMock.Verify(s => s.Montar(

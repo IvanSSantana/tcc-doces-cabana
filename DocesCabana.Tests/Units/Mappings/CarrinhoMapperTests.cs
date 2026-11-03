@@ -10,9 +10,6 @@ public class CarrinhoMapperTests
     private static Produto CriarProduto(decimal preco = 10m) =>
         new(Guid.NewGuid(), "Brigadeiro", preco, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
 
-    // RF-06/RN-02 (spec 021): sem cotação, o valor em destaque é o subtotal
-    // e não inclui entrega nenhuma — dizer "total a pagar" aqui seria
-    // afirmar um preço que ainda não existe.
     [Fact]
     public void Dado_NenhumaCotacao_Quando_Montar_Entao_ValorTotalDeveSerOSubtotalETemEntregaCalculadaDeveSerFalso()
     {
@@ -25,9 +22,6 @@ public class CarrinhoMapperTests
         Assert.False(carrinho.TemEntregaCalculada);
     }
 
-    // RF-07/RN-06 (spec 021): havendo cotação com opções, o valor em
-    // destaque passa a incluir a entrega — e é a mais barata que compõe o
-    // total, por ser estimativa até o fechamento escolher de fato.
     [Fact]
     public void Dado_CotacaoComOpcoes_Quando_Montar_Entao_ValorTotalDeveIncluirAMaisBarataETemEntregaCalculadaDeveSerVerdadeiro()
     {
@@ -43,11 +37,9 @@ public class CarrinhoMapperTests
         var carrinho = CarrinhoMapper.Montar([(produto, (short)1)], cotacao);
 
         Assert.True(carrinho.TemEntregaCalculada);
-        Assert.Equal(28m, carrinho.ValorTotal); // 10 (subtotal) + 18 (PAC, a mais barata)
+        Assert.Equal(28m, carrinho.ValorTotal);
     }
 
-    // CA-11 (spec 020, herdada): cotação sem opções (serviço fora do ar) não
-    // é "entrega calculada" — o destaque continua sendo o subtotal.
     [Fact]
     public void Dado_CotacaoSemOpcoes_Quando_Montar_Entao_TemEntregaCalculadaDeveSerFalso()
     {

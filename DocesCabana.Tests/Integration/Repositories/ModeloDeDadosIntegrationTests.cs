@@ -28,9 +28,6 @@ public class ModeloDeDadosIntegrationTests : InfraestruturaPostgresDescartavel
         Contexto.Favoritos.Add(new Favorito(produto.ProdutoId, usuarioId));
         await Contexto.SaveChangesAsync();
 
-        // A chave primária de Favorito é o par (ProdutoId, UsuarioId) — um
-        // segundo Add com o mesmo par tenta reinserir a mesma PK, que o
-        // rastreador de mudanças já recusa antes de qualquer ida ao banco.
         Assert.Throws<InvalidOperationException>(() =>
             Contexto.Favoritos.Add(new Favorito(produto.ProdutoId, usuarioId)));
     }
@@ -47,9 +44,6 @@ public class ModeloDeDadosIntegrationTests : InfraestruturaPostgresDescartavel
         Contexto.Estoques.Add(new Estoque(produto.ProdutoId, 10));
         await Contexto.SaveChangesAsync();
 
-        // A chave primária de Estoque é o próprio ProdutoId (1:1 por chave
-        // compartilhada) — um segundo Add com o mesmo produto tenta reinserir
-        // a mesma PK, que o rastreador de mudanças já recusa antes do banco.
         Assert.Throws<InvalidOperationException>(() =>
             Contexto.Estoques.Add(new Estoque(produto.ProdutoId, 5)));
     }

@@ -101,7 +101,6 @@
     color: var(--cor-destaque);
 }
 
-/* Responsive adjustments */
 @media (max-width: 992px) {
     .area-categorias {
         padding: 32px 20px;

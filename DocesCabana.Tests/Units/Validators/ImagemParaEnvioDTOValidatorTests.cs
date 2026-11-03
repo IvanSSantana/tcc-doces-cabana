@@ -3,8 +3,6 @@ using DocesCabana.Application.Validators;
 
 namespace DocesCabana.Tests.Units.Validators;
 
-// Barreira de entrada sobre metadados do arquivo (RF-03/RF-04, CA-03/CA-04) —
-// o conteúdo nunca é lido aqui, só nome e tamanho declarados.
 public class ImagemParaEnvioDTOValidatorTests
 {
     private readonly ImagemParaEnvioDTOValidator _validator = new();
@@ -26,8 +24,6 @@ public class ImagemParaEnvioDTOValidatorTests
     [Fact]
     public void Dado_ContentTypeForaDaLista_Quando_Validar_Entao_DeveSerInvalido()
     {
-        // Extensão aceita, mas o Content-Type declarado não bate com nenhum
-        // formato aceito — um arquivo renomeado na mão, por exemplo.
         var dto = CriarValido(nome: "foto.jpg", contentType: "application/octet-stream");
 
         var resultado = _validator.Validate(dto);

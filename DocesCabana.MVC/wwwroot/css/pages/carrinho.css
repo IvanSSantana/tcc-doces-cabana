@@ -30,9 +30,6 @@
   text-decoration: underline;
 }
 
-/* Duas colunas (spec 021, plano §1): CSS sobre o mesmo #itens-carrinho que a
-   troca sem recarga substitui inteiro — nunca dois containers irmãos, ou a
-   troca deixaria de ser atômica (itens novos com subtotal velho). */
 .grade-carrinho {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -61,8 +58,6 @@
   gap: 1rem;
 }
 
-/* Cartão com borda coral (spec 021, plano §3) — o coral é o mesmo
-   --cor-destaque do resto do site, suavizado, não uma cor nova. */
 .item-carrinho {
   display: grid;
   grid-template-columns: 96px 1fr auto;
@@ -105,9 +100,6 @@
   font-weight: 600;
 }
 
-/* Três colunas rotuladas — Preço unitário / Quantidade / Subtotal (spec 021,
-   plano §3). Os rótulos se repetem em cada cartão, não uma vez como
-   cabeçalho de tabela: é o que sustenta o cartão sozinho ao empilhar. */
 .colunas-item-carrinho {
   display: flex;
   flex-wrap: wrap;
@@ -179,8 +171,6 @@
   color: #b3413a;
 }
 
-/* Rodapé da lista: esvaziar (pílula vermelha vazada) e continuar comprando
-   (spec 021, plano §3). */
 .acoes-lista-carrinho {
   display: flex;
   align-items: center;
@@ -215,7 +205,6 @@
   text-decoration: underline;
 }
 
-/* Resumo do pedido (spec 021, plano §3) */
 .resumo-carrinho {
   background-color: #FFFFFF;
   border: 1px solid #DAD4CE;
@@ -232,8 +221,6 @@
   margin: 0;
 }
 
-/* RF-08 (spec 021): visível e desabilitado, com explicação — RN-01 herdada:
-   um controle entrega o que anuncia. */
 .campo-cupom-carrinho {
   display: flex;
   flex-direction: column;
@@ -288,7 +275,6 @@
   color: #6b6b6b;
 }
 
-/* Caixa de CEP e opções de frete (spec 020) */
 .formulario-frete-carrinho {
   display: flex;
   flex-direction: column;
@@ -371,8 +357,6 @@
   font-size: 1.1rem;
 }
 
-/* spec 022: deixou de ser um <button disabled> e virou navegação de
-   verdade para o primeiro passo do fechamento — o visual permanece. */
 .botao-finalizar-carrinho {
   display: flex;
   align-items: center;
@@ -392,10 +376,6 @@
   filter: brightness(1.1);
 }
 
-/* Diálogo de confirmação para esvaziar (spec 021, RF-11). Centralização
-   explícita — o UA não a garante de forma confiável em todo navegador
-   quando o <dialog> herda box-sizing/contexto de um ancestral com layout
-   próprio (aqui, .grade-carrinho em display: grid). */
 .dialogo-esvaziar-carrinho {
   position: fixed;
   top: 50%;
@@ -438,7 +418,6 @@
   cursor: pointer;
 }
 
-/* Página de confirmação sem JavaScript (Views/Carrinho/ConfirmarEsvaziar.cshtml) */
 .pagina-confirmar-esvaziar {
   max-width: 480px;
   margin: 3rem auto;
@@ -485,8 +464,6 @@
     height: 72px;
   }
 }
-
-/* ── Passos do fechamento (spec 022) ──────────────────────────────────── */
 
 .passos-fechamento {
   display: flex;
@@ -653,8 +630,6 @@
 .total-pagamento-fechamento {
   font-size: 1.1rem;
 }
-
-/* ── Confirmação do pedido (spec 022) ─────────────────────────────────── */
 
 .pagina-confirmacao-pedido {
   max-width: 720px;

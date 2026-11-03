@@ -81,7 +81,6 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
                     .Sum(i => (int?)i.Quantidade) ?? 0)
                 .ThenBy(p => p.Nome),
 
-            // NomeAZ é o padrão (RF-17).
             _ => consulta.OrderBy(p => p.Nome),
         };
 }

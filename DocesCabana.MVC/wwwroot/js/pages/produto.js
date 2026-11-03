@@ -1,6 +1,3 @@
-// Seletor de quantidade da página do produto (RN-10/RN-02: inteiro entre 1 e
-// 99, começa em 1). O campo em si é um <input type="number"> de verdade
-// (spec 017, RF-02) — funciona sem script nenhum; os ± são só um atalho.
 document.addEventListener("DOMContentLoaded", function () {
     const seletor = document.querySelector("[data-seletor-quantidade]");
     if (!seletor) return;

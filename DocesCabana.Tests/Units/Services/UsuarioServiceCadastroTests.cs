@@ -114,11 +114,6 @@ public class UsuarioServiceCadastroTests
     [Fact]
     public async Task Dado_CpfJaCadastrado_Quando_CadastrarUsuario_Entao_DeveApagarAContaCriada()
     {
-        // O e-mail passa pela checagem do Identity — a conta é criada — e só
-        // então a gravação do Usuario falha porque o CPF já existe (índice
-        // único, verificado na integração; aqui simulamos a falha vindo do
-        // repositório). Sem compensação, sobraria uma conta com senha e sem
-        // cadastro. RN-08 e CA-04 da spec 004.
         var dto = CriarCadastroDTO();
         ContaDeAcesso? contaCriada = null;
         _userManagerMock
@@ -164,9 +159,6 @@ public class UsuarioServiceCadastroTests
     [Fact]
     public async Task Dado_FalhaAoAtribuirPapel_Quando_CadastrarUsuario_Entao_DeveApagarAContaCriada()
     {
-        // Sem compensação aqui, sobraria uma conta de cliente que ninguém
-        // pediu — a gestão de administradores não entrega promoção de conta
-        // existente (fora de escopo da spec 005). RN-05 da spec 005.
         var dto = CriarCadastroDTO();
         ContaDeAcesso? contaCriada = null;
         _userManagerMock
@@ -236,10 +228,6 @@ public class UsuarioServiceCadastroTests
     [Fact]
     public async Task Dado_CorridaDeCpf_Quando_CadastrarUsuario_Entao_DeveApagarAContaEDarMensagemAmigavel()
     {
-        // A pré-checagem de ContaJaExiste não pega a corrida entre duas
-        // requisições simultâneas com o mesmo CPF — quem pega é o índice único
-        // no SalvarAlteracoes. Sem esta tradução, o usuário veria "erro
-        // interno" em vez da mensagem de duplicidade (RF-04, CA-05 da 006).
         var dto = CriarCadastroDTO();
         ContaDeAcesso? contaCriada = null;
         _userManagerMock

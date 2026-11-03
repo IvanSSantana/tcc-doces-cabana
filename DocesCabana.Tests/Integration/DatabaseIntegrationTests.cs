@@ -45,10 +45,6 @@ public class DatabaseIntegrationTests : InfraestruturaPostgresDescartavel
         var subcategoriaId = await SemearSubcategoria();
         var produtoValido = new Produto(subcategoriaId, "Bolo de Cenoura", 12.00m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m);
 
-        // Dois usuários com o mesmo CPF violam o índice único da tabela — o
-        // SalvarAlteracoes falha, e nenhuma das duas alterações deve persistir,
-        // exatamente o comportamento que a transação explícita removida (RQ-02
-        // da spec 002) dava e que o SaveChangesAsync já fornece por si.
         var conta1 = new ContaDeAcesso("cliente.um@teste.com");
         var conta2 = new ContaDeAcesso("cliente.dois@teste.com");
         await Contexto.Users.AddAsync(conta1);

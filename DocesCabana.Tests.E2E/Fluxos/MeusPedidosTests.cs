@@ -19,7 +19,6 @@ public class MeusPedidosTests : TesteE2E
     public async Task Dado_ClienteAutenticado_Quando_AbrirOMenuDaConta_Entao_OAtalhoDePedidosDeveFuncionar() =>
         await Executar(async () =>
         {
-            // CA-01
             await Entrar(AplicacaoEmExecucao.EmailClienteSeed, AplicacaoEmExecucao.SenhaClienteSeed);
 
             var pagina = new PaginaMeusPedidos(Pagina);
@@ -33,9 +32,6 @@ public class MeusPedidosTests : TesteE2E
     public async Task Dado_ClienteComPedidos_Quando_AbrirALista_Entao_DeveMostrarOsPedidosComOMaisRecentePrimeiro() =>
         await Executar(async () =>
         {
-            // CA-02/CA-03: o cliente semeado (cliente1) tem dois pedidos,
-            // com situações diferentes e o mais recente ("Entregue")
-            // gravado depois do mais antigo ("Confirmado" — DbInitializer).
             await Entrar(AplicacaoEmExecucao.EmailClienteSeed, AplicacaoEmExecucao.SenhaClienteSeed);
 
             var pagina = new PaginaMeusPedidos(Pagina);
@@ -49,7 +45,6 @@ public class MeusPedidosTests : TesteE2E
     public async Task Dado_UmPedido_Quando_Abrir_Entao_DeveLevarAoDetalheComItensEValores() =>
         await Executar(async () =>
         {
-            // CA-05
             await Entrar(AplicacaoEmExecucao.EmailClienteSeed, AplicacaoEmExecucao.SenhaClienteSeed);
 
             var pagina = new PaginaMeusPedidos(Pagina);
@@ -59,14 +54,13 @@ public class MeusPedidosTests : TesteE2E
             await Expect(Pagina).ToHaveURLAsync(new System.Text.RegularExpressions.Regex(@"/Pedido/Detalhe/"));
             await Expect(Pagina.Locator(".item-detalhe-pedido").First).ToBeVisibleAsync();
             await Expect(Pagina.Locator(".total-detalhe-pedido")).ToBeVisibleAsync();
-            await Expect(Pagina.Locator(".bloco-detalhe-pedido")).ToHaveCountAsync(2); // entrega + pagamento
+            await Expect(Pagina.Locator(".bloco-detalhe-pedido")).ToHaveCountAsync(2);
         });
 
     [Fact]
     public async Task Dado_Visitante_Quando_TentarAbrirALista_Entao_DeveSerLevadoAEntrar() =>
         await Executar(async () =>
         {
-            // CA-09
             var pagina = new PaginaMeusPedidos(Pagina);
             await pagina.Abrir(UrlBase);
 
@@ -77,8 +71,6 @@ public class MeusPedidosTests : TesteE2E
     public async Task Dado_ClienteSemPedidoNenhum_Quando_AbrirALista_Entao_DeveExplicarEOferecerOCatalogo() =>
         await Executar(async () =>
         {
-            // CA-04: o oitavo cliente semeado nunca recebe pedido (spec 022
-            // reservou; confirmado em T003) — mesma senha dos demais.
             await Entrar("cliente8.seed@docescabana.com.br", AplicacaoEmExecucao.SenhaClienteSeed);
 
             var pagina = new PaginaMeusPedidos(Pagina);

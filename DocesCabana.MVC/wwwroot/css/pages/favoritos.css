@@ -10,8 +10,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* Mesma grade do catálogo (wwwroot/css/pages/catalogo.css) — o cartão é o
-   mesmo componente (spec 015), só o container muda de página. */
 .pagina-favoritos .grade-produtos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -30,10 +28,6 @@
   }
 }
 
-/* Mesmo arranjo do cartão do catálogo (spec 015, RF-15) — duplicado aqui
-   porque catalogo.css não é carregado nesta página; os tokens
-   --catalogo-* são escopados em .pagina-catalogo (catalogo.css) e não
-   vazam para cá, então usa as variáveis globais do tema diretamente. */
 .grade-produtos .card-produto {
   display: grid;
   grid-template-columns: 1fr 1fr;

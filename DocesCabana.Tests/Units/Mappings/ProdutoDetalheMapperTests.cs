@@ -44,11 +44,8 @@ public class ProdutoDetalheMapperTests
     [Fact]
     public void Dado_DescricaoComMaisDeCentoESessentaCaracteres_Quando_GerarResumo_Entao_DeveCortarNoFimDaPalavraComReticencias()
     {
-        // RN-02: corta em até 160 caracteres, no fim de uma palavra, com
-        // reticências no final. Palavras de tamanho fixo tornam o ponto de
-        // corte previsível sem precisar contar caracteres à mão.
-        var palavras = Enumerable.Range(1, 40).Select(i => $"palavra{i:D2}"); // 9 chars cada
-        var descricao = string.Join(" ", palavras); // bem mais que 160 chars
+        var palavras = Enumerable.Range(1, 40).Select(i => $"palavra{i:D2}");
+        var descricao = string.Join(" ", palavras);
 
         var resumo = ProdutoDetalheMapper.GerarResumo(descricao);
 
@@ -60,8 +57,6 @@ public class ProdutoDetalheMapperTests
         Assert.DoesNotContain(" …", resumo);
         Assert.StartsWith(semReticencias, descricao);
 
-        // O corte aconteceu no fim de uma palavra: o caractere seguinte no
-        // texto original é um espaço (ou o resumo consumiu o texto inteiro).
         var proximoCaractere = descricao.Length > semReticencias.Length
             ? descricao[semReticencias.Length]
             : (char?)null;

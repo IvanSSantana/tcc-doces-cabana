@@ -2,7 +2,6 @@ using DocesCabana.Domain.Entities;
 
 namespace DocesCabana.Application.Contracts.Repositories;
 
-// Não estende IRepository<T>: a chave de Favorito é composta (ProdutoId, UsuarioId)
 public interface IFavoritoRepository
 {
     Task<List<Favorito>> BuscarPorUsuario(Guid usuarioId);

@@ -27,10 +27,6 @@ public class ApelidoTests
         Assert.Equal(apelidos.Count, apelidos.Distinct().Count());
     }
 
-    // Taxonomia real (DbInitializer, spec 012 §11) — a mesma fonte que semeia
-    // a base. "Cappuccino" existe em Doces e em Empório: a RN-03 (spec 016)
-    // só exige unicidade DENTRO de cada categoria, não na loja inteira, e é
-    // esse relaxamento que este teste prova.
     private static readonly (string Categoria, string[] Subcategorias)[] Taxonomia =
     [
         ("Doces", ["Barras", "Bolachas / Rosquinhas", "Box", "Combos", "Compotas", "Cappuccino", "Latas", "Palhas", "Potes", "Quindim", "Raspa de Tachos", "Sorvetes"]),

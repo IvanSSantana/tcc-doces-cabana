@@ -17,10 +17,6 @@ public class PaginaInicialTests : TesteE2E
         await paginaLogin.Entrar(AplicacaoEmExecucao.EmailClienteSeed, AplicacaoEmExecucao.SenhaClienteSeed);
     }
 
-    // Mesmo ícone "favoritado" que FavoritosTests usa (spec 015, plano §7):
-    // o kit da FontAwesome converte <i> em <svg> ao carregar, preservando
-    // classes que não reconhece — checar as duas formas cobre antes e
-    // depois da conversão.
     private static ILocator IconeFavoritado(ILocator botao) =>
         botao.Locator("svg.favoritado, i.favoritado");
 
@@ -30,15 +26,11 @@ public class PaginaInicialTests : TesteE2E
     private static async Task EsperarNaoFavoritado(ILocator botao) =>
         await Expect(IconeFavoritado(botao)).ToHaveCountAsync(0);
 
-    // Nota média por produto, a mesma leitura que ProdutoRepository faz para
-    // ordenar (AVG(Nota), nulo quando não há avaliação — plano §5).
     private double ObterNotaMedia(Guid produtoId)
     {
         using var conexao = new NpgsqlConnection(Aplicacao.ConexaoDoBanco);
         conexao.Open();
         using var comando = conexao.CreateCommand();
-        // ProdutoId é uuid de verdade no Postgres (spec 028) — sem o UPPER()
-        // dos dois lados que o SQLite exigia.
         comando.CommandText = """SELECT AVG("Nota") FROM "Avaliacao" WHERE "ProdutoId" = @id""";
         comando.Parameters.AddWithValue("id", produtoId);
         var resultado = comando.ExecuteScalar();
@@ -157,9 +149,6 @@ public class PaginaInicialTests : TesteE2E
     public async Task Dado_PaginaInicial_Quando_LerOTituloDaSecao_Entao_NaoDeveDizerBemAvaliados() =>
         await Executar(async () =>
         {
-            // Espelha o teste que a 019 escreveu ("não deve dizer mais
-            // vendidos"), agora que a 022 fez a troca inversa (RF-25):
-            // correção esperada, não regressão.
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
 
@@ -172,7 +161,6 @@ public class PaginaInicialTests : TesteE2E
     public async Task Dado_PaginaInicial_Quando_LerOTituloDaSecao_Entao_DeveDizerMaisVendidos() =>
         await Executar(async () =>
         {
-            // CA-20 (spec 022): o título anuncia o critério real (RN-04).
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
 
@@ -185,10 +173,6 @@ public class PaginaInicialTests : TesteE2E
     public async Task Dado_ProdutosComVendasDiferentes_Quando_AbrirAPaginaInicial_Entao_AVitrineDeveOrdenarPorQuantidadeVendida() =>
         await Executar(async () =>
         {
-            // CA-20 (spec 022): mesma ideia do teste que a 019 escreveu para
-            // avaliação — lê a ordem real exibida e confere contra a mesma
-            // leitura que ProdutoRepository faz para ordenar (soma de
-            // ItemPedido.Quantidade em pedido não cancelado, decrescente).
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
 
@@ -210,14 +194,12 @@ public class PaginaInicialTests : TesteE2E
     public async Task Dado_ProdutoQueEstavaNaVitrine_Quando_FicarForaDoCatalogo_Entao_NaoDeveMaisAparecer() =>
         await Executar(async () =>
         {
-            // CA-09
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
 
             var idTexto = await pagina.CardsDaVitrine.First.GetAttributeAsync("data-produto-id");
             var produtoId = Guid.Parse(idTexto!);
 
-            // ProdutoStatus.Inativo = 0 (Domain/Enums/ProdutoStatus.cs).
             AlterarStatusDoProduto(produtoId, 0);
 
             try
@@ -232,7 +214,7 @@ public class PaginaInicialTests : TesteE2E
             }
             finally
             {
-                AlterarStatusDoProduto(produtoId, 1); // Ativo de novo
+                AlterarStatusDoProduto(produtoId, 1);
             }
         });
 
@@ -240,9 +222,6 @@ public class PaginaInicialTests : TesteE2E
     public async Task Dado_FavoritoNaVitrine_Quando_RecarregarAPaginaInicial_Entao_DeveContinuarMarcado() =>
         await Executar(async () =>
         {
-            // CA-11 — o defeito real que a spec 019 descreve: o coração
-            // nasce sempre vazio porque a home nunca perguntava quais
-            // produtos a pessoa favoritou.
             await EntrarComoClienteSeed();
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
@@ -259,7 +238,6 @@ public class PaginaInicialTests : TesteE2E
             var botaoAposRecarga = pagina.BotaoFavoritar();
             await EsperarFavoritado(botaoAposRecarga);
 
-            // Desfaz, para não deixar rastro para os testes seguintes.
             await botaoAposRecarga.ClickAsync();
             await EsperarNaoFavoritado(botaoAposRecarga);
         });
@@ -268,7 +246,6 @@ public class PaginaInicialTests : TesteE2E
     public async Task Dado_VisitanteSemAutenticacao_Quando_AbrirAPaginaInicial_Entao_NenhumProdutoDeveAparecerFavoritado() =>
         await Executar(async () =>
         {
-            // CA-12
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
 
@@ -283,8 +260,6 @@ public class PaginaInicialTests : TesteE2E
             var pagina = new PaginaInicial(Pagina);
             await pagina.Abrir(UrlBase);
 
-            // CA-08 mede o conteúdo, não o documento — o cabeçalho compartilhado
-            // já estoura a 375px por conta própria desde a 009 (fora de escopo).
             var larguraDoConteudo = await Pagina.Locator("main, .pagina-inicial-vitrine").First
                 .EvaluateAsync<double>("el => el.scrollWidth");
             var larguraDaTela = await Pagina.EvaluateAsync<double>("() => window.innerWidth");

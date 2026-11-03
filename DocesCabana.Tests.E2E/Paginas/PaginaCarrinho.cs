@@ -18,7 +18,6 @@ public class PaginaCarrinho
     public ILocator BotaoFinalizar => Container.Locator(".botao-finalizar-carrinho");
     public ILocator ResultadoCarrinho => _pagina.Locator("#itens-carrinho");
 
-    // Spec 021 — redesenho do carrinho.
     public ILocator CampoCupom => Container.Locator("#cupom-carrinho");
     public ILocator BotaoAplicarCupom => Container.Locator(".entrada-cupom-carrinho button");
     public ILocator LinkEsvaziar => Container.Locator(".botao-esvaziar-lista-carrinho");
@@ -31,7 +30,6 @@ public class PaginaCarrinho
     public ILocator RotuloColunaSubtotal(Guid produtoId) =>
         ItemPeloProduto(produtoId).Locator(".coluna-item-carrinho", new() { HasText = "Subtotal" });
 
-    // Spec 020 — cotação de frete.
     public ILocator CampoCep => Container.Locator("#cep-carrinho");
     public ILocator BotaoCalcularFrete => Container.Locator(".entrada-cep-carrinho button");
     public ILocator ErroCep => Container.Locator(".formulario-frete-carrinho .mensagem-erro");
@@ -67,14 +65,6 @@ public class PaginaCarrinho
         await _pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 
-    // Semeia o carrinho batendo direto na ação já testada em unidade
-    // (CarrinhoController.Acrescentar), sem passar pela UI do cartão/página
-    // do produto — essa integração só existe a partir da Fase 8 desta
-    // feature. Roda como fetch dentro da própria página, reaproveitando o
-    // cookie de autenticação e o token anti-falsificação que já estão
-    // presentes em qualquer página (o formulário de favorito, no _Layout,
-    // carrega @Html.AntiForgeryToken() sempre) — é a mesma prova de que o
-    // caminho real funciona, não um atalho por fora dele.
     public async Task<int> SemearItem(string urlBase, Guid produtoId, int quantidade = 1)
     {
         var status = await _pagina.EvaluateAsync<int>(

@@ -3,9 +3,6 @@ using DocesCabana.MVC.Helpers;
 
 namespace DocesCabana.Tests.Units.Helpers;
 
-// Cobre o gerador de avaliações do seed (spec 014, RF-12/RF-13/RF-14) — sem
-// banco, para poder ser chamado duas vezes na mesma execução e comparado
-// (CA-16).
 public class GeradorDeAvaliacoesTests
 {
     private static List<Produto> GerarProdutos(int quantidade)
@@ -29,8 +26,6 @@ public class GeradorDeAvaliacoesTests
 
         var produtosAvaliados = avaliacoes.Select(a => a.ProdutoId).Distinct().Count();
 
-        // "Maior parte" (RF-12): bem mais da metade, sem fixar percentual
-        // exato — o requisito não pede precisão, só que não seja um punhado.
         Assert.True(produtosAvaliados >= 60, $"Só {produtosAvaliados} de 100 produtos receberam avaliação.");
     }
 

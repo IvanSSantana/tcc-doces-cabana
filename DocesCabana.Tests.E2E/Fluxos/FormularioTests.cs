@@ -3,16 +3,6 @@ using static Microsoft.Playwright.Assertions;
 
 namespace DocesCabana.Tests.E2E.Fluxos;
 
-/// <summary>
-/// Não-regressão do desenho compartilhado de formulário (spec 016, CA-19).
-///
-/// Este teste é escrito e verificado verde ANTES de qualquer CSS ser tocado
-/// (plano §7): ele mede o que as cinco telas já são, para que a extração de
-/// <c>autenticacao.css</c> em <c>components/formulario.css</c> (T048-T050)
-/// não possa mudar a aparência delas sem que este teste denuncie. As telas
-/// medidas não incluem o cadastro de produto — esse é o que a feature
-/// redesenha de propósito (RF-16), coberto por CadastroDeProdutoTests.
-/// </summary>
 public class FormularioTests : TesteE2E
 {
     public FormularioTests(FixtureE2E fixture) : base(fixture) { }
@@ -31,10 +21,6 @@ public class FormularioTests : TesteE2E
     public async Task Dado_UmaTelaDeFormulario_Quando_MedirOCampoDeTexto_Entao_DeveSeguirODesenhoDaMarca(string caminho) =>
         await Executar(async () =>
         {
-            // RedefinirSenha e Cadastro de Administrador ficam atrás de
-            // autenticação/autorização, mas ambas renderizam a marcação
-            // independentemente de token/sessão válidos — só o POST exige
-            // isso. Medir o GET é suficiente para o desenho.
             if (caminho.StartsWith("/Admin"))
             {
                 var login = new Paginas.PaginaLogin(Pagina);
@@ -54,8 +40,6 @@ public class FormularioTests : TesteE2E
             var primeiroCampo = campos.First;
             await Expect(primeiroCampo).ToBeVisibleAsync();
 
-            // Largura e altura do campo de texto, raio da borda e
-            // espaçamento entre campos — exatamente o que T004 pede medir.
             var estiloDoCampo = await primeiroCampo.EvaluateAsync<string[]>(@"el => {
                 const estilo = getComputedStyle(el);
                 return [estilo.height, estilo.borderRadius, estilo.backgroundColor];
@@ -67,9 +51,6 @@ public class FormularioTests : TesteE2E
 
             var larguraDoCampo = await primeiroCampo.EvaluateAsync<double>("el => el.getBoundingClientRect().width");
             var larguraDoContainer = await container.EvaluateAsync<double>("el => el.getBoundingClientRect().width");
-            // O campo preenche a largura do container de formulário — a
-            // proporção é o que se mede, não um valor fixo, porque a largura
-            // do container varia com o viewport do teste.
             Assert.True(larguraDoCampo >= larguraDoContainer * 0.9,
                 $"Campo esperado preenchendo o container ({larguraDoContainer}px), mediu {larguraDoCampo}px.");
 

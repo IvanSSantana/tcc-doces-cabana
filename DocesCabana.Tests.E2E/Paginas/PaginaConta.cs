@@ -2,7 +2,6 @@ using Microsoft.Playwright;
 
 namespace DocesCabana.Tests.E2E.Paginas;
 
-/// <summary>Dados de um endereço válido, prontos para preencher o formulário.</summary>
 public record DadosDeEndereco(string CEP, string Estado, string Cidade, string Bairro, string Rua, string Numero, string? Complemento = null);
 
 public class PaginaConta
@@ -18,11 +17,9 @@ public class PaginaConta
 
     public async Task AbrirNovoEndereco(string urlBase) => await _pagina.GotoAsync($"{urlBase}/Conta/NovoEndereco");
 
-    // ── Menu ────────────────────────────────────────────────────────────
     public ILocator MenuDados => Container.Locator(".menu-conta").GetByRole(AriaRole.Link, new() { Name = "Dados pessoais" });
     public ILocator MenuEnderecos => Container.Locator(".menu-conta").GetByRole(AriaRole.Link, new() { Name = "Endereços" });
 
-    // ── Dados pessoais ──────────────────────────────────────────────────
     public ILocator CampoNome => Container.Locator("input[name='Nome']");
     public ILocator CampoCelular => Container.Locator("input[name='Celular']");
     public ILocator CampoDataNascimento => Container.Locator("input[name='DataNascimento']");
@@ -38,7 +35,6 @@ public class PaginaConta
         await CampoDataNascimento.FillAsync(dataNascimento);
     }
 
-    // ── Endereços ───────────────────────────────────────────────────────
     public ILocator MensagemVazia => Container.Locator(".enderecos-vazio");
     public ILocator BotaoNovoEndereco => Container.GetByRole(AriaRole.Link, new() { Name = "Novo endereço" });
     public ILocator Cartoes => Container.Locator(".cartao-endereco");
@@ -48,7 +44,6 @@ public class PaginaConta
     public ILocator BotaoEditar(ILocator cartao) => cartao.GetByRole(AriaRole.Link, new() { Name = "Editar" });
     public ILocator BotaoExcluir(ILocator cartao) => cartao.GetByRole(AriaRole.Button, new() { Name = "Excluir" });
 
-    // ── Formulário de endereço (cadastro e edição) ─────────────────────
     public ILocator CampoCep => _pagina.Locator("input[name='CEP']");
     public ILocator CampoEstado => _pagina.Locator("input[name='Estado']");
     public ILocator CampoCidade => _pagina.Locator("input[name='Cidade']");

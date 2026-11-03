@@ -64,9 +64,6 @@ public class CadastroDeClienteTests : TesteE2E
     public async Task Dado_EmailJaUsado_Quando_CadastrarAdministrador_Entao_DeveMostrarMensagemDeDuplicidade() =>
         await Executar(async () =>
         {
-            // A mesma checagem (IUsuarioService.ContaJaExiste, spec 006) vale
-            // para as duas portas — é a garantia de que a 006 não regride
-            // pela tela, não só pelo teste de unidade.
             var paginaLogin = new PaginaLogin(Pagina);
             await paginaLogin.Abrir(UrlBase);
             await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);

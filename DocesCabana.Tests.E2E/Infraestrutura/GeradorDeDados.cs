@@ -1,11 +1,5 @@
 namespace DocesCabana.Tests.E2E.Infraestrutura;
 
-/// <summary>
-/// E-mail e CPF únicos por chamada — sem isto, dois testes que cadastram
-/// alguém colidem no índice único do sistema (RN-01 da 006) e o segundo
-/// falha por um motivo que não tem nada a ver com o que ele queria provar
-/// (RN-03 da 007).
-/// </summary>
 public static class GeradorDeDados
 {
     private static int _contador;
@@ -28,9 +22,6 @@ public static class GeradorDeDados
 
     private static string ProximosNoveDigitos(int sufixo)
     {
-        // CpfHelper rejeita CPF com os 11 dígitos iguais; nunca acontece aqui
-        // (a base varia por chamada), mas o guard deixa a garantia explícita
-        // em vez de "extremamente improvável".
         var valor = 100_000_000L + sufixo;
         var nove = (valor % 900_000_000).ToString("D9");
 

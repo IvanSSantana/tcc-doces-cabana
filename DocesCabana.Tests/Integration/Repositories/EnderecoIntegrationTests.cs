@@ -11,9 +11,6 @@ public class EnderecoIntegrationTests : InfraestruturaPostgresDescartavel
         var usuarioId = await SemearUsuario();
         var maisRecente = new Endereco(usuarioId, "SP", "Barra Bonita", "Centro", "17340-000", "Rua Um", 1);
         var maisAntigo = new Endereco(usuarioId, "SP", "Bauru", "Jardim Europa", "17010-000", "Rua Dois", 2);
-        // O construtor marca DataCadastro = DateTime.UtcNow — para provar a
-        // ordenação sem depender de um Task.Delay real, ajusta direto via
-        // reflection (mesmo recurso usado nos testes de serviço da 017).
         typeof(Endereco).GetProperty(nameof(Endereco.DataCadastro))!.SetValue(maisRecente, DateTime.UtcNow);
         typeof(Endereco).GetProperty(nameof(Endereco.DataCadastro))!.SetValue(maisAntigo, DateTime.UtcNow.AddDays(-5));
         Contexto.Enderecos.AddRange(maisRecente, maisAntigo);
@@ -47,8 +44,6 @@ public class EnderecoIntegrationTests : InfraestruturaPostgresDescartavel
     [Fact]
     public async Task Dado_EnderecoDeOutraPessoa_Quando_BuscarPeloPar_Entao_NaoDeveEncontrar()
     {
-        // RN-05: o repositório busca sempre pelo par (enderecoId, usuarioId)
-        // — é o desenho que sustenta o isolamento entre pessoas.
         var donoId = await SemearUsuario("Dono", "52998224725");
         var outraPessoaId = await SemearUsuario("Outra pessoa", "11144477735");
         var endereco = new Endereco(donoId, "SP", "Barra Bonita", "Centro", "17340-000", "Rua Um", 1);

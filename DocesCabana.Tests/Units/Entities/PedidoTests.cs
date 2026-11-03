@@ -158,8 +158,6 @@ public class PedidoTests
         Assert.Equal(pedido.NumeroVisivel(), pedido.NumeroVisivel());
     }
 
-    // Métodos usados só pela semeadura (DbInitializer, spec 022) — nenhum
-    // caminho real desta entrega os chama (spec §10).
     [Fact]
     public void Dado_PedidoPendente_Quando_Cancelar_Entao_DeveFicarCancelado()
     {

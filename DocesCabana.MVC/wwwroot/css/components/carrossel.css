@@ -125,7 +125,6 @@
 @media (max-width: 768px) {
     .carrossel {
         aspect-ratio: 2.5 / 1;
-        /* Altura um pouco maior em mobile */
         border-radius: 16px;
     }
 
@@ -134,7 +133,6 @@
         margin: 1.5rem auto;
     }
 
-    /* Traz as setas um pouco para dentro em telas pequenas para evitar toque fora da tela */
     .seta-controle {
         width: 2.25rem;
         height: 2.25rem;
@@ -148,7 +146,6 @@
         right: 0.5rem;
     }
 
-    /* Ajusta os indicadores para ficarem contidos dentro do carrossel em mobile */
     .carrossel-indicadores {
         bottom: 0.75rem;
         transform: translateX(-50%);

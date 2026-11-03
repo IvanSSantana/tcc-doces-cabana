@@ -2,11 +2,6 @@ using System.Text.RegularExpressions;
 
 namespace DocesCabana.Tests.E2E.Infraestrutura;
 
-/// <summary>
-/// Lê a pasta de e-mails do <c>EmailServiceArquivo</c> e extrai o link de
-/// redefinição de senha. Espera por condição — o arquivo aparecer —, nunca
-/// por tempo fixo.
-/// </summary>
 public static class CaixaDeEntrada
 {
     private static readonly Regex LinkRegex = new("""href='(?<link>[^']+)'""", RegexOptions.Compiled);
@@ -32,7 +27,7 @@ public static class CaixaDeEntrada
                     }
                     catch (IOException)
                     {
-                        continue; // arquivo ainda sendo escrito — tenta o próximo ciclo
+                        continue;
                     }
 
                     if (!conteudo.Contains($"Para: {destinatario}", StringComparison.OrdinalIgnoreCase))

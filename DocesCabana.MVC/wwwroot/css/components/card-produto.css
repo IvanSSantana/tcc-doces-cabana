@@ -10,13 +10,7 @@
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
-    /* Largura é responsabilidade de quem contém o cartão, não dele mesmo
-       (spec 014, plano §1) — na grade do catálogo ele preenche a coluna
-       (RF-08); no carrossel, quem dá a folga de 85% é vitrine-produtos.css. */
     width: 100%;
-    /* Itens de grade esticam por padrão: isso é o que faz os botões de uma
-       linha ficarem na mesma altura mesmo quando o nome de um produto ocupa
-       duas linhas e o de outro só uma (RF-09) — nenhuma altura fixa. */
     height: 100%;
 }
 
@@ -48,11 +42,6 @@
     justify-content: center;
 }
 
-/* Onde existe ponteiro fino (mouse), o coração só aparece ao passar por
-   cima — fiel à referência em repouso (spec 015, plano §3). Onde não existe
-   (toque), ele fica sempre visível: sem isso, favoritar seria inalcançável
-   em celular (RF-05). A condição é a capacidade do dispositivo, não a
-   largura da tela — um tablet largo também não tem :hover. */
 @media (hover: hover) {
     .botao-favorito-card {
         opacity: 0;
@@ -64,12 +53,6 @@
     }
 }
 
-/* O fundo sólido que existia aqui era de quando o coração era decorativo
-   (spec 012) e EstaFavorito nunca era true de verdade — inofensivo então,
-   virou um bloco colorido atrás do próprio coração assim que favoritar
-   passou a funcionar (spec 015, achado de verificação ao vivo). A opacidade
-   de espreitar continua: dá para notar o que já está favoritado sem
-   precisar passar o mouse. */
 .botao-favorito-card:has(.favoritado) {
     opacity: 0.6;
 }
@@ -82,10 +65,6 @@
     transform: scale(1.15) !important;
 }
 
-/* Quantidade e adicionar ao carrinho só ficam desabilitados quando o
-   produto não está disponível para compra (spec 017) — favoritar nunca
-   desabilita (spec 015). Mantidos visíveis com opacidade reduzida —
-   desabilitado não é escondido, é "não disponível agora". */
 .card-produto button:disabled {
     cursor: not-allowed;
     opacity: 0.45;
@@ -100,11 +79,6 @@
     transform: scale(1) !important;
 }
 
-/* RF-26 (spec 012): produto fora de estoque continua na grade, sinalizado —
-   etiqueta sobre a imagem e imagem esmaecida, não escondido. RF-10
-   (spec 014): a etiqueta é filha do container da imagem (não mais irmã),
-   ancorada nele — antes ficava presa ao topo do cartão inteiro, acima da
-   imagem, porque não havia ancestral posicionado mais próximo. */
 .etiqueta-fora-de-estoque {
     position: absolute;
     top: 12px;
@@ -135,8 +109,6 @@
     overflow: hidden;
 }
 
-/* .container-imagem-card e .nome-card viraram <a> (spec 008, RF-01) — os
-   dois reset abaixo mantêm a aparência que tinham como <div>/<span>. */
 a.container-imagem-card,
 a.nome-card {
     text-decoration: none;
@@ -158,11 +130,6 @@ a.nome-card {
     color: #000000;
     text-align: center;
     margin-bottom: 8px;
-    /* text-transform: uppercase saiu daqui (spec 015, RF-16) — vivia na
-       base desde antes desta feature. Quem ainda quer caixa alta
-       (o carrossel) aplica sobre si mesmo em vitrine-produtos.css; o
-       catálogo e a lista de favoritos não aplicam nada e mostram a caixa
-       normal do nome de verdade (RF-17). */
     letter-spacing: 0.5px;
     width: 100%;
     display: block;
@@ -183,10 +150,6 @@ a.nome-card {
     gap: 12px;
     align-items: center;
     justify-content: center;
-    /* RF-09 (spec 014): encosta na base do cartão — como o cartão estica até
-       a altura da linha da grade, isto alinha as ações de todos os produtos
-       de uma mesma linha, com nome de uma ou de duas linhas. Nenhuma altura
-       fixa: quem decide é o conteúdo dos vizinhos. */
     margin-top: auto;
 }
 

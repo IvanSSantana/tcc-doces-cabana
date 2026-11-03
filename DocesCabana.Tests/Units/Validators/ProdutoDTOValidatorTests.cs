@@ -127,8 +127,6 @@ public class ProdutoDTOValidatorTests
         Assert.Contains(resultado.Errors, e => e.PropertyName == "Descricao");
     }
 
-    // ── Peso e dimensões (spec 020, RF-02) ───────────────────────────────
-
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]

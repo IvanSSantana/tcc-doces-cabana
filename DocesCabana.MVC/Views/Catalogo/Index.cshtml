@@ -25,19 +25,7 @@
         }
     </nav>
 
-    @* Uma única <form method="get">: caixas de subcategoria, "sem açúcar" e
-       ordenação se submetem juntos (plano §1, spec 012). Sem action: submete
-       para o próprio endereço, preservando o apelido de categoria que já
-       está na URL — mesmo padrão que a 008 usa no seletor de ordenação de
-       avaliações. catalogo.js intercepta o evento "submit" quando consegue
-       carregar; sem ele, o requestSubmit() dos controles internos funciona
-       exatamente como um submit comum (spec 014, RF-05). *@
     <form method="get" class="formulario-catalogo" id="formulario-catalogo">
-        @* Campo oculto do termo (spec 016, RF-05): sem ele, a submissão GET
-           deste formulário — disparada ao trocar ordenação, subcategoria ou
-           "sem açúcar" — reescreveria o endereço só com os próprios campos,
-           perdendo o termo que veio de fora dele (a barra de pesquisa do
-           cabeçalho). *@
         <input type="hidden" name="termo" value="@Model.Termo" />
 
         <div class="grade-catalogo">

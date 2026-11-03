@@ -17,16 +17,13 @@
     gap: 12px;
 }
 
-/* Viewport com overflow escondido para permitir scroll interno */
 .area-carrossel {
     overflow: hidden;
     width: 100%;
-    /* Espaço para evitar cortar a sombra do card em hover */
     padding: 16px 8px;
     margin: -16px -8px;
 }
 
-/* Trilha de slides em Flexbox */
 .itens-carrossel-container {
     display: flex;
     transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
@@ -34,38 +31,29 @@
     will-change: transform;
 }
 
-/* Larguras responsivas dos Slides */
 .item-carrossel {
-    /* 4 cards no desktop (100% / 4 = 25% menos compensação de gap) */
     flex: 0 0 calc(25% - 15px);
     box-sizing: border-box;
 }
 
-/* O cartão de produto passou a ocupar 100% de quem o contém (spec 014,
-   plano §1) — largura é responsabilidade do container, não do componente.
-   Aqui, no carrossel, essa responsabilidade é do item do slide (RF-11):
-   85% preserva a folga que o carrossel sempre teve ao redor do cartão. */
 .item-carrossel .card-produto {
     width: 85%;
 }
 
 @media (max-width: 1024px) {
     .item-carrossel {
-        /* 3 cards no tablet */
         flex: 0 0 calc(33.333% - 13.3px);
     }
 }
 
 @media (max-width: 768px) {
     .item-carrossel {
-        /* 2 cards no tablet menor */
         flex: 0 0 calc(50% - 10px);
     }
 }
 
 @media (max-width: 480px) {
     .item-carrossel {
-        /* 1 card em celulares */
         flex: 0 0 100%;
     }
 }
@@ -135,10 +123,6 @@
     background-color: var(--cor-primaria);
 }
 
-/* O .ToUpper() saiu da view do cartão (spec 015, RF-16) — sem isso, o
-   carrossel voltaria a mostrar caixa normal, quando sempre mostrou caixa
-   alta (RF-17). Escopado aqui, e não na base, porque é só o carrossel que
-   precisa disso agora — o catálogo é quem queria a caixa normal. */
 .vitrine-carrossel .nome-card {
     text-transform: uppercase;
 }

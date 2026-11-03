@@ -25,21 +25,14 @@ public class CarrinhoControllerTests
         _freteServiceMock = new Mock<IFreteService>();
         _pedidoServiceMock = new Mock<IPedidoService>();
         _enderecoServiceMock = new Mock<IEnderecoService>();
-        // Padrão para todo teste que chega a montar a tela — não é o foco
-        // da maioria deles; os que testam o passo em si sobrescrevem.
         _pedidoServiceMock
             .Setup(s => s.MontarPasso(It.IsAny<PassoDoFechamento>(), It.IsAny<CarrinhoDTO>(), It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<int?>()))
             .ReturnsAsync(new PassoDoFechamentoDTO());
         var httpContext = new DefaultHttpContext { Session = new SessaoFalsa() };
-        // O validador é o de verdade, não mockado (spec 020): é lógica pura,
-        // sem dependência externa — mockar esconderia o próprio
-        // comportamento que os testes de CEP inválido/válido querem provar.
         _controller = new CarrinhoController(
             _carrinhoServiceMock.Object, _freteServiceMock.Object, new ConsultaDeFreteDTOValidator(),
             _pedidoServiceMock.Object, _enderecoServiceMock.Object)
         {
-            // Visitante anônimo por padrão; ConfigurarUsuarioAutenticado
-            // substitui isto nos testes que precisam de um usuário logado.
             ControllerContext = new ControllerContext { HttpContext = httpContext }
         };
     }
@@ -115,10 +108,6 @@ public class CarrinhoControllerTests
         Assert.Equal("_ItensDoCarrinho", partial.ViewName);
     }
 
-    // Fase 6 (spec 017): o visitante também acrescenta — não há mais
-    // desafio de login nas ações de escrita. O carrinho dele vive na
-    // sessão, não no banco (CA-12).
-
     [Fact]
     public async Task Dado_Visitante_Quando_Acrescentar_Entao_DeveGuardarNaSessaoENaoUsarOBanco()
     {
@@ -174,8 +163,6 @@ public class CarrinhoControllerTests
         _carrinhoServiceMock.Verify(s => s.Remover(usuarioId, produtoId), Times.Once);
     }
 
-    // ── Esvaziar (spec 021) ──────────────────────────────────────────────
-
     [Fact]
     public async Task Dado_UsuarioAutenticado_Quando_Esvaziar_Entao_DeveChamarOServicoERedirecionar()
     {
@@ -208,8 +195,6 @@ public class CarrinhoControllerTests
 
         Assert.IsType<ViewResult>(resultado);
     }
-
-    // ── Cotação de frete (spec 020) ──────────────────────────────────────
 
     private LinhaDoCarrinhoDTO CriarLinha(
         decimal preco = 10m, short quantidade = 1,
@@ -304,16 +289,9 @@ public class CarrinhoControllerTests
             Times.Once);
     }
 
-    // ── Passos do fechamento (spec 022) ──────────────────────────────────
-
     [Fact]
     public async Task Dado_PassoDesconhecidoNaQuerystring_Quando_Index_Entao_DeveCairNoPrimeiroPasso()
     {
-        // "Desconhecido" aqui é qualquer coisa que não seja um dos quatro
-        // nomes do enum — o próprio model binding do ASP.NET Core resolve
-        // isso para o valor padrão do parâmetro (Carrinho, o primeiro
-        // membro), sem passar pela action. Este teste prova só que, quando
-        // isso acontece, a action monta o passo Carrinho normalmente.
         var usuarioId = Guid.NewGuid();
         ConfigurarUsuarioAutenticado(usuarioId);
         _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
@@ -346,8 +324,6 @@ public class CarrinhoControllerTests
     [Fact]
     public async Task Dado_VisitanteNavegandoDiretoParaEndereco_Quando_Index_Entao_DeveCairNoPassoDeConta()
     {
-        // Sem autenticação, forçar ?passo=Endereco pela URL não deve
-        // oferecer o conteúdo desse passo — cai no de conta (RF-02).
         _carrinhoServiceMock.Setup(s => s.MontarAvulso(It.IsAny<IReadOnlyList<ItemDoCarrinhoDTO>>())).ReturnsAsync(new CarrinhoDTO());
 
         await _controller.Index(passo: PassoDoFechamento.Endereco);
@@ -355,8 +331,6 @@ public class CarrinhoControllerTests
         _pedidoServiceMock.Verify(s => s.MontarPasso(
             PassoDoFechamento.Conta, It.IsAny<CarrinhoDTO>(), null, It.IsAny<Guid?>(), It.IsAny<int?>()), Times.Once);
     }
-
-    // ── Cadastro de endereço no fechamento (spec 022, RF-07) ─────────────
 
     [Fact]
     public async Task Dado_EnderecoValido_Quando_CadastrarEndereco_Entao_DeveChamarOServicoERedirecionarParaOPassoDeEndereco()
@@ -401,9 +375,6 @@ public class CarrinhoControllerTests
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
     }
 
-    // ISession real precisa de um IDistributedCache configurado — pesado
-    // demais para um teste de unidade que só quer provar que o controlador
-    // lê e escreve na sessão certa. Um dicionário em memória basta.
     private sealed class SessaoFalsa : ISession
     {
         private readonly Dictionary<string, byte[]> _valores = new();

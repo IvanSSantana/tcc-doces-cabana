@@ -22,8 +22,6 @@ public class ProdutoControllerTests
         _avaliacaoServiceMock = new Mock<IAvaliacaoService>();
         _controller = new ProdutoController(_produtoServiceMock.Object, _avaliacaoServiceMock.Object)
         {
-            // Visitante anônimo por padrão; ConfigurarUsuarioAutenticado
-            // substitui isto nos testes que precisam de um usuário logado.
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
     }
@@ -85,8 +83,6 @@ public class ProdutoControllerTests
     [Fact]
     public async Task Dado_AutorVotandoNaPropriaAvaliacao_Quando_VotarUtil_Entao_NaoDeveCapturarAExcecao()
     {
-        // RF-21 / Princípio VIII: a ação não faz try/catch — quem decide o que
-        // acontece na tela é o FilterException global, não o controller.
         var usuarioId = Guid.NewGuid();
         var avaliacaoId = Guid.NewGuid();
         ConfigurarUsuarioAutenticado(usuarioId);

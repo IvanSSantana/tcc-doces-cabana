@@ -1,6 +1,3 @@
-/* Campo "Sem açúcar" (spec 012, RF-29) — único checkbox do formulário,
-   por isso o label junta texto e caixa lado a lado em vez de empilhar como
-   os demais campos de .campo-entrada. */
 .campo-caixa-selecao label {
     display: flex;
     flex-direction: row;
@@ -15,16 +12,10 @@
     accent-color: #055C40;
 }
 
-/* spec 016: "Sem açúcar" divide linha com Subcategoria — sem rótulo
-   flutuante acima, então alinha pela base do par para acompanhar a altura
-   do <select> ao lado, em vez de ficar colado no topo da linha. */
 .campo-caixa-selecao {
     justify-content: flex-end;
 }
 
-/* RF-17: Preço/Status e Subcategoria/Sem açúcar dividem a linha em tela
-   larga e empilham na estreita. Mesmo ponto de corte que site.css já usa
-   para o tamanho da fonte (768px). */
 @media (max-width: 767px) {
     .pagina-cadastro-produto .linha-dupla {
         flex-direction: column;

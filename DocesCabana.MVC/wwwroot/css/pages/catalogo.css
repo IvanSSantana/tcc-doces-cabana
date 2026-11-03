@@ -1,5 +1,3 @@
-/* Página do catálogo — spec 012. Tokens escopados em .pagina-catalogo para
-   não vazar para o resto do site (mesmo risco documentado pela 008/009). */
 
 .pagina-catalogo {
   --catalogo-fundo: #FDFBF8;
@@ -17,9 +15,6 @@
   padding: 1.5rem;
 }
 
-/* header.css declara "section { padding: 0 40px; max-width: 1400px; ... }"
-   sem escopo — vaza para qualquer <section> da página (achado da 009,
-   repetido aqui: .conteudo-catalogo é <section>). Reset explícito. */
 .pagina-catalogo section {
   width: auto;
   max-width: none;
@@ -31,7 +26,6 @@
   font-size: 14px;
   color: var(--catalogo-tinta-suave);
   margin-bottom: 1.5rem;
-  /* RF-19 (spec 015): a referência mostra a trilha em caixa alta. */
   text-transform: uppercase;
   gap: 20px;
 }
@@ -45,10 +39,6 @@
   text-decoration: underline;
 }
 
-/* RF-20: o item mais à direita — "Todos" no catálogo completo, o nome da
-   categoria quando há uma — usa a cor de destaque do tema. *:last-child
-   acompanha a marcação sozinho: não precisa de classe extra nem de saber
-   se o último item é link ou texto simples. */
 .trilha-catalogo > *:last-child {
   color: var(--catalogo-coral);
   font-weight: 600;
@@ -60,8 +50,6 @@
   gap: 2rem;
   align-items: start;
 }
-
-/* --- Barra lateral --- */
 
 .barra-lateral-catalogo {
   background-color: #FFFFFF;
@@ -137,12 +125,6 @@
   height: 1rem;
 }
 
-/* RF-21 (spec 015): o <details> vira coluna flexível e o <summary> ganha
-   order:1 — os demais filhos (as subcategorias reveladas) ficam em order:0
-   por padrão, então quando abertos eles aparecem ANTES do controle, que
-   desce para o fim da lista. Fechado, só o summary é visível (o
-   comportamento nativo do <details> não muda), então ele continua
-   aparecendo logo depois das oito principais. */
 .ver-todas-subcategorias {
   display: flex;
   flex-direction: column;
@@ -157,8 +139,6 @@
   margin-top: 0.4rem;
 }
 
-/* RF-22: os dois rótulos vivem na marcação; o estado [open] do próprio
-   <details> decide qual aparece, sem JavaScript. */
 .ver-todas-subcategorias:not([open]) .rotulo-aberto {
   display: none;
 }
@@ -172,27 +152,16 @@
   padding-top: 1rem;
 }
 
-/* --- Conteúdo: cabeçalho, grade, estado vazio --- */
-
-/* Alvo do foco depois da troca parcial (spec 014, RF-18) — não é interativo,
-   então não ganha um contorno de foco visível como um link ou botão
-   ganhariam; só precisa ser alcançável por script, não por Tab. */
 #resultado-catalogo:focus {
   outline: none;
 }
 
-/* Estado de carregamento da troca parcial (spec 014, RF-01) — só aparece
-   depois de um atraso curto (catalogo.js), para não piscar numa resposta
-   rápida. Esmaece em vez de esconder: o resultado anterior continua visível
-   como referência até o novo chegar. */
 .resultado-catalogo--carregando {
   opacity: 0.5;
   transition: opacity 0.15s ease;
   pointer-events: none;
 }
 
-/* Etiqueta removível do termo de busca (spec 016, RF-07) — mesmo verde do
-   resto do desenho de formulário, não o coral (esse é ação de carrinho). */
 .etiqueta-busca-catalogo {
   display: inline-flex;
   align-items: center;
@@ -277,11 +246,6 @@
   gap: 1rem;
 }
 
-/* Arranjo do cartão fiel à referência visual (spec 015, RF-15): imagem com
-   fundo próprio, preço e seletor de quantidade na mesma linha, botão de
-   carrinho ocupando a largura na base. Escopado em .grade-produtos — que a
-   página de favoritos também usa — para não tocar o cartão do carrossel da
-   home (RF-17), que continua com sua própria disposição em coluna. */
 .grade-produtos .card-produto {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -302,10 +266,6 @@
   margin-bottom: 0;
 }
 
-/* Dissolve o agrupamento (não apaga a marcação): .controles-card e
-   .botao-adicionar-card passam a ser netos diretos da grade, para poder
-   colocar o primeiro ao lado do preço e o segundo abaixo, ocupando as duas
-   colunas — sem duplicar HTML entre catálogo e carrossel. */
 .grade-produtos .acoes-card {
   display: contents;
 }
@@ -340,8 +300,6 @@
   border: 1px dashed var(--catalogo-borda);
   border-radius: 12px;
 }
-
-/* --- Paginação --- */
 
 .paginacao-catalogo {
   display: flex;
@@ -379,8 +337,6 @@
 .link-paginacao--desabilitada {
   visibility: hidden;
 }
-
-/* --- Coluna única abaixo de 900px --- */
 
 @media (max-width: 900px) {
   .grade-catalogo {

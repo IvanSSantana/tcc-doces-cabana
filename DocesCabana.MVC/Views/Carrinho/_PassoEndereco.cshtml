@@ -11,9 +11,6 @@
             {
                 var selecionado = endereco.EnderecoId == Model.EnderecoSelecionadoId;
                 <li class="endereco-fechamento@(selecionado ? " endereco-fechamento--selecionado" : "")">
-                    @* RF-06: navegação de verdade — trocar de endereço é um
-                       GET com o id na querystring, funciona sem script
-                       (RN-04); com script, carrinho.js troca só o bloco. *@
                     <a asp-action="Index" asp-route-passo="Endereco" asp-route-enderecoId="@endereco.EnderecoId"
                        data-navegacao-fechamento aria-current="@(selecionado ? "true" : null)">
                         <span class="linha-endereco-fechamento">@endereco.Rua, @endereco.Numero — @endereco.Bairro, @endereco.Cidade/@endereco.Estado</span>
@@ -31,8 +28,6 @@
         <p>Você ainda não tem nenhum endereço cadastrado. Cadastre um abaixo para continuar.</p>
     }
 
-    @* CA-06: sem endereço nenhum, ou querendo mais um, cadastra sem sair
-       do fechamento — reaproveita o mesmo formulário da 018. *@
     <details class="novo-endereco-fechamento"@(Model.Enderecos.Count == 0 ? " open" : "")>
         <summary>@(Model.Enderecos.Count == 0 ? "Cadastrar endereço" : "Cadastrar outro endereço")</summary>
         <partial name="~/Views/Conta/_FormularioEndereco.cshtml" model="new EnderecoDTO()"
@@ -73,8 +68,6 @@
         }
         else if (Model.Cotacao is not null)
         {
-            @* RN-02/CA-19: falha de serviço externo nunca impede usar a
-               tela — só a opção de continuar some. *@
             <p class="mensagem-falha-frete">@Model.Cotacao.Mensagem</p>
         }
     }

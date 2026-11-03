@@ -1,5 +1,3 @@
-/* Meus pedidos (spec 023) — segue o desenho das telas de conta (cartão,
-   menu lateral) e a linguagem de cartão que o carrinho usa. */
 
 .pedidos-vazio {
   color: #6b6b6b;
@@ -20,8 +18,6 @@
 .pedidos-vazio a:hover {
   text-decoration: underline;
 }
-
-/* ── Lista ─────────────────────────────────────────────────────────────── */
 
 .lista-pedidos {
   list-style: none;
@@ -74,8 +70,6 @@
   white-space: nowrap;
 }
 
-/* Etiqueta de situação — vocabulário do cliente, não o do enumerado (plano
-   §3). Cancelado é esmaecido de propósito: desfecho, não erro da tela. */
 .situacao-cartao-pedido {
   display: inline-block;
   width: fit-content;
@@ -109,8 +103,6 @@
   background-color: #EFEAE2;
   color: #9a9a9a;
 }
-
-/* ── Detalhe ───────────────────────────────────────────────────────────── */
 
 .link-voltar-pedidos {
   display: inline-block;

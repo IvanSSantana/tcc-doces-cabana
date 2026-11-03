@@ -111,8 +111,6 @@ header {
   cursor: pointer;
 }
 
-/* RF-17 (spec 014): "Conta" sem tela para levar ainda — esmaecido e sem
-   cursor de clique, para não anunciar uma ação que não existe. */
 .botao-acao--desabilitado {
   opacity: 0.55;
   cursor: default;
@@ -133,8 +131,6 @@ header {
   stroke-linejoin: round;
 }
 
-/* CA-15 (spec 017): a bolha do carrinho — escondida quando vazio, não um
-   "0" desenhado (plano §3). */
 .icone-com-bolha {
   position: relative;
   display: inline-flex;
@@ -161,11 +157,6 @@ header {
 }
 
 .cabecalho-inferior section {
-  /* Contexto de posicionamento do painel do menu (spec 013, plano §1): antes
-     era o próprio item de categoria, que mede a largura do texto — o painel
-     não conseguia crescer além disso. Aqui ele mede a faixa de conteúdo
-     inteira, então `left: 0; right: 0` no painel acompanha o cabeçalho em
-     qualquer viewport. */
   position: relative;
   display: flex;
   align-items: stretch;
@@ -184,10 +175,6 @@ nav {
   align-items: center;
   margin: 0 7px;
   gap: 6px;
-  /* O espaçamento vertical que estava na section (spec 012) muda de lugar
-     para cá (spec 013, plano §1): é o que faz o item de categoria ocupar a
-     altura inteira da barra, para a aba bege do menu aberto encostar nela
-     sem sobra nem falta — mesma altura de antes, só devolvida de outro pai. */
   padding: 12px 0;
   text-decoration: none;
   color: var(--cor-texto);
@@ -214,9 +201,6 @@ nav {
 .botao-favoritos {
   display: flex;
   align-items: center;
-  /* A section virou align-items: stretch para o item de categoria alcançar a
-     altura da barra (spec 013, plano §9, risco 1) — sem isto o botão
-     esticaria com ela e perderia o centro vertical que tinha antes. */
   align-self: center;
   gap: 10px;
   background-color: var(--cor-destaque);
@@ -253,12 +237,6 @@ nav {
   transition: transform 0.5s ease, color 0.2s ease;
 }
 
-/* Menu suspenso das categorias (spec 012, plano §3; geometria corrigida na
-   013). Abre por :hover e por :focus-within — o segundo é o que faz o
-   teclado alcançar o mesmo que o mouse, sem JavaScript nenhum. O item
-   continua sendo o ancestral do painel no DOM (isso não muda), só deixa de
-   ser o contexto de posicionamento — quem virou isso foi a section, um nível
-   acima (RF-02). */
 .item-categoria-nav {
   position: static;
   display: flex;
@@ -270,9 +248,6 @@ nav {
   color: var(--cor-destaque);
 }
 
-/* A aba bege (RF-01): o item aberto ganha o mesmo fundo do painel e perde o
-   cantos inferiores, para se ler como uma peça presa a ele, não dois blocos
-   soltos. */
 .item-categoria-nav:hover,
 .item-categoria-nav:focus-within {
   background-color: #EAE3D8;
@@ -285,9 +260,6 @@ nav {
 }
 
 .submenu-categoria {
-  /* Ancorado na section (RF-02): ela é quem agora tem position: relative e
-     mede a faixa de conteúdo inteira, então left/right: 0 aqui acompanham a
-     largura do cabeçalho em qualquer viewport — não a largura do item. */
   position: absolute;
   top: 100%;
   left: 0;
@@ -295,8 +267,6 @@ nav {
   z-index: 20;
   background-color: #EAE3D8;
   border-radius: 0 0 12px 12px;
-  /* Folga do cartão dentro do painel (RF-03) — visível nos quatro lados
-     mesmo com o painel esticado para a largura inteira da faixa. */
   padding: 28px 40px;
   opacity: 0;
   visibility: hidden;
@@ -336,9 +306,6 @@ nav {
   text-decoration: underline;
 }
 
-/* Abaixo de 900px o menu suspenso por :hover é hostil ao toque — o link da
-   categoria continua levando ao catálogo dela, que tem a mesma lista de
-   subcategorias na barra lateral (RF-10), então nada fica inalcançável. */
 @media (max-width: 900px) {
   .submenu-categoria {
     display: none;

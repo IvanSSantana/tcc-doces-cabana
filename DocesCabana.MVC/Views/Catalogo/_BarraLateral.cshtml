@@ -4,10 +4,6 @@
 
 <h2 class="titulo-barra-lateral">Categorias</h2>
 
-@* Os links de categoria preservam o termo de busca (spec 016, RF-05) —
-   escolher uma categoria depois de buscar estreita o resultado, não
-   recomeça a navegação. Nunca carregam subcategoria: trocar de categoria
-   sempre reseta esse filtro (spec 014 §10). *@
 <ul class="lista-categorias-catalogo">
     <li>
         <a href="@EnderecoDoCatalogo.Montar(Url, null, ordenacao: Model.Ordenacao, termo: Model.Termo)"
@@ -26,7 +22,6 @@
     }
 </ul>
 
-@* RF-11: nenhuma caixa de subcategoria no catálogo completo. *@
 @if (Model.CategoriaAtual is not null && Model.CategoriaAtual.Subcategorias.Count > 0)
 {
     var principais = Model.CategoriaAtual.Subcategorias.Take(8).ToList();
@@ -45,13 +40,8 @@
             </label>
         }
 
-        @* RF-10: as demais ficam sob um "Ver todas" que revela sem
-           recarregar — <details> é nativo, sem JavaScript nenhum. *@
         @if (restantes.Count > 0)
         {
-            @* RF-21/RF-22 (spec 015): os dois rótulos vivem na marcação —
-               o CSS alterna qual aparece pelo estado [open] do próprio
-               <details>, sem precisar de script para trocar texto. *@
             <details class="ver-todas-subcategorias">
                 <summary>
                     <span class="rotulo-fechado">Ver todas</span>
@@ -70,8 +60,6 @@
         }
     </fieldset>
 
-    @* RN-04: filtro à parte — "sem açúcar" é característica do produto,
-       não subcategoria; combina com elas em vez de competir. *@
     <div class="filtro-sem-acucar">
         <label class="opcao-filtro-catalogo">
             <input type="checkbox" name="semAcucar" value="true"

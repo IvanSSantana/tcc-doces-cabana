@@ -1,8 +1,6 @@
 @using DocesCabana.Application.DTOs
 @model EnderecoDTO
 @{
-    // O mesmo formulário serve cadastro e edição (plano §4) — a presença de
-    // um EnderecoId de verdade é o que distingue os dois.
     var eEdicao = Model.EnderecoId != Guid.Empty;
     ViewData["Title"] = eEdicao ? "Editar endereço" : "Novo endereço";
     ViewData["PaginaAtiva"] = "Enderecos";

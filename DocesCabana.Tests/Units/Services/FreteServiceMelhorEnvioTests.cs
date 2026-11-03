@@ -6,12 +6,8 @@ using Microsoft.Extensions.Options;
 
 namespace DocesCabana.Tests.Units.Services;
 
-// Prova o mapeamento contra o exemplo real da documentação do MelhorEnvio
-// (spec 020, plano §4) — sem credencial nenhuma: o HttpClient é apontado
-// para um handler falso que devolve o JSON documentado, nunca a rede.
 public class FreteServiceMelhorEnvioTests
 {
-    // Handler falso — só devolve o que o teste configurar, sem tocar rede.
     private sealed class HandlerFalso : HttpMessageHandler
     {
         private readonly HttpStatusCode _status;
@@ -35,9 +31,6 @@ public class FreteServiceMelhorEnvioTests
         }
     }
 
-    // Recorte do exemplo real de resposta da documentação (spec 020,
-    // parte da conversa em que a documentação foi obtida) — PAC, SEDEX e
-    // uma entrada sem custom_price utilizável, para provar o descarte.
     private const string RespostaDocumentada = """
     [
       {
@@ -109,8 +102,6 @@ public class FreteServiceMelhorEnvioTests
     [Fact]
     public async Task Dado_RespostaDocumentada_Quando_Cotar_Entao_DeveUsarCustomPriceENaoPrice()
     {
-        // Armadilha 1 (plano §4): custom_price reflete taxas/descontos da
-        // conta; price é o valor "de tabela", que não deve ser usado.
         var handler = new HandlerFalso(HttpStatusCode.OK, RespostaDocumentada);
         var servico = CriarServico(handler);
 
@@ -123,10 +114,6 @@ public class FreteServiceMelhorEnvioTests
     [Fact]
     public async Task Dado_RespostaDocumentada_Quando_Cotar_Entao_PrecoComPontoDecimalNaoDeveVirarMilhar()
     {
-        // Armadilha 2 (plano §4): a aplicação é pt-BR — Parse sem
-        // InvariantCulture transformaria "46.23" em 4623, não 46,23. É a
-        // única das três armadilhas que passaria despercebida por qualquer
-        // asserção relacional (preço > 0, distante custa mais).
         var handler = new HandlerFalso(HttpStatusCode.OK, RespostaDocumentada);
         var servico = CriarServico(handler);
 

@@ -5,10 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration;
 
-// Banco no Postgres do Supabase (spec 028) — um contêiner descartável
-// compartilhado pela suíte inteira (PostgresDeTeste), um banco novo por
-// teste dentro dele. Era InfraestruturaSqliteEmMemoria; o nome muda porque
-// o Princípio IV manda o nome dizer o que a classe é.
 public abstract class InfraestruturaPostgresDescartavel : IAsyncLifetime
 {
     protected DocesCabanaDbContext Contexto = null!;
@@ -25,19 +21,8 @@ public abstract class InfraestruturaPostgresDescartavel : IAsyncLifetime
         await Contexto.Database.EnsureCreatedAsync();
     }
 
-    // Sem DROP DATABASE aqui de propósito: o contêiner inteiro (e todos os
-    // bancos criados dentro dele) some quando o Ryuk do Testcontainers
-    // derruba o contêiner ao fim do processo. Tentar apagar cada banco
-    // individualmente exigiria fechar o pool de conexões primeiro — custo
-    // sem ganho, já que nada disso sobrevive além da execução da suíte.
     public async Task DisposeAsync() => await Contexto.DisposeAsync();
 
-    /// <summary>
-    /// Persiste uma categoria e uma subcategoria válidas e devolve o
-    /// SubcategoriaId, para testes que precisam de um produto com chave
-    /// estrangeira real (a FK de Produto.SubcategoriaId passou a ser
-    /// enforçada a partir da spec 003).
-    /// </summary>
     protected async Task<Guid> SemearSubcategoria()
     {
         var categoria = new Categoria("Doces");
@@ -50,12 +35,6 @@ public abstract class InfraestruturaPostgresDescartavel : IAsyncLifetime
         return subcategoria.SubcategoriaId;
     }
 
-    /// <summary>
-    /// Persiste as duas metades de um usuário válido — a ContaDeAcesso e o
-    /// Usuario do domínio, com o mesmo Guid — e devolve o identificador
-    /// compartilhado, para testes que precisam de uma entidade com FK real
-    /// para Usuario (Endereco, Favorito, Avaliacao, Pedido).
-    /// </summary>
     protected async Task<Guid> SemearUsuario(string nome = "Cliente Teste", string cpf = "52998224725")
     {
         var conta = new ContaDeAcesso($"{Guid.NewGuid():N}@teste.com");
@@ -69,15 +48,6 @@ public abstract class InfraestruturaPostgresDescartavel : IAsyncLifetime
         return conta.Id;
     }
 
-    /// <summary>
-    /// Persiste uma avaliação. <paramref name="dataCriacao"/> permite
-    /// controlar a data para testes de ordenação — sem isso, avaliações
-    /// criadas na mesma passagem de teste podem cair no mesmo instante e
-    /// tornar a ordenação por "mais recentes" indeterminística. O construtor
-    /// público não expõe esse parâmetro de propósito (RN-09: a data é sempre
-    /// "agora"); aqui é reflection, o mesmo backdoor de teste já usado em
-    /// outras entidades desta base.
-    /// </summary>
     protected async Task<Avaliacao> SemearAvaliacao(
         Guid produtoId, Guid usuarioId, byte nota, string? comentario = null, DateTime? dataCriacao = null)
     {

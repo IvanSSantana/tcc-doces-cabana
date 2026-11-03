@@ -25,10 +25,6 @@ public class AutenticacaoControllerTests
     {
         _usuarioServiceMock = new Mock<IUsuarioService>();
 
-        // IUrlHelper.IsLocalUrl é membro real da interface (não extensão) —
-        // um mock sem Setup devolve false sempre, então precisa da mesma
-        // regra que a implementação real usa: caminho começando em "/",
-        // sem ser "//" nem "/\" (protocolo-relativo), é local.
         var urlHelperMock = new Mock<IUrlHelper>();
         urlHelperMock.Setup(u => u.IsLocalUrl(It.IsAny<string>()))
             .Returns((string url) => !string.IsNullOrEmpty(url)
@@ -108,8 +104,6 @@ public class AutenticacaoControllerTests
     [Fact]
     public async Task Dado_RetornoLocal_Quando_LoginPost_Entao_DeveVoltarParaEle()
     {
-        // RF-13 (spec 015): quem entra a partir de uma página do catálogo
-        // volta para ela, não para a home.
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
             .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
@@ -123,8 +117,6 @@ public class AutenticacaoControllerTests
     [Fact]
     public async Task Dado_RetornoExterno_Quando_LoginPost_Entao_DeveIrParaHome()
     {
-        // RF-14/RN-04: endereço de retorno para fora do site é descartado —
-        // sem isso, a tela de login vira trampolim para outro domínio.
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
             .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
@@ -139,8 +131,6 @@ public class AutenticacaoControllerTests
     [Fact]
     public async Task Dado_RetornoProtocoloRelativo_Quando_LoginPost_Entao_DeveIrParaHome()
     {
-        // "//site-malicioso.com" não começa com "/" seguido de caractere que
-        // não seja "/" — IsLocalUrl recusa esse formato de propósito.
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
             .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);

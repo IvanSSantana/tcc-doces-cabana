@@ -1,8 +1,6 @@
 @using DocesCabana.Application.DTOs
 @model CotacaoDeFreteDTO
 
-@* RF-06/RF-10 (spec 020): a lista de opções, ou a mensagem de falha —
-   RN-02, falha de serviço externo nunca vira exceção, só mensagem. *@
 @if (Model.Mensagem is not null)
 {
     <p class="mensagem-falha-frete">@Model.Mensagem</p>

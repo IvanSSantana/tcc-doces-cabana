@@ -3,13 +3,8 @@ using DocesCabana.MVC.Helpers;
 
 namespace DocesCabana.Tests.Units.Helpers;
 
-// GerarProdutosMock é internal (InternalsVisibleTo em DocesCabana.MVC.csproj),
-// mesmo padrão de GerarAvaliacoesMock/GeradorDeAvaliacoesTests — função pura,
-// sem DbContext, testável como unidade mesmo vivendo em DbInitializer.
 public class DbInitializerProdutosTests
 {
-    // Monta o mesmo formato que DbInitializer.Semear monta a partir do banco,
-    // reaproveitando a Taxonomia real em vez de duplicar nomes à parte.
     private static Dictionary<string, Dictionary<string, Subcategoria>> MontarSubcategoriasPorCategoria()
     {
         var resultado = new Dictionary<string, Dictionary<string, Subcategoria>>();
@@ -23,10 +18,6 @@ public class DbInitializerProdutosTests
         return resultado;
     }
 
-    // RF-03/CA-03 (spec 020): prova que os cem produtos gerados nascem com
-    // as quatro medidas > 0 — sem isso, o construtor de Produto (RN-01)
-    // teria recusado a semeadura inteira, e é isso que este teste garante
-    // que nunca acontece silenciosamente.
     [Fact]
     public void Dado_ATaxonomiaReal_Quando_GerarProdutosMock_Entao_TodoProdutoDeveTerAsQuatroMedidasMaioresQueZero()
     {
@@ -44,10 +35,6 @@ public class DbInitializerProdutosTests
         });
     }
 
-    // CA-09/plano §5: é o par que faz o peso cubado da transportadora
-    // divergir do peso real — Adega pesada e compacta, Souvenir leve e
-    // volumosa. Sem essa diferença por categoria, nenhum critério sobre
-    // volume seria satisfazível.
     [Fact]
     public void Dado_ATaxonomiaReal_Quando_GerarProdutosMock_Entao_AdegaDeveSerMaisPesadaQueSouvenirEMenosVolumosa()
     {

@@ -2,12 +2,6 @@ using DocesCabana.Tests.Integration;
 
 namespace DocesCabana.Tests.Units.Infraestrutura;
 
-// RF-09/RN-05, CA-07 (spec 028): quando falta o pré-requisito de ambiente
-// para a suíte (Docker Desktop desligado), a mensagem precisa dizer o que
-// ligar e o que a suíte não faz — não deixar o erro cru do Testcontainers
-// (algo como "npipe" ou "daemon") falar sozinho. Mesma lição da 020
-// (UserAgent vazio) e da 027 (UrlBase vazia): erro de ambiente descreve a
-// causa, não o sintoma.
 public class MensagemDePostgresIndisponivelTests
 {
     [Fact]

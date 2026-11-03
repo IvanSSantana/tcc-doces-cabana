@@ -4,9 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-// Cobre a chave composta de Favorito(ProdutoId, UsuarioId), criada desde a
-// migration da spec 003 — é ela quem garante RN-01 (par único) no banco,
-// sem barreira de validação adicional (spec 015, plano §10).
 public class FavoritoIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]
@@ -21,9 +18,6 @@ public class FavoritoIntegrationTests : InfraestruturaPostgresDescartavel
         Contexto.Favoritos.Add(new Favorito(produto.ProdutoId, usuarioId));
         await Contexto.SaveChangesAsync();
 
-        // (ProdutoId, UsuarioId) é a própria chave primária de Favorito, não
-        // um índice único à parte (como em Avaliacao) — o ChangeTracker já
-        // recusa a segunda instância em memória, antes de chegar ao banco.
         Assert.Throws<InvalidOperationException>(() =>
             Contexto.Favoritos.Add(new Favorito(produto.ProdutoId, usuarioId)));
     }

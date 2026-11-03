@@ -55,9 +55,6 @@ public class DadosPessoaisDTOValidatorTests
         Assert.Contains(resultado.Errors, e => e.PropertyName == "DataNascimento");
     }
 
-    // Plano §9, risco 7: DadosPessoaisDTOValidator reaproveita as regras de
-    // CadastroDTOValidator em vez de reescrevê-las — este teste prova que os
-    // dois concordam para o mesmo valor inválido, em vez de assumir.
     [Theory]
     [InlineData("123")]
     [InlineData("")]

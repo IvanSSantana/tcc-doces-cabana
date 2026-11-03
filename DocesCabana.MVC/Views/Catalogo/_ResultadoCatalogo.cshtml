@@ -14,21 +14,9 @@
     };
 }
 
-@* Bloco que a atualização sem recarga substitui inteiro (spec 014, RF-01):
-   contagem, ordenação, grade (ou mensagem vazia) e paginação. O filtro de
-   subcategoria e o "sem açúcar" ficam de fora de propósito — vivem na barra
-   lateral, que não recarrega ao trocar filtro (só ao trocar de categoria,
-   spec §10).
-
-   tabindex="-1" é o alvo do foco depois da troca (RF-18) — sem isso, quem
-   navega por teclado é jogado para o início do documento a cada filtro ou
-   página nova. Não é focável por Tab, só programaticamente. *@
 <div id="resultado-catalogo" tabindex="-1">
     @if (!string.IsNullOrWhiteSpace(Model.Termo))
     {
-        @* Etiqueta removível (RF-07): um link comum para o mesmo endereço
-           sem o termo, preservando os demais filtros — não script, então
-           continua funcionando sem JavaScript. *@
         <div class="etiqueta-busca-catalogo">
             <span>@Model.Termo</span>
             <a href="@EnderecoDoCatalogo.Montar(Url, Model.CategoriaAtual?.Apelido, Model.SubcategoriasMarcadas, Model.ApenasSemAcucar, Model.Ordenacao)"
@@ -39,20 +27,12 @@
     }
 
     <div class="cabecalho-conteudo-catalogo">
-        @* aria-live (RF-04): quem usa leitor de tela ouve a nova contagem
-           assim que ela troca, sem precisar navegar até aqui de novo. *@
         <span class="contagem-catalogo" aria-live="polite">
             @Model.Pagina.TotalDeItens produto@(Model.Pagina.TotalDeItens == 1 ? "" : "s")
         </span>
 
         <div class="controle-ordenacao">
             <label for="select-ordenacao">Ordenar por</label>
-            @* requestSubmit() (não submit()) é o que permite ao script
-               interceptar via evento "submit" sem quebrar quem não tem
-               JavaScript — sem ele, chamar submit() no elemento pula o
-               evento e a interceptação nunca aconteceria (spec 014, plano §1). *@
-            @* RF-26 (spec 022): "Mais vendidos" deixou de ser anunciada e
-               recusada (RN-07 da 014) — agora executa de verdade. *@
             <select id="select-ordenacao" name="ordenacao" onchange="this.form.requestSubmit()">
                 @foreach (var opcao in Enum.GetValues<OrdenacaoCatalogo>())
                 {
@@ -70,8 +50,6 @@
 
     @if (Model.Pagina.Itens.Count == 0)
     {
-        @* RF-08: quem chegou buscando recebe uma explicação sobre a busca,
-           não um conselho sobre filtro que não marcou. *@
         if (!string.IsNullOrWhiteSpace(Model.Termo))
         {
             <p class="catalogo-vazio">

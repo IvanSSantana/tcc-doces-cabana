@@ -13,9 +13,6 @@ public class PaginaInicial
     public ILocator TituloDaVitrine => _pagina.Locator(".pagina-inicial-vitrine").Locator("xpath=preceding-sibling::h2[1]");
     public ILocator CardsDaVitrine => _pagina.Locator(".pagina-inicial-vitrine .card-produto");
     public ILocator BotaoFavoritar(int indice = 0) => CardsDaVitrine.Nth(indice).Locator(".botao-favorito-card");
-    // :visible é seletor próprio do Playwright, não CSS padrão — necessário
-    // porque o carrossel esconde os pontos além do índice máximo com
-    // `display: none` via script, sem remover do DOM (RF-08, spec 013).
     public ILocator PontosVisiveis => _pagina.Locator(".pagina-inicial-vitrine .ponto-indicador:visible");
 
     public ILocator FaixaDeConteudo => _pagina.Locator(".cabecalho-inferior section");
@@ -32,8 +29,6 @@ public class PaginaInicial
     public async Task<string?> CorDeFundoDoPainel() =>
         await PainelDoMenu.EvaluateAsync<string>("el => getComputedStyle(el).backgroundColor");
 
-    // Busca por nome de produto (spec 016) — presente no cabeçalho de
-    // qualquer página, não só da home.
     public ILocator BarraDePesquisa => _pagina.Locator(".barra-pesquisa input[name='termo']");
     public ILocator BotaoPesquisar => _pagina.Locator(".botao-pesquisar");
 

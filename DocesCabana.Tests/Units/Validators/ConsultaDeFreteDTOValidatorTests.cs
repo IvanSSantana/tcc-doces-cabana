@@ -7,9 +7,6 @@ public class ConsultaDeFreteDTOValidatorTests
 {
     private readonly ConsultaDeFreteDTOValidator _validator = new();
 
-    // RF-09/CA-10 (spec 020): CEP com formato inválido é recusado **antes**
-    // de qualquer consulta ao serviço de entrega — é a barreira de entrada
-    // que torna o CA-10 verificável sem rede.
     [Fact]
     public void Dado_CepVazio_Quando_Validar_Entao_DeveSerInvalido()
     {

@@ -3,10 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
-// Cobre o índice único de Avaliacao(UsuarioId, ProdutoId) — a barreira que a
-// spec 014 (RF-15/RN-01) usa em vez de validação de formulário, porque não
-// existe entrada de usuário para validar enquanto a tela de escrever
-// avaliação não existir (plano 014 §10).
 public class AvaliacaoIntegrationTests : InfraestruturaPostgresDescartavel
 {
     [Fact]

@@ -66,7 +66,6 @@ body {
   width: 100%;
 }
 
-/* Remove o icone nativo de senhas do Google Edge */
 input::-ms-reveal,
 input::-ms-clear {
   display: none;

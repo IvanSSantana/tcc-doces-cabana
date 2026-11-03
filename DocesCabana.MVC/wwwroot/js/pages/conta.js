@@ -1,7 +1,3 @@
-// Área de conta (spec 018): máscaras de celular/data (dados pessoais) e CEP
-// (endereço), mais a busca automática por CEP. Tudo aqui é conveniência —
-// RN-07: falha, demora ou CEP inexistente nunca impedem o cadastro, os
-// campos já nascem preenchíveis à mão (RF-19/CA-21).
 document.addEventListener("DOMContentLoaded", function () {
     "use strict";
 
@@ -30,7 +26,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return formatado;
     }
 
-    // ── Dados pessoais ───────────────────────────────────────────────────
     const campoCelular = document.querySelector("input[name='Celular']");
     if (campoCelular) {
         campoCelular.addEventListener("input", (e) => { e.target.value = formatarTelefone(e.target.value); });
@@ -41,7 +36,6 @@ document.addEventListener("DOMContentLoaded", function () {
         campoDataNascimento.addEventListener("input", (e) => { e.target.value = formatarData(e.target.value); });
     }
 
-    // ── Endereço: máscara e busca por CEP ────────────────────────────────
     const campoCep = document.querySelector("[data-campo-cep]");
     if (!campoCep) return;
 
@@ -56,23 +50,14 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!resposta.ok) return;
 
             const dados = await resposta.json();
-            // ViaCEP devolve 200 com { erro: true } para CEP bem formado
-            // mas inexistente — não é falha de rede, mas o resultado é o
-            // mesmo: os campos continuam como estavam (RN-07).
             if (dados.erro) return;
 
             const mapa = { Estado: dados.uf, Cidade: dados.localidade, Bairro: dados.bairro, Rua: dados.logradouro };
             document.querySelectorAll("[data-preenchido-por-cep]").forEach((campo) => {
-                // Só sobrescreve o que o CEP de fato trouxe — um campo que
-                // a resposta não incluiu (raro, mas o formato não garante
-                // todos) não é apagado.
                 const valor = mapa[campo.name];
                 if (valor) campo.value = valor;
             });
         } catch {
-            // Falha de rede, timeout, serviço fora do ar: os campos
-            // continuam vazios e preenchíveis à mão — não é erro do
-            // usuário, não há mensagem alarmante (RN-07/CA-20).
         }
     }
 

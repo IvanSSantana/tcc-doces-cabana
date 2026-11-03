@@ -1,6 +1,3 @@
-/* Fileira de estrelas com preenchimento fracionário (view component
-   EstrelasNota) — reaproveitada na média grande, na nota de cada avaliação
-   e, futuramente, no formulário de escrever avaliação. */
 
 .fileira-estrelas {
   display: inline-flex;

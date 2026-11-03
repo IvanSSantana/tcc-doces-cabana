@@ -2,8 +2,6 @@ using Microsoft.Playwright;
 
 namespace DocesCabana.Tests.E2E.Paginas;
 
-// Caminho sem JavaScript da RF-11 (spec 021) — página própria, não diálogo:
-// /Carrinho/ConfirmarEsvaziar.
 public class PaginaConfirmarEsvaziarCarrinho
 {
     private readonly IPage _pagina;

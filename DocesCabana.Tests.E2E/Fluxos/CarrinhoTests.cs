@@ -11,11 +11,6 @@ public class CarrinhoTests : TesteE2E
 
     public CarrinhoTests(FixtureE2E fixture) : base(fixture) { }
 
-    // Cada teste entra com uma conta nova, com carrinho garantidamente
-    // pristino — o carrinho é tabela nova só desta feature, mas usar conta
-    // dedicada evita qualquer acoplamento entre testes desta classe (RN-03
-    // da 007) e permite asserções exatas (CA-08/CA-09/CA-10 dependem de
-    // partir de um estado conhecido).
     private async Task<string> CriarClienteEEntrar()
     {
         var email = GeradorDeDados.EmailUnico("carrinho");
@@ -34,8 +29,6 @@ public class CarrinhoTests : TesteE2E
         return email;
     }
 
-    // Guid de um produto ativo real, lido do catálogo — evita depender de
-    // um identificador fixo, que mudaria se o seed for regerado.
     private async Task<Guid> ObterProdutoAtivo(int indice = 0)
     {
         var pagina = new PaginaCatalogo(Pagina);
@@ -44,19 +37,11 @@ public class CarrinhoTests : TesteE2E
         return Guid.Parse(texto!);
     }
 
-    // Sem tela administrativa para inativar/reativar produto (mesma
-    // limitação que a `015` registrou para CA-10 dela), este teste altera o
-    // status direto no banco de teste — uma conexão isolada e de curta
-    // duração, sem transação aberta, não disputa lock com o Postgres da
-    // aplicação em execução.
     private void AlterarStatusDoProduto(Guid produtoId, byte status)
     {
         using var conexao = new NpgsqlConnection(Aplicacao.ConexaoDoBanco);
         conexao.Open();
         using var comando = conexao.CreateCommand();
-        // ProdutoId é uuid de verdade no Postgres (spec 028) — a comparação
-        // é direta, sem o UPPER() dos dois lados que o SQLite exigia por
-        // guardar o Guid como texto maiúsculo.
         comando.CommandText = """UPDATE "Produto" SET "Status" = @status WHERE "ProdutoId" = @id""";
         comando.Parameters.AddWithValue("status", status);
         comando.Parameters.AddWithValue("id", produtoId);
@@ -118,7 +103,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_ItemComQuantidadeUm_Quando_Diminuir_Entao_DeveSairDoCarrinho() =>
         await Executar(async () =>
         {
-            // RN-02: reduzir abaixo de 1 remove o item.
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -188,7 +172,6 @@ public class CarrinhoTests : TesteE2E
             var pagina = new PaginaCarrinho(Pagina);
             await pagina.SemearItem(UrlBase, produtoId, 1);
 
-            // ProdutoStatus.Inativo = 0 (Domain/Enums/ProdutoStatus.cs).
             AlterarStatusDoProduto(produtoId, 0);
 
             try
@@ -201,12 +184,7 @@ public class CarrinhoTests : TesteE2E
             }
             finally
             {
-                // O produto é compartilhado pela suíte inteira (mesma
-                // instância da aplicação, RN da ColecaoE2E) — deixá-lo
-                // Inativo vazaria para o ObterProdutoAtivo() de outro teste,
-                // que poderia escolher um produto ForaDeEstoque/Inativo sem
-                // saber e receber 400 ao semear (RN-06).
-                AlterarStatusDoProduto(produtoId, 1); // Ativo de novo
+                AlterarStatusDoProduto(produtoId, 1);
             }
         });
 
@@ -221,8 +199,8 @@ public class CarrinhoTests : TesteE2E
             await pagina.SemearItem(UrlBase, produtoInativo, 1);
             await pagina.SemearItem(UrlBase, produtoForaDeEstoque, 1);
 
-            AlterarStatusDoProduto(produtoInativo, 0);       // Inativo
-            AlterarStatusDoProduto(produtoForaDeEstoque, 2); // ForaDeEstoque
+            AlterarStatusDoProduto(produtoInativo, 0);
+            AlterarStatusDoProduto(produtoForaDeEstoque, 2);
 
             try
             {
@@ -235,9 +213,6 @@ public class CarrinhoTests : TesteE2E
             }
             finally
             {
-                // Mesmo motivo do teste acima: sem restaurar, os dois
-                // produtos ficam permanentemente fora do "disponível para
-                // compra" e vazam para o restante da suíte.
                 AlterarStatusDoProduto(produtoInativo, 1);
                 AlterarStatusDoProduto(produtoForaDeEstoque, 1);
             }
@@ -252,11 +227,11 @@ public class CarrinhoTests : TesteE2E
             var pagina = new PaginaCarrinho(Pagina);
             await pagina.SemearItem(UrlBase, produtoId, 1);
 
-            AlterarStatusDoProduto(produtoId, 0); // Inativo
+            AlterarStatusDoProduto(produtoId, 0);
             await pagina.Abrir(UrlBase);
             var subtotalIndisponivel = await pagina.Subtotal.InnerTextAsync();
 
-            AlterarStatusDoProduto(produtoId, 1); // Ativo de novo
+            AlterarStatusDoProduto(produtoId, 1);
             await pagina.Abrir(UrlBase);
             var subtotalDisponivel = await pagina.Subtotal.InnerTextAsync();
 
@@ -267,8 +242,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_NaoAutenticado_Quando_AcrescentarAoCarrinho_Entao_DeveVerEAlterar() =>
         await Executar(async () =>
         {
-            // CA-12: sem login — o carrinho avulso vive na sessão, não na
-            // conta. Nenhum CriarClienteEEntrar() aqui de propósito.
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
             await pagina.SemearItem(UrlBase, produtoId, 1);
@@ -284,9 +257,6 @@ public class CarrinhoTests : TesteE2E
             await Expect(item.Locator(".valor-quantidade-carrinho")).ToHaveTextAsync("2");
         });
 
-    // CA-13 e CA-14 são os testes mais frágeis da feature (plano §7):
-    // sessão, autenticação e uma transferência de estado entre dois
-    // armazenamentos, tudo na mesma jornada.
     [Fact]
     public async Task Dado_CarrinhosNosDoisLados_Quando_Entrar_Entao_AsQuantidadesDevemSomar() =>
         await Executar(async () =>
@@ -294,15 +264,12 @@ public class CarrinhoTests : TesteE2E
             var email = await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
-            await pagina.SemearItem(UrlBase, produtoId, 3); // guardado, autenticado
+            await pagina.SemearItem(UrlBase, produtoId, 3);
 
             await Sair();
-            // Logout cai em /Autenticacao/Login, que usa _LayoutNaoAutenticado
-            // (sem @Html.AntiForgeryToken()) — SemearItem precisa de uma
-            // página com o token presente antes de rodar o fetch.
             await Pagina.GotoAsync(UrlBase);
 
-            await pagina.SemearItem(UrlBase, produtoId, 2); // avulso, visitante
+            await pagina.SemearItem(UrlBase, produtoId, 2);
 
             var paginaLogin = new PaginaLogin(Pagina);
             await paginaLogin.Abrir(UrlBase);
@@ -310,7 +277,6 @@ public class CarrinhoTests : TesteE2E
 
             await pagina.Abrir(UrlBase);
 
-            // RN-05: 3 (guardado) + 2 (avulso) = 5.
             await Expect(pagina.ItemPeloProduto(produtoId).Locator(".valor-quantidade-carrinho")).ToHaveTextAsync("5");
         });
 
@@ -323,21 +289,19 @@ public class CarrinhoTests : TesteE2E
             var pagina = new PaginaCarrinho(Pagina);
 
             await Sair();
-            await Pagina.GotoAsync(UrlBase); // mesmo motivo do teste acima
-            await pagina.SemearItem(UrlBase, produtoId, 1); // avulso, visitante
+            await Pagina.GotoAsync(UrlBase);
+            await pagina.SemearItem(UrlBase, produtoId, 1);
 
             var paginaLogin = new PaginaLogin(Pagina);
             await paginaLogin.Abrir(UrlBase);
             await paginaLogin.Entrar(email, SenhaValida);
-            await pagina.Abrir(UrlBase); // dispara o filtro de fusão, que limpa a sessão
+            await pagina.Abrir(UrlBase);
 
             await Sair();
             await pagina.Abrir(UrlBase);
 
             await Expect(pagina.MensagemVazia).ToBeVisibleAsync();
         });
-
-    // ── Fase 8 — os controles voltam a ligar ao carrinho de verdade ────
 
     [Fact]
     public async Task Dado_ClienteAutenticado_Quando_AcrescentarDoCartao_Entao_DeveEntrarNoCarrinho() =>
@@ -409,12 +373,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_JavaScriptDesligado_Quando_AcrescentarAlterarERemover_Entao_OsTresDevemFuncionar() =>
         await Executar(async () =>
         {
-            // RF-01/RF-18: sem script, cada um dos três continua um POST
-            // comum, resolvido por POST-Redirect-Get (plano §3). Usa o
-            // cliente do seed em vez de cadastrar (mesmo motivo de
-            // FavoritosTests): o cadastro depende de máscaras em JavaScript
-            // (autenticacao.js) para formatar celular/CPF/data — sem script,
-            // o formulário nem chegaria a validar.
             await using var contextoSemScript = await Navegador.NewContextAsync(new() { JavaScriptEnabled = false });
             var paginaSemScript = await contextoSemScript.NewPageAsync();
 
@@ -426,7 +384,6 @@ public class CarrinhoTests : TesteE2E
             await paginaCatalogo.Abrir(UrlBase, "doces");
             var produtoId = Guid.Parse((await paginaCatalogo.Cards.First.GetAttributeAsync("data-produto-id"))!);
 
-            // Acrescentar: sem script, o botão soma uma unidade (plano §3).
             await paginaCatalogo.Cards.First.Locator(".botao-adicionar-card").ClickAsync();
             await Expect(paginaSemScript).ToHaveURLAsync($"{UrlBase}/Carrinho");
 
@@ -434,12 +391,9 @@ public class CarrinhoTests : TesteE2E
             var item = pagina.ItemPeloProduto(produtoId);
             await Expect(item.Locator(".valor-quantidade-carrinho")).ToHaveTextAsync("1");
 
-            // Alterar: o botão "mais" já carrega o valor final como
-            // name/value (_ItensDoCarrinho.cshtml) — funciona sem script.
             await item.Locator(".botao-quantidade-carrinho.mais").ClickAsync();
             await Expect(item.Locator(".valor-quantidade-carrinho")).ToHaveTextAsync("2");
 
-            // Remover.
             await item.Locator(".botao-remover-carrinho").ClickAsync();
             await Expect(pagina.ItemPeloProduto(produtoId)).ToHaveCountAsync(0);
             await Expect(pagina.MensagemVazia).ToBeVisibleAsync();
@@ -455,9 +409,6 @@ public class CarrinhoTests : TesteE2E
             await pagina.SemearItem(UrlBase, produtoId, 1);
             await pagina.Abrir(UrlBase);
 
-            // Marca um elemento fora do bloco que a atualização substitui —
-            // se a página recarregar, ele desaparece e a leitura seguinte
-            // falha (mesmo padrão de FavoritosTests).
             await Pagina.EvaluateAsync("() => { document.body.dataset.marcadorDeRecarga = 'presente'; }");
 
             await pagina.AumentarQuantidade(produtoId);
@@ -467,13 +418,10 @@ public class CarrinhoTests : TesteE2E
             await Expect(pagina.ItemPeloProduto(produtoId).Locator(".valor-quantidade-carrinho")).ToHaveTextAsync("2");
         });
 
-    // ── Redesenho do carrinho (spec 021) ─────────────────────────────────
-
     [Fact]
     public async Task Dado_ItemDisponivel_Quando_AbrirOCarrinho_Entao_OCartaoDeveTerImagemNomePrecoQuantidadeESubtotal() =>
         await Executar(async () =>
         {
-            // CA-01
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -492,7 +440,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_TelaDoCarrinho_Quando_OlharOCupom_Entao_DeveEstarDesabilitadoEExplicado() =>
         await Executar(async () =>
         {
-            // CA-06
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -508,12 +455,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_TelaDoCarrinho_Quando_OlharOBotaoDeFinalizar_Entao_DeveLevarAoFechamento() =>
         await Executar(async () =>
         {
-            // CA-07 da spec 021 previa o botão desabilitado, "fechamento
-            // ainda não disponível" — a spec 022 implementou o fechamento,
-            // e o botão agora navega para o primeiro passo dele (RF-01).
-            // Reescrito aqui pela mesma razão que a 019 reescreveu os
-            // testes que a 022 sabia que ia derrubar: correção esperada,
-            // não regressão.
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -525,9 +466,6 @@ public class CarrinhoTests : TesteE2E
 
             await pagina.BotaoFinalizar.ClickAsync();
 
-            // Com JavaScript, o clique troca só #itens-carrinho — a URL não
-            // muda (RF-05); o passo ativo no indicador é a prova de que
-            // navegou de verdade.
             await Expect(Pagina.Locator(".passo-fechamento--ativo")).ToHaveTextAsync("Endereço");
         });
 
@@ -535,7 +473,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_NenhumaEntregaCalculada_Quando_OlharOResumo_Entao_ODestaqueDeveSerSubtotal() =>
         await Executar(async () =>
         {
-            // CA-04
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -550,7 +487,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_ItemNoCarrinho_Quando_PedirParaEsvaziar_Entao_DevePerguntarAntesDeRemoverNada() =>
         await Executar(async () =>
         {
-            // CA-08
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -567,7 +503,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_PerguntaDeEsvaziarAberta_Quando_Confirmar_Entao_DeveRemoverTudoEOferecerOCatalogo() =>
         await Executar(async () =>
         {
-            // CA-09
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -585,7 +520,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_PerguntaDeEsvaziarAberta_Quando_Desistir_Entao_NadaDeveSerRemovido() =>
         await Executar(async () =>
         {
-            // CA-10
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -603,7 +537,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_ItemNoCarrinho_Quando_VoltarAoCatalogoEAoCarrinho_Entao_OItemDevePermanecer() =>
         await Executar(async () =>
         {
-            // CA-11
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -621,10 +554,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_JavaScriptDesligado_Quando_Esvaziar_Entao_DevePerguntarPorPaginaPropriaEFuncionar() =>
         await Executar(async () =>
         {
-            // CA-12 (a parte que T022 acrescenta a T003 já não cobre: o
-            // esvaziar em si). Mesmo cliente do seed que os demais testes
-            // sem script usam, pelo mesmo motivo (cadastro depende de
-            // máscara em JavaScript).
             await using var contextoSemScript = await Navegador.NewContextAsync(new() { JavaScriptEnabled = false });
             var paginaSemScript = await contextoSemScript.NewPageAsync();
 
@@ -637,9 +566,6 @@ public class CarrinhoTests : TesteE2E
             await pagina.SemearItem(UrlBase, produtoId, 1);
             await pagina.Abrir(UrlBase);
 
-            // Sem script, o link navega para a página própria da RN-04 —
-            // não abre diálogo nenhum, porque <dialog>.showModal() nunca é
-            // chamado.
             await pagina.LinkEsvaziar.ClickAsync();
             await Expect(paginaSemScript).ToHaveURLAsync($"{UrlBase}/Carrinho/ConfirmarEsvaziar");
 
@@ -654,7 +580,6 @@ public class CarrinhoTests : TesteE2E
     public async Task Dado_TelaDe375px_Quando_AbrirOCarrinho_Entao_OResumoDeveEmpilharSemRolagemHorizontal() =>
         await Executar(async () =>
         {
-            // CA-13
             await CriarClienteEEntrar();
             var produtoId = await ObterProdutoAtivo();
             var pagina = new PaginaCarrinho(Pagina);
@@ -663,9 +588,6 @@ public class CarrinhoTests : TesteE2E
             await Pagina.SetViewportSizeAsync(375, 800);
             await pagina.Abrir(UrlBase);
 
-            // Mede o conteúdo, não o documento — o cabeçalho compartilhado já
-            // estoura a 375px por conta própria desde a 009 (fora de escopo,
-            // mesmo critério que a 013 e a 020 já registraram).
             var larguraDoConteudo = await Pagina.Locator(".pagina-carrinho").EvaluateAsync<double>("el => el.scrollWidth");
             var larguraDaTela = await Pagina.EvaluateAsync<double>("() => window.innerWidth");
 
