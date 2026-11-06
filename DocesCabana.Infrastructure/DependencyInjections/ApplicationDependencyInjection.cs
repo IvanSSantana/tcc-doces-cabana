@@ -1,3 +1,4 @@
+using DocesCabana.Infrastructure.Settings;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.Services;

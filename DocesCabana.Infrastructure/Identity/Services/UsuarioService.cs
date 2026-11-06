@@ -2,7 +2,8 @@ using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
-using DocesCabana.Application.Mensagens;
+using DocesCabana.Application.Constants;
+using DocesCabana.Application.Enums;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Helpers;
@@ -150,14 +151,18 @@ public class UsuarioService : IUsuarioService
         return UsuarioMapper.ToDTO(usuario, conta);
     }
 
-    public async Task<SignInResult> RealizarLogin(string login, string senha, bool lembrarMe)
+    public async Task<ResultadoDoLogin> RealizarLogin(string login, string senha, bool lembrarMe)
     {
         var resolvido = await ResolverUsuario(login);
         if (resolvido is null)
-            return SignInResult.Failed;
+            return ResultadoDoLogin.Falhou;
 
         var resultado = await _signInManager.PasswordSignInAsync(resolvido.Value.Conta.Email!, senha, lembrarMe, lockoutOnFailure: true);
-        return resultado;
+
+        if (resultado.Succeeded)
+            return ResultadoDoLogin.Sucesso;
+
+        return resultado.IsLockedOut ? ResultadoDoLogin.Bloqueado : ResultadoDoLogin.Falhou;
     }
 
     public async Task RealizarLogout()

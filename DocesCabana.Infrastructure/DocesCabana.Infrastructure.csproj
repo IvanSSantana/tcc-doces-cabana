@@ -17,6 +17,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Expõe só o necessário para testar o seed (spec 014,
+         GerarAvaliacoesMock) sem torná-lo público — nenhum código de
+         produção depende disso. -->
+    <InternalsVisibleTo Include="DocesCabana.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DocesCabana.Domain\DocesCabana.Domain.csproj" />
     <ProjectReference Include="..\DocesCabana.Application\DocesCabana.Application.csproj" />
   </ItemGroup>

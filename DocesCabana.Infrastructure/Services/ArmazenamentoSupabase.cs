@@ -1,3 +1,4 @@
+using DocesCabana.Infrastructure.Settings;
 using System.Net.Http.Headers;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;

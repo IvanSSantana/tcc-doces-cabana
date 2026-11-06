@@ -1,4 +1,4 @@
-namespace DocesCabana.Application.Mensagens;
+namespace DocesCabana.Application.Constants;
 
 public static class MensagensCadastro
 {

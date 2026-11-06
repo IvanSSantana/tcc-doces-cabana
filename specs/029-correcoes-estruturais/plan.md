@@ -1,7 +1,7 @@
 # Plano — Correções estruturais
 
 **ID:** 029-correcoes-estruturais · **Criado em:** 2026-11-03
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 
@@ -133,18 +133,18 @@ Sem migration.
 Cada passo termina com `dotnet build` e `dotnet test DocesCabana.Tests` com o
 mesmo resultado da linha de base (passo 1).
 
-- [ ] 1. Linha de base: com o Docker Desktop ligado, rodar `dotnet test` e anotar o resultado.
-- [ ] 2. D12: mover `Papeis` e `MensagensCadastro`; ajustar `using` (código, view, testes).
-- [ ] 3. D1 + D2: `ApelidoHelper` e `ApelidoHelperTests`; apagar `Servicos/` nos dois projetos.
-- [ ] 4. D11: mover os três `*Settings`; ajustar `using`.
-- [ ] 5. D4 (teste antes): reescrever `UsuarioServiceLoginTests` e `AutenticacaoControllerTests` para `ResultadoDoLogin`, incluindo o caso `Bloqueado`; ver falhar na compilação.
-- [ ] 6. D3 + D4: criar o enum, mover as interfaces para `Application/Contracts/Services`, traduzir o resultado em `UsuarioService`, ajustar controllers e DI; ver os testes do passo 5 passarem.
-- [ ] 7. D6 + D7: `DadosPessoaisDTO`, pacotes e `FluentValidationDependencyInjection`/`Program.cs`. Conferir que `ContaControllerTests` segue verde.
-- [ ] 8. D8 + D9: mover `DbInitializer`, `InternalsVisibleTo` e os testes do seed.
-- [ ] 9. D10: mover a infraestrutura de teste de integração e o teste dela.
-- [ ] 10. D5: emenda 1.6.0 na constituição.
-- [ ] 11. `dotnet build` (0 erros) e `dotnet test` completos, incluindo E2E.
-- [ ] 12. Conferir com `grep` que não sobrou `Application.Servicos`, `Infrastructure.Identity.Services` no MVC, `Microsoft.AspNetCore` na `Application` nem `DocesCabana.Infrastructure.DatabaseContext` no MVC.
+- [x] 1. Linha de base: com o Docker Desktop ligado, rodar `dotnet test` e anotar o resultado. *(Docker indisponível por decisão do usuário: linha de base só de `DocesCabana.Tests` = 622 aprovados, 60 falhas de integração por falta de contêiner; E2E não rodou.)*
+- [x] 2. D12: mover `Papeis` e `MensagensCadastro`; ajustar `using` (código, view, testes).
+- [x] 3. D1 + D2: `ApelidoHelper` e `ApelidoHelperTests`; apagar `Servicos/` nos dois projetos.
+- [x] 4. D11: mover os três `*Settings`; ajustar `using`.
+- [x] 5. D4 (teste antes): reescrever `UsuarioServiceLoginTests` e `AutenticacaoControllerTests` para `ResultadoDoLogin`, incluindo o caso `Bloqueado`; ver falhar na compilação.
+- [x] 6. D3 + D4: criar o enum, mover as interfaces para `Application/Contracts/Services`, traduzir o resultado em `UsuarioService`, ajustar controllers e DI; ver os testes do passo 5 passarem.
+- [x] 7. D6 + D7: `DadosPessoaisDTO`, pacotes e `FluentValidationDependencyInjection`/`Program.cs`. Conferir que `ContaControllerTests` segue verde.
+- [x] 8. D8 + D9: mover `DbInitializer`, `InternalsVisibleTo` e os testes do seed.
+- [x] 9. D10: mover a infraestrutura de teste de integração e o teste dela.
+- [x] 10. D5: emenda 1.6.0 na constituição.
+- [x] 11. `dotnet build` (0 erros) e `dotnet test` completos, incluindo E2E. *(Build 0 erros/0 avisos. `dotnet test DocesCabana.Tests`: 624 aprovados, 60 falhas só de Docker. E2E não executado.)*
+- [x] 12. Conferir com `grep` que não sobrou `Application.Servicos`, `Infrastructure.Identity.Services` no MVC, `Microsoft.AspNetCore` na `Application` nem `DocesCabana.Infrastructure.DatabaseContext` no MVC.
 
 ## 7. Testes e verificação
 
@@ -168,4 +168,15 @@ mesmo resultado da linha de base (passo 1).
 
 ## 9. Resultado da execução
 
-*Preenchido na execução.*
+**Passou**
+- `dotnet build` da solução: 0 erros, 0 avisos.
+- `dotnet test DocesCabana.Tests`: 624 aprovados (622 da linha de base + 2 testes novos de `RealizarLogin`: `Bloqueado` e `Falhou`). As 60 falhas são as mesmas de antes: testes de integração que exigem Docker.
+- Verificações do passo 12: sem `Application.Servicos`, sem `Microsoft.AspNetCore` na `Application`, sem `Infrastructure.Identity.Services` no MVC.
+
+**Não foi feito / não verificado**
+- Linha de base e execução finais com Docker: os 60 testes de integração e os E2E (`DocesCabana.Tests.E2E`) não rodaram (Docker indisponível, decisão do usuário). "Nenhum comportamento mudou" está provado só para a suíte de unidade.
+- O MVC ainda tem `using DocesCabana.Infrastructure.DatabaseContext.Seed` no `Program.cs` (chamada ao seed). O plano falava em controllers/helpers, que ficaram limpos.
+
+**Desvio do plano**
+- Faltava no plano: `FluentValidation.AspNetCore` trazia, de forma transitiva, a referência ao framework ASP.NET Core para a `Infrastructure`. Ao sair da `Application` (D7), `SignInManager` deixou de compilar. Correção: `<FrameworkReference Include="Microsoft.AspNetCore.App" />` no `Infrastructure.csproj`. A `Infrastructure` é a camada que pode depender do Identity, então não fere o Princípio I.
+- Emenda 1.6.0 datada de 2026-11-06 (data da execução), não 2026-11-03.

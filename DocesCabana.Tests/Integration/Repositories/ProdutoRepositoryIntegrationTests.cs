@@ -1,3 +1,4 @@
+using DocesCabana.Tests.Integration.Infraestrutura;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.Repositories;

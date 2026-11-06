@@ -1,3 +1,4 @@
+using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.DTOs.Autenticacao;
 using DocesCabana.Domain.Entities;

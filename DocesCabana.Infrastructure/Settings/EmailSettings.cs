@@ -1,4 +1,4 @@
-namespace DocesCabana.Infrastructure.Services;
+namespace DocesCabana.Infrastructure.Settings;
 
 public class EmailSettings
 {

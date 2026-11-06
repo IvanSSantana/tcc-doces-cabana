@@ -1,8 +1,8 @@
-using DocesCabana.Application.Servicos;
+using DocesCabana.Application.Helpers;
 
-namespace DocesCabana.Tests.Units.Servicos;
+namespace DocesCabana.Tests.Units.Helpers;
 
-public class ApelidoTests
+public class ApelidoHelperTests
 {
     [Theory]
     [InlineData("Empório", "emporio")]
@@ -12,7 +12,7 @@ public class ApelidoTests
     [InlineData("Bolachas / Rosquinhas", "bolachas-rosquinhas")]
     public void Dado_NomeDeCategoria_Quando_GerarApelido_Entao_DeveSerLegivelSemAcentoEMinusculo(string nome, string apelidoEsperado)
     {
-        var apelido = Apelido.De(nome);
+        var apelido = ApelidoHelper.De(nome);
 
         Assert.Equal(apelidoEsperado, apelido);
     }
@@ -22,7 +22,7 @@ public class ApelidoTests
     {
         var categorias = new[] { "Doces", "Empório", "Adega", "Souvenir" };
 
-        var apelidos = categorias.Select(Apelido.De).ToList();
+        var apelidos = categorias.Select(ApelidoHelper.De).ToList();
 
         Assert.Equal(apelidos.Count, apelidos.Distinct().Count());
     }
@@ -40,7 +40,7 @@ public class ApelidoTests
     {
         foreach (var (categoria, subcategorias) in Taxonomia)
         {
-            var apelidos = subcategorias.Select(Apelido.De).ToList();
+            var apelidos = subcategorias.Select(ApelidoHelper.De).ToList();
 
             Assert.True(apelidos.Count == apelidos.Distinct().Count(),
                 $"A categoria \"{categoria}\" tem apelidos de subcategoria colidindo: {string.Join(", ", apelidos)}");

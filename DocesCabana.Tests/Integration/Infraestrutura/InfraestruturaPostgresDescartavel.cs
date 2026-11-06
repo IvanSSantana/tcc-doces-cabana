@@ -3,7 +3,7 @@ using DocesCabana.Infrastructure.DatabaseContext;
 using DocesCabana.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace DocesCabana.Tests.Integration;
+namespace DocesCabana.Tests.Integration.Infraestrutura;
 
 public abstract class InfraestruturaPostgresDescartavel : IAsyncLifetime
 {

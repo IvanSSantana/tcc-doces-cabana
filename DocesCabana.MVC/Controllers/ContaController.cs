@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
-using DocesCabana.Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

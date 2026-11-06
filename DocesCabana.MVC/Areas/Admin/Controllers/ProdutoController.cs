@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
-using DocesCabana.Domain;
+using DocesCabana.Domain.Constants;
 using DocesCabana.MVC.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;

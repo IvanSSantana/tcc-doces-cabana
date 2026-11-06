@@ -1,3 +1,4 @@
+using DocesCabana.Infrastructure.Settings;
 using DocesCabana.Application.Contracts.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

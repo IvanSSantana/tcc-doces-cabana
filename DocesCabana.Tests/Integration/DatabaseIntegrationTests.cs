@@ -1,3 +1,4 @@
+using DocesCabana.Tests.Integration.Infraestrutura;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.DatabaseContext;
 using DocesCabana.Infrastructure.Identity;

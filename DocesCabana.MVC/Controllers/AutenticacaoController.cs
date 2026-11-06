@@ -1,8 +1,8 @@
 using DocesCabana.Application.DTOs.Autenticacao;
-using DocesCabana.Application.Mensagens;
-using DocesCabana.Infrastructure.Identity.Services;
+using DocesCabana.Application.Constants;
+using DocesCabana.Application.Contracts.Services;
+using DocesCabana.Application.Enums;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 
 namespace DocesCabana.MVC.Controllers;
 
@@ -34,7 +34,7 @@ public class AutenticacaoController : Controller
 
         var resultado = await _usuarioService.RealizarLogin(dto.Login!, dto.Senha!, dto.LembrarMe ?? false);
 
-        if (resultado.Succeeded)
+        if (resultado == ResultadoDoLogin.Sucesso)
         {
             if (returnUrl is not null && Url.IsLocalUrl(returnUrl))
                 return LocalRedirect(returnUrl);
@@ -42,7 +42,7 @@ public class AutenticacaoController : Controller
             return RedirectToAction("Index", "Home");
         }
 
-        if (resultado.IsLockedOut)
+        if (resultado == ResultadoDoLogin.Bloqueado)
             ModelState.AddModelError(string.Empty, "Conta bloqueada. Tente novamente mais tarde.");
         else
             ModelState.AddModelError(string.Empty, "E-mail ou senha incorreto(s).");

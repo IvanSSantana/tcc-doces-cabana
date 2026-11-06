@@ -1,4 +1,4 @@
-namespace DocesCabana.Domain;
+namespace DocesCabana.Domain.Constants;
 
 public static class Papeis
 {

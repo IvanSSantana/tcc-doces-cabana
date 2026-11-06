@@ -1,9 +1,10 @@
+using DocesCabana.Tests.Integration.Infraestrutura;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Enums;
 using DocesCabana.Infrastructure.Repositories;
-using DocesCabana.MVC.Helpers;
+using DocesCabana.Infrastructure.DatabaseContext.Seed;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration.Repositories;

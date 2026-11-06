@@ -1,7 +1,7 @@
 using Npgsql;
 using Testcontainers.PostgreSql;
 
-namespace DocesCabana.Tests.Integration;
+namespace DocesCabana.Tests.Integration.Infraestrutura;
 
 internal static class PostgresDeTeste
 {

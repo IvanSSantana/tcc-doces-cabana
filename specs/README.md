@@ -38,7 +38,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [023](./023-meus-pedidos/spec.md) | Meus pedidos | Implementada | spec · [plan](./023-meus-pedidos/plan.md) · [tasks](./023-meus-pedidos/tasks.md) · [checklist](./023-meus-pedidos/checklist.md) |
 | [027](./027-envio-de-imagem-do-produto/spec.md) | Envio de imagem do produto | Implementada | spec · [plan](./027-envio-de-imagem-do-produto/plan.md) · [tasks](./027-envio-de-imagem-do-produto/tasks.md) · [checklist](./027-envio-de-imagem-do-produto/checklist.md) |
 | [028](./028-banco-postgres-supabase/spec.md) | Banco de dados no Postgres do Supabase | Implementada | spec · [plan](./028-banco-postgres-supabase/plan.md) · [tasks](./028-banco-postgres-supabase/tasks.md) · [checklist](./028-banco-postgres-supabase/checklist.md) |
-| [029](./029-correcoes-estruturais/plan.md) | Correções estruturais | Planejada | [plan](./029-correcoes-estruturais/plan.md) |
+| [029](./029-correcoes-estruturais/plan.md) | Correções estruturais | Executada | [plan](./029-correcoes-estruturais/plan.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023` → `027` → `028`.
 > A `028` fechou o par que a `027` abriu — as duas nasceram do mesmo pedido

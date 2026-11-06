@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DocesCabana.Domain;
+using DocesCabana.Domain.Constants;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Enums;
 using DocesCabana.Infrastructure.DatabaseContext;
@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DocesCabana.MVC.Helpers;
+namespace DocesCabana.Infrastructure.DatabaseContext.Seed;
 
 public static class DbInitializer
 {

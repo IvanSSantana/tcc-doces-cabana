@@ -1,6 +1,6 @@
 using DocesCabana.Tests.Integration;
 
-namespace DocesCabana.Tests.Units.Infraestrutura;
+namespace DocesCabana.Tests.Integration.Infraestrutura;
 
 public class MensagemDePostgresIndisponivelTests
 {

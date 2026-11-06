@@ -1,8 +1,8 @@
 using DocesCabana.Domain.Helpers;
 
-namespace DocesCabana.Application.Servicos;
+namespace DocesCabana.Application.Helpers;
 
-public static class Apelido
+public static class ApelidoHelper
 {
     public static string De(string nome)
     {

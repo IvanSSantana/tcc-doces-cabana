@@ -1,7 +1,8 @@
+using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
-using DocesCabana.Application.Mensagens;
-using DocesCabana.Infrastructure.Identity.Services;
+using DocesCabana.Application.Constants;
+using DocesCabana.Application.Enums;
 using DocesCabana.MVC.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -62,7 +63,7 @@ public class AutenticacaoControllerTests
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!", LembrarMe = true };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, true))
-            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+            .ReturnsAsync(ResultadoDoLogin.Sucesso);
 
         var resultado = await _controller.Login(dto);
 
@@ -76,7 +77,7 @@ public class AutenticacaoControllerTests
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
-            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.LockedOut);
+            .ReturnsAsync(ResultadoDoLogin.Bloqueado);
 
         var resultado = await _controller.Login(dto);
 
@@ -91,7 +92,7 @@ public class AutenticacaoControllerTests
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
-            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed);
+            .ReturnsAsync(ResultadoDoLogin.Falhou);
 
         var resultado = await _controller.Login(dto);
 
@@ -106,7 +107,7 @@ public class AutenticacaoControllerTests
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
-            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+            .ReturnsAsync(ResultadoDoLogin.Sucesso);
 
         var resultado = await _controller.Login(dto, returnUrl: "/Catalogo/doces");
 
@@ -119,7 +120,7 @@ public class AutenticacaoControllerTests
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
-            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+            .ReturnsAsync(ResultadoDoLogin.Sucesso);
 
         var resultado = await _controller.Login(dto, returnUrl: "https://site-malicioso.com/golpe");
 
@@ -133,7 +134,7 @@ public class AutenticacaoControllerTests
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };
         _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
-            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+            .ReturnsAsync(ResultadoDoLogin.Sucesso);
 
         var resultado = await _controller.Login(dto, returnUrl: "//site-malicioso.com");
 

@@ -1,7 +1,8 @@
+using DocesCabana.Infrastructure.DatabaseContext.Seed;
 using DocesCabana.Application.DependencyInjections;
 using DocesCabana.Infrastructure.DependencyInjections;
 using DocesCabana.MVC.Filters;
-using DocesCabana.MVC.Helpers;
+using FluentValidation.AspNetCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,8 @@ builder.Services.AddDatabaseConfiguration(builder.Configuration);
 builder.Services.AddIdentityConfiguration();
 builder.Services.AddApplicationServicesAndRepositories(builder.Configuration);
 builder.Services.AddFluentValidationConfiguration();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
 
 builder.Services.AddSession();
 

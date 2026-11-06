@@ -1,7 +1,7 @@
 using DocesCabana.Application.DTOs.Autenticacao;
-using DocesCabana.Application.Mensagens;
-using DocesCabana.Domain;
-using DocesCabana.Infrastructure.Identity.Services;
+using DocesCabana.Application.Constants;
+using DocesCabana.Domain.Constants;
+using DocesCabana.Application.Contracts.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

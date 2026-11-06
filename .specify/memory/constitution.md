@@ -1,6 +1,6 @@
 # Constituição — Doces Cabana
 
-**Versão:** 1.5.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-11-03
+**Versão:** 1.6.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-11-06
 
 Este documento define os princípios inegociáveis do projeto. Todo `plan.md` é
 validado contra ele antes de virar código. Quando uma decisão técnica
@@ -29,19 +29,17 @@ MVC ──────► Application ──────► Domain
 - `DocesCabana.MVC` só conhece `Application` (DTOs e interfaces de serviço) e os
   módulos de injeção de dependência da `Infrastructure`.
 
-**Exceção conhecida e documentada:** `IUsuarioService` vive em
-`Infrastructure/Identity/Services` porque sua implementação depende de
-`UserManager` e `SignInManager`, tipos do ASP.NET Identity. A entidade
-`Usuario` em si é de domínio — não herda de nada do Identity, que é quem
-guarda a credencial (`ContaDeAcesso`, em `Infrastructure/Identity`). Controllers
-dependem de `IUsuarioService` diretamente. Qualquer nova feature de autenticação
-segue esse mesmo caminho; **nenhuma outra** exceção à direção de dependência é
-permitida sem emenda constitucional.
+Os contratos de serviço — inclusive `IUsuarioService` e `IAdministradorService` —
+vivem em `Application/Contracts/Services`. A implementação que depende de
+`UserManager` e `SignInManager` mora em `Infrastructure/Identity/Services` e
+traduz os tipos do Identity para tipos da `Application` (por exemplo,
+`SignInResult` vira `ResultadoDoLogin`). A entidade `Usuario` é de domínio —
+não herda de nada do Identity, que é quem guarda a credencial
+(`ContaDeAcesso`, em `Infrastructure/Identity`). Não há exceção à direção de
+dependência; qualquer desvio exige emenda constitucional.
 
 Entidades de domínio referenciam `Usuario` por propriedade de navegação normal,
-como referenciam qualquer outra entidade do domínio — a exceção acima é sobre
-onde `IUsuarioService` mora, não sobre como o domínio se relaciona com
-`Usuario`.
+como referenciam qualquer outra entidade do domínio.
 
 **Como verificar:** olhar os `<ProjectReference>` do `.csproj` alterado. Se uma
 tarefa exige uma referência nova, ela viola este princípio até prova em contrário.
@@ -148,7 +146,7 @@ Organização em `DocesCabana.Tests`:
 - `Units/Controllers` — tipo de `IActionResult`, `ModelState`, redirecionamento.
 - `Integration/Repositories` — Postgres descartável (contêiner via
   Testcontainers) através de
-  [`InfraestruturaPostgresDescartavel`](../../DocesCabana.Tests/Integration/InfraestruturaPostgresDescartavel.cs).
+  [`InfraestruturaPostgresDescartavel`](../../DocesCabana.Tests/Integration/Infraestrutura/InfraestruturaPostgresDescartavel.cs).
 
 Ferramentas fixas: xUnit + Moq + coverlet para teste de unidade e de
 integração; `Microsoft.Playwright` para teste de ponta a ponta em navegador,
@@ -241,3 +239,4 @@ justificativa escrita no `plan.md`:
 | 1.4.1 | 2026-08-19 | Feature `011-area-administrativa`. Ressalva ao parágrafo de unicidade de nome que a 1.4.0 introduziu: o escopo é a *area*, não a solução inteira — `Admin/Produto` e `/Produto` são telas de públicos distintos, separadas pelo framework. PATCH — corrige o alcance de uma regra existente, não introduz regra nova. |
 | 1.4.2 | 2026-09-07 | Feature `028-banco-postgres-supabase`. Princípio V: `Integration/Repositories` passa a descrever Postgres descartável via `InfraestruturaPostgresDescartavel`, no lugar do SQLite em memória via `InfraestruturaSqliteEmMemoria` — o banco trocou de motor, a organização de teste não mudou. PATCH — corrige referência e exemplo, não introduz regra nova. |
 | 1.5.0 | 2026-11-03 | Troca de processo: o SDD clássico (`spec` → `plan` → `tasks` → `checklist`) dá lugar a três etapas — debate sem arquivo, `plan.md` com as decisões e execução. Preâmbulo, Princípio VII e Governança passam a citar só o `plan.md`; a Governança ganha o item 3 descrevendo o fluxo. Nenhum princípio técnico muda. MINOR — redefine o processo de governança, não um princípio. |
+| 1.6.0 | 2026-11-06 | Feature `029-correcoes-estruturais`. Remove a "exceção conhecida" do Princípio I: `IUsuarioService` e `IAdministradorService` passam para `Application/Contracts/Services` e `RealizarLogin` retorna `ResultadoDoLogin`, de modo que a `Application` não conhece o Identity. Princípio V aponta o novo caminho de `InfraestruturaPostgresDescartavel`. MINOR — remove uma exceção material, sem incompatibilidade com os demais princípios. |

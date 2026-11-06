@@ -1,5 +1,6 @@
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
+using DocesCabana.Application.Enums;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.Identity;
@@ -76,7 +77,7 @@ public class UsuarioServiceLoginTests
 
         var resultado = await _usuarioService.RealizarLogin(cpf, "senha123", false);
 
-        Assert.True(resultado.Succeeded);
+        Assert.Equal(ResultadoDoLogin.Sucesso, resultado);
     }
 
     [Fact]
@@ -97,7 +98,7 @@ public class UsuarioServiceLoginTests
 
         var resultado = await _usuarioService.RealizarLogin(cpfPontuado, "senha123", false);
 
-        Assert.True(resultado.Succeeded);
+        Assert.Equal(ResultadoDoLogin.Sucesso, resultado);
     }
 
     [Fact]
@@ -115,7 +116,7 @@ public class UsuarioServiceLoginTests
 
         var resultado = await _usuarioService.RealizarLogin(email, "senha123", true);
 
-        Assert.True(resultado.Succeeded);
+        Assert.Equal(ResultadoDoLogin.Sucesso, resultado);
     }
 
     [Fact]
@@ -130,7 +131,7 @@ public class UsuarioServiceLoginTests
 
         var resultado = await _usuarioService.RealizarLogin(login, "senha123", false);
 
-        Assert.False(resultado.Succeeded);
+        Assert.Equal(ResultadoDoLogin.Falhou, resultado);
         _signInManagerMock.Verify(
             s => s.PasswordSignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()),
             Times.Never);
@@ -154,6 +155,42 @@ public class UsuarioServiceLoginTests
         _signInManagerMock.Verify(
             s => s.PasswordSignInAsync(email, "senha123", false, true),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_ContaBloqueada_Quando_RealizarLogin_Entao_DeveRetornarBloqueado()
+    {
+        var email = "cliente@teste.com";
+        var (usuario, conta) = CriarPar(email);
+
+        _userManagerMock.Setup(u => u.FindByEmailAsync(email))
+            .ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(conta.Id))
+            .ReturnsAsync(usuario);
+        _signInManagerMock.Setup(s => s.PasswordSignInAsync(email, "senha123", false, true))
+            .ReturnsAsync(SignInResult.LockedOut);
+
+        var resultado = await _usuarioService.RealizarLogin(email, "senha123", false);
+
+        Assert.Equal(ResultadoDoLogin.Bloqueado, resultado);
+    }
+
+    [Fact]
+    public async Task Dado_SenhaIncorreta_Quando_RealizarLogin_Entao_DeveRetornarFalhou()
+    {
+        var email = "cliente@teste.com";
+        var (usuario, conta) = CriarPar(email);
+
+        _userManagerMock.Setup(u => u.FindByEmailAsync(email))
+            .ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(conta.Id))
+            .ReturnsAsync(usuario);
+        _signInManagerMock.Setup(s => s.PasswordSignInAsync(email, "errada", false, true))
+            .ReturnsAsync(SignInResult.Failed);
+
+        var resultado = await _usuarioService.RealizarLogin(email, "errada", false);
+
+        Assert.Equal(ResultadoDoLogin.Falhou, resultado);
     }
 
     private static (Usuario Usuario, ContaDeAcesso Conta) CriarPar(string email, string cpf = "54839427011")

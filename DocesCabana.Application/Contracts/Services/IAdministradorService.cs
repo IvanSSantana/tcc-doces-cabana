@@ -1,7 +1,7 @@
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
 
-namespace DocesCabana.Infrastructure.Identity.Services;
+namespace DocesCabana.Application.Contracts.Services;
 
 public interface IAdministradorService
 {

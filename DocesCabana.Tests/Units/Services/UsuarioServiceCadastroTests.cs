@@ -1,7 +1,7 @@
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs.Autenticacao;
-using DocesCabana.Application.Mensagens;
+using DocesCabana.Application.Constants;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.Identity;

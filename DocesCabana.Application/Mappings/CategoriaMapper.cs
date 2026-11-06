@@ -1,5 +1,5 @@
 using DocesCabana.Application.DTOs;
-using DocesCabana.Application.Servicos;
+using DocesCabana.Application.Helpers;
 using DocesCabana.Domain.Entities;
 
 namespace DocesCabana.Application.Mappings;
@@ -17,7 +17,7 @@ public static class CategoriaMapper
         {
             CategoriaId = categoria.CategoriaId,
             Nome = categoria.Nome,
-            Apelido = Apelido.De(categoria.Nome),
+            Apelido = ApelidoHelper.De(categoria.Nome),
             Subcategorias = SubcategoriaMapper.ToDTO(subcategoriasOrdenadas)
         };
     }

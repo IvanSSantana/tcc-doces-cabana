@@ -1,7 +1,8 @@
+using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
-using DocesCabana.Domain;
+using DocesCabana.Domain.Constants;
 using DocesCabana.Infrastructure.Identity.Mappings;
 using Microsoft.AspNetCore.Identity;
 

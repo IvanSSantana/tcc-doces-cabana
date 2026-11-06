@@ -1,7 +1,7 @@
 using DocesCabana.Domain.Entities;
-using DocesCabana.MVC.Helpers;
+using DocesCabana.Infrastructure.DatabaseContext.Seed;
 
-namespace DocesCabana.Tests.Units.Helpers;
+namespace DocesCabana.Tests.Units.Seed;
 
 public class DbInitializerProdutosTests
 {

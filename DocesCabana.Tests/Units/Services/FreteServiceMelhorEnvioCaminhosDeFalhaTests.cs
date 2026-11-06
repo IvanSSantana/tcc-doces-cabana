@@ -1,3 +1,4 @@
+using DocesCabana.Infrastructure.Settings;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Infrastructure.Services;
 using Microsoft.Extensions.Options;

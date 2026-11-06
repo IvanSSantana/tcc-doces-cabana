@@ -1,4 +1,4 @@
-namespace DocesCabana.Tests.Integration;
+namespace DocesCabana.Tests.Integration.Infraestrutura;
 
 public static class MensagemDePostgresIndisponivel
 {
