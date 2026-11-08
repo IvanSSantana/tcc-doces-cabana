@@ -10,18 +10,12 @@ public class PaginaFechamento
     public PaginaFechamento(IPage pagina) => _pagina = pagina;
 
     public ILocator PassoAtivo => Container.Locator(".passo-fechamento--ativo a");
-    public ILocator LinkEntrar => Container.Locator(".passo-conta-fechamento").GetByRole(AriaRole.Link, new() { Name = "Entrar" });
     public ILocator LinkCriarConta => Container.Locator(".passo-conta-fechamento").GetByRole(AriaRole.Link, new() { Name = "Criar conta" });
 
     public ILocator ListaDeEnderecos => Container.Locator(".endereco-fechamento");
     public ILocator EnderecoSelecionado => Container.Locator(".endereco-fechamento--selecionado a");
     public ILocator DetalhesNovoEndereco => Container.Locator(".novo-endereco-fechamento");
-    public ILocator ListaDeOpcoesDeEntrega => Container.Locator(".lista-opcoes-frete-fechamento .opcao-frete");
-    public ILocator OpcaoDeEntregaSelecionada => Container.Locator(".opcao-frete--selecionada a");
     public ILocator LinkContinuarParaPagamento => Container.GetByRole(AriaRole.Link, new() { Name = "Continuar para pagamento" });
-
-    public ILocator FormularioPagamento => Container.Locator(".formulario-pagamento-fechamento");
-    public ILocator BotaoConfirmarPedido => FormularioPagamento.GetByRole(AriaRole.Button, new() { Name = "Confirmar pedido" });
 
     public async Task CadastrarEnderecoAqui(string cep, string rua, string numero)
     {

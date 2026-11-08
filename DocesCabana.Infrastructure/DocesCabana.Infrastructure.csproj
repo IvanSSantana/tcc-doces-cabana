@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <!-- Expõe só o necessário para testar o seed (spec 014,
-         GerarAvaliacoesMock) sem torná-lo público — nenhum código de
+         PreencherNomesNormalizados) sem torná-lo público — nenhum código de
          produção depende disso. -->
     <InternalsVisibleTo Include="DocesCabana.Tests" />
   </ItemGroup>

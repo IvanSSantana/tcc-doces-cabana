@@ -7,15 +7,11 @@ public class PaginaAdministradores
     private readonly IPage _pagina;
     private ILocator ContainerIndice => _pagina.Locator(".container-administradores");
     private ILocator ContainerCadastro => _pagina.Locator(".container-autenticacao");
-    private ILocator FormularioCadastro => ContainerCadastro.Locator("form.formulario-autenticacao");
 
     public PaginaAdministradores(IPage pagina) => _pagina = pagina;
 
     public async Task AbrirIndice(string urlBase) =>
         await _pagina.GotoAsync($"{urlBase}/Admin/Administrador");
-
-    public async Task AbrirCadastro(string urlBase) =>
-        await _pagina.GotoAsync($"{urlBase}/Admin/Administrador/Cadastro");
 
     public async Task IrParaCadastro() =>
         await ContainerIndice.GetByRole(AriaRole.Link, new() { Name = "Novo administrador" }).ClickAsync();
@@ -37,5 +33,4 @@ public class PaginaAdministradores
     public async Task EnviarCadastro() =>
         await ContainerCadastro.GetByRole(AriaRole.Button, new() { Name = "Cadastrar Administrador" }).ClickAsync();
 
-    public ILocator MensagemDeErroCadastro => FormularioCadastro.Locator("> div.resumo-erros .mensagem-erro");
 }

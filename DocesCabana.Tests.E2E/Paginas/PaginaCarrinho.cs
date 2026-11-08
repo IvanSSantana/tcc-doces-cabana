@@ -11,38 +11,10 @@ public class PaginaCarrinho
 
     public async Task Abrir(string urlBase) => await _pagina.GotoAsync($"{urlBase}/Carrinho");
 
-    public ILocator Itens => Container.Locator(".item-carrinho");
     public ILocator MensagemVazia => Container.Locator(".carrinho-vazio");
-    public ILocator Subtotal => Container.Locator(".subtotal-carrinho");
-    public ILocator TotalDeItens => Container.Locator(".total-itens-carrinho");
     public ILocator BotaoFinalizar => Container.Locator(".botao-finalizar-carrinho");
-    public ILocator ResultadoCarrinho => _pagina.Locator("#itens-carrinho");
-
-    public ILocator CampoCupom => Container.Locator("#cupom-carrinho");
-    public ILocator BotaoAplicarCupom => Container.Locator(".entrada-cupom-carrinho button");
-    public ILocator LinkEsvaziar => Container.Locator(".botao-esvaziar-lista-carrinho");
-    public ILocator LinkContinuarComprando => Container.Locator(".botao-continuar-comprando");
-    public ILocator DialogoEsvaziar => _pagina.Locator("#dialogo-esvaziar-carrinho");
-    public ILocator BotaoConfirmarEsvaziarNoDialogo => DialogoEsvaziar.Locator(".botao-confirmar-esvaziar-carrinho");
-    public ILocator BotaoCancelarEsvaziarNoDialogo => DialogoEsvaziar.Locator(".botao-cancelar-esvaziar-carrinho");
-    public ILocator RotuloColunaPreco(Guid produtoId) =>
-        ItemPeloProduto(produtoId).Locator(".coluna-item-carrinho", new() { HasText = "Preço unitário" });
-    public ILocator RotuloColunaSubtotal(Guid produtoId) =>
-        ItemPeloProduto(produtoId).Locator(".coluna-item-carrinho", new() { HasText = "Subtotal" });
 
     public ILocator CampoCep => Container.Locator("#cep-carrinho");
-    public ILocator BotaoCalcularFrete => Container.Locator(".entrada-cep-carrinho button");
-    public ILocator ErroCep => Container.Locator(".formulario-frete-carrinho .mensagem-erro");
-    public ILocator OpcoesDeFrete => Container.Locator(".opcao-frete");
-    public ILocator MensagemFalhaFrete => Container.Locator(".mensagem-falha-frete");
-    public ILocator FormularioFrete => Container.Locator(".formulario-frete-carrinho");
-
-    public async Task CalcularFrete(string cep)
-    {
-        await CampoCep.FillAsync(cep);
-        await BotaoCalcularFrete.ClickAsync();
-        await _pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
-    }
 
     public ILocator ItemPeloProduto(Guid produtoId) =>
         Container.Locator($".item-carrinho[data-produto-id='{produtoId}']");
@@ -50,12 +22,6 @@ public class PaginaCarrinho
     public async Task AumentarQuantidade(Guid produtoId)
     {
         await ItemPeloProduto(produtoId).Locator(".botao-quantidade-carrinho.mais").ClickAsync();
-        await _pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
-    }
-
-    public async Task DiminuirQuantidade(Guid produtoId)
-    {
-        await ItemPeloProduto(produtoId).Locator(".botao-quantidade-carrinho.menos").ClickAsync();
         await _pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 

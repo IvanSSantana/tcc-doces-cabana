@@ -49,7 +49,5 @@ public class PaginaCadastroProduto
         await Formulario.GetByRole(AriaRole.Button, new() { Name = "Cadastrar Produto" }).ClickAsync();
 
     public ILocator MensagemDeConfirmacao => Formulario.Locator(".resumo-sucesso .mensagem-sucesso");
-    public ILocator ErroDePreco => Formulario.Locator("span[data-valmsg-for='Preco']");
-    public ILocator ErroDeImagem => Formulario.Locator("#imagem + .mensagem-erro, #imagem ~ .mensagem-erro");
     public ILocator ErroGeral => Formulario.Locator(".resumo-erros .mensagem-erro");
 }

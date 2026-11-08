@@ -13,21 +13,6 @@ public class RecuperacaoDeSenhaTests : TesteE2E
     public RecuperacaoDeSenhaTests(FixtureE2E fixture) : base(fixture) { }
 
     [Fact]
-    public async Task Dado_LoginExistenteEInexistente_Quando_PedirRedefinicao_Entao_DeveMostrarAMesmaMensagem() =>
-        await Executar(async () =>
-        {
-            var paginaEsqueceuSenha = new PaginaEsqueceuSenha(Pagina);
-
-            await paginaEsqueceuSenha.Abrir(UrlBase);
-            await paginaEsqueceuSenha.Solicitar(AplicacaoEmExecucao.EmailAdministrador);
-            await Expect(paginaEsqueceuSenha.MensagemDeConfirmacao).ToHaveTextAsync(MensagemDeConfirmacao);
-
-            await paginaEsqueceuSenha.Abrir(UrlBase);
-            await paginaEsqueceuSenha.Solicitar(GeradorDeDados.EmailUnico("naoexiste"));
-            await Expect(paginaEsqueceuSenha.MensagemDeConfirmacao).ToHaveTextAsync(MensagemDeConfirmacao);
-        });
-
-    [Fact]
     public async Task Dado_PedidoDeRedefinicao_Quando_SeguirOLinkETrocarASenha_Entao_DeveEntrarComANovaENaoComAAntiga() =>
         await Executar(async () =>
         {

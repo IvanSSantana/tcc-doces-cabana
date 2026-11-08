@@ -14,7 +14,6 @@ public class PaginaCadastro
 {
     private readonly IPage _pagina;
     private ILocator Container => _pagina.Locator(".container-autenticacao");
-    private ILocator Formulario => Container.Locator("form.formulario-autenticacao");
 
     public PaginaCadastro(IPage pagina) => _pagina = pagina;
 
@@ -40,9 +39,4 @@ public class PaginaCadastro
     public async Task Enviar() =>
         await Container.GetByRole(AriaRole.Button, new() { Name = "Cadastrar" }).ClickAsync();
 
-    public ILocator MensagemDeErroGeral => Formulario.Locator("> div.resumo-erros .mensagem-erro");
-
-    public ILocator ErroDeSenha => Container.Locator("#input-senha-cadastro")
-        .Locator("xpath=ancestor::div[contains(@class,'campo-entrada')]")
-        .Locator("> div.resumo-erros:not(#requisitos-senha)");
 }

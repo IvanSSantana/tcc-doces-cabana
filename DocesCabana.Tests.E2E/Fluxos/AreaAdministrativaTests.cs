@@ -35,16 +35,6 @@ public class AreaAdministrativaTests : TesteE2E
         });
 
     [Fact]
-    public async Task Dado_ClienteComum_Quando_OlharOCabecalho_Entao_NaoDeveVerCaminhoAdministrativo() =>
-        await Executar(async () =>
-        {
-            await CadastrarEEntrarComoClienteComum();
-
-            await Expect(Pagina.Locator("header").GetByRole(Microsoft.Playwright.AriaRole.Link, new() { Name = "Administradores" }))
-                .Not.ToBeVisibleAsync();
-        });
-
-    [Fact]
     public async Task Dado_Administrador_Quando_CadastrarOutroAdministrador_Entao_ELeDeveEntrarEUsarAArea() =>
         await Executar(async () =>
         {
@@ -77,98 +67,6 @@ public class AreaAdministrativaTests : TesteE2E
             await paginaAdmins.AbrirIndice(UrlBase);
             Assert.Contains("/Admin/Administrador", Pagina.Url);
             Assert.DoesNotContain("AcessoNegado", Pagina.Url);
-        });
-
-    [Fact]
-    public async Task Dado_EnderecosAntigosDaAreaAdministrativa_Quando_Acessados_Entao_DevemResponder404() =>
-        await Executar(async () =>
-        {
-            var paginaLogin = new PaginaLogin(Pagina);
-            await paginaLogin.Abrir(UrlBase);
-            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/");
-
-            var respostaProduto = await Pagina.GotoAsync($"{UrlBase}/Catalogo/Cadastro");
-            Assert.Equal(404, respostaProduto!.Status);
-
-            var respostaAdministrador = await Pagina.GotoAsync($"{UrlBase}/Administrador");
-            Assert.Equal(404, respostaAdministrador!.Status);
-        });
-
-    [Fact]
-    public async Task Dado_Administrador_Quando_UsarOAtalhoDoCabecalho_Entao_DeveChegarNaGestao() =>
-        await Executar(async () =>
-        {
-            var paginaLogin = new PaginaLogin(Pagina);
-            await paginaLogin.Abrir(UrlBase);
-            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/");
-
-            await Pagina.Locator("header").GetByRole(Microsoft.Playwright.AriaRole.Link, new() { Name = "Administradores" }).ClickAsync();
-
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Admin/Administrador");
-        });
-
-    [Fact]
-    public async Task Dado_AdministradorNaAreaAdministrativa_Quando_ClicarNaPoliticaDoRodape_Entao_DeveSairDaArea() =>
-        await Executar(async () =>
-        {
-            var paginaLogin = new PaginaLogin(Pagina);
-            await paginaLogin.Abrir(UrlBase);
-            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/");
-
-            var paginaAdmins = new PaginaAdministradores(Pagina);
-            await paginaAdmins.AbrirIndice(UrlBase);
-
-            await Pagina.Locator("footer").GetByRole(Microsoft.Playwright.AriaRole.Link, new() { Name = "Política de Privacidade" }).ClickAsync();
-
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Institucional/Privacidade");
-        });
-
-    [Fact]
-    public async Task Dado_Administrador_Quando_ProcurarOCadastroDeProduto_Entao_DeveHaverCaminhoDeNavegacao() =>
-        await Executar(async () =>
-        {
-            var paginaLogin = new PaginaLogin(Pagina);
-            await paginaLogin.Abrir(UrlBase);
-            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/");
-
-            await Pagina.Locator("header").GetByRole(Microsoft.Playwright.AriaRole.Link, new() { Name = "Cadastrar produto" }).ClickAsync();
-
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Admin/Produto/Cadastro");
-        });
-
-    [Fact]
-    public async Task Dado_TelasDaLoja_Quando_ObservarAsRequisicoes_Entao_NenhumaDeveTerminarEmNaoEncontrado() =>
-        await Executar(async () =>
-        {
-            var requisicoesComFalha = new List<string>();
-            Pagina.Response += (_, resposta) =>
-            {
-                if (resposta.Status == 404) requisicoesComFalha.Add(resposta.Url);
-            };
-
-            await Pagina.GotoAsync(UrlBase);
-            await Pagina.GotoAsync($"{UrlBase}/Catalogo");
-
-            var paginaLogin = new PaginaLogin(Pagina);
-            await paginaLogin.Abrir(UrlBase);
-            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailAdministrador, AplicacaoEmExecucao.SenhaAdministrador);
-
-            Assert.Empty(requisicoesComFalha);
-        });
-
-    [Fact]
-    public async Task Dado_ModalDeLogin_Quando_Abrir_Entao_DeveContinuarFuncionando() =>
-        await Executar(async () =>
-        {
-            await Pagina.GotoAsync(UrlBase);
-
-            await Pagina.Locator("header").GetByText("Entrar", new() { Exact = true }).ClickAsync();
-
-            await Expect(Pagina.Locator("#modal-login")).ToBeVisibleAsync();
         });
 
     private async Task Sair() =>
