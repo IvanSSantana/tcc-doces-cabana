@@ -20,6 +20,5 @@ public class PaginaLogin
     }
 
     public ILocator MensagemDeErro => Container.Locator(".resumo-erros .mensagem-erro");
-    public ILocator LinkEsqueceuSenha => Container.GetByRole(AriaRole.Link, new() { Name = "Esqueceu a senha?" });
     public ILocator LinkCriarConta => Container.GetByRole(AriaRole.Link, new() { Name = "Criar uma conta" });
 }

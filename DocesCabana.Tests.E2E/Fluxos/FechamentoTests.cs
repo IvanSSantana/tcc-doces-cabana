@@ -21,59 +21,6 @@ public class FechamentoTests : TesteE2E
     }
 
     [Fact]
-    public async Task Dado_ClienteAutenticadoComItemNoCarrinho_Quando_AbrirATela_Entao_DeveVerOsPassosComOCarrinhoAtivo() =>
-        await Executar(async () =>
-        {
-            var paginaLogin = new PaginaLogin(Pagina);
-            await paginaLogin.Abrir(UrlBase);
-            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailClienteSeed, AplicacaoEmExecucao.SenhaClienteSeed);
-            await AdicionarProdutoAoCarrinho();
-
-            var carrinho = new PaginaCarrinho(Pagina);
-            var fechamento = new PaginaFechamento(Pagina);
-            await carrinho.Abrir(UrlBase);
-
-            await Expect(fechamento.PassoAtivo).ToHaveTextAsync("Carrinho");
-            await Expect(carrinho.BotaoFinalizar).ToBeVisibleAsync();
-        });
-
-    [Fact]
-    public async Task Dado_Visitante_Quando_AvancarDoCarrinho_Entao_DeveEncontrarOPassoDeEntrar() =>
-        await Executar(async () =>
-        {
-            await AdicionarProdutoAoCarrinho();
-
-            var carrinho = new PaginaCarrinho(Pagina);
-            await carrinho.Abrir(UrlBase);
-
-            var fechamento = new PaginaFechamento(Pagina);
-            await carrinho.BotaoFinalizar.ClickAsync();
-
-            await Expect(fechamento.PassoAtivo).ToHaveTextAsync("Conta");
-            await Expect(fechamento.LinkEntrar).ToBeVisibleAsync();
-            await Expect(fechamento.LinkCriarConta).ToBeVisibleAsync();
-        });
-
-    [Fact]
-    public async Task Dado_EntreiNoMeioDoFechamento_Quando_ATelaVoltar_Entao_DevoEstarNoPassoDoCarrinho() =>
-        await Executar(async () =>
-        {
-            var produtoId = await AdicionarProdutoAoCarrinho();
-            var carrinho = new PaginaCarrinho(Pagina);
-            await carrinho.Abrir(UrlBase);
-
-            var fechamento = new PaginaFechamento(Pagina);
-            await carrinho.BotaoFinalizar.ClickAsync();
-            await fechamento.LinkEntrar.ClickAsync();
-
-            var paginaLogin = new PaginaLogin(Pagina);
-            await paginaLogin.Entrar(AplicacaoEmExecucao.EmailClienteSeed, AplicacaoEmExecucao.SenhaClienteSeed);
-
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Carrinho");
-            await Expect(carrinho.ItemPeloProduto(produtoId)).ToBeVisibleAsync();
-        });
-
-    [Fact]
     public async Task Dado_ClienteSemEndereco_Quando_ChegarAoPassoDeEndereco_Entao_DeveCadastrarAliMesmoEFicarEscolhido() =>
         await Executar(async () =>
         {

@@ -16,32 +16,6 @@ public class MeusPedidosTests : TesteE2E
     }
 
     [Fact]
-    public async Task Dado_ClienteAutenticado_Quando_AbrirOMenuDaConta_Entao_OAtalhoDePedidosDeveFuncionar() =>
-        await Executar(async () =>
-        {
-            await Entrar(AplicacaoEmExecucao.EmailClienteSeed, AplicacaoEmExecucao.SenhaClienteSeed);
-
-            var pagina = new PaginaMeusPedidos(Pagina);
-            await Pagina.GotoAsync($"{UrlBase}/Conta");
-            await pagina.LinkMeusPedidosNoMenu.ClickAsync();
-
-            await Expect(Pagina).ToHaveURLAsync($"{UrlBase}/Pedido/Meus");
-        });
-
-    [Fact]
-    public async Task Dado_ClienteComPedidos_Quando_AbrirALista_Entao_DeveMostrarOsPedidosComOMaisRecentePrimeiro() =>
-        await Executar(async () =>
-        {
-            await Entrar(AplicacaoEmExecucao.EmailClienteSeed, AplicacaoEmExecucao.SenhaClienteSeed);
-
-            var pagina = new PaginaMeusPedidos(Pagina);
-            await pagina.Abrir(UrlBase);
-
-            await Expect(pagina.Cartoes).ToHaveCountAsync(2);
-            await Expect(pagina.Cartoes.First.Locator(".situacao-cartao-pedido")).ToHaveTextAsync("Entregue");
-        });
-
-    [Fact]
     public async Task Dado_UmPedido_Quando_Abrir_Entao_DeveLevarAoDetalheComItensEValores() =>
         await Executar(async () =>
         {
@@ -57,27 +31,4 @@ public class MeusPedidosTests : TesteE2E
             await Expect(Pagina.Locator(".bloco-detalhe-pedido")).ToHaveCountAsync(2);
         });
 
-    [Fact]
-    public async Task Dado_Visitante_Quando_TentarAbrirALista_Entao_DeveSerLevadoAEntrar() =>
-        await Executar(async () =>
-        {
-            var pagina = new PaginaMeusPedidos(Pagina);
-            await pagina.Abrir(UrlBase);
-
-            await Expect(Pagina).ToHaveURLAsync(new System.Text.RegularExpressions.Regex(@"/Autenticacao/Login"));
-        });
-
-    [Fact]
-    public async Task Dado_ClienteSemPedidoNenhum_Quando_AbrirALista_Entao_DeveExplicarEOferecerOCatalogo() =>
-        await Executar(async () =>
-        {
-            await Entrar("cliente8.seed@docescabana.com.br", AplicacaoEmExecucao.SenhaClienteSeed);
-
-            var pagina = new PaginaMeusPedidos(Pagina);
-            await pagina.Abrir(UrlBase);
-
-            await Expect(pagina.MensagemVazia).ToBeVisibleAsync();
-            await Expect(pagina.MensagemVazia).ToContainTextAsync("Ver o catálogo");
-            await Expect(pagina.Cartoes).ToHaveCountAsync(0);
-        });
 }

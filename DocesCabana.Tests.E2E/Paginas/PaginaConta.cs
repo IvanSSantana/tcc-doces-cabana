@@ -13,36 +13,12 @@ public class PaginaConta
 
     public async Task Abrir(string urlBase) => await _pagina.GotoAsync($"{urlBase}/Conta");
 
-    public async Task AbrirEnderecos(string urlBase) => await _pagina.GotoAsync($"{urlBase}/Conta/Enderecos");
-
     public async Task AbrirNovoEndereco(string urlBase) => await _pagina.GotoAsync($"{urlBase}/Conta/NovoEndereco");
 
-    public ILocator MenuDados => Container.Locator(".menu-conta").GetByRole(AriaRole.Link, new() { Name = "Dados pessoais" });
-    public ILocator MenuEnderecos => Container.Locator(".menu-conta").GetByRole(AriaRole.Link, new() { Name = "Endereços" });
-
-    public ILocator CampoNome => Container.Locator("input[name='Nome']");
-    public ILocator CampoCelular => Container.Locator("input[name='Celular']");
-    public ILocator CampoDataNascimento => Container.Locator("input[name='DataNascimento']");
-    public ILocator CpfSomenteLeitura => Container.Locator(".cpf-somente-leitura");
-    public ILocator BotaoSalvarDados => Container.GetByRole(AriaRole.Button, new() { Name = "Salvar alterações" });
-    public ILocator ErroDoCelular => Container.Locator("input[name='Celular']")
-        .Locator("xpath=ancestor::div[contains(@class,'campo-entrada')]").Locator(".mensagem-erro");
-
-    public async Task PreencherDadosPessoais(string nome, string celular, string dataNascimento)
-    {
-        await CampoNome.FillAsync(nome);
-        await CampoCelular.FillAsync(celular);
-        await CampoDataNascimento.FillAsync(dataNascimento);
-    }
-
     public ILocator MensagemVazia => Container.Locator(".enderecos-vazio");
-    public ILocator BotaoNovoEndereco => Container.GetByRole(AriaRole.Link, new() { Name = "Novo endereço" });
     public ILocator Cartoes => Container.Locator(".cartao-endereco");
-    public ILocator CartaoPrincipal => Container.Locator(".cartao-endereco--principal");
 
-    public ILocator BotaoTornarPrincipal(ILocator cartao) => cartao.GetByRole(AriaRole.Button, new() { Name = "Tornar principal" });
     public ILocator BotaoEditar(ILocator cartao) => cartao.GetByRole(AriaRole.Link, new() { Name = "Editar" });
-    public ILocator BotaoExcluir(ILocator cartao) => cartao.GetByRole(AriaRole.Button, new() { Name = "Excluir" });
 
     public ILocator CampoCep => _pagina.Locator("input[name='CEP']");
     public ILocator CampoEstado => _pagina.Locator("input[name='Estado']");

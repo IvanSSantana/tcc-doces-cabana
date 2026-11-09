@@ -28,19 +28,6 @@ public class LoginTests : TesteE2E
         });
 
     [Fact]
-    public async Task Dado_SenhaErrada_Quando_Entrar_Entao_DeveMostrarCredencialIncorreta() =>
-        await Executar(async () =>
-        {
-            var (email, _) = await CadastrarClienteDescartavel();
-
-            var paginaLogin = new PaginaLogin(Pagina);
-            await paginaLogin.Abrir(UrlBase);
-            await paginaLogin.Entrar(email, "SenhaErrada@123");
-
-            await Expect(paginaLogin.MensagemDeErro).ToHaveTextAsync("E-mail ou senha incorreto(s).");
-        });
-
-    [Fact]
     public async Task Dado_Autenticado_Quando_Sair_Entao_DevePerderAcessoAAreaAdministrativa() =>
         await Executar(async () =>
         {

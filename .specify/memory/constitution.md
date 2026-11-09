@@ -1,6 +1,6 @@
 # Constituição — Doces Cabana
 
-**Versão:** 1.6.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-11-06
+**Versão:** 1.7.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-11-08
 
 Este documento define os princípios inegociáveis do projeto. Todo `plan.md` é
 validado contra ele antes de virar código. Quando uma decisão técnica
@@ -147,6 +147,12 @@ Organização em `DocesCabana.Tests`:
 - `Integration/Repositories` — Postgres descartável (contêiner via
   Testcontainers) através de
   [`InfraestruturaPostgresDescartavel`](../../DocesCabana.Tests/Integration/Infraestrutura/InfraestruturaPostgresDescartavel.cs).
+- `DocesCabana.Tests.E2E/Fluxos` — ponta a ponta com Playwright, **só para
+  jornada de fluxo crítico**: um caminho feliz e no máximo um caso de proteção
+  por fluxo. Regra de negócio se prova em unidade ou integração, não em E2E.
+  Layout, responsividade, foco por teclado e funcionamento sem JavaScript não
+  têm E2E. Um E2E novo precisa dizer, no plano, o que ele prova que as outras
+  camadas não alcançam (cookie, sessão, e-mail, pipeline MVC completo).
 
 Ferramentas fixas: xUnit + Moq + coverlet para teste de unidade e de
 integração; `Microsoft.Playwright` para teste de ponta a ponta em navegador,
@@ -240,3 +246,4 @@ justificativa escrita no `plan.md`:
 | 1.4.2 | 2026-09-07 | Feature `028-banco-postgres-supabase`. Princípio V: `Integration/Repositories` passa a descrever Postgres descartável via `InfraestruturaPostgresDescartavel`, no lugar do SQLite em memória via `InfraestruturaSqliteEmMemoria` — o banco trocou de motor, a organização de teste não mudou. PATCH — corrige referência e exemplo, não introduz regra nova. |
 | 1.5.0 | 2026-11-03 | Troca de processo: o SDD clássico (`spec` → `plan` → `tasks` → `checklist`) dá lugar a três etapas — debate sem arquivo, `plan.md` com as decisões e execução. Preâmbulo, Princípio VII e Governança passam a citar só o `plan.md`; a Governança ganha o item 3 descrevendo o fluxo. Nenhum princípio técnico muda. MINOR — redefine o processo de governança, não um princípio. |
 | 1.6.0 | 2026-11-06 | Feature `029-correcoes-estruturais`. Remove a "exceção conhecida" do Princípio I: `IUsuarioService` e `IAdministradorService` passam para `Application/Contracts/Services` e `RealizarLogin` retorna `ResultadoDoLogin`, de modo que a `Application` não conhece o Identity. Princípio V aponta o novo caminho de `InfraestruturaPostgresDescartavel`. MINOR — remove uma exceção material, sem incompatibilidade com os demais princípios. |
+| 1.7.0 | 2026-11-08 | Feature `030-enxugamento-da-suite-de-testes`. Princípio V ganha a régua do E2E: só jornada de fluxo crítico, um caminho feliz e no máximo uma proteção por fluxo; regra de negócio se prova em unidade ou integração; layout, responsividade, foco e funcionamento sem JavaScript não têm E2E. A suíte E2E caiu de 182 para 16 testes. MINOR — expansão material de um princípio existente. |
