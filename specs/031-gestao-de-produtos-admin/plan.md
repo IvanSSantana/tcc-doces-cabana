@@ -1,7 +1,7 @@
 # Plano — Gestão de produtos do administrador
 
 **ID:** 031-gestao-de-produtos-admin · **Criado em:** 2026-11-09
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 
@@ -139,19 +139,19 @@ Não há migration: o esquema não muda.
 
 ## 6. Ordem de execução
 
-- [ ] 1. Criar `FiltroDeGestaoDeProduto` e as assinaturas novas de `IProdutoRepository` e `IProdutoService` (compila com `NotImplementedException`).
-- [ ] 2. Teste de integração de `BuscarPaginaDaGestao`/`ContarNaGestao` (vermelho) → implementar no `ProdutoRepository` → verde.
-- [ ] 3. Testes de unidade de `ListarParaGestao` (filtro repassado, ajuste de página, tamanho 10, total) (vermelho) → implementar → verde.
-- [ ] 4. Testes de unidade de `Inativar` (muda status e salva; já inativo não falha; id inexistente → `KeyNotFoundException`) (vermelho) → substituir `Remover` por `Inativar` → verde.
-- [ ] 5. Testes de unidade de `Atualizar` (aplica cada campo na entidade rastreada, não chama `Repository.Atualizar`, salva; id inexistente → `KeyNotFoundException`) e teste de integração que persiste a edição (vermelhos) → reescrever `Atualizar` → verde.
-- [ ] 6. Testes de controller para `Index` (repassa filtro/página e retorna view com o view model) (vermelho) → criar `GestaoDeProdutosViewModel`, a ação, `Index.cshtml` e `_PaginacaoDaGestao.cshtml` → verde.
-- [ ] 7. Ajustar os testes de controller de `Cadastro` para `PartialViewResult`/400/redirect a `Index` (vermelho) → extrair `_FormularioProduto.cshtml`, adaptar as ações e apagar `Cadastro.cshtml` → verde.
-- [ ] 8. Testes de controller para `Edicao` GET/POST (sem imagem mantém a URL atual; imagem inválida → 400; envio falhou → 400; sucesso → `Atualizar` + redirect) (vermelho) → implementar → verde.
-- [ ] 9. Testes de controller para `Detalhe` e `Inativar` (redireciona mantendo filtro e página, com `TempData`) (vermelho) → implementar ações e `_DetalheProduto.cshtml` → verde.
-- [ ] 10. `gestao-produtos.js` e `gestao-produtos.css`, com os modais de produto e de confirmação.
-- [ ] 11. Atalho do cabeçalho → "Produtos" / `Index`.
-- [ ] 12. Adaptar os objetos de página e os E2E de `CadastroDeProdutoTests` e `AreaAdministrativaTests` (vermelho com a tela antiga apagada) → verde.
-- [ ] 13. `dotnet build` e `dotnet test` completos.
+- [x] 1. Criar `FiltroDeGestaoDeProduto` e as assinaturas novas de `IProdutoRepository` e `IProdutoService` (compila com `NotImplementedException`).
+- [x] 2. Teste de integração de `BuscarPaginaDaGestao`/`ContarNaGestao` (vermelho) → implementar no `ProdutoRepository` → verde.
+- [x] 3. Testes de unidade de `ListarParaGestao` (filtro repassado, ajuste de página, tamanho 10, total) (vermelho) → implementar → verde.
+- [x] 4. Testes de unidade de `Inativar` (muda status e salva; já inativo não falha; id inexistente → `KeyNotFoundException`) (vermelho) → substituir `Remover` por `Inativar` → verde.
+- [x] 5. Testes de unidade de `Atualizar` (aplica cada campo na entidade rastreada, não chama `Repository.Atualizar`, salva; id inexistente → `KeyNotFoundException`) e teste de integração que persiste a edição (vermelhos) → reescrever `Atualizar` → verde.
+- [x] 6. Testes de controller para `Index` (repassa filtro/página e retorna view com o view model) (vermelho) → criar `GestaoDeProdutosViewModel`, a ação, `Index.cshtml` e `_PaginacaoDaGestao.cshtml` → verde.
+- [x] 7. Ajustar os testes de controller de `Cadastro` para `PartialViewResult`/400/redirect a `Index` (vermelho) → extrair `_FormularioProduto.cshtml`, adaptar as ações e apagar `Cadastro.cshtml` → verde.
+- [x] 8. Testes de controller para `Edicao` GET/POST (sem imagem mantém a URL atual; imagem inválida → 400; envio falhou → 400; sucesso → `Atualizar` + redirect) (vermelho) → implementar → verde.
+- [x] 9. Testes de controller para `Detalhe` e `Inativar` (redireciona mantendo filtro e página, com `TempData`) (vermelho) → implementar ações e `_DetalheProduto.cshtml` → verde.
+- [x] 10. `gestao-produtos.js` e `gestao-produtos.css`, com os modais de produto e de confirmação.
+- [x] 11. Atalho do cabeçalho → "Produtos" / `Index`.
+- [x] 12. Adaptar os objetos de página e os E2E de `CadastroDeProdutoTests` e `AreaAdministrativaTests` (vermelho com a tela antiga apagada) → verde.
+- [x] 13. `dotnet build` e `dotnet test` completos.
 - [ ] 14. Verificação manual (seção 7) e atualização do status em `specs/README.md`.
 
 ## 7. Testes e verificação
@@ -187,4 +187,13 @@ Nenhum desvio constitucional.
 
 ## 9. Resultado da execução
 
-*Preenchido na execução.*
+**Build e testes:** `dotnet build` limpo. Suíte completa: 685 testes, 684 verdes, 1 falha.
+
+**Falha restante:** `CadastroDeProdutoTests.Dado_Administrador_Quando_CadastrarProduto_Entao_DeveConfirmar` (`Trait Externo`). O modal exibe "Armazenamento de imagem não configurado.", porque o ambiente não tem credencial do Supabase. Não é regressão da feature. Passa onde houver a credencial.
+
+**Desvios do plano:**
+- O E2E de caminho feliz confirma a mensagem de sucesso, mas não a linha na tabela. A tabela é paginada por nome e o produto novo pode cair fora da primeira página, o que deixaria o teste instável.
+- O teste de integração de `Atualizar` foi escrito depois da implementação do passo 5, então não foi visto falhando antes.
+- Os passos 6 a 9 (controller) foram escritos num lote só de testes, vistos falhando (não compilavam) e depois implementados.
+
+**Não feito:** passo 14, verificação manual (visual, foco no modal, `Esc`, estado vazio de cada filtro, confirmação de inativação, produto inativo sumindo da loja).

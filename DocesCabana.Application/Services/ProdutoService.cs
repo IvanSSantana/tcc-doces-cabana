@@ -10,6 +10,8 @@ namespace DocesCabana.Application.Services;
 
 public class ProdutoService : IProdutoService
 {
+    private const int TamanhoDaPaginaDaGestao = 10;
+
     private readonly IProdutoRepository _produtoRepository;
     private readonly IAvaliacaoService _avaliacaoService;
     private readonly IFavoritoRepository _favoritoRepository;
@@ -70,13 +72,30 @@ public class ProdutoService : IProdutoService
         return ProdutoMapper.ToDTO(produto);
     }
 
-    public async Task Remover(Guid produtoId)
+    public async Task Inativar(Guid produtoId)
     {
-        var produto = await _produtoRepository.BuscarPorId(produtoId) 
-            ?? throw new KeyNotFoundException($"Produo com ID {produtoId} não encontrado.");
+        var produto = await _produtoRepository.BuscarPorId(produtoId)
+            ?? throw new KeyNotFoundException($"Produto com ID {produtoId} não encontrado.");
 
-        _produtoRepository.Remover(produto);
+        produto.AlterarStatus(ProdutoStatus.Inativo);
         await _unitOfWork.SalvarAlteracoes();
+    }
+
+    public async Task<PaginaDeProdutosDTO> ListarParaGestao(FiltroDeGestaoDeProduto filtro, int pagina)
+    {
+        var total = await _produtoRepository.ContarNaGestao(filtro);
+        var totalDePaginas = Math.Max(1, (int)Math.Ceiling(total / (double)TamanhoDaPaginaDaGestao));
+        var paginaSaneada = Math.Clamp(pagina, 1, totalDePaginas);
+
+        var produtos = await _produtoRepository.BuscarPaginaDaGestao(filtro, paginaSaneada, TamanhoDaPaginaDaGestao);
+
+        return new PaginaDeProdutosDTO
+        {
+            Itens = ProdutoMapper.ToDTO(produtos),
+            PaginaAtual = paginaSaneada,
+            TotalDePaginas = totalDePaginas,
+            TotalDeItens = total
+        };
     }
 
     public async Task<ProdutoDTO> Atualizar(ProdutoDTO dto)
@@ -84,10 +103,22 @@ public class ProdutoService : IProdutoService
         var produto = await _produtoRepository.BuscarPorId(dto.ProdutoId) 
             ?? throw new KeyNotFoundException($"Produto com ID {dto.ProdutoId} não encontrado.");
 
-        var produtoAtualizado = await _produtoRepository.Atualizar(ProdutoMapper.ToEntity(dto));
+        produto.AlterarNome(dto.Nome);
+        produto.AlterarPreco(dto.Preco);
+        produto.AlterarSubcategoriaId(dto.SubcategoriaId);
+        produto.AlterarDescricao(dto.Descricao);
+        produto.AlterarDimensoes(dto.Peso, dto.Altura, dto.Largura, dto.Comprimento);
+        produto.AlterarImagem(dto.ImagemUrl);
+        produto.AlterarStatus(dto.Status);
+
+        if (dto.SemAcucar)
+            produto.MarcarComoSemAcucar();
+        else
+            produto.DesmarcarSemAcucar();
+
         await _unitOfWork.SalvarAlteracoes();
 
-        return ProdutoMapper.ToDTO(produtoAtualizado);
+        return ProdutoMapper.ToDTO(produto);
     }
 
     public async Task<ProdutoDetalheDTO> BuscarDetalhe(

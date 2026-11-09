@@ -17,6 +17,7 @@ public class CadastroDeProdutoTests : TesteE2E
 
             var paginaProduto = new PaginaCadastroProduto(Pagina);
             await paginaProduto.Abrir(UrlBase);
+            await paginaProduto.AbrirNovo();
             await paginaProduto.Preencher("Brigadeiro Gourmet E2E", 9.90m);
             await paginaProduto.Enviar();
 
@@ -31,6 +32,7 @@ public class CadastroDeProdutoTests : TesteE2E
 
             var paginaProduto = new PaginaCadastroProduto(Pagina);
             await paginaProduto.Abrir(UrlBase);
+            await paginaProduto.AbrirNovo();
             await paginaProduto.Preencher("Produto Sem Credencial E2E", 12.90m);
             await paginaProduto.Enviar();
 

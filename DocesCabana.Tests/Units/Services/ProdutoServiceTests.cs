@@ -253,4 +253,139 @@ public class ProdutoServiceTests
         Assert.True(resultado.Single(p => p.ProdutoId == produtoFavoritado.ProdutoId).EstaFavorito);
         Assert.False(resultado.Single(p => p.ProdutoId == produtoNaoFavoritado.ProdutoId).EstaFavorito);
     }
+
+    [Fact]
+    public async Task Dado_PaginaAlemDaUltima_Quando_ListarParaGestao_Entao_DeveDevolverAUltima()
+    {
+        _produtoRepositoryMock.Setup(r => r.ContarNaGestao(FiltroDeGestaoDeProduto.Todos)).ReturnsAsync(25);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDaGestao(FiltroDeGestaoDeProduto.Todos, 3, 10)).ReturnsAsync([]);
+
+        var resultado = await _produtoService.ListarParaGestao(FiltroDeGestaoDeProduto.Todos, 99);
+
+        Assert.Equal(3, resultado.PaginaAtual);
+        Assert.Equal(3, resultado.TotalDePaginas);
+        Assert.Equal(25, resultado.TotalDeItens);
+        _produtoRepositoryMock.Verify(r => r.BuscarPaginaDaGestao(FiltroDeGestaoDeProduto.Todos, 3, 10), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_FiltroInativosEPaginaZero_Quando_ListarParaGestao_Entao_DeveRepassarOFiltroEUsarPaginaUm()
+    {
+        var produto = new Produto(Guid.NewGuid(), "Bolo", 10m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m, ProdutoStatus.Inativo);
+        _produtoRepositoryMock.Setup(r => r.ContarNaGestao(FiltroDeGestaoDeProduto.Inativos)).ReturnsAsync(0 + 1);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDaGestao(FiltroDeGestaoDeProduto.Inativos, 1, 10)).ReturnsAsync([produto]);
+
+        var resultado = await _produtoService.ListarParaGestao(FiltroDeGestaoDeProduto.Inativos, 0);
+
+        Assert.Equal(1, resultado.PaginaAtual);
+        Assert.Equal(1, resultado.TotalDePaginas);
+        Assert.Equal("Bolo", Assert.Single(resultado.Itens).Nome);
+    }
+
+    [Fact]
+    public async Task Dado_SemProdutos_Quando_ListarParaGestao_Entao_DeveTerUmaPaginaVazia()
+    {
+        _produtoRepositoryMock.Setup(r => r.ContarNaGestao(FiltroDeGestaoDeProduto.Todos)).ReturnsAsync(0);
+        _produtoRepositoryMock.Setup(r => r.BuscarPaginaDaGestao(FiltroDeGestaoDeProduto.Todos, 1, 10)).ReturnsAsync([]);
+
+        var resultado = await _produtoService.ListarParaGestao(FiltroDeGestaoDeProduto.Todos, 1);
+
+        Assert.Empty(resultado.Itens);
+        Assert.Equal(1, resultado.TotalDePaginas);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoAtivo_Quando_Inativar_Entao_DeveFicarInativoESalvar()
+    {
+        var produto = new Produto(Guid.NewGuid(), "Bolo", 10m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
+
+        await _produtoService.Inativar(produto.ProdutoId);
+
+        Assert.Equal(ProdutoStatus.Inativo, produto.Status);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
+        _produtoRepositoryMock.Verify(r => r.Remover(It.IsAny<Produto>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoJaInativo_Quando_Inativar_Entao_NaoDeveLancar()
+    {
+        var produto = new Produto(Guid.NewGuid(), "Bolo", 10m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m, ProdutoStatus.Inativo);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
+
+        await _produtoService.Inativar(produto.ProdutoId);
+
+        Assert.Equal(ProdutoStatus.Inativo, produto.Status);
+    }
+
+    [Fact]
+    public async Task Dado_IdInexistente_Quando_Inativar_Entao_DeveLancarKeyNotFoundException()
+    {
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(It.IsAny<Guid>())).ReturnsAsync((Produto?)null);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _produtoService.Inativar(Guid.NewGuid()));
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoExistente_Quando_Atualizar_Entao_DeveAplicarOsCamposSemChamarRepositorioAtualizar()
+    {
+        var subcategoriaNova = Guid.NewGuid();
+        var produto = new Produto(Guid.NewGuid(), "Bolo", 10m, "https://imagem.com/antiga.jpg", 0.5m, 10m, 15m, 20m);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
+        var dto = new ProdutoDTO
+        {
+            ProdutoId = produto.ProdutoId,
+            Nome = "Bolo Novo",
+            Preco = 12.5m,
+            Status = ProdutoStatus.ForaDeEstoque,
+            ImagemUrl = "https://imagem.com/nova.jpg",
+            Descricao = "Descrição nova",
+            SubcategoriaId = subcategoriaNova,
+            SemAcucar = true,
+            Peso = 1m,
+            Altura = 11m,
+            Largura = 16m,
+            Comprimento = 21m
+        };
+
+        var resultado = await _produtoService.Atualizar(dto);
+
+        Assert.Equal("Bolo Novo", produto.Nome);
+        Assert.Equal(12.5m, produto.Preco);
+        Assert.Equal(ProdutoStatus.ForaDeEstoque, produto.Status);
+        Assert.Equal("https://imagem.com/nova.jpg", produto.ImagemUrl);
+        Assert.Equal("Descrição nova", produto.Descricao);
+        Assert.Equal(subcategoriaNova, produto.SubcategoriaId);
+        Assert.True(produto.SemAcucar);
+        Assert.Equal(1m, produto.Peso);
+        Assert.Equal(21m, produto.Comprimento);
+        Assert.Equal("Bolo Novo", resultado.Nome);
+        _produtoRepositoryMock.Verify(r => r.Atualizar(It.IsAny<Produto>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoSemAcucarEDtoComAcucar_Quando_Atualizar_Entao_DeveDesmarcar()
+    {
+        var produto = new Produto(Guid.NewGuid(), "Bolo", 10m, "https://imagem.com/a.jpg", 0.5m, 10m, 15m, 20m, semAcucar: true);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
+        var dto = new ProdutoDTO
+        {
+            ProdutoId = produto.ProdutoId, Nome = "Bolo", Preco = 10m, ImagemUrl = "https://imagem.com/a.jpg",
+            SubcategoriaId = produto.SubcategoriaId, SemAcucar = false, Peso = 0.5m, Altura = 10m, Largura = 15m, Comprimento = 20m
+        };
+
+        await _produtoService.Atualizar(dto);
+
+        Assert.False(produto.SemAcucar);
+    }
+
+    [Fact]
+    public async Task Dado_IdInexistente_Quando_Atualizar_Entao_DeveLancarKeyNotFoundException()
+    {
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(It.IsAny<Guid>())).ReturnsAsync((Produto?)null);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            _produtoService.Atualizar(new ProdutoDTO { ProdutoId = Guid.NewGuid() }));
+    }
 }

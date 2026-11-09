@@ -1,0 +1,48 @@
+@using DocesCabana.MVC.Models
+@model GestaoDeProdutosViewModel
+@{
+    string Endereco(int pagina) => Url.Action("Index", "Produto", new { area = "Admin", filtro = Model.Filtro, pagina })!;
+    var atual = Model.Pagina.PaginaAtual;
+    var total = Model.Pagina.TotalDePaginas;
+}
+
+@if (total > 1)
+{
+    <nav class="paginacao-gestao" aria-label="Páginas dos produtos">
+        @if (atual > 1)
+        {
+            <a href="@Endereco(atual - 1)" class="link-paginacao-gestao link-paginacao-gestao--seta" aria-label="Página anterior">&lsaquo;</a>
+        }
+        else
+        {
+            <span class="link-paginacao-gestao link-paginacao-gestao--seta link-paginacao-gestao--desabilitada" aria-hidden="true">&lsaquo;</span>
+        }
+
+        @for (var pagina = 1; pagina <= total; pagina++)
+        {
+            var proximoDaAtual = Math.Abs(pagina - atual) <= 1;
+            var extremidade = pagina == 1 || pagina == total;
+
+            if (proximoDaAtual || extremidade)
+            {
+                <a href="@Endereco(pagina)"
+                   class="link-paginacao-gestao @(pagina == atual ? "link-paginacao-gestao--atual" : "")"
+                   aria-current="@(pagina == atual ? "page" : null)"
+                   aria-label="Página @pagina">@pagina</a>
+            }
+            else if (Math.Abs(pagina - atual) == 2)
+            {
+                <span class="reticencias-paginacao" aria-hidden="true">…</span>
+            }
+        }
+
+        @if (atual < total)
+        {
+            <a href="@Endereco(atual + 1)" class="link-paginacao-gestao link-paginacao-gestao--seta" aria-label="Próxima página">&rsaquo;</a>
+        }
+        else
+        {
+            <span class="link-paginacao-gestao link-paginacao-gestao--seta link-paginacao-gestao--desabilitada" aria-hidden="true">&rsaquo;</span>
+        }
+    </nav>
+}

@@ -1,0 +1,87 @@
+@using DocesCabana.Application.Enums
+@using DocesCabana.Domain.Enums
+@model GestaoDeProdutosViewModel
+@{
+    var ehInativos = Model.Filtro == FiltroDeGestaoDeProduto.Inativos;
+}
+
+<div id="resultado-gestao" tabindex="-1"
+     data-filtro="@Model.Filtro" data-pagina="@Model.Pagina.PaginaAtual">
+
+    <nav class="abas-filtro" aria-label="Filtro de produtos">
+        <a asp-area="Admin" asp-controller="Produto" asp-action="Index" asp-route-filtro="@FiltroDeGestaoDeProduto.Todos"
+           class="aba-filtro @(!ehInativos ? "aba-filtro--ativa" : "")"
+           aria-current="@(!ehInativos ? "page" : null)">Todos</a>
+        <a asp-area="Admin" asp-controller="Produto" asp-action="Index" asp-route-filtro="@FiltroDeGestaoDeProduto.Inativos"
+           class="aba-filtro @(ehInativos ? "aba-filtro--ativa" : "")"
+           aria-current="@(ehInativos ? "page" : null)">Inativos</a>
+        <span class="total-produtos">@Model.Pagina.TotalDeItens @(Model.Pagina.TotalDeItens == 1 ? "produto" : "produtos")</span>
+    </nav>
+
+    @if (TempData["Confirmacao"] is string confirmacao)
+    {
+        <div class="resumo-sucesso" role="status">
+            <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
+        </div>
+    }
+
+    @if (!Model.Pagina.Itens.Any())
+    {
+        <p class="gestao-vazia">@(ehInativos ? "Nenhum produto inativo. Os produtos que você excluir aparecem aqui." : "Nenhum produto cadastrado. Use “+ Novo produto” para começar.")</p>
+    }
+    else
+    {
+        <div class="tabela-rolavel">
+            <table class="tabela-produtos">
+                <thead>
+                    <tr>
+                        <th scope="col" class="coluna-foto"><span class="visualmente-oculto">Foto</span></th>
+                        <th scope="col">Nome</th>
+                        <th scope="col" class="coluna-preco">Preço</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="coluna-acoes"><span class="visualmente-oculto">Ações</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var produto in Model.Pagina.Itens)
+                    {
+                        var (rotuloDoStatus, classeDoStatus) = produto.Status switch
+                        {
+                            ProdutoStatus.Ativo => ("Ativo", "selo-status--ativo"),
+                            ProdutoStatus.ForaDeEstoque => ("Fora de estoque", "selo-status--sem-estoque"),
+                            _ => ("Inativo", "selo-status--inativo")
+                        };
+
+                        <tr>
+                            <td class="coluna-foto"><img src="@produto.ImagemUrl" alt="" class="miniatura-produto" loading="lazy" /></td>
+                            <td class="coluna-nome">@produto.Nome</td>
+                            <td class="coluna-preco">@produto.Preco.ToString("C")</td>
+                            <td><span class="selo-status @classeDoStatus">@rotuloDoStatus</span></td>
+                            <td class="coluna-acoes">
+                                <div class="acoes-produto">
+                                    <button type="button" class="botao-icone" title="Ver" aria-label="Ver @produto.Nome"
+                                            data-abrir-modal="@Url.Action("Detalhe", "Produto", new { area = "Admin", id = produto.ProdutoId })">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="botao-icone" title="Editar" aria-label="Editar @produto.Nome"
+                                            data-abrir-modal="@Url.Action("Edicao", "Produto", new { area = "Admin", id = produto.ProdutoId })">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </button>
+                                    @if (produto.Status != ProdutoStatus.Inativo)
+                                    {
+                                        <button type="button" class="botao-icone botao-icone--perigo" title="Excluir" aria-label="Excluir @produto.Nome"
+                                                data-inativar-id="@produto.ProdutoId" data-inativar-nome="@produto.Nome">
+                                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <partial name="_PaginacaoDaGestao" model="Model" />
+    }
+</div>

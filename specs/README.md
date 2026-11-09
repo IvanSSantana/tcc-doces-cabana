@@ -40,7 +40,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [028](./028-banco-postgres-supabase/spec.md) | Banco de dados no Postgres do Supabase | Implementada | spec · [plan](./028-banco-postgres-supabase/plan.md) · [tasks](./028-banco-postgres-supabase/tasks.md) · [checklist](./028-banco-postgres-supabase/checklist.md) |
 | [029](./029-correcoes-estruturais/plan.md) | Correções estruturais | Executada | [plan](./029-correcoes-estruturais/plan.md) |
 | [030](./030-enxugamento-da-suite-de-testes/plan.md) | Enxugamento da suíte de testes | Executada | [plan](./030-enxugamento-da-suite-de-testes/plan.md) |
-| [031](./031-gestao-de-produtos-admin/plan.md) | Gestão de produtos do administrador | Planejada | [plan](./031-gestao-de-produtos-admin/plan.md) |
+| [031](./031-gestao-de-produtos-admin/plan.md) | Gestão de produtos do administrador | Executada | [plan](./031-gestao-de-produtos-admin/plan.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023` → `027` → `028`.
 > A `028` fechou o par que a `027` abriu — as duas nasceram do mesmo pedido

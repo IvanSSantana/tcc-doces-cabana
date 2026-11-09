@@ -1,0 +1,55 @@
+@model GestaoDeProdutosViewModel
+@{
+    ViewData["Title"] = "Produtos";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/components/formulario.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/cadastro_produto.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/gestao-produtos.css" asp-append-version="true">
+
+<main class="container-gestao-produtos">
+    <div class="cabecalho-gestao">
+        <h1 class="titulo-gestao">Produtos</h1>
+        <button type="button" class="botao-principal-gestao"
+                data-abrir-modal="@Url.Action("Cadastro", "Produto", new { area = "Admin" })">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Novo produto
+        </button>
+    </div>
+
+    <partial name="_ResultadoDaGestao" model="Model" />
+</main>
+
+<dialog id="modal-produto" class="modal-produto" aria-labelledby="titulo-modal-produto">
+    <div class="modal-produto__corpo">
+        <button type="button" class="modal-produto__fechar" data-fechar-modal aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <div id="conteudo-modal-produto" class="conteudo-modal-produto pagina-cadastro-produto"></div>
+    </div>
+</dialog>
+
+<dialog id="modal-inativar" class="modal-produto modal-produto--confirmacao" aria-labelledby="titulo-modal-inativar">
+    <form asp-area="Admin" asp-controller="Produto" asp-action="Inativar" method="post" class="modal-produto__corpo conteudo-modal-produto">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" id="inativar-id" />
+        <input type="hidden" name="filtro" id="inativar-filtro" value="@Model.Filtro" />
+        <input type="hidden" name="pagina" id="inativar-pagina" value="@Model.Pagina.PaginaAtual" />
+
+        <h2 class="titulo-modal-produto" id="titulo-modal-inativar">Excluir produto?</h2>
+        <p class="texto-confirmacao"><strong id="inativar-nome"></strong> deixa de aparecer na loja. O histórico de pedidos continua igual, e você pode reativá-lo editando o produto.</p>
+
+        <div class="acoes-confirmacao">
+            <button type="button" class="botao-secundario-gestao" data-fechar-modal>Cancelar</button>
+            <button type="submit" class="botao-perigo-gestao">Excluir produto</button>
+        </div>
+    </form>
+</dialog>
+
+@section Scripts {
+    <script src="~/js/pages/gestao-produtos.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,38 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Domain.Enums
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model ProdutoDTO
+
+@{
+    var rotuloDaSubcategoria = (ViewBag.Subcategorias as SelectList)?
+        .FirstOrDefault(o => o.Value == Model.SubcategoriaId.ToString())?.Text ?? "—";
+
+    var rotuloDoStatus = Model.Status switch
+    {
+        ProdutoStatus.Ativo => "Ativo",
+        ProdutoStatus.ForaDeEstoque => "Fora de estoque",
+        _ => "Inativo"
+    };
+}
+
+<h2 class="titulo-modal-produto" id="titulo-modal-produto">@Model.Nome</h2>
+
+<div class="detalhe-produto">
+    <img src="@Model.ImagemUrl" alt="@Model.Nome" class="detalhe-produto__imagem" />
+
+    <dl class="detalhe-produto__campos">
+        <dt>Preço</dt><dd>@Model.Preco.ToString("C")</dd>
+        <dt>Status</dt><dd>@rotuloDoStatus</dd>
+        <dt>Categoria</dt><dd>@rotuloDaSubcategoria</dd>
+        <dt>Sem açúcar</dt><dd>@(Model.SemAcucar ? "Sim" : "Não")</dd>
+        <dt>Peso</dt><dd>@Model.Peso.ToString("0.###") kg</dd>
+        <dt>Altura</dt><dd>@Model.Altura.ToString("0.#") cm</dd>
+        <dt>Largura</dt><dd>@Model.Largura.ToString("0.#") cm</dd>
+        <dt>Comprimento</dt><dd>@Model.Comprimento.ToString("0.#") cm</dd>
+        <dt>Descrição</dt><dd>@(string.IsNullOrWhiteSpace(Model.Descricao) ? "—" : Model.Descricao)</dd>
+    </dl>
+</div>
+
+<div class="rodape-modal-produto">
+    <button type="button" class="botao-principal-gestao" data-abrir-modal="@Url.Action("Edicao", "Produto", new { area = "Admin", id = Model.ProdutoId })">Editar</button>
+</div>

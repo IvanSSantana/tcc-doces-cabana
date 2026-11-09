@@ -10,12 +10,18 @@ public class PaginaCadastroProduto
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=");
 
     private readonly IPage _pagina;
-    private ILocator Formulario => _pagina.Locator("form.formulario-autenticacao");
+    private ILocator Formulario => _pagina.Locator("dialog[open] form[data-formulario-produto]");
 
     public PaginaCadastroProduto(IPage pagina) => _pagina = pagina;
 
     public async Task Abrir(string urlBase) =>
-        await _pagina.GotoAsync($"{urlBase}/Admin/Produto/Cadastro");
+        await _pagina.GotoAsync($"{urlBase}/Admin/Produto");
+
+    public async Task AbrirNovo()
+    {
+        await _pagina.GetByRole(AriaRole.Button, new() { Name = "Novo produto" }).ClickAsync();
+        await Formulario.WaitForAsync();
+    }
 
     public async Task Preencher(
         string nome, decimal preco, string subcategoria = SubcategoriaConhecida,
@@ -48,6 +54,6 @@ public class PaginaCadastroProduto
     public async Task Enviar() =>
         await Formulario.GetByRole(AriaRole.Button, new() { Name = "Cadastrar Produto" }).ClickAsync();
 
-    public ILocator MensagemDeConfirmacao => Formulario.Locator(".resumo-sucesso .mensagem-sucesso");
+    public ILocator MensagemDeConfirmacao => _pagina.Locator(".resumo-sucesso .mensagem-sucesso");
     public ILocator ErroGeral => Formulario.Locator(".resumo-erros .mensagem-erro");
 }

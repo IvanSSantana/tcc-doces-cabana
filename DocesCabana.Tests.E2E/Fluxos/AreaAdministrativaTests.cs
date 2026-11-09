@@ -14,7 +14,7 @@ public class AreaAdministrativaTests : TesteE2E
     public async Task Dado_Visitante_Quando_AbrirAreaAdministrativa_Entao_DeveLevarAoLogin() =>
         await Executar(async () =>
         {
-            await Pagina.GotoAsync($"{UrlBase}/Admin/Produto/Cadastro");
+            await Pagina.GotoAsync($"{UrlBase}/Admin/Produto");
             Assert.Contains("/Autenticacao/Login", Pagina.Url);
 
             await Pagina.GotoAsync($"{UrlBase}/Admin/Administrador");
@@ -27,7 +27,7 @@ public class AreaAdministrativaTests : TesteE2E
         {
             await CadastrarEEntrarComoClienteComum();
 
-            await Pagina.GotoAsync($"{UrlBase}/Admin/Produto/Cadastro");
+            await Pagina.GotoAsync($"{UrlBase}/Admin/Produto");
             Assert.Contains("/Home/AcessoNegado", Pagina.Url);
 
             await Pagina.GotoAsync($"{UrlBase}/Admin/Administrador");

@@ -34,6 +34,17 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
     public async Task<int> ContarNoCatalogo(FiltroCatalogoDTO filtro) =>
         await ConstruirConsulta(filtro).CountAsync();
 
+    public async Task<List<Produto>> BuscarPaginaDaGestao(FiltroDeGestaoDeProduto filtro, int pagina, int tamanhoDaPagina) =>
+        await ConstruirConsultaDaGestao(filtro)
+            .OrderBy(p => p.Nome)
+            .ThenBy(p => p.ProdutoId)
+            .Skip((pagina - 1) * tamanhoDaPagina)
+            .Take(tamanhoDaPagina)
+            .ToListAsync();
+
+    public async Task<int> ContarNaGestao(FiltroDeGestaoDeProduto filtro) =>
+        await ConstruirConsultaDaGestao(filtro).CountAsync();
+
     public async Task<Dictionary<Guid, int>> ContarDisponivelPorSubcategoria() =>
         await _context.Produtos
             .AsNoTracking()
@@ -41,6 +52,15 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
             .GroupBy(p => p.SubcategoriaId)
             .Select(g => new { SubcategoriaId = g.Key, Quantidade = g.Count() })
             .ToDictionaryAsync(g => g.SubcategoriaId, g => g.Quantidade);
+
+    private IQueryable<Produto> ConstruirConsultaDaGestao(FiltroDeGestaoDeProduto filtro)
+    {
+        var consulta = _context.Produtos.AsNoTracking();
+
+        return filtro == FiltroDeGestaoDeProduto.Inativos
+            ? consulta.Where(p => p.Status == ProdutoStatus.Inativo)
+            : consulta.Where(p => p.Status != ProdutoStatus.Inativo);
+    }
 
     private IQueryable<Produto> ConstruirConsulta(FiltroCatalogoDTO filtro)
     {

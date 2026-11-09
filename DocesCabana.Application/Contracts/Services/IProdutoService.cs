@@ -11,7 +11,9 @@ public interface IProdutoService
 
     Task<ProdutoDTO> Cadastrar(ProdutoDTO dto);
 
-    Task Remover(Guid produtoId);
+    Task Inativar(Guid produtoId);
+
+    Task<PaginaDeProdutosDTO> ListarParaGestao(FiltroDeGestaoDeProduto filtro, int pagina);
 
     Task<ProdutoDTO> Atualizar(ProdutoDTO dto);
 

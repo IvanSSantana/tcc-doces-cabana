@@ -1,4 +1,5 @@
 using DocesCabana.Application.DTOs;
+using DocesCabana.Application.Enums;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 
@@ -12,5 +13,9 @@ public interface IProdutoRepository : IRepository<Produto>
 
     Task<int> ContarNoCatalogo(FiltroCatalogoDTO filtro);
     
+    Task<List<Produto>> BuscarPaginaDaGestao(FiltroDeGestaoDeProduto filtro, int pagina, int tamanhoDaPagina);
+
+    Task<int> ContarNaGestao(FiltroDeGestaoDeProduto filtro);
+
     Task<Dictionary<Guid, int>> ContarDisponivelPorSubcategoria();
 }

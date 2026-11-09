@@ -1,21 +1,31 @@
 @using DocesCabana.Application.DTOs
 @using DocesCabana.Domain.Enums
+@using Microsoft.AspNetCore.Mvc.Rendering
 @model ProdutoDTO
 
 @{
-    ViewData["Title"] = "Cadastrar Produto";
-    Layout = "_Layout";
+    var ehNovo = Model.ProdutoId == Guid.Empty;
+    var acao = ehNovo ? "Cadastro" : "Edicao";
+    var erroDaImagem = ViewData.ModelState["imagem"]?.Errors.FirstOrDefault()?.ErrorMessage;
+    var errosGerais = ViewData.ModelState[string.Empty]?.Errors;
+    var opcoesDeStatus = new List<SelectListItem>
+    {
+        new("Ativo", ((byte)ProdutoStatus.Ativo).ToString()),
+        new("Fora de estoque", ((byte)ProdutoStatus.ForaDeEstoque).ToString()),
+        new("Inativo", ((byte)ProdutoStatus.Inativo).ToString()),
+    };
 }
 
-<link rel="stylesheet" href="~/css/components/formulario.css" asp-append-version="true">
-<link rel="stylesheet" href="~/css/pages/cadastro_produto.css" asp-append-version="true">
+<h2 class="titulo-modal-produto" id="titulo-modal-produto">@(ehNovo ? "Novo produto" : "Editar produto")</h2>
 
-
-<main class="container-autenticacao pagina-cadastro-produto">
-<h1 class="titulo-tela">Cadastrar Produto</h1>
-
-<form asp-action="Cadastro" method="post" enctype="multipart/form-data" class="formulario-autenticacao">
+<form asp-area="Admin" asp-controller="Produto" asp-action="@acao" method="post" enctype="multipart/form-data"
+      class="formulario-autenticacao formulario-produto" data-formulario-produto>
     @Html.AntiForgeryToken()
+
+    @if (!ehNovo)
+    {
+        <input type="hidden" asp-for="ProdutoId" />
+    }
 
     <div class="campo-entrada">
         <label asp-for="Nome">Nome do Produto</label>
@@ -34,7 +44,7 @@
 
         <div class="campo-entrada">
             <label asp-for="Status">Status</label>
-            <select asp-for="Status" asp-items="Html.GetEnumSelectList<ProdutoStatus>()" class="campo-texto">
+            <select asp-for="Status" asp-items="opcoesDeStatus" class="campo-texto">
                 <option value="">Selecione...</option>
             </select>
 
@@ -43,12 +53,20 @@
     </div>
 
     <div class="campo-entrada">
-        <label for="imagem">Imagem</label>
-        <input type="file" id="imagem" name="imagem" class="campo-texto" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required />
-
-        @{
-            var erroDaImagem = ViewData.ModelState["imagem"]?.Errors.FirstOrDefault()?.ErrorMessage;
+        <label for="imagem">Imagem@(ehNovo ? "" : " (opcional)")</label>
+        @if (!ehNovo && !string.IsNullOrEmpty(Model.ImagemUrl))
+        {
+            <img src="@Model.ImagemUrl" alt="Imagem atual de @Model.Nome" class="miniatura-produto-atual" />
         }
+        @if (ehNovo)
+        {
+            <input type="file" id="imagem" name="imagem" class="campo-texto" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required />
+        }
+        else
+        {
+            <input type="file" id="imagem" name="imagem" class="campo-texto" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+        }
+
         @if (erroDaImagem is not null)
         {
             <span class="mensagem-erro exibicao-bloco">@erroDaImagem</span>
@@ -113,35 +131,17 @@
         <span asp-validation-for="Descricao" class="mensagem-erro"></span>
     </div>
 
-    @if (TempData["Confirmacao"] is string confirmacao)
+    @if (errosGerais != null && errosGerais.Any())
     {
-        <div class="resumo-sucesso">
-            <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
+        <div class="resumo-erros">
+            @foreach (var erro in errosGerais)
+            {
+                <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+            }
         </div>
     }
 
-    @if (!ViewData.ModelState.IsValid)
-    {
-        var erros = ViewData.ModelState[string.Empty]?.Errors;
-
-        if (erros != null && erros.Any())
-        {
-            <div class="resumo-erros">
-                @foreach (var erro in erros)
-                {
-                    <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
-                }
-            </div>
-        }
-    }
-
-    <div class="container-botao">
-        <button type="submit" class="botao-acao">Cadastrar Produto</button>
+    <div class="rodape-modal-produto">
+        <button type="submit" class="botao-principal-gestao">@(ehNovo ? "Cadastrar Produto" : "Salvar alterações")</button>
     </div>
-
 </form>
-</main>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
