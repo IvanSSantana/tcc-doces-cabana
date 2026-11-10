@@ -1,5 +1,6 @@
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Domain.Entities;
+using DocesCabana.Domain.Enums;
 using DocesCabana.Infrastructure.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,13 @@ public class PedidoRepository : Repository<Pedido>, IPedidoRepository
         await _context.Pagamentos
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.PedidoId == pedidoId);
+
+    public async Task<bool> ExisteEntregueComProduto(Guid usuarioId, Guid produtoId) =>
+        await _context.Pedidos
+            .AsNoTracking()
+            .AnyAsync(p => p.UsuarioId == usuarioId
+                && p.Status == PedidoStatus.Entregue
+                && p.Itens.Any(i => i.ProdutoId == produtoId));
 
     public async Task AdicionarComPagamento(Pedido pedido, Pagamento pagamento)
     {

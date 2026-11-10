@@ -12,4 +12,6 @@ public interface IPedidoRepository : IRepository<Pedido>
     Task<Pagamento?> BuscarPagamentoPorPedido(Guid pedidoId);
 
     Task AdicionarComPagamento(Pedido pedido, Pagamento pagamento);
+
+    Task<bool> ExisteEntregueComProduto(Guid usuarioId, Guid produtoId);
 }

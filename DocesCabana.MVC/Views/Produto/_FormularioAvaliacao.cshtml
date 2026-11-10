@@ -1,0 +1,46 @@
+@using DocesCabana.Application.DTOs
+@model NovaAvaliacaoDTO
+@{
+    const int LimiteDoComentario = 255;
+    var tamanhoDoComentario = Model.Comentario?.Length ?? 0;
+}
+
+<h2 class="titulo-modal-avaliacao" id="titulo-modal-avaliacao">Avaliar produto</h2>
+
+<form asp-controller="Produto" asp-action="Avaliar" method="post" class="formulario-avaliacao" data-formulario-avaliacao>
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="ProdutoId" value="@Model.ProdutoId" />
+
+    <div asp-validation-summary="ModelOnly" class="mensagem-erro exibicao-bloco"></div>
+
+    <fieldset class="campo-nota">
+        <legend>Sua nota</legend>
+
+        <div class="estrelas-selecionaveis">
+            @for (byte nota = 5; nota >= 1; nota--)
+            {
+                <input type="radio" id="nota-@nota" name="Nota" value="@nota" checked="@(Model.Nota == nota)" required />
+                <label for="nota-@nota">
+                    <span class="somente-leitor-de-tela">@nota @(nota == 1 ? "estrela" : "estrelas")</span>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                </label>
+            }
+        </div>
+
+        <span asp-validation-for="Nota" class="mensagem-erro"></span>
+    </fieldset>
+
+    <div class="campo-entrada">
+        <label asp-for="Comentario">Comentário <span class="texto-opcional">(opcional)</span></label>
+        <textarea asp-for="Comentario" class="campo-texto campo-comentario" rows="4" maxlength="@LimiteDoComentario"
+                  placeholder="Conte como foi sua experiência com o produto..." data-comentario-avaliacao></textarea>
+        <span class="contador-comentario" data-contador-comentario aria-live="polite">@tamanhoDoComentario/@LimiteDoComentario</span>
+
+        <span asp-validation-for="Comentario" class="mensagem-erro"></span>
+    </div>
+
+    <div class="acoes-modal-avaliacao">
+        <button type="button" class="botao-cancelar-avaliacao" data-fechar-modal-avaliacao>Cancelar</button>
+        <button type="submit" class="botao-enviar-avaliacao">Enviar avaliação</button>
+    </div>
+</form>

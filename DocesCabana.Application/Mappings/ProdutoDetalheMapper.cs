@@ -1,4 +1,5 @@
 using DocesCabana.Application.DTOs;
+using DocesCabana.Application.Enums;
 using DocesCabana.Domain.Entities;
 
 namespace DocesCabana.Application.Mappings;
@@ -24,7 +25,8 @@ public static class ProdutoDetalheMapper
     }
 
     public static ProdutoDetalheDTO ToDTO(
-        Produto produto, ResumoAvaliacoesDTO resumoAvaliacoes, PaginaAvaliacoesDTO paginaAvaliacoes) =>
+        Produto produto, ResumoAvaliacoesDTO resumoAvaliacoes, PaginaAvaliacoesDTO paginaAvaliacoes,
+        SituacaoDaAvaliacao? situacaoDaAvaliacao = null) =>
         new()
         {
             ProdutoId = produto.ProdutoId,
@@ -36,6 +38,7 @@ public static class ProdutoDetalheMapper
             Resumo = GerarResumo(produto.Descricao),
             SubcategoriaNome = produto.Subcategoria?.Nome ?? string.Empty,
             ResumoAvaliacoes = resumoAvaliacoes,
-            PaginaAvaliacoes = paginaAvaliacoes
+            PaginaAvaliacoes = paginaAvaliacoes,
+            SituacaoDaAvaliacao = situacaoDaAvaliacao
         };
 }

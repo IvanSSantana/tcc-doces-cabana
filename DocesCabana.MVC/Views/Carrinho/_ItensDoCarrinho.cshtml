@@ -131,7 +131,7 @@
                     <form method="get" asp-action="Index" class="formulario-frete-carrinho">
                         <label for="cep-carrinho">Calcular frete</label>
                         <div class="entrada-cep-carrinho">
-                            <input type="text" id="cep-carrinho" name="cep" value="@Model.Cotacao?.CepConsultado" placeholder="00000-000" />
+                            <input type="text" id="cep-carrinho" name="cep" value="@Model.Cotacao?.CepConsultado" placeholder="00000-000" maxlength="9" />
                             <button type="submit">Calcular</button>
                         </div>
 

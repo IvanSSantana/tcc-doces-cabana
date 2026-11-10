@@ -32,6 +32,11 @@ public class AvaliacaoRepository : Repository<Avaliacao>, IAvaliacaoRepository
         return await consulta.Take(quantidade).ToListAsync();
     }
 
+    public async Task<bool> ExistePorUsuarioEProduto(Guid usuarioId, Guid produtoId) =>
+        await _context.Avaliacoes
+            .AsNoTracking()
+            .AnyAsync(a => a.UsuarioId == usuarioId && a.ProdutoId == produtoId);
+
     public async Task<int> ContarPorProduto(Guid produtoId) =>
         await _context.Avaliacoes.AsNoTracking().CountAsync(a => a.ProdutoId == produtoId);
 

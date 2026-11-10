@@ -10,4 +10,8 @@ public interface IAvaliacaoService
     Task<PaginaAvaliacoesDTO> ListarPorProduto(Guid produtoId, OrdenacaoAvaliacao ordenacao, int quantidade, Guid? usuarioAtual);
 
     Task<Guid> AlternarVotoUtil(Guid avaliacaoId, Guid usuarioId);
+
+    Task<SituacaoDaAvaliacao> VerificarSituacao(Guid produtoId, Guid usuarioId);
+
+    Task Avaliar(NovaAvaliacaoDTO dto, Guid usuarioId);
 }

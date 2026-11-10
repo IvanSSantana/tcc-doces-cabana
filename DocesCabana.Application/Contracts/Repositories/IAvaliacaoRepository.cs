@@ -13,4 +13,6 @@ public interface IAvaliacaoRepository : IRepository<Avaliacao>
     Task<IReadOnlyDictionary<byte, int>> ContarPorNota(Guid produtoId);
 
     Task<Avaliacao?> BuscarComVotos(Guid avaliacaoId);
+
+    Task<bool> ExistePorUsuarioEProduto(Guid usuarioId, Guid produtoId);
 }

@@ -181,6 +181,45 @@ public class ProdutoServiceTests
         Assert.Equal("Feito com amendoim torrado na hora.", detalhe.Resumo);
     }
 
+    private void ConfigurarDetalheDoProduto(Guid produtoId, Guid? usuarioAtual)
+    {
+        var produto = new Produto(Guid.NewGuid(), "Brigadeiro", 5m,
+            "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m, id: produtoId);
+
+        _produtoRepositoryMock.Setup(r => r.BuscarDetalhePorId(produtoId)).ReturnsAsync(produto);
+        _avaliacaoServiceMock.Setup(s => s.ResumirPorProduto(produtoId))
+            .ReturnsAsync(new ResumoAvaliacoesDTO { Media = null, Total = 0, Distribuicao = new Dictionary<byte, int>() });
+        _avaliacaoServiceMock
+            .Setup(s => s.ListarPorProduto(produtoId, OrdenacaoAvaliacao.Relevantes, 5, usuarioAtual))
+            .ReturnsAsync(new PaginaAvaliacoesDTO { Itens = [], Ordenacao = OrdenacaoAvaliacao.Relevantes, Exibindo = 0, Total = 0, TemMais = false });
+    }
+
+    [Fact]
+    public async Task Dado_Visitante_Quando_BuscarDetalhe_Entao_SituacaoDeveSerNulaSemConsultar()
+    {
+        var produtoId = Guid.NewGuid();
+        ConfigurarDetalheDoProduto(produtoId, usuarioAtual: null);
+
+        var detalhe = await _produtoService.BuscarDetalhe(produtoId, OrdenacaoAvaliacao.Relevantes, 5, usuarioAtual: null);
+
+        Assert.Null(detalhe.SituacaoDaAvaliacao);
+        _avaliacaoServiceMock.Verify(s => s.VerificarSituacao(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioAutenticado_Quando_BuscarDetalhe_Entao_DevePreencherSituacao()
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        ConfigurarDetalheDoProduto(produtoId, usuarioId);
+        _avaliacaoServiceMock.Setup(s => s.VerificarSituacao(produtoId, usuarioId))
+            .ReturnsAsync(SituacaoDaAvaliacao.PodeAvaliar);
+
+        var detalhe = await _produtoService.BuscarDetalhe(produtoId, OrdenacaoAvaliacao.Relevantes, 5, usuarioId);
+
+        Assert.Equal(SituacaoDaAvaliacao.PodeAvaliar, detalhe.SituacaoDaAvaliacao);
+    }
+
     [Fact]
     public async Task Dado_IdInexistente_Quando_BuscarDetalhe_Entao_DeveLancarKeyNotFoundException()
     {

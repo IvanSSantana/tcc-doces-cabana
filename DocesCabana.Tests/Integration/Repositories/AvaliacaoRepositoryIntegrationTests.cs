@@ -1,7 +1,10 @@
 using DocesCabana.Tests.Integration.Infraestrutura;
+using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
+using DocesCabana.Application.Services;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace DocesCabana.Tests.Integration.Repositories;
 
@@ -97,5 +100,69 @@ public class AvaliacaoRepositoryIntegrationTests : InfraestruturaPostgresDescart
         Assert.Equal(2, contagem[5]);
         Assert.Equal(1, contagem[3]);
         Assert.Equal(3, total);
+    }
+
+    [Fact]
+    public async Task Dado_AvaliacaoDoUsuarioNoProduto_Quando_ExistePorUsuarioEProduto_Entao_DeveSerVerdadeiro()
+    {
+        var subcategoriaId = await SemearSubcategoria();
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        Contexto.Produtos.Add(produto);
+        await Contexto.SaveChangesAsync();
+        var autorId = await SemearUsuario();
+        await SemearAvaliacao(produto.ProdutoId, autorId, nota: 4);
+
+        var repositorio = new AvaliacaoRepository(Contexto);
+
+        Assert.True(await repositorio.ExistePorUsuarioEProduto(autorId, produto.ProdutoId));
+    }
+
+    [Fact]
+    public async Task Dado_AvaliacaoEmOutroProdutoOuDeOutroUsuario_Quando_ExistePorUsuarioEProduto_Entao_DeveSerFalso()
+    {
+        var subcategoriaId = await SemearSubcategoria();
+        var avaliado = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        var naoAvaliado = new Produto(subcategoriaId, "Beijinho", 6.00m, "https://imagem.com/beijinho.jpg", 0.5m, 10m, 15m, 20m);
+        Contexto.Produtos.AddRange(avaliado, naoAvaliado);
+        await Contexto.SaveChangesAsync();
+        var autorId = await SemearUsuario("Autor", "52998224725");
+        var outroId = await SemearUsuario("Outro", "11144477735");
+        await SemearAvaliacao(avaliado.ProdutoId, autorId, nota: 4);
+
+        var repositorio = new AvaliacaoRepository(Contexto);
+
+        Assert.False(await repositorio.ExistePorUsuarioEProduto(autorId, naoAvaliado.ProdutoId));
+        Assert.False(await repositorio.ExistePorUsuarioEProduto(outroId, avaliado.ProdutoId));
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioComPedidoEntregue_Quando_Avaliar_Entao_DevePersistirAvaliacao()
+    {
+        var subcategoriaId = await SemearSubcategoria();
+        var produto = new Produto(subcategoriaId, "Brigadeiro", 5.00m, "https://imagem.com/brigadeiro.jpg", 0.5m, 10m, 15m, 20m);
+        Contexto.Produtos.Add(produto);
+        await Contexto.SaveChangesAsync();
+        var usuarioId = await SemearUsuario();
+        var endereco = new Endereco(usuarioId, "SP", "Cidade Teste", "Bairro Teste", "17340001", "Rua Teste", 100);
+        endereco.MarcarComoPadrao();
+        Contexto.Enderecos.Add(endereco);
+        var pedido = new Pedido(usuarioId, endereco.EnderecoId, 15m, 10m, "Correios", "PAC", 3, 7);
+        pedido.AcrescentarItem(produto.ProdutoId, 1, 5m);
+        pedido.Confirmar();
+        pedido.MarcarComoEnviado();
+        pedido.MarcarComoEntregue();
+        Contexto.Pedidos.Add(pedido);
+        await Contexto.SaveChangesAsync();
+
+        var servico = new AvaliacaoService(
+            new AvaliacaoRepository(Contexto), new PedidoRepository(Contexto), new UnitOfWork(Contexto));
+
+        await servico.Avaliar(
+            new NovaAvaliacaoDTO { ProdutoId = produto.ProdutoId, Nota = 5, Comentario = "  Perfeito  " }, usuarioId);
+
+        var salva = await Contexto.Avaliacoes.AsNoTracking().SingleAsync(a => a.ProdutoId == produto.ProdutoId);
+        Assert.Equal(usuarioId, salva.UsuarioId);
+        Assert.Equal((byte)5, salva.Nota);
+        Assert.Equal("Perfeito", salva.Comentario);
     }
 }

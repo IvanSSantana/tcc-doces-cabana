@@ -145,7 +145,7 @@ public class UsuarioService : IUsuarioService
 
         usuario.AtualizarDados(usuarioDto.Nome, TelefoneHelper.ApenasDigitos(usuarioDto.Celular), usuarioDto.DataNascimento);
 
-        _usuarioRepository.Atualizar(usuario);
+        await _usuarioRepository.Atualizar(usuario);
         await _unitOfWork.SalvarAlteracoes();
 
         return UsuarioMapper.ToDTO(usuario, conta);

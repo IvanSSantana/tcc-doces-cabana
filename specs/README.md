@@ -41,6 +41,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [029](./029-correcoes-estruturais/plan.md) | Correções estruturais | Executada | [plan](./029-correcoes-estruturais/plan.md) |
 | [030](./030-enxugamento-da-suite-de-testes/plan.md) | Enxugamento da suíte de testes | Executada | [plan](./030-enxugamento-da-suite-de-testes/plan.md) |
 | [031](./031-gestao-de-produtos-admin/plan.md) | Gestão de produtos do administrador | Executada | [plan](./031-gestao-de-produtos-admin/plan.md) |
+| [032](./032-avaliacao-de-produto/plan.md) | Avaliação de produto (escrever; só quem recebeu o pedido) | Executada | [plan](./032-avaliacao-de-produto/plan.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023` → `027` → `028`.
 > A `028` fechou o par que a `027` abriu — as duas nasceram do mesmo pedido

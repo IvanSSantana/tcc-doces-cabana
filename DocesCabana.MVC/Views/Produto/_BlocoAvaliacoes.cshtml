@@ -1,10 +1,12 @@
 @using DocesCabana.Application.DTOs
 @using DocesCabana.Application.Enums
+@using DocesCabana.Domain.Constants
 @using DocesCabana.MVC.Models
 @model ProdutoDetalheDTO
 @{
     var resumo = Model.ResumoAvaliacoes;
     var pagina = Model.PaginaAvaliacoes;
+    var ehAdministrador = User.IsInRole(Papeis.Administrador);
 
     string RotuloDaOrdenacao(OrdenacaoAvaliacao ordenacao) => ordenacao switch
     {
@@ -17,6 +19,39 @@
 }
 
 <section id="avaliacoes" class="bloco-avaliacoes">
+    <div class="cabecalho-avaliacoes">
+        <h2 class="rotulo-secao">Avaliações</h2>
+
+        @if (!ehAdministrador)
+        {
+            @if (!User.Identity!.IsAuthenticated)
+            {
+                <button type="button" class="botao-avaliar" onclick="abrirModal()">
+                    <i class="fa-regular fa-star" aria-hidden="true"></i> Avaliar produto
+                </button>
+            }
+            else if (Model.SituacaoDaAvaliacao == SituacaoDaAvaliacao.PodeAvaliar)
+            {
+                <button type="button" class="botao-avaliar" data-abrir-modal-avaliacao>
+                    <i class="fa-regular fa-star" aria-hidden="true"></i> Avaliar produto
+                </button>
+            }
+            else if (Model.SituacaoDaAvaliacao == SituacaoDaAvaliacao.JaAvaliou)
+            {
+                <p class="aviso-avaliacao">Você já comentou sobre esse produto.</p>
+            }
+            else if (Model.SituacaoDaAvaliacao == SituacaoDaAvaliacao.NaoRecebeu)
+            {
+                <p class="aviso-avaliacao">Só quem recebeu este produto pode avaliá-lo.</p>
+            }
+        }
+    </div>
+
+    @if (TempData["ConfirmacaoAvaliacao"] is string confirmacao)
+    {
+        <p class="confirmacao-avaliacao" role="status">@confirmacao</p>
+    }
+
     @if (resumo.Total == 0)
     {
         <p class="mensagem-sem-avaliacoes">Este produto ainda não tem avaliações.</p>
@@ -79,5 +114,23 @@
                 }
             </div>
         </div>
+    }
+
+    @if (!ehAdministrador && Model.SituacaoDaAvaliacao == SituacaoDaAvaliacao.PodeAvaliar)
+    {
+        <dialog id="modal-avaliacao" class="modal-avaliacao" aria-labelledby="titulo-modal-avaliacao">
+            <div class="container-modal-avaliacao">
+                <button type="button" class="botao-fechar-avaliacao" data-fechar-modal-avaliacao aria-label="Fechar">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+
+                <div id="conteudo-modal-avaliacao">
+                    <partial name="_FormularioAvaliacao" model="new NovaAvaliacaoDTO { ProdutoId = Model.ProdutoId }" />
+                </div>
+            </div>
+        </dialog>
     }
 </section>

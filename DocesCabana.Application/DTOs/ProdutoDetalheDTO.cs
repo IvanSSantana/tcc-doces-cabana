@@ -1,3 +1,4 @@
+using DocesCabana.Application.Enums;
 using DocesCabana.Domain.Enums;
 
 namespace DocesCabana.Application.DTOs;
@@ -23,4 +24,6 @@ public class ProdutoDetalheDTO
     public ResumoAvaliacoesDTO ResumoAvaliacoes { get; init; } = new();
 
     public PaginaAvaliacoesDTO PaginaAvaliacoes { get; init; } = new();
+
+    public SituacaoDaAvaliacao? SituacaoDaAvaliacao { get; init; }
 }

@@ -1,4 +1,5 @@
 using DocesCabana.Application.Contracts.Repositories;
+using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
 using DocesCabana.Application.Services;
 using DocesCabana.Domain.Contracts;
@@ -10,14 +11,17 @@ namespace DocesCabana.Tests.Units.Services;
 public class AvaliacaoServiceTests
 {
     private readonly Mock<IAvaliacaoRepository> _avaliacaoRepositoryMock;
+    private readonly Mock<IPedidoRepository> _pedidoRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly AvaliacaoService _avaliacaoService;
 
     public AvaliacaoServiceTests()
     {
         _avaliacaoRepositoryMock = new Mock<IAvaliacaoRepository>();
+        _pedidoRepositoryMock = new Mock<IPedidoRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
-        _avaliacaoService = new AvaliacaoService(_avaliacaoRepositoryMock.Object, _unitOfWorkMock.Object);
+        _avaliacaoService = new AvaliacaoService(
+            _avaliacaoRepositoryMock.Object, _pedidoRepositoryMock.Object, _unitOfWorkMock.Object);
     }
 
     [Fact]
@@ -174,4 +178,155 @@ public class AvaliacaoServiceTests
         Enumerable.Range(1, quantidade)
             .Select(_ => new Avaliacao(Guid.NewGuid(), produtoId, 5))
             .ToList();
+
+    [Fact]
+    public async Task Dado_UsuarioQueJaAvaliouSemPedidoEntregue_Quando_VerificarSituacao_Entao_DeveSerJaAvaliou()
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        _avaliacaoRepositoryMock.Setup(r => r.ExistePorUsuarioEProduto(usuarioId, produtoId)).ReturnsAsync(true);
+        _pedidoRepositoryMock.Setup(r => r.ExisteEntregueComProduto(usuarioId, produtoId)).ReturnsAsync(false);
+
+        var situacao = await _avaliacaoService.VerificarSituacao(produtoId, usuarioId);
+
+        Assert.Equal(SituacaoDaAvaliacao.JaAvaliou, situacao);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoEntregueSemAvaliacao_Quando_VerificarSituacao_Entao_DeveSerPodeAvaliar()
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        _avaliacaoRepositoryMock.Setup(r => r.ExistePorUsuarioEProduto(usuarioId, produtoId)).ReturnsAsync(false);
+        _pedidoRepositoryMock.Setup(r => r.ExisteEntregueComProduto(usuarioId, produtoId)).ReturnsAsync(true);
+
+        var situacao = await _avaliacaoService.VerificarSituacao(produtoId, usuarioId);
+
+        Assert.Equal(SituacaoDaAvaliacao.PodeAvaliar, situacao);
+    }
+
+    [Fact]
+    public async Task Dado_SemPedidoEntregue_Quando_VerificarSituacao_Entao_DeveSerNaoRecebeu()
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        _avaliacaoRepositoryMock.Setup(r => r.ExistePorUsuarioEProduto(usuarioId, produtoId)).ReturnsAsync(false);
+        _pedidoRepositoryMock.Setup(r => r.ExisteEntregueComProduto(usuarioId, produtoId)).ReturnsAsync(false);
+
+        var situacao = await _avaliacaoService.VerificarSituacao(produtoId, usuarioId);
+
+        Assert.Equal(SituacaoDaAvaliacao.NaoRecebeu, situacao);
+    }
+
+    private void ConfigurarUsuarioQuePodeAvaliar(Guid produtoId, Guid usuarioId)
+    {
+        _avaliacaoRepositoryMock.Setup(r => r.ExistePorUsuarioEProduto(usuarioId, produtoId)).ReturnsAsync(false);
+        _pedidoRepositoryMock.Setup(r => r.ExisteEntregueComProduto(usuarioId, produtoId)).ReturnsAsync(true);
+    }
+
+    private Func<Avaliacao?> CapturarAvaliacaoAdicionada()
+    {
+        Avaliacao? adicionada = null;
+        _avaliacaoRepositoryMock
+            .Setup(r => r.Adicionar(It.IsAny<Avaliacao>()))
+            .Callback<Avaliacao>(a => adicionada = a)
+            .Returns(Task.CompletedTask);
+        return () => adicionada;
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioQuePodeAvaliar_Quando_Avaliar_Entao_DeveAdicionarESalvar()
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioQuePodeAvaliar(produtoId, usuarioId);
+        var adicionada = CapturarAvaliacaoAdicionada();
+
+        await _avaliacaoService.Avaliar(
+            new NovaAvaliacaoDTO { ProdutoId = produtoId, Nota = 4, Comentario = "Delicioso" }, usuarioId);
+
+        var avaliacao = adicionada();
+        Assert.NotNull(avaliacao);
+        Assert.Equal(usuarioId, avaliacao.UsuarioId);
+        Assert.Equal(produtoId, avaliacao.ProdutoId);
+        Assert.Equal((byte)4, avaliacao.Nota);
+        Assert.Equal("Delicioso", avaliacao.Comentario);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(), Times.Once);
+    }
+
+    [Theory]
+    [InlineData("   ")]
+    [InlineData("")]
+    [InlineData(null)]
+    public async Task Dado_ComentarioVazioOuSoDeEspacos_Quando_Avaliar_Entao_DeveGuardarNulo(string? comentario)
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioQuePodeAvaliar(produtoId, usuarioId);
+        var adicionada = CapturarAvaliacaoAdicionada();
+
+        await _avaliacaoService.Avaliar(
+            new NovaAvaliacaoDTO { ProdutoId = produtoId, Nota = 5, Comentario = comentario }, usuarioId);
+
+        Assert.Null(adicionada()!.Comentario);
+    }
+
+    [Fact]
+    public async Task Dado_ComentarioComEspacosNasPontas_Quando_Avaliar_Entao_DeveGuardarAparado()
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioQuePodeAvaliar(produtoId, usuarioId);
+        var adicionada = CapturarAvaliacaoAdicionada();
+
+        await _avaliacaoService.Avaliar(
+            new NovaAvaliacaoDTO { ProdutoId = produtoId, Nota = 5, Comentario = "  Ótimo!  " }, usuarioId);
+
+        Assert.Equal("Ótimo!", adicionada()!.Comentario);
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioQueJaAvaliou_Quando_Avaliar_Entao_DeveLancarInvalidOperationESemSalvar()
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        _avaliacaoRepositoryMock.Setup(r => r.ExistePorUsuarioEProduto(usuarioId, produtoId)).ReturnsAsync(true);
+        _pedidoRepositoryMock.Setup(r => r.ExisteEntregueComProduto(usuarioId, produtoId)).ReturnsAsync(true);
+
+        var excecao = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _avaliacaoService.Avaliar(new NovaAvaliacaoDTO { ProdutoId = produtoId, Nota = 5 }, usuarioId));
+
+        Assert.Equal("Você já comentou sobre esse produto.", excecao.Message);
+        _avaliacaoRepositoryMock.Verify(r => r.Adicionar(It.IsAny<Avaliacao>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioSemPedidoEntregue_Quando_Avaliar_Entao_DeveLancarInvalidOperationESemSalvar()
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        _avaliacaoRepositoryMock.Setup(r => r.ExistePorUsuarioEProduto(usuarioId, produtoId)).ReturnsAsync(false);
+        _pedidoRepositoryMock.Setup(r => r.ExisteEntregueComProduto(usuarioId, produtoId)).ReturnsAsync(false);
+
+        var excecao = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _avaliacaoService.Avaliar(new NovaAvaliacaoDTO { ProdutoId = produtoId, Nota = 5 }, usuarioId));
+
+        Assert.Equal("Só quem recebeu este produto pode avaliá-lo.", excecao.Message);
+        _avaliacaoRepositoryMock.Verify(r => r.Adicionar(It.IsAny<Avaliacao>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_NotaNula_Quando_Avaliar_Entao_DeveLancarArgumentExceptionESemSalvar()
+    {
+        var produtoId = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioQuePodeAvaliar(produtoId, usuarioId);
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _avaliacaoService.Avaliar(new NovaAvaliacaoDTO { ProdutoId = produtoId, Nota = null }, usuarioId));
+
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(), Times.Never);
+    }
 }

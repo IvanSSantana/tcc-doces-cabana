@@ -4,17 +4,21 @@ using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
 using DocesCabana.Application.Mappings;
 using DocesCabana.Domain.Contracts;
+using DocesCabana.Domain.Entities;
 
 namespace DocesCabana.Application.Services;
 
 public class AvaliacaoService : IAvaliacaoService
 {
     private readonly IAvaliacaoRepository _avaliacaoRepository;
+    private readonly IPedidoRepository _pedidoRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AvaliacaoService(IAvaliacaoRepository avaliacaoRepository, IUnitOfWork unitOfWork)
+    public AvaliacaoService(
+        IAvaliacaoRepository avaliacaoRepository, IPedidoRepository pedidoRepository, IUnitOfWork unitOfWork)
     {
         _avaliacaoRepository = avaliacaoRepository;
+        _pedidoRepository = pedidoRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -68,9 +72,44 @@ public class AvaliacaoService : IAvaliacaoService
 
         avaliacao.AlternarVotoUtil(usuarioId);
 
-        _avaliacaoRepository.Atualizar(avaliacao);
+        await _avaliacaoRepository.Atualizar(avaliacao);
         await _unitOfWork.SalvarAlteracoes();
 
         return avaliacao.ProdutoId;
+    }
+
+    public async Task<SituacaoDaAvaliacao> VerificarSituacao(Guid produtoId, Guid usuarioId)
+    {
+        if (await _avaliacaoRepository.ExistePorUsuarioEProduto(usuarioId, produtoId))
+            return SituacaoDaAvaliacao.JaAvaliou;
+
+        return await _pedidoRepository.ExisteEntregueComProduto(usuarioId, produtoId)
+            ? SituacaoDaAvaliacao.PodeAvaliar
+            : SituacaoDaAvaliacao.NaoRecebeu;
+    }
+
+    public async Task Avaliar(NovaAvaliacaoDTO dto, Guid usuarioId)
+    {
+        var situacao = await VerificarSituacao(dto.ProdutoId, usuarioId);
+
+        switch (situacao)
+        {
+            case SituacaoDaAvaliacao.JaAvaliou:
+                throw new InvalidOperationException("Você já comentou sobre esse produto.");
+            case SituacaoDaAvaliacao.NaoRecebeu:
+                throw new InvalidOperationException("Só quem recebeu este produto pode avaliá-lo.");
+        }
+
+        var nota = dto.Nota
+            ?? throw new ArgumentException("Escolha uma nota de 1 a 5.", nameof(dto));
+
+        var comentario = string.IsNullOrWhiteSpace(dto.Comentario)
+            ? null
+            : dto.Comentario.Trim();
+
+        var avaliacao = new Avaliacao(usuarioId, dto.ProdutoId, nota, comentario);
+
+        await _avaliacaoRepository.Adicionar(avaliacao);
+        await _unitOfWork.SalvarAlteracoes();
     }
 }

@@ -132,6 +132,10 @@ public class ProdutoService : IProdutoService
         var resumoAvaliacoes = await _avaliacaoService.ResumirPorProduto(id);
         var paginaAvaliacoes = await _avaliacaoService.ListarPorProduto(id, ordenacao, avaliacoesExibidas, usuarioAtual);
 
-        return ProdutoDetalheMapper.ToDTO(produto, resumoAvaliacoes, paginaAvaliacoes);
+        SituacaoDaAvaliacao? situacaoDaAvaliacao = usuarioAtual is { } usuarioId
+            ? await _avaliacaoService.VerificarSituacao(id, usuarioId)
+            : null;
+
+        return ProdutoDetalheMapper.ToDTO(produto, resumoAvaliacoes, paginaAvaliacoes, situacaoDaAvaliacao);
     }
 }

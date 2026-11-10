@@ -96,6 +96,89 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartave
         Assert.Equal(pedidoDeA.PedidoId, pedidosDeA[0].PedidoId);
     }
 
+    [Fact]
+    public async Task Dado_PedidoEntregueComOProduto_Quando_ExisteEntregueComProduto_Entao_DeveSerVerdadeiro()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var produto = await SemearProdutoComSubcategoria();
+        await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Entregue);
+
+        var existe = await repositorio.ExisteEntregueComProduto(usuarioId, produto.ProdutoId);
+
+        Assert.True(existe);
+    }
+
+    [Theory]
+    [InlineData(PedidoStatus.Pendente)]
+    [InlineData(PedidoStatus.Confirmado)]
+    [InlineData(PedidoStatus.Enviado)]
+    [InlineData(PedidoStatus.Cancelado)]
+    public async Task Dado_PedidoNaoEntregueComOProduto_Quando_ExisteEntregueComProduto_Entao_DeveSerFalso(PedidoStatus status)
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var produto = await SemearProdutoComSubcategoria();
+        await SemearPedido(usuarioId, produto.ProdutoId, status);
+
+        var existe = await repositorio.ExisteEntregueComProduto(usuarioId, produto.ProdutoId);
+
+        Assert.False(existe);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoEntregueDeOutroUsuario_Quando_ExisteEntregueComProduto_Entao_DeveSerFalso()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var dono = await SemearUsuario("Dono", "52998224725");
+        var outroUsuario = await SemearUsuario("Outro", "11144477735");
+        var produto = await SemearProdutoComSubcategoria();
+        await SemearPedido(dono, produto.ProdutoId, PedidoStatus.Entregue);
+
+        var existe = await repositorio.ExisteEntregueComProduto(outroUsuario, produto.ProdutoId);
+
+        Assert.False(existe);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoEntregueComOutroProduto_Quando_ExisteEntregueComProduto_Entao_DeveSerFalso()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var subcategoriaId = await SemearSubcategoria();
+        var comprado = await SemearProduto(subcategoriaId, "Brigadeiro", 5m);
+        var naoComprado = await SemearProduto(subcategoriaId, "Beijinho", 6m);
+        await SemearPedido(usuarioId, comprado.ProdutoId, PedidoStatus.Entregue);
+
+        var existe = await repositorio.ExisteEntregueComProduto(usuarioId, naoComprado.ProdutoId);
+
+        Assert.False(existe);
+    }
+
+    private async Task<Produto> SemearProdutoComSubcategoria()
+    {
+        var subcategoriaId = await SemearSubcategoria();
+        return await SemearProduto(subcategoriaId, "Brigadeiro", 5m);
+    }
+
+    private async Task SemearPedido(Guid usuarioId, Guid produtoId, PedidoStatus status)
+    {
+        var enderecoId = await SemearEndereco(usuarioId);
+        var pedido = new Pedido(usuarioId, enderecoId, 20m, 10m, "Correios", "PAC", 3, 7);
+        pedido.AcrescentarItem(produtoId, 1, 5m);
+
+        switch (status)
+        {
+            case PedidoStatus.Confirmado: pedido.Confirmar(); break;
+            case PedidoStatus.Enviado: pedido.Confirmar(); pedido.MarcarComoEnviado(); break;
+            case PedidoStatus.Entregue: pedido.Confirmar(); pedido.MarcarComoEnviado(); pedido.MarcarComoEntregue(); break;
+            case PedidoStatus.Cancelado: pedido.Cancelar(); break;
+        }
+
+        Contexto.Pedidos.Add(pedido);
+        await Contexto.SaveChangesAsync();
+    }
+
     private async Task<Guid> SemearEndereco(Guid usuarioId)
     {
         var endereco = new Endereco(usuarioId, "SP", "Cidade Teste", "Bairro Teste", "17340001", "Rua Teste", 100);
