@@ -27,14 +27,70 @@
     if (blocoAtual) blocoAtual.replaceWith(blocoNovo);
   }
 
-  function enviar(formulario, dados) {
+  var temporizadorDoAviso = null;
+  var DURACAO_DO_AVISO_MS = 3500;
+
+  function obterAviso() {
+    var aviso = document.querySelector("#aviso-carrinho");
+    if (aviso) return aviso;
+
+    aviso = document.createElement("div");
+    aviso.id = "aviso-carrinho";
+    aviso.className = "aviso-carrinho";
+    aviso.setAttribute("role", "status");
+    aviso.setAttribute("aria-live", "polite");
+    aviso.innerHTML =
+      '<i class="fa-solid fa-circle-check aviso-carrinho__icone" aria-hidden="true"></i>' +
+      '<div class="aviso-carrinho__texto">' +
+      '<strong class="aviso-carrinho__titulo">Adicionado ao carrinho</strong>' +
+      '<span class="aviso-carrinho__produto" data-aviso-produto></span>' +
+      "</div>" +
+      '<a class="aviso-carrinho__link" href="/Carrinho">Ver carrinho</a>' +
+      '<button type="button" class="aviso-carrinho__fechar" data-fechar-aviso aria-label="Fechar aviso">&times;</button>';
+    document.body.appendChild(aviso);
+    return aviso;
+  }
+
+  function esconderAviso() {
+    var aviso = document.querySelector("#aviso-carrinho");
+    if (aviso) aviso.classList.remove("aviso-carrinho--visivel");
+  }
+
+  function mostrarAviso(nomeDoProduto, quantidade) {
+    var aviso = obterAviso();
+    var descricao = aviso.querySelector("[data-aviso-produto]");
+    var prefixo = quantidade > 1 ? quantidade + "x " : "";
+    descricao.textContent = nomeDoProduto ? prefixo + nomeDoProduto : "";
+    descricao.hidden = !nomeDoProduto;
+
+    // força reflow para reiniciar a animação quando o aviso já estava visível
+    aviso.classList.remove("aviso-carrinho--visivel");
+    void aviso.offsetWidth;
+    aviso.classList.add("aviso-carrinho--visivel");
+
+    clearTimeout(temporizadorDoAviso);
+    temporizadorDoAviso = setTimeout(esconderAviso, DURACAO_DO_AVISO_MS);
+  }
+
+  function obterNomeDoProduto(botao) {
+    var cartao = botao.closest(".card-produto");
+    var elementoNome = cartao
+      ? cartao.querySelector(".nome-card")
+      : document.querySelector(".nome-produto");
+    return elementoNome ? elementoNome.textContent.trim() : "";
+  }
+
+  function enviar(formulario, dados, aoConcluir) {
     fetch(formulario.action, {
       method: "POST",
       headers: { "X-Requested-With": "XMLHttpRequest" },
       body: dados,
     })
       .then(tratarResposta)
-      .then(aplicarBloco)
+      .then(function (html) {
+        aplicarBloco(html);
+        if (aoConcluir) aoConcluir();
+      })
       .catch(function () {
       });
   }
@@ -64,7 +120,11 @@
         if (valorNoCartao) dados.set("quantidade", valorNoCartao.textContent.trim());
       }
 
-      enviar(formulario, dados);
+      var nomeDoProduto = obterNomeDoProduto(botao);
+      var quantidade = parseInt(dados.get("quantidade"), 10) || 1;
+      enviar(formulario, dados, function () {
+        mostrarAviso(nomeDoProduto, quantidade);
+      });
       return;
     }
 
@@ -103,6 +163,13 @@
       .then(aplicarBloco)
       .catch(function () {
       });
+  });
+
+  document.addEventListener("click", function (evento) {
+    if (evento.target.closest("[data-fechar-aviso]")) {
+      clearTimeout(temporizadorDoAviso);
+      esconderAviso();
+    }
   });
 
   document.addEventListener("click", function (evento) {
