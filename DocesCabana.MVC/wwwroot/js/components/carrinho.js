@@ -190,6 +190,52 @@
     }
   });
 
+  function formatarCep(valor) {
+    var digitos = valor.replace(/\D/g, "").slice(0, 8);
+    return digitos.length > 5 ? digitos.slice(0, 5) + "-" + digitos.slice(5) : digitos;
+  }
+
+  document.addEventListener("input", function (evento) {
+    var campo = evento.target;
+    if (!campo.matches("#cep-carrinho, #itens-carrinho [data-campo-cep]")) return;
+    campo.value = formatarCep(campo.value);
+
+    if (campo.matches("[data-campo-cep]")) preencherEnderecoPorCep(campo);
+  });
+
+  function preencherEnderecoPorCep(campoCep) {
+    var digitos = campoCep.value.replace(/\D/g, "");
+    if (digitos.length !== 8 || campoCep.dataset.cepConsultado === digitos) return;
+    campoCep.dataset.cepConsultado = digitos;
+
+    fetch("https://viacep.com.br/ws/" + digitos + "/json/")
+      .then(function (resposta) {
+        if (!resposta.ok) throw new Error("Resposta não OK: " + resposta.status);
+        return resposta.json();
+      })
+      .then(function (dados) {
+        if (dados.erro) return;
+
+        var formulario = campoCep.closest("form");
+        if (!formulario) return;
+
+        var mapa = { Estado: dados.uf, Cidade: dados.localidade, Bairro: dados.bairro, Rua: dados.logradouro };
+        formulario.querySelectorAll("[data-preenchido-por-cep]").forEach(function (campo) {
+          var valor = mapa[campo.name];
+          if (valor) campo.value = valor;
+        });
+
+        var campoNumero = formulario.querySelector("input[name='Numero']");
+        if (campoNumero) {
+          campoNumero.focus();
+          campoNumero.select();
+        }
+      })
+      .catch(function () {
+        delete campoCep.dataset.cepConsultado;
+      });
+  }
+
   function ajustarQuantidadeDoCartao(botao, delta) {
     var cartao = botao.closest(".card-produto");
     if (!cartao) return;

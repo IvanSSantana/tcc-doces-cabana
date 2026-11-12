@@ -25,7 +25,13 @@
     }
     else
     {
-        <p>Você ainda não tem nenhum endereço cadastrado. Cadastre um abaixo para continuar.</p>
+        <div class="aviso-sem-endereco" role="status">
+            <i class="fa-solid fa-location-dot aviso-sem-endereco__icone" aria-hidden="true"></i>
+            <div class="aviso-sem-endereco__texto">
+                <strong class="aviso-sem-endereco__titulo">Você ainda não tem nenhum endereço cadastrado.</strong>
+                <span>Cadastre um abaixo para continuar.</span>
+            </div>
+        </div>
     }
 
     <details class="novo-endereco-fechamento"@(Model.Enderecos.Count == 0 ? " open" : "")>

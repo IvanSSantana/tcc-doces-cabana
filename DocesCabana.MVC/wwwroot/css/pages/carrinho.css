@@ -552,6 +552,42 @@
   color: var(--cor-destaque);
 }
 
+.aviso-sem-endereco {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  border: 1px dashed color-mix(in srgb, var(--cor-destaque) 45%, white);
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--cor-destaque) 6%, white);
+  color: var(--cor-texto-secundario);
+}
+
+.aviso-sem-endereco__icone {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: color-mix(in srgb, var(--cor-destaque) 15%, white);
+  color: var(--cor-destaque);
+  font-size: 1.1rem;
+}
+
+.aviso-sem-endereco__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.9rem;
+}
+
+.aviso-sem-endereco__titulo {
+  color: var(--cor-primaria);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
 .novo-endereco-fechamento summary {
   cursor: pointer;
   font-weight: 600;
@@ -697,4 +733,131 @@
 
 .proximos-passos-confirmacao-pedido {
   color: color-mix(in srgb, var(--cor-primaria) 70%, white);
+}
+
+/* Formulário de endereço e botões de ação dentro do fechamento */
+.pagina-carrinho .formulario-endereco {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 640px;
+  padding: 1.25rem;
+  background-color: #FFFFFF;
+  border: 1px solid #DAD4CE;
+  border-radius: 12px;
+}
+
+.pagina-carrinho .formulario-endereco .campo-entrada {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.pagina-carrinho .formulario-endereco > .campo-entrada:first-of-type {
+  max-width: 12rem;
+}
+
+.pagina-carrinho .formulario-endereco label {
+  color: var(--cor-primaria);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pagina-carrinho .formulario-endereco .campo-texto {
+  width: 100%;
+  height: 44px;
+  padding: 0 0.875rem;
+  border: 1px solid #DAD4CE;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: var(--cor-texto-secundario);
+  font-family: var(--fonte-principal);
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pagina-carrinho .formulario-endereco .campo-texto::placeholder {
+  color: #9CAFA6;
+}
+
+.pagina-carrinho .formulario-endereco .campo-texto:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor-primaria) 15%, white);
+}
+
+.pagina-carrinho .formulario-endereco .linha-dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.pagina-carrinho .formulario-endereco .linha-dupla:has(input[name="Numero"]) {
+  grid-template-columns: 1fr 8rem;
+}
+
+.pagina-carrinho .formulario-endereco .mensagem-erro {
+  color: var(--cor-destaque);
+  font-size: 0.8rem;
+}
+
+.pagina-carrinho .formulario-endereco .mensagem-erro:empty {
+  display: none;
+}
+
+.pagina-carrinho .formulario-endereco .container-botao {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.pagina-carrinho .botao-acao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--cor-primaria);
+  color: #FFFFFF;
+  font-family: var(--fonte-principal);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.pagina-carrinho .botao-acao:hover {
+  filter: brightness(1.15);
+}
+
+.pagina-carrinho .botao-acao:focus-visible,
+.pagina-carrinho .novo-endereco-fechamento summary:focus-visible {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .pagina-carrinho .formulario-endereco {
+    padding: 1rem;
+  }
+
+  .pagina-carrinho .formulario-endereco > .campo-entrada:first-of-type {
+    max-width: none;
+  }
+
+  .pagina-carrinho .formulario-endereco .linha-dupla {
+    grid-template-columns: 1fr;
+  }
+
+  .pagina-carrinho .formulario-endereco .linha-dupla:has(input[name="Numero"]) {
+    grid-template-columns: 1fr 6rem;
+  }
+
+  .pagina-carrinho .formulario-endereco .container-botao .botao-acao {
+    width: 100%;
+  }
 }
