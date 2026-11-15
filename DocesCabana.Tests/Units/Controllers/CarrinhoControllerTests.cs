@@ -290,6 +290,69 @@ public class CarrinhoControllerTests
     }
 
     [Fact]
+    public async Task Dado_CepValido_Quando_Index_Entao_DeveGuardarOCepNaSessao()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO { Linhas = [CriarLinha()] });
+        _freteServiceMock
+            .Setup(s => s.Cotar(It.IsAny<string>(), It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>()))
+            .ReturnsAsync(new CotacaoDeFreteDTO("01310000", [new OpcaoDeFreteDTO(1, "Correios", "PAC", 18m, 8, 9)], null));
+
+        await _controller.Index(cep: "01310-000");
+
+        Assert.Equal("01310-000", HttpContext.Session.LerCep());
+    }
+
+    [Fact]
+    public async Task Dado_CepGuardado_Quando_IndexSemCep_Entao_DeveCotarComOCepGuardado()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        HttpContext.Session.EscreverCep("01310000");
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO { Linhas = [CriarLinha()] });
+        _freteServiceMock
+            .Setup(s => s.Cotar("01310000", It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>()))
+            .ReturnsAsync(new CotacaoDeFreteDTO("01310000", [new OpcaoDeFreteDTO(1, "Correios", "PAC", 18m, 8, 9)], null));
+
+        var resultado = await _controller.Index();
+
+        var modelo = Assert.IsType<CarrinhoDTO>(Assert.IsType<ViewResult>(resultado).Model);
+        Assert.True(modelo.TemEntregaCalculada);
+    }
+
+    [Fact]
+    public async Task Dado_CepGuardado_Quando_AlterarQuantidadeAssincrono_Entao_DeveManterACotacao()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        HttpContext.Session.EscreverCep("01310000");
+        HttpContext.Request.Headers["X-Requested-With"] = "XMLHttpRequest";
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO { Linhas = [CriarLinha()] });
+        _freteServiceMock
+            .Setup(s => s.Cotar("01310000", It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>()))
+            .ReturnsAsync(new CotacaoDeFreteDTO("01310000", [new OpcaoDeFreteDTO(1, "Correios", "PAC", 18m, 8, 9)], null));
+
+        var resultado = await _controller.AlterarQuantidade(Guid.NewGuid(), 2);
+
+        var modelo = Assert.IsType<CarrinhoDTO>(Assert.IsType<PartialViewResult>(resultado).Model);
+        Assert.True(modelo.TemEntregaCalculada);
+    }
+
+    [Fact]
+    public async Task Dado_CepGuardadoECepInvalidoDigitado_Quando_Index_Entao_NaoDeveSubstituirOCepGuardado()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        HttpContext.Session.EscreverCep("01310000");
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO { Linhas = [CriarLinha()] });
+
+        await _controller.Index(cep: "123");
+
+        Assert.Equal("01310000", HttpContext.Session.LerCep());
+    }
+
+    [Fact]
     public async Task Dado_PassoDesconhecidoNaQuerystring_Quando_Index_Entao_DeveCairNoPrimeiroPasso()
     {
         var usuarioId = Guid.NewGuid();
@@ -373,21 +436,5 @@ public class CarrinhoControllerTests
         };
 
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
-    }
-
-    private sealed class SessaoFalsa : ISession
-    {
-        private readonly Dictionary<string, byte[]> _valores = new();
-
-        public bool IsAvailable => true;
-        public string Id => "sessao-de-teste";
-        public IEnumerable<string> Keys => _valores.Keys;
-
-        public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-        public Task CommitAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-        public bool TryGetValue(string key, out byte[] value) => _valores.TryGetValue(key, out value!);
-        public void Set(string key, byte[] value) => _valores[key] = value;
-        public void Remove(string key) => _valores.Remove(key);
-        public void Clear() => _valores.Clear();
     }
 }

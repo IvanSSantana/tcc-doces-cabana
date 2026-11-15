@@ -4,6 +4,7 @@ using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
 using DocesCabana.Domain.Enums;
 using DocesCabana.MVC.Controllers;
+using DocesCabana.MVC.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -24,7 +25,7 @@ public class PedidoControllerTests
 
         var identidade = new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, _usuarioId.ToString())], "TesteAutenticacao");
-        var httpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identidade) };
+        var httpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identidade), Session = new SessaoFalsa() };
 
         _controller = new PedidoController(_pedidoServiceMock.Object, _carrinhoServiceMock.Object)
         {
@@ -59,6 +60,32 @@ public class PedidoControllerTests
         var redirecionamento = Assert.IsType<RedirectToActionResult>(resultado);
         Assert.Equal(nameof(PedidoController.Confirmacao), redirecionamento.ActionName);
         Assert.Equal(pedidoId, redirecionamento.RouteValues!["id"]);
+    }
+
+    [Fact]
+    public async Task Dado_FechamentoComSucesso_Quando_Fechar_Entao_DeveApagarOCepGuardado()
+    {
+        _controller.HttpContext.Session.EscreverCep("01310000");
+        _pedidoServiceMock
+            .Setup(s => s.Fechar(_usuarioId, It.IsAny<FechamentoDePedidoDTO>()))
+            .ReturnsAsync(ResultadoDoFechamentoDTO.ParaSucesso(Guid.NewGuid()));
+
+        await _controller.Fechar(CriarDados());
+
+        Assert.Null(_controller.HttpContext.Session.LerCep());
+    }
+
+    [Fact]
+    public async Task Dado_FechamentoRecusado_Quando_Fechar_Entao_DeveManterOCepGuardado()
+    {
+        _controller.HttpContext.Session.EscreverCep("01310000");
+        _pedidoServiceMock
+            .Setup(s => s.Fechar(_usuarioId, It.IsAny<FechamentoDePedidoDTO>()))
+            .ReturnsAsync(ResultadoDoFechamentoDTO.ParaRecusa("Seu carrinho está vazio."));
+
+        await _controller.Fechar(CriarDados());
+
+        Assert.Equal("01310000", _controller.HttpContext.Session.LerCep());
     }
 
     [Fact]

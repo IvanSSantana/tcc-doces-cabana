@@ -151,6 +151,32 @@ public class FreteServiceMelhorEnvioTests
         Assert.Equal("PAC", pac.Servico);
     }
 
+    [Theory]
+    [InlineData(".Package", "Econômico")]
+    [InlineData(".Com", "Expresso")]
+    public async Task Dado_ServicoJadlog_Quando_Cotar_Entao_DeveExibirNomeAmigavel(string nomeNaApi, string nomeExibido)
+    {
+        var resposta = $$"""
+        [
+          {
+            "id": 3,
+            "name": "{{nomeNaApi}}",
+            "custom_price": "25.00",
+            "custom_delivery_range": { "min": 5, "max": 7 },
+            "company": { "id": 2, "name": "Jadlog" }
+          }
+        ]
+        """;
+        var handler = new HandlerFalso(HttpStatusCode.OK, resposta);
+        var servico = CriarServico(handler);
+
+        var cotacao = await servico.Cotar("01310000", CriarItens());
+
+        var opcao = Assert.Single(cotacao.Opcoes);
+        Assert.Equal("Jadlog", opcao.Transportadora);
+        Assert.Equal(nomeExibido, opcao.Servico);
+    }
+
     [Fact]
     public async Task Dado_EntradaSemPrecoUtilizavel_Quando_Cotar_Entao_DeveSerDescartada()
     {

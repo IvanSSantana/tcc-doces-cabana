@@ -2,6 +2,7 @@ using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
+using DocesCabana.MVC.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,7 +29,10 @@ public class PedidoController : Controller
             var resultado = await _pedidoService.Fechar(UsuarioAtualId, dados);
 
             if (resultado.Sucesso)
+            {
+                HttpContext.Session.LimparCep();
                 return RedirectToAction(nameof(Confirmacao), new { id = resultado.PedidoId });
+            }
 
             ModelState.AddModelError(string.Empty, resultado.Mensagem ?? "Não foi possível concluir o pedido. Tente novamente.");
             ViewData["ValorDosProdutosAtual"] = resultado.ValorDosProdutosAtual;

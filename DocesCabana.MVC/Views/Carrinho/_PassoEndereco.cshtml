@@ -46,21 +46,40 @@
 
         @if (Model.Cotacao is { Opcoes.Count: > 0 })
         {
+            var menorPreco = Model.Cotacao.Opcoes.Min(o => o.Preco);
+            var menorPrazo = Model.Cotacao.Opcoes.Min(o => o.PrazoMaximoEmDias);
+
             <ul class="lista-opcoes-frete lista-opcoes-frete-fechamento">
-                @foreach (var opcao in Model.Cotacao.Opcoes)
+                @foreach (var opcao in Model.Cotacao.Opcoes.OrderBy(o => o.Preco).ThenBy(o => o.PrazoMaximoEmDias))
                 {
                     var selecionada = opcao.ServicoId == Model.ServicoDeEntregaSelecionadoId;
                     <li class="opcao-frete@(selecionada ? " opcao-frete--selecionada" : "")">
                         <a asp-action="Index" asp-route-passo="Endereco" asp-route-enderecoId="@Model.EnderecoSelecionadoId"
                            asp-route-servicoDeEntregaId="@opcao.ServicoId" data-navegacao-fechamento
                            aria-current="@(selecionada ? "true" : null)">
-                            <span class="transportadora-opcao-frete">@opcao.Transportadora — @opcao.Servico</span>
-                            <span class="preco-opcao-frete">R$ @opcao.Preco.ToString("N2")</span>
-                            <span class="prazo-opcao-frete">
-                                @(opcao.PrazoMinimoEmDias == opcao.PrazoMaximoEmDias
-                                    ? $"{opcao.PrazoMinimoEmDias} dias úteis"
-                                    : $"{opcao.PrazoMinimoEmDias} a {opcao.PrazoMaximoEmDias} dias úteis")
+                            <span class="marcador-opcao-frete" aria-hidden="true"></span>
+                            <span class="descricao-opcao-frete">
+                                <span class="transportadora-opcao-frete">@opcao.Transportadora — @opcao.Servico</span>
+                                <span class="prazo-opcao-frete">
+                                    @(opcao.PrazoMinimoEmDias == opcao.PrazoMaximoEmDias
+                                        ? $"{opcao.PrazoMinimoEmDias} dias úteis"
+                                        : $"{opcao.PrazoMinimoEmDias} a {opcao.PrazoMaximoEmDias} dias úteis")
+                                </span>
+                                @if (opcao.Preco == menorPreco || opcao.PrazoMaximoEmDias == menorPrazo)
+                                {
+                                    <span class="etiquetas-opcao-frete">
+                                        @if (opcao.Preco == menorPreco)
+                                        {
+                                            <span class="etiqueta-opcao-frete etiqueta-opcao-frete--barata">Mais barato</span>
+                                        }
+                                        @if (opcao.PrazoMaximoEmDias == menorPrazo)
+                                        {
+                                            <span class="etiqueta-opcao-frete etiqueta-opcao-frete--rapida">Mais rápido</span>
+                                        }
+                                    </span>
+                                }
                             </span>
+                            <span class="preco-opcao-frete">R$ @opcao.Preco.ToString("N2")</span>
                         </a>
                     </li>
                 }

@@ -52,8 +52,10 @@
             @Html.AntiForgeryToken()
             <input type="hidden" name="EnderecoId" value="@Model.EnderecoSelecionadoId" />
             <input type="hidden" name="ServicoDeEntregaId" value="@opcaoEscolhida.ServicoId" />
-            <input type="hidden" name="ValorDosProdutosExibido" value="@Model.Carrinho.Subtotal.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
-            <input type="hidden" name="ValorDoFreteExibido" value="@opcaoEscolhida.Preco.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+            @* Cultura atual (pt-BR, vírgula decimal): o model binder lê o formulário nessa mesma cultura.
+               Com InvariantCulture, "139.80" seria lido como 13980. *@
+            <input type="hidden" name="ValorDosProdutosExibido" value="@Model.Carrinho.Subtotal.ToString(System.Globalization.CultureInfo.CurrentCulture)" />
+            <input type="hidden" name="ValorDoFreteExibido" value="@opcaoEscolhida.Preco.ToString(System.Globalization.CultureInfo.CurrentCulture)" />
 
             <fieldset class="opcoes-pagamento-fechamento">
                 <legend>Forma de pagamento</legend>

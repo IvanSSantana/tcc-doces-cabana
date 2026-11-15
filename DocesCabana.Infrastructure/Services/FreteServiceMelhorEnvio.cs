@@ -90,12 +90,21 @@ public class FreteServiceMelhorEnvio : IFreteService
                 return new OpcaoDeFreteDTO(
                     r.Id,
                     r.Company?.Name ?? "Transportadora",
-                    r.Name ?? "Serviço",
+                    NomeExibido(r.Name),
                     preco,
                     r.CustomDeliveryRange!.Min,
                     r.CustomDeliveryRange.Max);
             })
             .ToList();
+
+    private static readonly Dictionary<string, string> NomesAmigaveis = new()
+    {
+        [".Package"] = "Econômico",
+        [".Com"] = "Expresso"
+    };
+
+    private static string NomeExibido(string? nome) =>
+        nome is null ? "Serviço" : NomesAmigaveis.GetValueOrDefault(nome, nome);
 
     private static bool TryParsePreco(string? valor, out decimal preco) =>
         decimal.TryParse(valor, NumberStyles.Number, CultureInfo.InvariantCulture, out preco);

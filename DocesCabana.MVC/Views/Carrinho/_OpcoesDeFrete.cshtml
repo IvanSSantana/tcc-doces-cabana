@@ -5,19 +5,37 @@
 {
     <p class="mensagem-falha-frete">@Model.Mensagem</p>
 }
-else
+else if (Model.Opcoes.Count > 0)
 {
+    var menorPreco = Model.Opcoes.Min(o => o.Preco);
+    var menorPrazo = Model.Opcoes.Min(o => o.PrazoMaximoEmDias);
+
     <ul class="lista-opcoes-frete">
-        @foreach (var opcao in Model.Opcoes)
+        @foreach (var opcao in Model.Opcoes.OrderBy(o => o.Preco).ThenBy(o => o.PrazoMaximoEmDias))
         {
             <li class="opcao-frete">
-                <span class="transportadora-opcao-frete">@opcao.Transportadora — @opcao.Servico</span>
-                <span class="preco-opcao-frete">R$ @opcao.Preco.ToString("N2")</span>
-                <span class="prazo-opcao-frete">
-                    @(opcao.PrazoMinimoEmDias == opcao.PrazoMaximoEmDias
-                        ? $"{opcao.PrazoMinimoEmDias} dias úteis"
-                        : $"{opcao.PrazoMinimoEmDias} a {opcao.PrazoMaximoEmDias} dias úteis")
+                <span class="descricao-opcao-frete">
+                    <span class="transportadora-opcao-frete">@opcao.Transportadora — @opcao.Servico</span>
+                    <span class="prazo-opcao-frete">
+                        @(opcao.PrazoMinimoEmDias == opcao.PrazoMaximoEmDias
+                            ? $"{opcao.PrazoMinimoEmDias} dias úteis"
+                            : $"{opcao.PrazoMinimoEmDias} a {opcao.PrazoMaximoEmDias} dias úteis")
+                    </span>
+                    @if (opcao.Preco == menorPreco || opcao.PrazoMaximoEmDias == menorPrazo)
+                    {
+                        <span class="etiquetas-opcao-frete">
+                            @if (opcao.Preco == menorPreco)
+                            {
+                                <span class="etiqueta-opcao-frete etiqueta-opcao-frete--barata">Mais barato</span>
+                            }
+                            @if (opcao.PrazoMaximoEmDias == menorPrazo)
+                            {
+                                <span class="etiqueta-opcao-frete etiqueta-opcao-frete--rapida">Mais rápido</span>
+                            }
+                        </span>
+                    }
                 </span>
+                <span class="preco-opcao-frete">R$ @opcao.Preco.ToString("N2")</span>
             </li>
         }
     </ul>

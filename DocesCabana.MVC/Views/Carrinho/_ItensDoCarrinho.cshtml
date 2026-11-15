@@ -17,7 +17,7 @@
 
         if (passoDoFechamento is not null)
         {
-            <partial name="_PassosDoFechamento" model="passoDoFechamento" />
+            <partial name="~/Views/Carrinho/_PassosDoFechamento.cshtml" model="passoDoFechamento" />
         }
 
         <div class="grade-carrinho">
@@ -26,15 +26,15 @@
             {
                 if (passoAtivo == PassoDoFechamento.Conta)
                 {
-                    <partial name="_PassoConta" />
+                    <partial name="~/Views/Carrinho/_PassoConta.cshtml" />
                 }
                 else if (passoAtivo == PassoDoFechamento.Endereco)
                 {
-                    <partial name="_PassoEndereco" model="passoDoFechamento" />
+                    <partial name="~/Views/Carrinho/_PassoEndereco.cshtml" model="passoDoFechamento" />
                 }
                 else
                 {
-                    <partial name="_PassoPagamento" model="passoDoFechamento" />
+                    <partial name="~/Views/Carrinho/_PassoPagamento.cshtml" model="passoDoFechamento" />
                 }
             }
             else
@@ -124,11 +124,52 @@
                 @{
                     var haItemDisponivel = Model.Linhas.Any(l => l.Disponivel);
                     var erroCep = ViewData.ModelState["Cep"]?.Errors.FirstOrDefault()?.ErrorMessage;
+
+                    // Nos passos Endereço e Pagamento o resumo segue a cotação do endereço escolhido,
+                    // a mesma da escolha de entrega; a estimativa por CEP digitado fica só no passo Carrinho.
+                    var resumoPeloEndereco = passoDoFechamento is not null
+                        && passoAtivo is PassoDoFechamento.Endereco or PassoDoFechamento.Pagamento;
+                    var entregaEscolhida = resumoPeloEndereco
+                        ? passoDoFechamento!.Cotacao?.Opcoes.FirstOrDefault(o => o.ServicoId == passoDoFechamento.ServicoDeEntregaSelecionadoId)
+                        : null;
                 }
 
-                @if (haItemDisponivel)
+                @if (resumoPeloEndereco)
                 {
-                    <form method="get" asp-action="Index" class="formulario-frete-carrinho">
+                    @if (entregaEscolhida is not null)
+                    {
+                        <p class="linha-frete-carrinho">
+                            Entrega (@entregaEscolhida.Transportadora — @entregaEscolhida.Servico)
+                            <strong>R$ @entregaEscolhida.Preco.ToString("N2")</strong>
+                        </p>
+                        <p class="subtotal-carrinho">
+                            Total a pagar <strong>R$ @((Model.Subtotal + entregaEscolhida.Preco).ToString("N2"))</strong>
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="linha-frete-carrinho">Escolha o endereço e a entrega para ver o total.</p>
+                        <p class="subtotal-carrinho">
+                            Subtotal <strong>R$ @Model.Subtotal.ToString("N2")</strong>
+                        </p>
+                    }
+                }
+                else if (haItemDisponivel)
+                {
+                    <form method="get" asp-controller="Carrinho" asp-action="Index" class="formulario-frete-carrinho">
+                        @* Mantém o passo do fechamento: sem isso, consultar o CEP volta para o passo Carrinho *@
+                        @if (passoDoFechamento is not null && passoAtivo != PassoDoFechamento.Carrinho)
+                        {
+                            <input type="hidden" name="passo" value="@passoAtivo" />
+                            @if (passoDoFechamento.EnderecoSelecionadoId is not null)
+                            {
+                                <input type="hidden" name="enderecoId" value="@passoDoFechamento.EnderecoSelecionadoId" />
+                            }
+                            @if (passoDoFechamento.ServicoDeEntregaSelecionadoId is not null)
+                            {
+                                <input type="hidden" name="servicoDeEntregaId" value="@passoDoFechamento.ServicoDeEntregaSelecionadoId" />
+                            }
+                        }
                         <label for="cep-carrinho">Calcular frete</label>
                         <div class="entrada-cep-carrinho">
                             <input type="text" id="cep-carrinho" name="cep" value="@Model.Cotacao?.CepConsultado" placeholder="00000-000" maxlength="9" inputmode="numeric" autocomplete="postal-code" />
@@ -143,11 +184,15 @@
 
                     @if (Model.Cotacao is not null)
                     {
-                        <partial name="_OpcoesDeFrete" model="Model.Cotacao" />
+                        <partial name="~/Views/Carrinho/_OpcoesDeFrete.cshtml" model="Model.Cotacao" />
                     }
                 }
 
-                @if (Model.TemEntregaCalculada)
+                @if (resumoPeloEndereco)
+                {
+                    @* totais já exibidos acima, pela entrega escolhida *@
+                }
+                else if (Model.TemEntregaCalculada)
                 {
                     <p class="linha-frete-carrinho">
                         Frete <strong>R$ @Model.Cotacao!.Opcoes.Min(o => o.Preco).ToString("N2")</strong>

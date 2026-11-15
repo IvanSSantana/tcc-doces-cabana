@@ -43,19 +43,12 @@ public class CarrinhoController : Controller
             var validacao = await _consultaDeFreteValidator.ValidateAsync(consulta);
 
             if (!validacao.IsValid)
-            {
                 validacao.AddToModelState(ModelState);
-            }
             else
-            {
-                var disponiveis = carrinho.Linhas.Where(l => l.Disponivel).ToList();
-                if (disponiveis.Count > 0)
-                {
-                    var cotacao = await _freteService.Cotar(cep, disponiveis);
-                    carrinho = carrinho.ComCotacao(cotacao);
-                }
-            }
+                HttpContext.Session.EscreverCep(cep);
         }
+
+        carrinho = await CotarComCepGuardado(carrinho, passo);
 
         await MontarPassoDoFechamento(carrinho, passo, enderecoId, servicoDeEntregaId);
 
@@ -75,7 +68,7 @@ public class CarrinhoController : Controller
 
         if (EhRequisicaoAssincrona)
         {
-            var carrinho = await ObterCarrinhoAtual();
+            var carrinho = await CotarComCepGuardado(await ObterCarrinhoAtual(), PassoDoFechamento.Endereco);
             await MontarPassoDoFechamento(carrinho, PassoDoFechamento.Endereco, null, null);
             return PartialView("_ItensDoCarrinho", carrinho);
         }
@@ -169,7 +162,7 @@ public class CarrinhoController : Controller
     {
         if (EhRequisicaoAssincrona)
         {
-            var carrinho = await ObterCarrinhoAtual();
+            var carrinho = await CotarComCepGuardado(await ObterCarrinhoAtual(), PassoDoFechamento.Carrinho);
             await MontarPassoDoFechamento(carrinho, PassoDoFechamento.Carrinho, null, null);
             return PartialView("_ItensDoCarrinho", carrinho);
         }
@@ -177,17 +170,37 @@ public class CarrinhoController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    /// Refaz a estimativa de frete com o CEP guardado na sessão, para ela não sumir a cada ação.
+    /// Nos passos Endereço e Pagamento o resumo mostra a cotação do endereço escolhido, então
+    /// a estimativa por CEP digitado não é consultada.
+    /// </summary>
+    private async Task<CarrinhoDTO> CotarComCepGuardado(CarrinhoDTO carrinho, PassoDoFechamento passo)
+    {
+        if (PassoEfetivo(passo) is PassoDoFechamento.Endereco or PassoDoFechamento.Pagamento)
+            return carrinho;
+
+        var cep = HttpContext.Session.LerCep();
+        if (cep is null)
+            return carrinho;
+
+        var disponiveis = carrinho.Linhas.Where(l => l.Disponivel).ToList();
+        if (disponiveis.Count == 0)
+            return carrinho;
+
+        return carrinho.ComCotacao(await _freteService.Cotar(cep, disponiveis));
+    }
+
     private async Task MontarPassoDoFechamento(CarrinhoDTO carrinho, PassoDoFechamento passo, Guid? enderecoId, int? servicoDeEntregaId)
     {
-        var usuarioId = UsuarioAtualId;
+        ViewData["PassoDoFechamento"] =
+            await _pedidoService.MontarPasso(PassoEfetivo(passo), carrinho, UsuarioAtualId, enderecoId, servicoDeEntregaId);
+    }
 
-        var passoEfetivo = usuarioId is null && passo is PassoDoFechamento.Endereco or PassoDoFechamento.Pagamento
+    private PassoDoFechamento PassoEfetivo(PassoDoFechamento passo) =>
+        UsuarioAtualId is null && passo is PassoDoFechamento.Endereco or PassoDoFechamento.Pagamento
             ? PassoDoFechamento.Conta
             : passo;
-
-        ViewData["PassoDoFechamento"] =
-            await _pedidoService.MontarPasso(passoEfetivo, carrinho, usuarioId, enderecoId, servicoDeEntregaId);
-    }
 
     private bool EhRequisicaoAssincrona =>
         Request.Headers["X-Requested-With"] == "XMLHttpRequest";
