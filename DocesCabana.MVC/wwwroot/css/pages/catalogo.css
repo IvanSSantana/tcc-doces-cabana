@@ -208,25 +208,171 @@
   color: var(--catalogo-tinta-suave);
 }
 
+/* Rótulo e select formam uma única pílula: faixa creme com o rótulo,
+   lado branco com o valor e a seta coral. */
 .controle-ordenacao {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--catalogo-borda);
+  border-radius: 999px;
+  background-color: #FFFFFF;
+  overflow: hidden;
   font-size: 0.9rem;
+  box-shadow: 0 1px 2px rgba(30, 30, 30, 0.05);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.controle-ordenacao:hover {
+  border-color: var(--catalogo-verde);
+}
+
+.controle-ordenacao:focus-within {
+  border-color: var(--catalogo-verde);
+  box-shadow: 0 0 0 3px rgba(5, 92, 64, 0.18);
 }
 
 .controle-ordenacao label {
+  display: flex;
+  align-items: center;
+  padding: 0 0.9rem 0 1.1rem;
+  background-color: #EAE3D8;
   color: var(--catalogo-verde);
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .controle-ordenacao select {
-  border: 1px solid var(--catalogo-borda);
-  border-radius: 8px;
-  padding: 0.4rem 0.6rem;
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 10.5rem;
+  border: none;
+  padding: 0.55rem 2.4rem 0.55rem 0.9rem;
   font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--catalogo-tinta);
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23D93B26' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px 8px;
+  cursor: pointer;
+}
+
+.controle-ordenacao select:focus {
+  outline: none;
+}
+
+/* Fallback: navegadores sem select customizável só aceitam cor e peso. */
+.controle-ordenacao option {
   color: var(--catalogo-tinta);
   background-color: #FFFFFF;
+  font-weight: 500;
+}
+
+.controle-ordenacao option:checked {
+  color: var(--catalogo-verde);
+  font-weight: 700;
+}
+
+/* Select customizável (Chrome/Edge 135+): lista de opções estilizada. */
+@supports (appearance: base-select) {
+  .controle-ordenacao select,
+  .controle-ordenacao select::picker(select) {
+    appearance: base-select;
+  }
+
+  .controle-ordenacao select::picker-icon {
+    display: none;
+  }
+
+  .controle-ordenacao select::picker(select) {
+    margin-top: 6px;
+    min-width: anchor-size(width);
+    padding: 6px;
+    border: 1px solid var(--catalogo-borda);
+    border-top: 3px solid var(--catalogo-coral);
+    border-radius: 4px 4px 12px 12px;
+    background-color: #FFFFFF;
+    box-shadow: 0 12px 28px rgba(30, 30, 30, 0.14);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease,
+      display 0.15s allow-discrete, overlay 0.15s allow-discrete;
+  }
+
+  .controle-ordenacao select:open::picker(select) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @starting-style {
+    .controle-ordenacao select:open::picker(select) {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  .controle-ordenacao option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease;
+  }
+
+  /* Marca da opção atual: um ponto coral à esquerda, no lugar do ✓. */
+  .controle-ordenacao option::checkmark {
+    content: "";
+    order: -1;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--catalogo-coral);
+  }
+
+  .controle-ordenacao option:not(:checked)::checkmark {
+    visibility: hidden;
+  }
+
+  .controle-ordenacao option:checked {
+    background-color: #EAE3D8;
+  }
+
+  .controle-ordenacao option:hover,
+  .controle-ordenacao option:focus-visible {
+    background-color: var(--catalogo-verde);
+    color: #FFFFFF;
+    outline: none;
+  }
+
+  .controle-ordenacao option:hover::checkmark,
+  .controle-ordenacao option:focus-visible::checkmark {
+    background-color: #FFFFFF;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controle-ordenacao select::picker(select) {
+    transition: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .controle-ordenacao label {
+    padding: 0 0.7rem;
+  }
+
+  .controle-ordenacao select {
+    min-width: 0;
+  }
 }
 
 .botao-aplicar-filtro {

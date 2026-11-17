@@ -22,22 +22,29 @@ header {
   gap: 30px;
 }
 
+.logo {
+  flex-shrink: 0;
+}
+
 .logo img {
   height: 12vh;
   width: auto;
   display: block;
 }
 
+/* A busca ocupa o espaço livre entre logo e ações, com o mesmo teto
+   para visitante, cliente e administrador. */
 .barra-pesquisa {
+  flex: 1 1 700px;
   display: flex;
   align-items: center;
   background-color: #F2F2F2;
   border-radius: 30px;
   padding: 0 15px 0 25px;
-  width: 100%;
+  min-width: 0;
   max-width: 700px;
   height: 48px;
-  margin-right: 7%;
+  margin: 0 auto;
 }
 
 .barra-pesquisa input {
@@ -78,9 +85,10 @@ header {
 }
 
 .acoes-usuario {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 3rem;
+  gap: 2.5rem;
 }
 
 .formulario-sair {
@@ -88,47 +96,110 @@ header {
   align-items: center;
 }
 
-.botao-sair {
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: inherit;
-}
-
-.botao-acao {
+/* Link ou botão de ação do header (Conta, Entrar, Admin, Carrinho, Sair). */
+.acao-header {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
   text-decoration: none;
   color: var(--cor-texto);
   font-weight: 500;
   font-size: 16px;
+  white-space: nowrap;
+  cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
-.botao-acao:hover {
+.acao-header:hover {
   opacity: 0.8;
-  cursor: pointer;
 }
 
-.botao-acao--desabilitado {
-  opacity: 0.55;
-  cursor: default;
+.acao-header:focus-visible {
+  outline: 2px solid var(--cor-texto);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
-.botao-acao--desabilitado:hover {
-  opacity: 0.55;
-  cursor: default;
+/* Menu "Admin": abre no hover ou quando algo dentro dele recebe foco,
+   no mesmo padrão do submenu de categorias. */
+.menu-admin {
+  position: relative;
 }
 
-.botao-acao svg {
-  width: 26px;
-  height: 26px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.seta-menu-admin {
+  font-size: 12px;
+  transition: transform 0.25s ease;
+}
+
+.submenu-admin {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: -12px;
+  z-index: 30;
+  min-width: 220px;
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  background-color: #EAE3D8;
+  border-top: 3px solid var(--cor-destaque);
+  border-radius: 4px 4px 12px 12px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+}
+
+/* Ponte invisível: o hover não cai no vão entre o botão e o menu. */
+.submenu-admin::before {
+  content: "";
+  position: absolute;
+  top: -17px;
+  left: 0;
+  right: 0;
+  height: 17px;
+}
+
+.menu-admin:hover .submenu-admin,
+.menu-admin:focus-within .submenu-admin {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.menu-admin:hover .seta-menu-admin,
+.menu-admin:focus-within .seta-menu-admin {
+  transform: rotate(180deg);
+}
+
+.submenu-admin a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: var(--cor-primaria);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.submenu-admin a i {
+  width: 16px;
+  text-align: center;
+}
+
+.submenu-admin a:hover,
+.submenu-admin a:focus-visible {
+  background-color: var(--cor-destaque);
+  color: var(--cor-texto);
+  outline: none;
 }
 
 .icone-com-bolha {

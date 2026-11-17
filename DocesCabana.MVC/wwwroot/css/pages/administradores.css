@@ -18,11 +18,47 @@
     margin-bottom: 0;
 }
 
+/* Mesmo padrão do botão "Novo produto" (gestao-produtos.css). */
 .botao-novo-administrador {
-    width: auto;
-    min-width: unset;
-    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    height: 46px;
     padding: 0 1.5rem;
+    border-radius: 14px;
+    background-color: var(--cor-primaria, #055C40);
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(5, 92, 64, 0.2);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.botao-novo-administrador:hover {
+    background-color: #07714F;
+    box-shadow: 0 4px 12px rgba(5, 92, 64, 0.28);
+    transform: translateY(-1px);
+}
+
+.botao-novo-administrador:active {
+    transform: translateY(0);
+}
+
+.botao-novo-administrador:focus-visible {
+    outline: 3px solid rgba(5, 92, 64, 0.35);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .botao-novo-administrador,
+    .botao-novo-administrador:hover {
+        transform: none;
+    }
 }
 
 .mensagem-vazia {

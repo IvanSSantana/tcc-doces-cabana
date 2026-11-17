@@ -1,23 +1,22 @@
-@using Microsoft.AspNetCore.Identity;
-@using DocesCabana.Domain.Constants;
-@using DocesCabana.Application.DTOs;
+@using DocesCabana.Domain.Constants
+@using DocesCabana.Application.DTOs
 @model List<CategoriaDTO>
+@{
+  var autenticado = User.Identity?.IsAuthenticated == true;
+  var administrador = autenticado && User.IsInRole(Papeis.Administrador);
+  var itensCarrinho = (int)(ViewData["ItensCarrinho"] ?? 0);
+}
 
-<head>
-  <link rel="stylesheet" href="~/css/components/header.css">
-</head>
+<link rel="stylesheet" href="~/css/components/header.css" asp-append-version="true">
 
 <header>
   <div class="cabecalho-superior">
     <section>
-
-      <a asp-area="" asp-action="Index" asp-controller="Home" class="logo">
-        <img
-          src="~/images/logo.webp"
-          alt="Logo Doce Cabana">
+      <a asp-area="" asp-controller="Home" asp-action="Index" class="logo">
+        <img src="~/images/logo.webp" alt="Logo Doce Cabana">
       </a>
 
-      <form asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="@((string?)null)"
+      <form asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido=""
             method="get" class="barra-pesquisa">
         <input type="text" name="termo" value="@ViewData["TermoDeBusca"]"
                placeholder="Buscar produto..." aria-label="Buscar produto">
@@ -27,86 +26,91 @@
         <button type="submit" class="botao-pesquisar" aria-label="Buscar">
           <i class="fa-solid fa-magnifying-glass icone-pesquisa"></i>
         </button>
-
       </form>
 
+      @* As ações usam o prefixo "acao-header" para não colidir com
+         ".botao-acao" de formulario.css, carregado nas telas de formulário. *@
       <div class="acoes-usuario">
-        @if (User.Identity!.IsAuthenticated)
+        @if (autenticado)
         {
-          <a class="botao-acao" asp-area="" asp-controller="Conta" asp-action="Index">
-            <i class="fa-solid fa-user icone-acao"></i>
-
+          <a asp-area="" asp-controller="Conta" asp-action="Index" class="acao-header">
+            <i class="fa-solid fa-user"></i>
             <span>Conta</span>
           </a>
+        }
+        else
+        {
+          <button type="button" class="acao-header" onclick="abrirModal()">
+            <i class="fa-solid fa-user"></i>
+            <span>Entrar</span>
+          </button>
+        }
 
-          @if (User.IsInRole(Papeis.Administrador))
-          {
-            <a class="botao-acao" asp-area="Admin" asp-controller="Administrador" asp-action="Index">
-              <i class="fa-solid fa-user-shield icone-acao"></i>
+        @if (administrador)
+        {
+          <div class="menu-admin">
+            <button type="button" class="acao-header" aria-haspopup="true">
+              <i class="fa-solid fa-user-shield"></i>
+              <span>Admin</span>
+              <i class="fa-solid fa-chevron-down seta-menu-admin" aria-hidden="true"></i>
+            </button>
 
-              <span>Administradores</span>
-            </a>
+            <ul class="submenu-admin">
+              <li>
+                <a asp-area="Admin" asp-controller="Administrador" asp-action="Index">
+                  <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+                  Administradores
+                </a>
+              </li>
+              <li>
+                <a asp-area="Admin" asp-controller="Produto" asp-action="Index">
+                  <i class="fa-solid fa-list" aria-hidden="true"></i>
+                  Produtos
+                </a>
+              </li>
+            </ul>
+          </div>
+        }
 
-            <a class="botao-acao" asp-area="Admin" asp-controller="Produto" asp-action="Index">
-              <i class="fa-solid fa-list icone-acao"></i>
+        <a asp-area="" asp-controller="Carrinho" asp-action="Index" class="acao-header">
+          <span class="icone-com-bolha">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="bolha-carrinho" data-bolha-carrinho hidden="@(itensCarrinho == 0 ? "hidden" : null)">@itensCarrinho</span>
+          </span>
+          <span>Meu carrinho</span>
+        </a>
 
-              <span>Produtos</span>
-            </a>
-          }
-
+        @if (autenticado)
+        {
           <form asp-area="" asp-controller="Autenticacao" asp-action="Logout" method="post" class="formulario-sair">
             @Html.AntiForgeryToken()
-            <button type="submit" class="botao-acao botao-sair" aria-label="Sair">
-              <i class="fa-solid fa-right-from-bracket icone-acao"></i>
-
+            <button type="submit" class="acao-header" aria-label="Sair">
+              <i class="fa-solid fa-right-from-bracket"></i>
               <span>Sair</span>
             </button>
           </form>
         }
-        else 
-        {
-          <a class="botao-acao" onclick="abrirModal()">
-            <i class="fa-solid fa-user icone-acao"></i>
-
-            <span>Entrar</span>
-          </a>
-        }        
-
-        @{
-            var itensCarrinho = (int)(ViewData["ItensCarrinho"] ?? 0);
-        }
-        <a asp-area="" asp-controller="Carrinho" asp-action="Index" class="botao-acao">
-          <span class="icone-com-bolha">
-            <i class="fa-solid fa-cart-shopping icone-acao"></i>
-            <span class="bolha-carrinho" data-bolha-carrinho hidden="@(itensCarrinho == 0 ? "hidden" : null)">@itensCarrinho</span>
-          </span>
-
-          <span>Meu carrinho</span>
-        </a>
-
       </div>
     </section>
-
   </div>
-
 
   <div class="cabecalho-inferior">
     <section>
       <nav>
-
         @foreach (var categoria in Model)
         {
+          var temSubcategorias = categoria.Subcategorias.Count > 0;
+
           <div class="item-categoria-nav">
             <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="@categoria.Apelido" class="link-nav">
               <p>@categoria.Nome</p>
-
-              @if (categoria.Subcategorias.Count > 0)
+              @if (temSubcategorias)
               {
                 <i class="fa-solid fa-chevron-down icone-nav seta-header" aria-hidden="true"></i>
               }
             </a>
 
-            @if (categoria.Subcategorias.Count > 0)
+            @if (temSubcategorias)
             {
               <div class="submenu-categoria">
                 <ul>
@@ -124,21 +128,14 @@
             }
           </div>
         }
-
       </nav>
 
       <a asp-area="" asp-controller="Favorito" asp-action="Index" class="botao-favoritos">
         <span>Favoritos</span>
-
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path
-            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-          </path>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
         </svg>
-
       </a>
     </section>
-
   </div>
 </header>
