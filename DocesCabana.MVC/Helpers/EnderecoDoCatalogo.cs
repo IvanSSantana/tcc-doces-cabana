@@ -15,7 +15,7 @@ public static class EnderecoDoCatalogo
         int? pagina = null)
     {
         var caminhoBase = apelidoDaCategoria is null
-            ? urlHelper.Action("Index", "Catalogo")!
+            ? urlHelper.Action("Index", "Catalogo", new { apelido = "" })!
             : urlHelper.Action("Index", "Catalogo", new { apelido = apelidoDaCategoria })!;
 
         var partesDaConsulta = new List<string> { $"ordenacao={ordenacao}" };

@@ -12,7 +12,7 @@
     <nav class="trilha-catalogo" aria-label="Caminho de navegação">
         <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
         <span aria-hidden="true">&rsaquo;</span>
-        <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-ordenacao="@Model.Ordenacao">Todos</a>
+        <a asp-area="" asp-controller="Catalogo" asp-action="Index" asp-route-apelido="" asp-route-ordenacao="@Model.Ordenacao">Todos</a>
         @if (Model.CategoriaAtual is not null)
         {
             <span aria-hidden="true">&rsaquo;</span>
