@@ -1,14 +1,12 @@
-<head>
-    <link rel="stylesheet" href="~/css/components/carrossel.css">
-</head>
+<link rel="stylesheet" href="~/css/components/carrossel.css" asp-append-version="true">
 
 <div class="carrossel-container">
-    <button class="seta-controle seta-anterior" aria-label="Slide anterior">
-        <i class="fa-solid fa-arrow-left"></i>
+    <button type="button" class="botao botao--icone seta-controle seta-anterior" aria-label="Slide anterior">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
     </button>
     
-    <button class="seta-controle seta-proximo" aria-label="Próximo slide">
-        <i class="fa-solid fa-arrow-right"></i>
+    <button type="button" class="botao botao--icone seta-controle seta-proximo" aria-label="Próximo slide">
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
     </button>
 
     <div class="carrossel">

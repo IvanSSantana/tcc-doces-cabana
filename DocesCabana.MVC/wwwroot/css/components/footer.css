@@ -78,7 +78,7 @@
   color: var(--cor-sobre-primaria);
   text-decoration: none;
   font-size: 1.5rem;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duracao-rapida) var(--curva);
 }
 
 .footer-container .redes-sociais a:hover {

@@ -96,25 +96,25 @@
                 </ul>
 
                 <div class="acoes-lista-carrinho">
-                    <a asp-action="ConfirmarEsvaziar" class="botao-esvaziar-lista-carrinho" data-abrir-confirmacao-esvaziar>
+                    <a asp-action="ConfirmarEsvaziar" class="botao botao--perigo botao--pequeno botao-esvaziar-lista-carrinho" data-abrir-confirmacao-esvaziar>
                         Esvaziar carrinho
                     </a>
 
-                    <a asp-area="" asp-controller="Catalogo" asp-action="Index" class="botao-continuar-comprando">
+                    <a asp-area="" asp-controller="Catalogo" asp-action="Index" class="botao botao--fantasma botao-continuar-comprando">
                         Continuar comprando →
                     </a>
                 </div>
             }
             </div>
 
-            <aside class="resumo-carrinho">
+            <aside class="painel resumo-carrinho">
                 <h2 class="titulo-resumo-carrinho">Resumo do pedido</h2>
 
                 <div class="campo-cupom-carrinho">
                     <label for="cupom-carrinho">Cupom de desconto</label>
                     <div class="entrada-cupom-carrinho">
                         <input type="text" id="cupom-carrinho" disabled placeholder="Em breve" />
-                        <button type="button" disabled>Aplicar</button>
+                        <button type="button" class="botao botao--secundario botao--pequeno" disabled>Aplicar</button>
                     </div>
                     <span class="explicacao-cupom-carrinho">Cupom de desconto ainda não está disponível.</span>
                 </div>
@@ -173,7 +173,7 @@
                         <label for="cep-carrinho">Calcular frete</label>
                         <div class="entrada-cep-carrinho">
                             <input type="text" id="cep-carrinho" name="cep" value="@Model.Cotacao?.CepConsultado" placeholder="00000-000" maxlength="9" inputmode="numeric" autocomplete="postal-code" />
-                            <button type="submit">Calcular</button>
+                            <button type="submit" class="botao botao--primario botao--pequeno">Calcular</button>
                         </div>
 
                         @if (erroCep is not null)
@@ -213,7 +213,7 @@
                 {
                     var proximoPasso = User.Identity is { IsAuthenticated: true } ? PassoDoFechamento.Endereco : PassoDoFechamento.Conta;
                     <a asp-action="Index" asp-route-passo="@proximoPasso" data-navegacao-fechamento
-                       class="botao-finalizar-carrinho">
+                       class="botao botao--destaque botao-finalizar-carrinho">
                         Finalizar compra
                     </a>
                 }
@@ -225,8 +225,8 @@
                 @Html.AntiForgeryToken()
                 <p>Esvaziar o carrinho? Todos os itens serão removidos.</p>
                 <div class="acoes-dialogo-esvaziar-carrinho">
-                    <button type="submit" class="botao-confirmar-esvaziar-carrinho">Sim, esvaziar</button>
-                    <button type="button" class="botao-cancelar-esvaziar-carrinho" data-fechar-dialogo-esvaziar>Cancelar</button>
+                    <button type="submit" class="botao botao--destaque botao--pequeno botao-confirmar-esvaziar-carrinho">Sim, esvaziar</button>
+                    <button type="button" class="botao botao--fantasma botao--pequeno botao-cancelar-esvaziar-carrinho" data-fechar-dialogo-esvaziar>Cancelar</button>
                 </div>
             </form>
         </dialog>

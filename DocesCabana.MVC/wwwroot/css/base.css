@@ -58,6 +58,12 @@ header :focus-visible {
   outline-color: var(--cor-sobre-primaria);
 }
 
+/* `hidden` precisa vencer qualquer `display` de componente: os scripts
+   alternam estado vazio, bolha do carrinho e erros por este atributo. */
+[hidden] {
+  display: none !important;
+}
+
 input::-ms-reveal,
 input::-ms-clear {
   display: none;
@@ -91,6 +97,13 @@ input::-ms-clear {
 
 .titulo--verde {
   color: var(--cor-primaria);
+}
+
+/* Etiqueta dentro de uma página que já tem a própria faixa de conteúdo
+   (carrinho, conta, favoritos): sem a margem calculada da faixa. */
+.titulo--na-pagina {
+  max-width: 100%;
+  margin: 0 0 var(--espaco-6);
 }
 
 @supports (mask-image: url("")) or (-webkit-mask-image: url("")) {
@@ -129,4 +142,20 @@ input::-ms-clear {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Telas de mensagem curta: erro, acesso negado, página não encontrada. */
+.pagina-mensagem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--espaco-4);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--espaco-16) var(--margem-lateral);
+}
+
+.pagina-mensagem__detalhe {
+  color: var(--neutro-texto-suave);
+  font-size: var(--texto-pequeno);
 }

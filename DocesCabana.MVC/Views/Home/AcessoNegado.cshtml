@@ -1,6 +1,11 @@
 @{
     ViewData["Title"] = "Acesso Negado";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Você não tem permissão para acessar esta página.</p>
+<main class="pagina-mensagem">
+    <h1 class="titulo titulo--na-pagina">@ViewData["Title"]</h1>
+
+    <p>Você não tem permissão para acessar esta página.</p>
+
+    <a asp-area="" asp-controller="Home" asp-action="Index" class="botao botao--primario">Voltar para a loja</a>
+</main>

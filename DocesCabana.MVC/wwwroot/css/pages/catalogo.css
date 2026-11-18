@@ -4,8 +4,8 @@
   color: var(--cor-tinta);
   font-family: var(--fonte-principal);
   max-width: 1300px;
-  margin: 2rem auto;
-  padding: 1.5rem;
+  margin: var(--espaco-8) auto;
+  padding: var(--espaco-6) var(--margem-lateral);
 }
 
 .pagina-catalogo section {
@@ -16,11 +16,12 @@
 }
 
 .trilha-catalogo {
-  font-size: 14px;
+  font-size: var(--texto-pequeno);
+  letter-spacing: 0.04em;
   color: var(--neutro-texto-suave);
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--espaco-6);
   text-transform: uppercase;
-  gap: 20px;
+  gap: var(--espaco-4);
 }
 
 .trilha-catalogo a {
@@ -44,17 +45,20 @@
   align-items: start;
 }
 
+/* Superfície vem de .painel; aqui só o encaixe na grade. */
 .barra-lateral-catalogo {
-  background-color: var(--neutro-superficie);
-  border: 1px solid var(--neutro-borda);
-  border-radius: 12px;
-  padding: 1.25rem;
+  position: sticky;
+  top: var(--espaco-4);
+  padding: var(--espaco-6) var(--espaco-4);
 }
 
 .titulo-barra-lateral {
-  font-size: 1.1rem;
+  font-family: var(--fonte-secundaria);
+  font-size: 1.5rem;
+  font-weight: 400;
   color: var(--cor-primaria);
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--espaco-3);
+  padding: 0 var(--espaco-2);
 }
 
 .lista-categorias-catalogo {
@@ -67,11 +71,12 @@
 
 .link-categoria-catalogo {
   display: block;
-  padding: 0.4rem 0.6rem;
-  border-radius: 8px;
+  padding: var(--espaco-2) var(--espaco-3);
+  border-radius: var(--raio-pequeno);
   color: var(--cor-tinta);
   text-decoration: none;
   font-size: 0.95rem;
+  transition: background-color var(--duracao-rapida) var(--curva);
 }
 
 .link-categoria-catalogo:hover {
@@ -90,7 +95,7 @@
 
 .filtro-subcategorias {
   border: none;
-  border-top: 1px solid var(--neutro-borda);
+  border-top: 1px solid var(--neutro-divisor);
   padding-top: 1rem;
   margin-bottom: 1rem;
 }
@@ -141,7 +146,7 @@
 }
 
 .filtro-sem-acucar {
-  border-top: 1px solid var(--neutro-borda);
+  border-top: 1px solid var(--neutro-divisor);
   padding-top: 1rem;
 }
 
@@ -151,7 +156,7 @@
 
 .resultado-catalogo--carregando {
   opacity: 0.5;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--duracao-rapida) var(--curva);
   pointer-events: none;
 }
 
@@ -162,7 +167,8 @@
   margin-bottom: 1rem;
   padding: 0.4rem 0.5rem 0.4rem 0.9rem;
   border: 1.5px solid var(--cor-primaria);
-  border-radius: 20px;
+  border-radius: var(--raio-pilula);
+  background-color: var(--cor-primaria-clara);
   color: var(--cor-primaria);
   font-size: 0.9rem;
   font-weight: 600;
@@ -207,12 +213,12 @@
   display: inline-flex;
   align-items: stretch;
   border: 1px solid var(--neutro-borda);
-  border-radius: 999px;
+  border-radius: var(--raio-pilula);
   background-color: var(--neutro-superficie);
   overflow: hidden;
   font-size: 0.9rem;
-  box-shadow: 0 1px 2px rgba(30, 30, 30, 0.05);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--sombra-1);
+  transition: border-color var(--duracao-rapida) var(--curva), box-shadow var(--duracao-rapida) var(--curva);
 }
 
 .controle-ordenacao:hover {
@@ -288,10 +294,9 @@
     min-width: anchor-size(width);
     padding: 6px;
     border: 1px solid var(--neutro-borda);
-    border-top: 3px solid var(--cor-destaque);
-    border-radius: 4px 4px 12px 12px;
+    border-radius: var(--raio-medio);
     background-color: var(--neutro-superficie);
-    box-shadow: 0 12px 28px rgba(30, 30, 30, 0.14);
+    box-shadow: var(--sombra-2);
     opacity: 0;
     transform: translateY(-4px);
     transition: opacity 0.15s ease, transform 0.15s ease,
@@ -315,7 +320,7 @@
     align-items: center;
     gap: 0.6rem;
     padding: 0.55rem 0.8rem;
-    border-radius: 8px;
+    border-radius: var(--raio-pequeno);
     font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.12s ease, color 0.12s ease;
@@ -352,12 +357,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .controle-ordenacao select::picker(select) {
-    transition: none;
-  }
-}
-
 @media (max-width: 480px) {
   .controle-ordenacao label {
     padding: 0 0.7rem;
@@ -369,20 +368,13 @@
 }
 
 .botao-aplicar-filtro {
-  margin-bottom: 1rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  background-color: var(--cor-primaria);
-  color: var(--cor-sobre-primaria);
-  font-weight: 600;
-  cursor: pointer;
+  margin-bottom: var(--espaco-4);
 }
 
 .grade-produtos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  gap: var(--espaco-4);
 }
 
 .grade-produtos .card-produto {
@@ -401,7 +393,6 @@
 
 .grade-produtos .container-imagem-card {
   background-color: var(--neutro-fundo);
-  border-radius: 20px 20px 0 0;
   margin-bottom: 0;
 }
 
@@ -423,9 +414,15 @@
 .grade-produtos .botao-adicionar-card {
   grid-column: 1 / -1;
   width: 100%;
-  height: 44px;
+  min-height: 44px;
+  font-size: var(--texto-base);
   background-color: var(--cor-destaque);
   color: var(--cor-sobre-primaria);
+}
+
+.grade-produtos .card-produto:hover .botao-adicionar-card:not(:disabled),
+.grade-produtos .botao-adicionar-card:hover:not(:disabled) {
+  background-color: var(--cor-destaque-escura);
 }
 
 .grade-produtos .botao-adicionar-card:disabled {
@@ -437,7 +434,8 @@
   padding: 3rem 1rem;
   text-align: center;
   border: 1px dashed var(--neutro-borda);
-  border-radius: 12px;
+  border-radius: var(--raio-medio);
+  background-color: var(--neutro-superficie);
 }
 
 .paginacao-catalogo {
@@ -453,7 +451,7 @@
   justify-content: center;
   min-width: 2.25rem;
   height: 2.25rem;
-  border-radius: 999px;
+  border-radius: var(--raio-pilula);
   text-decoration: none;
   color: var(--cor-tinta);
   font-weight: 600;
@@ -477,9 +475,13 @@
   visibility: hidden;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .grade-catalogo {
     grid-template-columns: 1fr;
+  }
+
+  .barra-lateral-catalogo {
+    position: static;
   }
 
   .grade-produtos {
@@ -487,14 +489,8 @@
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 480px) {
   .grade-produtos {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pagina-catalogo * {
-    scroll-behavior: auto;
   }
 }

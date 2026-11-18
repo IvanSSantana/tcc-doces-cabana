@@ -1,18 +1,24 @@
+/* Cabeçalho reduzido das telas de autenticação (spec 033). Mesma altura de
+   logo do cabeçalho completo; a faixa `section` vem de base.css. */
+
 header {
-    background-color: var(--cor-primaria);
-    color: var(--cor-sobre-primaria);
-    border-bottom: 1px solid rgba(255, 255, 255, .2);
+  background-color: var(--cor-primaria);
+  color: var(--cor-sobre-primaria);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 header section {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 25px 40px;
-    width: 100%;
+  padding-top: var(--espaco-4);
+  padding-bottom: var(--espaco-4);
+}
+
+.logo {
+  display: inline-block;
+  border-radius: var(--raio-pequeno);
 }
 
 .logo img {
-    height: 12vh;
-    width: auto;
-    display: block;
+  height: clamp(56px, 4rem + 2vw, 96px);
+  width: auto;
+  display: block;
 }

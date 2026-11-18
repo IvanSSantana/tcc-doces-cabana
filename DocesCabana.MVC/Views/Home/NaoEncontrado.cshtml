@@ -1,6 +1,11 @@
 @{
     ViewData["Title"] = "Não encontrado";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>A página que você está procurando não existe.</p>
+<main class="pagina-mensagem">
+    <h1 class="titulo titulo--na-pagina">@ViewData["Title"]</h1>
+
+    <p>A página que você está procurando não existe.</p>
+
+    <a asp-area="" asp-controller="Home" asp-action="Index" class="botao botao--primario">Voltar para a loja</a>
+</main>

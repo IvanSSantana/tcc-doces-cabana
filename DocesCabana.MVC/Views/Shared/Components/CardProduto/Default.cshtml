@@ -59,7 +59,7 @@
             <button type="button" class="botao-quantidade-card mais" data-quantidade-mais aria-label="Aumentar quantidade" @(foraDeCompra ? "disabled" : null)>+</button>
         </div>
         <button type="submit" form="formulario-carrinho" name="produtoId" value="@Model.ProdutoId"
-                class="botao-adicionar-card" aria-label="Adicionar ao carrinho"
+                class="botao botao--pequeno botao-adicionar-card" aria-label="Adicionar ao carrinho"
                 title="@(foraDeCompra ? "Produto indisponível" : null)" @(foraDeCompra ? "disabled" : null)>@rotuloBotaoCarrinho</button>
     </div>
 </div>

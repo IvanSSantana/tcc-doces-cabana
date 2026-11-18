@@ -1,7 +1,7 @@
 # Plano — Modernização da interface
 
 **ID:** 033-modernizacao-da-interface · **Criado em:** 2026-11-18
-**Status:** Aprovado
+**Status:** Executado
 
 ---
 
@@ -184,14 +184,14 @@ navegador. Os passos que mexem em markup terminam com o E2E.
 - [x] 1. Capturar a tela de cada página em 1280px e em 390px (estado "antes"). As capturas ficam locais e não são versionadas.
 - [x] 2. Criar `tokens.css` e `base.css`; apagar `site.css`; ajustar os dois layouts (fonte, ordem dos estilos, título da aba); apagar `_Layout.cshtml.css` e o link `styles.css`; corrigir `_HeaderNaoAutenticado`.
 - [x] 3. Tirar o Bootstrap do `_LayoutNaoAutenticado` e apagar `wwwroot/lib/bootstrap`. Conferir as 4 telas de autenticação. `dotnet test` (E2E de login, cadastro e recuperação).
-- [ ] 4. Criar `botao.css` e `painel.css`; reescrever `formulario.css` e passar a carregá-lo pelos layouts; aplicar `.titulo` etiqueta. *(Feito e conferido no navegador; build verde. Falta rodar o E2E para marcar.)*
-- [ ] 5. *(Em andamento: `card-produto.css` reescrito; o resto da casca não foi tocado.)* Casca: cabeçalho, cabeçalho não autenticado, rodapé, modal de login, aviso do carrinho, cartão de produto, vitrine. `dotnet test`.
-- [ ] 6. Páginas da loja, uma por vez: home (carrossel, categorias), catálogo, produto, carrinho e fechamento, pedidos, conta, favoritos, autenticação, institucional, telas de erro. Remover as paletas locais de cada uma. `dotnet test` ao fim.
-- [ ] 7. Área administrativa: fundir `cadastro_produto.css` em `gestao-produtos.css`; migrar gestão de produtos e administradores. `dotnet test` (E2E da área administrativa e do cadastro de produto).
-- [ ] 8. Breakpoints: reescrever todo `@media` para 480, 768, 1024 ou 1280. Conferir cada página em 390, 768 e 1280px.
-- [ ] 9. Remover os aliases `--cor-texto` e `--cor-texto-secundario`; rodar a varredura da seção 7.
-- [ ] 10. Capturar o estado "depois" e comparar com o passo 1, tela a tela.
-- [ ] 11. `dotnet build` e `dotnet test` completos.
+- [x] 4. Criar `botao.css` e `painel.css`; reescrever `formulario.css` e passar a carregá-lo pelos layouts; aplicar `.titulo` etiqueta.
+- [x] 5. Casca: cabeçalho, cabeçalho não autenticado, rodapé, modal de login, aviso do carrinho, cartão de produto, vitrine. `dotnet test`.
+- [x] 6. Páginas da loja, uma por vez: home (carrossel, categorias), catálogo, produto, carrinho e fechamento, pedidos, conta, favoritos, autenticação, institucional, telas de erro. Remover as paletas locais de cada uma. `dotnet test` ao fim.
+- [x] 7. Área administrativa: fundir `cadastro_produto.css` em `gestao-produtos.css`; migrar gestão de produtos e administradores. `dotnet test` (E2E da área administrativa e do cadastro de produto).
+- [ ] 8. Breakpoints: reescrever todo `@media` para 480, 768, 1024 ou 1280. Conferir cada página em 390, 768 e 1280px. *(Reescrita feita e provada pela varredura da seção 7; falta a conferência visual nas três larguras.)*
+- [x] 9. Remover os aliases `--cor-texto` e `--cor-texto-secundario`; rodar a varredura da seção 7.
+- [ ] 10. Capturar o estado "depois" e comparar com o passo 1, tela a tela. *(Não feito na execução: as capturas do passo 1 são locais do responsável.)*
+- [x] 11. `dotnet build` e `dotnet test` completos.
 
 ## 7. Testes e verificação
 
@@ -221,4 +221,76 @@ Nenhum desvio constitucional.
 
 ## 9. Resultado da execução
 
-*Preenchido na execução.*
+Executado em 2026-11-18.
+
+**Suíte:** `dotnet build` com 0 aviso e 0 erro. `dotnet test` com 717 de 717 em
+`DocesCabana.Tests`. No E2E, 15 de 15 passam com `Categoria!=Externo`, o
+filtro que a `027` fixou para ambiente sem credencial. O único teste `Externo`,
+`Dado_Administrador_Quando_CadastrarProduto_Entao_DeveConfirmar`, falha porque
+precisa da chave do Supabase. O teste irmão, "sem credencial", usa o mesmo
+modal e passa. Nenhum teste foi alterado.
+
+**Varredura da seção 7:** nenhuma cor fixa fora de `tokens.css`, nenhuma paleta
+local, nenhum alias `--cor-texto*`, nenhum `bootstrap` nas views. Os `@media`
+usam só 480, 768, 1024, 1280, `hover` e `prefers-reduced-motion`. Os dois
+acertos restantes do `grep` de `@media` são o comentário do `tokens.css`.
+
+**Feito além do texto do plano (sem mudar desenho):**
+
+- `[hidden] { display: none !important; }` em `base.css`. Os componentes com
+  `display: flex` (estado vazio dos favoritos, por exemplo) venceriam o
+  atributo que `favorito.js` alterna.
+- `.titulo--na-pagina` em `base.css`: a etiqueta dentro de páginas que já têm
+  faixa própria (carrinho, conta, favoritos, pedidos, privacidade, telas de
+  erro). Autenticação e área administrativa mantêm o título em Inter: são
+  telas de ferramenta, e a etiqueta fica para a loja.
+- `.pagina-mensagem` em `base.css` para `Error`, `AcessoNegado` e
+  `NaoEncontrado`, em vez de um CSS novo. O `Error.cshtml` do *scaffold*
+  (texto em inglês, aviso de "Development Mode") virou mensagem em português
+  com o botão de volta. Os títulos de `AcessoNegado` e `NaoEncontrado` não
+  mudaram: o E2E procura "Não encontrado".
+- `_Carrossel`, `_Categorias` e `_Footer` tinham `<head>` dentro do `body`
+  (mesmo defeito de D16). O `<head>` saiu. O kit do Font Awesome passou do
+  rodapé para os dois layouts.
+- Os indicadores do carrossel da home passaram de `<span>` para
+  `<button type="button">` com `aria-label` (`carrossel.js`), para o foco
+  visível que a tabela da seção 4 pede. O link "Ver carrinho" do aviso, montado
+  por `carrinho.js`, ganhou `.botao .botao--primario .botao--pequeno`.
+- `.ponto-indicador` existia em `carrossel.css` e em `vitrine-produtos.css` com
+  desenhos diferentes. Cada regra agora fica sob o próprio contêiner.
+- Tokens extras em relação à seção 5: `--cor-primaria-borda`,
+  `--cor-primaria-suave`, `--cor-destaque-escura`, `--cor-estrela`,
+  `--neutro-apagado`, os seis `--status-*` e `--margem-lateral`. Todos usam
+  valores que já existiam no CSS (D4 se mantém). `.botao--destaque` (compra,
+  vermelho) entrou ao lado dos modificadores de D8.
+
+**Não feito:**
+
+- Passo 8, conferência visual em 390, 768 e 1280px. Os cortes 560, 576, 767,
+  800, 900 e 992 foram reescritos para o oficial mais próximo, e as faixas
+  intermediárias podem ter mudado (categorias da home entre 481 e 576px, por
+  exemplo).
+- Passo 10, comparação antes/depois: as capturas do passo 1 não estão no
+  repositório.
+- Os botões de quantidade (cartão, produto e carrinho), o "Útil" das
+  avaliações e os botões de ação do cabeçalho continuam com desenho local.
+  São controles embutidos em outro componente, e a altura de 44px do `.botao`
+  não cabe neles.
+- R5 continua pendente, como o plano manda.
+
+**Ajustes depois da revisão do responsável (2026-11-18):**
+
+- Os títulos da home seguem o bloco que encabeçam. `.titulo--vitrine` alinha
+  com o primeiro cartão da vitrine, depois da seta. `.titulo--categorias`
+  alinha com a borda do papel das categorias. Novo token: `--largura-vitrine`
+  (1200px).
+- As formas de fundo das categorias (`wwwroot/images/shapes/*.svg`) trocaram o
+  preenchimento `#FFFFFF` por `#F2EFE9` (`--neutro-rebaixado`), porque branco
+  sobre o papel branco sumia. Os `<img>` ganharam `asp-append-version`.
+- O aviso "Adicionado ao carrinho" aparece centralizado no topo da tela.
+- O passo de pagamento virou uma grade de cartões selecionáveis, na linguagem
+  das opções de frete. O rádio nativo foi redesenhado com `appearance: none`,
+  cada método ganhou um ícone, o resumo foi para `.painel--rebaixado`, e
+  "Confirmar pedido" usa `.botao--destaque`.
+- A edição de CPF pela conta ficou fora: ela revoga a RF-06 da `018` e foi
+  para o backlog do `specs/README.md`.

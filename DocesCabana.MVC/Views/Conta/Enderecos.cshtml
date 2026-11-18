@@ -8,12 +8,12 @@
 <link rel="stylesheet" href="~/css/pages/conta.css" asp-append-version="true">
 
 <main class="pagina-conta">
-    <h1 class="titulo-conta">Minha conta</h1>
+    <h1 class="titulo titulo--verde titulo--na-pagina titulo-conta">Minha conta</h1>
 
     <div class="corpo-conta">
         <partial name="_MenuDaConta" />
 
-        <section class="conteudo-conta">
+        <section class="painel conteudo-conta">
             <div class="cabecalho-secao-conta">
                 <h2 class="titulo-secao-conta">Endereços</h2>
                 <a asp-action="NovoEndereco" class="botao botao--primario botao-acao botao-novo-endereco">+ Novo endereço</a>
@@ -53,15 +53,15 @@
                                 {
                                     <form asp-action="TornarPrincipal" asp-route-id="@endereco.EnderecoId" method="post" class="formulario-inline-endereco">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="botao-secundario-endereco">Tornar principal</button>
+                                        <button type="submit" class="botao botao--secundario botao--pequeno botao-secundario-endereco">Tornar principal</button>
                                     </form>
                                 }
 
-                                <a asp-action="EditarEndereco" asp-route-id="@endereco.EnderecoId" class="botao-secundario-endereco">Editar</a>
+                                <a asp-action="EditarEndereco" asp-route-id="@endereco.EnderecoId" class="botao botao--secundario botao--pequeno botao-secundario-endereco">Editar</a>
 
                                 <form asp-action="ExcluirEndereco" asp-route-id="@endereco.EnderecoId" method="post" class="formulario-inline-endereco">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="botao-secundario-endereco botao-secundario-endereco--excluir">Excluir</button>
+                                    <button type="submit" class="botao botao--perigo botao--pequeno botao-secundario-endereco botao-secundario-endereco--excluir">Excluir</button>
                                 </form>
                             </div>
                         </li>

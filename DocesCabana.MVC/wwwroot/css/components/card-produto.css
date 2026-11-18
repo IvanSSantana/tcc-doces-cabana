@@ -100,7 +100,7 @@
     text-transform: uppercase;
     letter-spacing: 0.4px;
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--raio-pilula);
 }
 
 .container-imagem-card--fora-de-estoque .imagem-card {
@@ -193,7 +193,7 @@ a.nome-card {
     height: 24px;
     font-weight: bold;
     user-select: none;
-    transition: color 0.2s ease;
+    transition: color var(--duracao-rapida) var(--curva);
 }
 
 .botao-quantidade-card:hover {
@@ -209,20 +209,18 @@ a.nome-card {
     text-align: center;
 }
 
+/* O desenho vem de .botao .botao--pequeno; aqui só a largura e a cor de
+   repouso, que fica neutra até o cartão receber atenção. */
 .botao-adicionar-card {
     flex: 1;
+    min-height: 38px;
     padding: 0 var(--espaco-3);
-    height: 38px;
-    border: none;
-    border-radius: var(--raio-pilula);
-    font-family: var(--fonte-principal);
-    font-size: 15px;
-    font-weight: 600;
-    background-color: var(--cor-botao-padrao);
-    color: var(--neutro-texto-suave);
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-sizing: border-box;
+}
+
+.card-produto:hover .botao-adicionar-card:not(:disabled),
+.botao-adicionar-card:focus-visible {
+    background-color: var(--cor-primaria);
+    color: var(--cor-sobre-primaria);
 }
 
 .botao-adicionar-card:hover:not(:disabled) {

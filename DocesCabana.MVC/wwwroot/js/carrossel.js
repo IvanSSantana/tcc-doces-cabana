@@ -12,8 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let temporizadorAutoplay;
 
     slides.forEach((_, index) => {
-        const ponto = document.createElement('span');
+        const ponto = document.createElement('button');
+        ponto.type = 'button';
         ponto.classList.add('ponto-indicador');
+        ponto.setAttribute('aria-label', `Ir para o banner ${index + 1}`);
 
         if (index === 0) {
             ponto.classList.add('ativo');

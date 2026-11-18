@@ -1,134 +1,113 @@
+/* Modal "Entrar ou cadastrar" (spec 033): papel de raio grande sobre um
+   véu de tinta translúcida. */
+
 .modal-autenticacao {
-    border: none;
-    border-radius: 28px;
-    background-color: var(--neutro-fundo);
-    padding: 0;
-    width: 35vw;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    overflow: visible;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
+  border: 1px solid var(--neutro-borda);
+  border-radius: var(--raio-grande);
+  background-color: var(--neutro-superficie);
+  color: var(--cor-tinta);
+  padding: 0;
+  width: min(480px, calc(100vw - 2 * var(--espaco-4)));
+  box-shadow: var(--sombra-3);
+  overflow: visible;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+}
+
+.modal-autenticacao[open] {
+  animation: surgir-modal var(--duracao) var(--curva);
+}
+
+@keyframes surgir-modal {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px));
+  }
 }
 
 .modal-autenticacao::backdrop {
-    background-color: rgba(18, 18, 18, 0.85);
-    backdrop-filter: blur(2px);
+  background-color: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(2px);
 }
 
 .container-modal {
-    position: relative;
-    padding: 40px 48px 48px 48px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
+  position: relative;
+  padding: var(--espaco-12) var(--espaco-8) var(--espaco-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .botao-fechar {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background-color: var(--neutro-divisor);
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    color: var(--neutro-texto-suave);
-    transition: background-color 0.2s ease, transform 0.2s ease;
+  position: absolute;
+  top: var(--espaco-4);
+  right: var(--espaco-4);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--raio-pilula);
+  background-color: var(--neutro-rebaixado);
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: var(--neutro-texto-suave);
+  transition: background-color var(--duracao-rapida) var(--curva), color var(--duracao-rapida) var(--curva);
 }
 
 .botao-fechar:hover {
-    background-color: var(--neutro-borda);
-    transform: scale(1.05);
+  background-color: var(--neutro-divisor);
+  color: var(--cor-tinta);
 }
 
 .botao-fechar svg {
-    width: 18px;
-    height: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .logo-modal {
-    margin: 40px 0 7rem 0;
-    display: flex;
-    justify-content: center;
+  margin: var(--espaco-4) 0 var(--espaco-12);
+  display: flex;
+  justify-content: center;
 }
 
 .logo-modal img {
-    max-width: 7rem;
-    height: auto;
-    display: block;
+  max-width: 7rem;
+  height: auto;
+  display: block;
 }
 
 .acoes-modal {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-    max-width: 420px;
-    margin-bottom: 15vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+  width: 100%;
+  margin-bottom: var(--espaco-8);
 }
 
+/* Largura e altura dos dois botões; o desenho vem de .botao. */
 .botao-modal {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 52px;
-    border-radius: 14px;
-    font-family: var(--fonte-principal), 'Inter', sans-serif;
-    font-size: 18px;
-    font-weight: 600;
-    text-decoration: none !important;
-    transition: transform 0.2s ease, filter 0.2s ease;
-    box-sizing: border-box;
-}
-
-.botao-modal:ativo {
-    transform: scale(0.98);
-}
-
-.botao-cadastro {
-    background-color: var(--cor-primaria-escura);
-    color: var(--cor-sobre-primaria) !important;
-    border: none;
-    transition: filter 0.2s ease;
-}
-
-.botao-cadastro:hover {
-    filter: brightness(1.28);
-}
-
-.botao-entrar {
-    background-color: transparent;
-    color: var(--cor-primaria-escura) !important;
-    border: 1.5px solid var(--cor-primaria-escura);
-    transition: background-color 0.2s ease;
-}
-
-.botao-entrar:hover {
-    background-color: rgba(3, 54, 38, 0.05);
+  width: 100%;
+  min-height: 52px;
+  font-size: var(--texto-grande);
 }
 
 .rodape-modal {
-    width: 100%;
-    text-align: center;
+  width: 100%;
+  text-align: center;
 }
 
 .link-privacidade {
-    color: var(--cor-tinta);
-    font-family: var(--fonte-principal), 'Inter', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: text-decoration 0.2s ease;
+  color: var(--neutro-texto-suave);
+  font-size: var(--texto-pequeno);
+  font-weight: 500;
+  text-decoration: none;
 }
 
 .link-privacidade:hover {
-    text-decoration: underline;
+  color: var(--cor-tinta);
+  text-decoration: underline;
 }

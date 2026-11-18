@@ -7,11 +7,11 @@
 <link rel="stylesheet" href="~/css/pages/favoritos.css" asp-append-version="true">
 
 <main class="pagina-favoritos">
-    <h1 class="titulo-favoritos">Meus favoritos</h1>
+    <h1 class="titulo titulo--verde titulo--na-pagina titulo-favoritos">Meus favoritos</h1>
 
     <p class="favoritos-vazio" hidden="@(Model.Count == 0 ? null : "hidden")">
         Você ainda não favoritou nenhum produto.
-        <a asp-area="" asp-controller="Catalogo" asp-action="Index">Ver o catálogo</a>
+        <a asp-area="" asp-controller="Catalogo" asp-action="Index" class="botao botao--primario">Ver o catálogo</a>
     </p>
 
     <div class="grade-produtos" hidden="@(Model.Count == 0 ? "hidden" : null)">

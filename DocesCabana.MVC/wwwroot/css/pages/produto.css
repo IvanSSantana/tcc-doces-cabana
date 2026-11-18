@@ -4,13 +4,12 @@
   color: var(--cor-tinta);
   font-family: var(--fonte-principal);
   max-width: 1100px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  border-radius: 12px;
+  margin: var(--espaco-8) auto;
+  padding: var(--espaco-6) var(--margem-lateral);
 }
 
 .caminho-navegacao {
-  font-size: 14px;
+  font-size: var(--texto-pequeno);
   color: var(--neutro-texto-suave);
   margin-bottom: 1.5rem;
   gap: 20px;
@@ -27,8 +26,8 @@
 
 .regua {
   border: none;
-  border-top: 1px solid var(--cor-destaque);
-  margin: 2.5rem 0;
+  border-top: 1px solid var(--neutro-divisor);
+  margin: var(--espaco-12) 0;
 }
 
 .bloco-compra {
@@ -47,7 +46,9 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: var(--raio-grande);
+  border: 1px solid var(--neutro-borda);
+  background-color: var(--neutro-superficie);
 }
 
 .bloco-compra__conteudo {
@@ -58,7 +59,8 @@
 
 .nome-produto {
   font-weight: 300;
-  font-size: 34px;
+  font-size: var(--texto-titulo);
+  letter-spacing: -0.01em;
   line-height: 1.15;
   text-align: center;
   margin: 0;
@@ -105,7 +107,7 @@
 
 .preco-produto {
   font-weight: 800;
-  font-size: 28px;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 1.75rem);
   color: var(--cor-destaque);
 }
 
@@ -114,7 +116,7 @@
   color: var(--cor-destaque);
   background-color: var(--cor-destaque-clara);
   border: 1px solid var(--cor-destaque-clara);
-  border-radius: 8px;
+  border-radius: var(--raio-pequeno);
   padding: 0.4rem 0.8rem;
 }
 
@@ -123,8 +125,9 @@
   align-items: center;
   gap: 0.75rem;
   border: 1.5px solid var(--neutro-borda);
-  border-radius: 12px;
-  padding: 0.4rem 0.75rem;
+  border-radius: var(--raio-pilula);
+  background-color: var(--neutro-superficie);
+  padding: var(--espaco-1) var(--espaco-3);
 }
 
 .botao-quantidade {
@@ -142,7 +145,7 @@
   text-align: center;
   font-weight: 600;
   border: none;
-  background-color: var(--neutro-fundo);
+  background-color: transparent;
 }
 
 input[type="number"]::-webkit-outer-spin-button,
@@ -152,31 +155,17 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .botao-adicionar-carrinho {
-  font-family: var(--fonte-principal);
+  min-height: 56px;
+  font-size: var(--texto-base);
   font-weight: 700;
-  font-size: 15px;
   text-transform: uppercase;
-  letter-spacing: .08em;
-  background-color: var(--cor-destaque);
-  color: var(--cor-sobre-primaria);
-  border: none;
-  border-radius: 12px;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  cursor: pointer;
-  transition: filter 0.2s ease;
-}
-
-.botao-adicionar-carrinho:hover {
-  filter: brightness(1.1);
+  letter-spacing: 0.08em;
+  border-radius: var(--raio-medio);
 }
 
 .botao-adicionar-carrinho:disabled {
   background-color: var(--neutro-borda);
-  cursor: not-allowed;
+  color: var(--neutro-texto-suave);
 }
 
 .secao-caracteristicas {
@@ -248,7 +237,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .barra-histograma-container {
   background-color: var(--neutro-borda);
-  border-radius: 999px;
+  border-radius: var(--raio-pilula);
   height: 8px;
   overflow: hidden;
 }
@@ -270,18 +259,8 @@ input[type="number"]::-webkit-inner-spin-button {
 .formulario-ordenacao select {
   font-family: var(--fonte-principal);
   border: 1.5px solid var(--neutro-borda);
-  border-radius: 8px;
+  border-radius: var(--raio-pequeno);
   padding: 0.4rem 0.6rem;
-}
-
-.botao-aplicar-ordenacao {
-  font-family: var(--fonte-principal);
-  border: 1.5px solid var(--cor-primaria);
-  color: var(--cor-primaria);
-  background: none;
-  border-radius: 8px;
-  padding: 0.3rem 0.7rem;
-  cursor: pointer;
 }
 
 .lista-avaliacoes {
@@ -294,12 +273,10 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .cartao-avaliacao {
-  border: 1.5px solid var(--neutro-borda);
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
+  padding: var(--espaco-4) var(--espaco-6);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--espaco-2);
 }
 
 .cabecalho-cartao-avaliacao {
@@ -332,15 +309,15 @@ input[type="number"]::-webkit-inner-spin-button {
   font-family: var(--fonte-principal);
   background: none;
   border: 1.5px solid var(--neutro-borda);
-  border-radius: 999px;
+  border-radius: var(--raio-pilula);
   padding: 0.35rem 0.9rem;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--neutro-texto-suave);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  gap: var(--espaco-2);
+  transition: border-color var(--duracao-rapida) var(--curva), color var(--duracao-rapida) var(--curva);
 }
 
 .botao-util:hover {
@@ -363,7 +340,7 @@ input[type="number"]::-webkit-inner-spin-button {
   align-self: flex-start;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .bloco-compra,
   .grade-avaliacoes {
     grid-template-columns: 1fr;
@@ -378,12 +355,6 @@ input[type="number"]::-webkit-inner-spin-button {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .atalho-ver-mais {
-    scroll-behavior: auto;
-  }
-}
-
 /* ---------- Avaliar produto: cabeçalho do bloco e modal ---------- */
 
 .cabecalho-avaliacoes {
@@ -395,26 +366,6 @@ input[type="number"]::-webkit-inner-spin-button {
   margin-bottom: 1.25rem;
 }
 
-.botao-avaliar {
-  font-family: var(--fonte-principal);
-  font-weight: 700;
-  font-size: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: var(--cor-primaria);
-  color: var(--cor-sobre-primaria);
-  border: none;
-  border-radius: 12px;
-  padding: 0.6rem 1.1rem;
-  cursor: pointer;
-  transition: filter 0.2s ease;
-}
-
-.botao-avaliar:hover {
-  filter: brightness(1.15);
-}
-
 .aviso-avaliacao {
   margin: 0;
   font-size: 14px;
@@ -424,7 +375,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .confirmacao-avaliacao {
   margin: 0 0 1.25rem 0;
   padding: 0.75rem 1rem;
-  border-radius: 12px;
+  border-radius: var(--raio-medio);
   border: 1.5px solid var(--cor-primaria);
   color: var(--cor-primaria);
   font-weight: 600;
@@ -432,17 +383,17 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .modal-avaliacao {
-  border: none;
-  border-radius: 28px;
-  background-color: var(--neutro-fundo);
+  border: 1px solid var(--neutro-borda);
+  border-radius: var(--raio-grande);
+  background-color: var(--neutro-superficie);
   padding: 0;
   width: min(92vw, 520px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--sombra-3);
   margin: auto;
 }
 
 .modal-avaliacao::backdrop {
-  background-color: rgba(18, 18, 18, 0.85);
+  background-color: rgba(30, 30, 30, 0.6);
   backdrop-filter: blur(2px);
 }
 
@@ -454,23 +405,8 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .botao-fechar-avaliacao {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: none;
-  background-color: var(--neutro-divisor);
-  color: var(--neutro-texto-suave);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.botao-fechar-avaliacao:hover {
-  background-color: var(--neutro-borda);
+  top: var(--espaco-4);
+  right: var(--espaco-4);
 }
 
 .titulo-modal-avaliacao {
@@ -546,7 +482,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .estrelas-selecionaveis input:focus-visible + label {
   outline: 2px solid var(--cor-primaria);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--raio-pequeno);
 }
 
 .formulario-avaliacao .campo-comentario {
@@ -556,7 +492,7 @@ input[type="number"]::-webkit-inner-spin-button {
   min-height: 110px;
   padding: 0.75rem 1rem;
   border: 1.5px solid var(--cor-primaria-borda);
-  border-radius: 16px;
+  border-radius: var(--raio-grande);
   background-color: var(--neutro-superficie);
   color: var(--cor-tinta);
   font-size: 1rem;
@@ -588,30 +524,8 @@ input[type="number"]::-webkit-inner-spin-button {
   gap: 0.75rem;
 }
 
-.botao-cancelar-avaliacao,
-.botao-enviar-avaliacao {
-  font-family: var(--fonte-principal);
-  font-weight: 700;
-  font-size: 14px;
-  border-radius: 12px;
-  padding: 0.65rem 1.25rem;
-  cursor: pointer;
-}
-
-.botao-cancelar-avaliacao {
-  background: none;
-  border: 1.5px solid var(--neutro-borda);
-  color: var(--neutro-texto-suave);
-}
-
-.botao-enviar-avaliacao {
-  background-color: var(--cor-primaria);
-  border: 1.5px solid var(--cor-primaria);
-  color: var(--cor-sobre-primaria);
-}
 
 .botao-enviar-avaliacao:disabled {
-  opacity: 0.6;
   cursor: wait;
 }
 

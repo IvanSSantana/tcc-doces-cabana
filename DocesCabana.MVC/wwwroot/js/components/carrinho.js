@@ -45,7 +45,7 @@
       '<strong class="aviso-carrinho__titulo">Adicionado ao carrinho</strong>' +
       '<span class="aviso-carrinho__produto" data-aviso-produto></span>' +
       "</div>" +
-      '<a class="aviso-carrinho__link" href="/Carrinho">Ver carrinho</a>' +
+      '<a class="botao botao--primario botao--pequeno aviso-carrinho__link" href="/Carrinho">Ver carrinho</a>' +
       '<button type="button" class="aviso-carrinho__fechar" data-fechar-aviso aria-label="Fechar aviso">&times;</button>';
     document.body.appendChild(aviso);
     return aviso;

@@ -8,11 +8,6 @@
   color: inherit;
 }
 
-.pagina-institucional a:focus-visible {
-  outline: 2px solid var(--cor-primaria);
-  outline-offset: 2px;
-}
-
 .pagina-institucional section {
   width: auto;
   max-width: none;
@@ -27,19 +22,13 @@
 
 .imagem-reservada {
   background-color: var(--neutro-divisor);
-  border-radius: 4px;
+  border-radius: var(--raio-pequeno);
 }
 
 .pagina-institucional--politica {
   max-width: 720px;
-  margin: 2.5rem auto;
-  padding: 0 1.5rem 3rem;
-}
-
-.pagina-institucional--politica h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin: var(--espaco-12) auto;
+  padding: 0 var(--margem-lateral) var(--espaco-12);
 }
 
 .pagina-institucional--politica > p {
@@ -82,8 +71,8 @@
 
 .regua-institucional {
   border: none;
-  border-top: 1px solid var(--cor-destaque);
-  margin: 2rem 0;
+  border-top: 1px solid var(--neutro-divisor);
+  margin: var(--espaco-8) 0;
 }
 
 .pagina-institucional--quem-somos {
@@ -175,7 +164,7 @@
   line-height: 1.5;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .bloco-institucional {
     grid-template-columns: 1fr;
   }
@@ -193,11 +182,5 @@
 
   .ziguezague-institucional::before {
     display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pagina-institucional * {
-    scroll-behavior: auto;
   }
 }

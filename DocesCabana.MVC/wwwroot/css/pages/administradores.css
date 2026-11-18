@@ -1,7 +1,7 @@
 .container-administradores {
     max-width: 900px;
-    margin: 5rem auto;
-    padding: 0 1.5rem;
+    margin: var(--espaco-12) auto var(--espaco-16);
+    padding: 0 var(--margem-lateral);
     display: flex;
     flex-direction: column;
 }
@@ -10,90 +10,66 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 2rem;
-    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: var(--espaco-8);
+    gap: var(--espaco-4);
 }
 
 .cabecalho-administradores .titulo-tela {
     margin-bottom: 0;
 }
 
-/* Mesmo padrão do botão "Novo produto" (gestao-produtos.css). */
+/* Desenho vem de .botao .botao--primario, igual ao "Novo produto". */
 .botao-novo-administrador {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
     flex-shrink: 0;
-    height: 46px;
-    padding: 0 1.5rem;
-    border-radius: 14px;
-    background-color: var(--cor-primaria);
-    color: var(--cor-sobre-primaria);
-    font-family: var(--fonte-principal);
-    font-size: 0.95rem;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-    box-shadow: 0 2px 6px rgba(5, 92, 64, 0.2);
-    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.botao-novo-administrador:hover {
-    background-color: var(--cor-primaria-escura);
-    box-shadow: 0 4px 12px rgba(5, 92, 64, 0.28);
-    transform: translateY(-1px);
-}
-
-.botao-novo-administrador:active {
-    transform: translateY(0);
-}
-
-.botao-novo-administrador:focus-visible {
-    outline: 3px solid rgba(5, 92, 64, 0.35);
-    outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .botao-novo-administrador,
-    .botao-novo-administrador:hover {
-        transform: none;
-    }
 }
 
 .mensagem-vazia {
-    font-family: var(--fonte-principal);
-    color: var(--cor-primaria-suave);
-    font-size: 1rem;
+    padding: var(--espaco-12) var(--espaco-4);
+    text-align: center;
+    color: var(--neutro-texto-suave);
+    border: 1px dashed var(--neutro-borda);
+    border-radius: var(--raio-medio);
+    background-color: var(--neutro-superficie);
 }
 
+/* Mesma tabela-papel da gestão de produtos. */
 .tabela-administradores {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     background-color: var(--neutro-superficie);
-    border: 1.5px solid var(--cor-primaria-borda);
-    border-radius: 16px;
+    border: 1px solid var(--neutro-borda);
+    border-radius: var(--raio-medio);
+    box-shadow: var(--sombra-1);
     overflow: hidden;
 }
 
 .tabela-administradores th,
 .tabela-administradores td {
     text-align: left;
-    padding: 0.9rem 1.5rem;
-    font-family: var(--fonte-principal);
+    padding: var(--espaco-3) var(--espaco-6);
     font-size: 0.95rem;
 }
 
 .tabela-administradores th {
-    background-color: var(--cor-primaria);
-    color: var(--cor-sobre-primaria);
+    background-color: var(--neutro-rebaixado);
+    border-bottom: 1px solid var(--neutro-borda);
+    color: var(--neutro-texto-suave);
+    font-size: 0.8rem;
     font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
-.tabela-administradores tbody tr {
-    border-top: 1px solid var(--cor-primaria-clara);
+.tabela-administradores tbody td {
+    border-top: 1px solid var(--neutro-divisor);
 }
 
-.tabela-administradores tbody tr:nth-child(even) {
-    background-color: var(--cor-primaria-clara);
+.tabela-administradores tbody tr:first-child td {
+    border-top: none;
+}
+
+.tabela-administradores tbody tr:hover {
+    background-color: var(--neutro-fundo);
 }

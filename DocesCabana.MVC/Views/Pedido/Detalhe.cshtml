@@ -38,12 +38,12 @@
 <link rel="stylesheet" href="~/css/pages/pedidos.css" asp-append-version="true">
 
 <main class="pagina-conta">
-    <h1 class="titulo-conta">Minha conta</h1>
+    <h1 class="titulo titulo--verde titulo--na-pagina titulo-conta">Minha conta</h1>
 
     <div class="corpo-conta">
         <partial name="_MenuDaConta" />
 
-        <section class="conteudo-conta">
+        <section class="painel conteudo-conta">
             <a asp-action="Meus" class="link-voltar-pedidos">&larr; Meus pedidos</a>
 
             <div class="cabecalho-detalhe-pedido">
@@ -91,7 +91,7 @@
                 <p>@RotuloDoPagamento(Model.MetodoPagamento) — @RotuloDaSituacaoDoPagamento(Model.StatusDoPagamento)</p>
             </div>
 
-            <div class="resumo-detalhe-pedido">
+            <div class="painel painel--rebaixado resumo-detalhe-pedido">
                 <p>Produtos <strong>R$ @Model.ValorDosProdutos.ToString("N2")</strong></p>
                 <p>Entrega <strong>R$ @Model.ValorDoFrete.ToString("N2")</strong></p>
                 <p class="total-detalhe-pedido">Total <strong>R$ @Model.ValorTotal.ToString("N2")</strong></p>

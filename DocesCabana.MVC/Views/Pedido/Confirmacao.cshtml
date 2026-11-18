@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="~/css/pages/carrinho.css" asp-append-version="true">
 
 <main class="pagina-confirmacao-pedido">
-    <h1 class="titulo-confirmacao-pedido">Pedido confirmado!</h1>
+    <h1 class="titulo titulo--verde titulo--na-pagina titulo-confirmacao-pedido">Pedido confirmado!</h1>
 
     <p class="numero-confirmacao-pedido">Pedido nº <strong>@Model.Numero</strong></p>
 
@@ -34,7 +34,7 @@
         }
     </ul>
 
-    <div class="resumo-confirmacao-pedido">
+    <div class="painel painel--rebaixado resumo-confirmacao-pedido">
         <p>Produtos <strong>R$ @Model.ValorDosProdutos.ToString("N2")</strong></p>
         <p>Entrega (@Model.Transportadora — @Model.Servico) <strong>R$ @Model.ValorDoFrete.ToString("N2")</strong></p>
         <p class="total-confirmacao-pedido">Total <strong>R$ @Model.ValorTotal.ToString("N2")</strong></p>

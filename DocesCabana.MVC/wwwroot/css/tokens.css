@@ -45,10 +45,6 @@
   --status-informacao: #2D4F9C;
   --status-informacao-fundo: #E1E8F5;
 
-  /* Aliases da migração — removidos no fim da 033 (D6) */
-  --cor-texto: var(--cor-sobre-primaria);
-  --cor-texto-secundario: var(--cor-tinta);
-
   /* Tipografia */
   --fonte-principal: 'Inter', sans-serif;
   --fonte-secundaria: 'Nothing You Could Do', cursive;
@@ -86,5 +82,6 @@
 
   /* Largura */
   --largura-conteudo: 1400px;
+  --largura-vitrine: 1200px;
   --margem-lateral: clamp(16px, 4vw, 40px);
 }

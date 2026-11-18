@@ -7,6 +7,7 @@
 .fileira-estrelas__icones {
   display: inline-flex;
   gap: 2px;
+  color: var(--cor-estrela);
 }
 
 .fileira-estrelas__icone {

@@ -1,28 +1,22 @@
 .pagina-favoritos {
-  max-width: 1400px;
+  max-width: var(--largura-conteudo);
   margin: 0 auto;
-  padding: 2rem 40px;
-}
-
-.titulo-favoritos {
-  font-family: var(--fonte-principal);
-  color: var(--cor-primaria);
-  margin-bottom: 1.5rem;
+  padding: var(--espaco-8) var(--margem-lateral) var(--espaco-12);
 }
 
 .pagina-favoritos .grade-produtos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  gap: var(--espaco-4);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .pagina-favoritos .grade-produtos {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 480px) {
   .pagina-favoritos .grade-produtos {
     grid-template-columns: 1fr;
   }
@@ -44,7 +38,6 @@
 
 .grade-produtos .container-imagem-card {
   background-color: var(--neutro-fundo);
-  border-radius: 20px 20px 0 0;
   margin-bottom: 0;
 }
 
@@ -66,7 +59,8 @@
 .grade-produtos .botao-adicionar-card {
   grid-column: 1 / -1;
   width: 100%;
-  height: 44px;
+  min-height: 44px;
+  font-size: var(--texto-base);
   background-color: var(--cor-destaque);
   color: var(--cor-sobre-primaria);
 }
@@ -76,21 +70,15 @@
 }
 
 .favoritos-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-4);
   color: var(--neutro-texto-suave);
-  padding: 3rem 1rem;
+  padding: var(--espaco-12) var(--espaco-4);
   text-align: center;
   border: 1px dashed var(--neutro-borda);
-  border-radius: 12px;
+  border-radius: var(--raio-medio);
+  background-color: var(--neutro-superficie);
 }
 
-.favoritos-vazio a {
-  display: inline-block;
-  margin-top: 0.5rem;
-  color: var(--cor-destaque);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.favoritos-vazio a:hover {
-  text-decoration: underline;
-}

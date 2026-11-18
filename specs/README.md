@@ -42,7 +42,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [030](./030-enxugamento-da-suite-de-testes/plan.md) | Enxugamento da suíte de testes | Executada | [plan](./030-enxugamento-da-suite-de-testes/plan.md) |
 | [031](./031-gestao-de-produtos-admin/plan.md) | Gestão de produtos do administrador | Executada | [plan](./031-gestao-de-produtos-admin/plan.md) |
 | [032](./032-avaliacao-de-produto/plan.md) | Avaliação de produto (escrever; só quem recebeu o pedido) | Executada | [plan](./032-avaliacao-de-produto/plan.md) |
-| [033](./033-modernizacao-da-interface/plan.md) | Modernização da interface (tokens, componentes, etiqueta de confeitaria) | Planejada | [plan](./033-modernizacao-da-interface/plan.md) |
+| [033](./033-modernizacao-da-interface/plan.md) | Modernização da interface (tokens, componentes, etiqueta de confeitaria) | Executada (conferência visual pendente) | [plan](./033-modernizacao-da-interface/plan.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023` → `027` → `028`.
 > A `028` fechou o par que a `027` abriu — as duas nasceram do mesmo pedido
@@ -363,6 +363,8 @@ ainda não têm comportamento. **Sem número** — o número é atribuído quand
 | Imagens novas do bloco de categorias da home | 012 — as atuais não correspondem mais às categorias |
 | Trocar a senha pela área de conta | 018 — a área de conta existe; a troca com senha atual é fluxo próprio do Identity, diferente da redefinição por token que a `002` construiu |
 | Trocar o e-mail pela área de conta | 018 — é a credencial de acesso, não dado de perfil; mexer nela envolve confirmação por e-mail e invalidação de sessão |
+| Editar o CPF pela área de conta | 018 — revoga RF-06/RN-06 ("CPF não muda") e o teste de CA-06; o CPF também é login, então a troca mexe em unicidade e na credencial. Pedido do responsável em 2026-11-18; precisa de plano próprio |
+| Validação no cliente do cadastro de administrador | 033, R5 — `Admin/Administrador/Cadastro` chama `_ValidationScriptsPartial`, mas o `_Layout` não carrega jQuery; hoje só a validação do servidor funciona |
 | ~~"Meus pedidos" na área de conta~~ | Virou a spec [`023`](./023-meus-pedidos/spec.md) |
 
 **Quatro itens que estavam aqui passaram para a spec `025` (ainda não criada)** — CRUD de avaliação

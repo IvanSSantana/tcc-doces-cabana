@@ -1,9 +1,12 @@
+/* Carrossel de banners da home (spec 033). As setas usam .botao--icone;
+   aqui só a posição. */
+
 .carrossel-container {
     position: relative;
-    width: 80vw;
+    width: min(80vw, var(--largura-conteudo));
     left: 50%;
     transform: translateX(-50%);
-    margin: 4rem 0;
+    margin: var(--espaco-12) 0;
     padding: 0;
 }
 
@@ -11,9 +14,10 @@
     position: relative;
     width: 100%;
     aspect-ratio: 3.2 / 1;
-    border-radius: 24px;
+    border-radius: var(--raio-grande);
     overflow: hidden;
     background-color: var(--neutro-rebaixado);
+    box-shadow: var(--sombra-1);
 }
 
 .carrossel-slides {
@@ -29,7 +33,7 @@
     object-fit: cover;
     opacity: 0;
     z-index: 1;
-    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 600ms var(--curva);
 }
 
 .carrossel-item.ativo {
@@ -41,36 +45,26 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 2.75rem;
-    height: 2.75rem;
-    border: 0.8px solid black;
-    border-radius: 50%;
-    background-color: var(--neutro-superficie);
-    color: var(--cor-tinta);
-    cursor: pointer;
     z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 0;
+    box-shadow: var(--sombra-2);
 }
 
-.seta-controle:hover {
-    background-color: var(--neutro-rebaixado);
-}
-
-.seta-controle:ativo {
+.seta-controle:active:not(:disabled) {
     transform: translateY(-50%) scale(0.96);
 }
 
+.seta-controle:hover:not(:disabled) {
+    background-color: var(--cor-primaria);
+    border-color: var(--cor-primaria);
+    color: var(--cor-sobre-primaria);
+}
+
 .seta-anterior {
-    left: -1.375rem;
+    left: -22px;
 }
 
 .seta-proximo {
-    right: -1.375rem;
+    right: -22px;
 }
 
 .carrossel-indicadores {
@@ -80,76 +74,67 @@
     transform: translate(-50%, 50%);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.30rem 0.8rem;
-    background-color: var(--neutro-rebaixado);
-    border: 1px solid var(--neutro-apagado);
-    border-radius: 999px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    gap: var(--espaco-2);
+    padding: var(--espaco-2) var(--espaco-3);
+    background-color: var(--neutro-superficie);
+    border: 1px solid var(--neutro-borda);
+    border-radius: var(--raio-pilula);
+    box-shadow: var(--sombra-1);
     z-index: 10;
 }
 
-.ponto-indicador {
+.carrossel-indicadores .ponto-indicador {
     width: 8px;
     height: 8px;
-    border-radius: 50%;
-    background-color: var(--neutro-divisor);
+    padding: 0;
+    border: none;
+    border-radius: var(--raio-pilula);
+    background-color: var(--neutro-borda);
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color var(--duracao) var(--curva), width var(--duracao) var(--curva);
 }
 
-.ponto-indicador:hover {
+.carrossel-indicadores .ponto-indicador:hover {
     background-color: var(--neutro-apagado);
-    transform: scale(1.15);
 }
 
-.ponto-indicador.ativo {
+.carrossel-indicadores .ponto-indicador.ativo {
+    width: 20px;
     background-color: var(--cor-primaria);
-    transform: scale(1.2);
 }
 
-@media (max-width: 1240px) {
+@media (max-width: 1280px) {
     .carrossel-container {
-        width: calc(100% - 3rem);
-    }
-
-    .seta-anterior {
-        left: -1rem;
-    }
-
-    .seta-proximo {
-        right: -1rem;
+        width: calc(100% - 2 * var(--espaco-12));
     }
 }
 
 @media (max-width: 768px) {
     .carrossel {
         aspect-ratio: 2.5 / 1;
-        border-radius: 16px;
+        border-radius: var(--raio-medio);
     }
 
     .carrossel-container {
-        width: calc(100% - 2rem);
-        margin: 1.5rem auto;
+        width: calc(100% - 2 * var(--espaco-4));
+        margin: var(--espaco-6) auto;
     }
 
     .seta-controle {
-        width: 2.25rem;
-        height: 2.25rem;
+        width: 36px;
+        min-height: 36px;
     }
 
     .seta-anterior {
-        left: 0.5rem;
+        left: var(--espaco-2);
     }
 
     .seta-proximo {
-        right: 0.5rem;
+        right: var(--espaco-2);
     }
 
     .carrossel-indicadores {
-        bottom: 0.75rem;
+        bottom: var(--espaco-3);
         transform: translateX(-50%);
-        padding: 0.35rem 0.65rem;
-        background-color: rgba(255, 255, 255, 0.9);
     }
 }

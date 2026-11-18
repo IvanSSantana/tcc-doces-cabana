@@ -1,35 +1,42 @@
-.categorias-container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 5% auto 40px auto;
-    padding: 0 15px;
-    box-sizing: border-box;
+/* Título "Categorias": começa na borda do papel das categorias. */
+.titulo--categorias {
+    margin-left: calc(max(0px, (100% - var(--largura-vitrine)) / 2) + var(--margem-lateral));
 }
 
+.categorias-container {
+    width: 100%;
+    max-width: var(--largura-vitrine);
+    margin: 0 auto var(--espaco-16);
+    padding: 0 var(--margem-lateral);
+}
+
+/* Papel único com as três categorias (D3 da 033). */
 .area-categorias {
-    background-color: var(--cor-botao-padrao);
-    border-radius: 24px;
-    padding: 48px 32px;
+    background-color: var(--neutro-superficie);
+    border: 1px solid var(--neutro-borda);
+    border-radius: var(--raio-grande);
+    padding: var(--espaco-12) var(--espaco-8);
     display: flex;
     justify-content: space-evenly;
     align-items: center;
     flex-wrap: wrap;
-    gap: 24px;
-    box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.03);
+    gap: var(--espaco-6);
+    box-shadow: var(--sombra-1);
 }
 
 .item-categoria {
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-decoration: none !important;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    border-radius: var(--raio-medio);
+    transition: transform var(--duracao) var(--curva);
     width: 220px;
     flex-shrink: 0;
 }
 
 .item-categoria:hover {
-    transform: translateY(-8px);
+    transform: translateY(-4px);
 }
 
 .area-imagem-categoria {
@@ -39,7 +46,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--espaco-4);
     flex-shrink: 0;
 }
 
@@ -50,8 +57,8 @@
     width: 70%;
     height: 70%;
     z-index: 1;
-    filter: drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.06));
-    transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 6px 12px rgba(30, 30, 30, 0.06));
+    transition: transform 450ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .forma-fundo.estrela {
@@ -79,7 +86,7 @@
     width: 60%;
     height: 60%;
     object-fit: contain;
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--duracao) var(--curva);
 }
 
 .item-categoria:hover .imagem-categoria {
@@ -88,12 +95,12 @@
 
 .nome-categoria {
     font-family: var(--fonte-principal);
-    font-size: 18px;
+    font-size: var(--texto-grande);
     font-weight: 600;
     color: var(--cor-primaria);
     text-align: center;
-    letter-spacing: 1px;
-    transition: color 0.3s ease;
+    letter-spacing: 0.08em;
+    transition: color var(--duracao) var(--curva);
     text-transform: uppercase;
 }
 
@@ -101,9 +108,9 @@
     color: var(--cor-destaque);
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
     .area-categorias {
-        padding: 32px 20px;
+        padding: var(--espaco-8) var(--espaco-4);
     }
 
     .item-categoria {
@@ -116,13 +123,13 @@
     }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 480px) {
     .area-categorias {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         justify-items: center;
-        gap: 36px 16px;
-        padding: 32px 16px;
+        gap: var(--espaco-8) var(--espaco-4);
+        padding: var(--espaco-8) var(--espaco-4);
     }
 
     .item-categoria {

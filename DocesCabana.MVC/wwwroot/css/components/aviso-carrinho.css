@@ -1,28 +1,33 @@
+/* Aviso "Adicionado ao carrinho" (spec 033). Montado por carrinho.js; o
+   link "Ver carrinho" usa o componente .botao. Aparece centralizado no
+   topo da tela e desce ao surgir. */
+
 .aviso-carrinho {
   position: fixed;
-  right: 1.5rem;
-  bottom: 1.5rem;
+  top: var(--espaco-4);
+  left: 50%;
   z-index: 1100;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  max-width: min(24rem, calc(100vw - 2rem));
-  padding: 0.875rem 1rem;
-  border-left: 4px solid var(--cor-primaria);
-  border-radius: 0.5rem;
+  gap: var(--espaco-3);
+  max-width: min(26rem, calc(100vw - 2 * var(--espaco-4)));
+  padding: var(--espaco-3) var(--espaco-3) var(--espaco-3) var(--espaco-4);
+  border: 1px solid var(--neutro-borda);
+  border-top: 4px solid var(--cor-primaria);
+  border-radius: var(--raio-medio);
   background: var(--neutro-superficie);
   color: var(--cor-tinta);
   font-family: var(--fonte-principal);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--sombra-3);
   opacity: 0;
-  transform: translateY(1rem);
+  transform: translate(-50%, -1rem);
   pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity var(--duracao) var(--curva), transform var(--duracao) var(--curva);
 }
 
 .aviso-carrinho--visivel {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(-50%, 0);
   pointer-events: auto;
 }
 
@@ -44,7 +49,8 @@
 }
 
 .aviso-carrinho__produto {
-  font-size: 0.875rem;
+  font-size: var(--texto-pequeno);
+  color: var(--neutro-texto-suave);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -52,41 +58,30 @@
 
 .aviso-carrinho__link {
   flex-shrink: 0;
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.375rem;
-  background: var(--cor-primaria);
-  color: var(--cor-sobre-primaria);
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.aviso-carrinho__link:hover,
-.aviso-carrinho__link:focus {
-  filter: brightness(1.15);
 }
 
 .aviso-carrinho__fechar {
   flex-shrink: 0;
+  width: 32px;
+  height: 32px;
   border: none;
+  border-radius: var(--raio-pilula);
   background: none;
-  color: var(--cor-tinta);
+  color: var(--neutro-texto-suave);
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
 }
 
-@media (max-width: 576px) {
-  .aviso-carrinho {
-    right: 1rem;
-    left: 1rem;
-    bottom: 1rem;
-    max-width: none;
-  }
+.aviso-carrinho__fechar:hover {
+  background-color: var(--neutro-rebaixado);
+  color: var(--cor-tinta);
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (max-width: 480px) {
   .aviso-carrinho {
-    transition: none;
+    top: var(--espaco-3);
+    width: calc(100vw - 2 * var(--espaco-4));
+    max-width: none;
   }
 }

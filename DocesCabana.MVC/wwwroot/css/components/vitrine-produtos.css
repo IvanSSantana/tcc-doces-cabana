@@ -1,8 +1,16 @@
+/* Título sobre a vitrine: começa onde começa o primeiro cartão, depois da
+   seta esquerda (44px do .botao--icone + o gap do .conteudo-carrossel).
+   A vitrine mora dentro de uma <section> global, que já tem margem lateral:
+   em tela estreita as duas margens somam (2 × margem). */
+.titulo--vitrine {
+    margin-left: calc(max(2 * var(--margem-lateral), (100% - var(--largura-vitrine)) / 2 + var(--margem-lateral)) + 44px + var(--espaco-3));
+}
+
 .vitrine-carrossel {
-    margin: 40px auto;
+    margin: var(--espaco-8) auto var(--espaco-12);
     width: 100%;
-    max-width: 1200px;
-    padding: 0 15px;
+    max-width: var(--largura-vitrine);
+    padding: 0 var(--margem-lateral);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -14,7 +22,7 @@
     align-items: center;
     width: 100%;
     position: relative;
-    gap: 12px;
+    gap: var(--espaco-3);
 }
 
 .area-carrossel {
@@ -26,7 +34,7 @@
 
 .itens-carrossel-container {
     display: flex;
-    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: transform 500ms var(--curva);
     gap: 20px;
     will-change: transform;
 }
@@ -58,68 +66,49 @@
     }
 }
 
+/* O desenho vem de .botao .botao--icone; aqui só o que é da vitrine. */
 .seta-carrossel {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1.5px solid var(--cor-tinta);
-    background-color: var(--neutro-superficie);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--cor-tinta);
     flex-shrink: 0;
     z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--sombra-1);
 }
 
-.seta-carrossel svg {
-    width: 18px;
-    height: 18px;
-}
-
-.seta-carrossel:hover {
-    background-color: var(--cor-tinta);
+.seta-carrossel:hover:not(:disabled) {
+    background-color: var(--cor-primaria);
+    border-color: var(--cor-primaria);
     color: var(--cor-sobre-primaria);
-    transform: scale(1.08);
-}
-
-.seta-carrossel:ativo {
-    transform: scale(0.95);
 }
 
 .indicadores-carrossel {
     display: flex;
-    gap: 10px;
-    margin-top: 24px;
+    gap: var(--espaco-2);
+    margin-top: var(--espaco-6);
     justify-content: center;
     align-items: center;
 }
 
-.ponto-indicador {
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
+.indicadores-carrossel .ponto-indicador {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--raio-pilula);
     border: none;
     background-color: var(--cor-botao-padrao);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color var(--duracao) var(--curva), width var(--duracao) var(--curva);
     padding: 0;
     box-sizing: border-box;
 }
 
-.ponto-indicador.ativo {
+.indicadores-carrossel .ponto-indicador.ativo {
+    width: 24px;
     background-color: var(--cor-primaria);
-    transform: scale(1.15);
 }
 
-.ponto-indicador:hover {
+.indicadores-carrossel .ponto-indicador:hover {
     background-color: var(--neutro-apagado);
 }
 
-.ponto-indicador.ativo:hover {
+.indicadores-carrossel .ponto-indicador.ativo:hover {
     background-color: var(--cor-primaria);
 }
 

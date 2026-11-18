@@ -13,6 +13,14 @@
         [MetodoPagamento.Boleto] = "Boleto",
     };
 
+    var iconesDePagamento = new Dictionary<MetodoPagamento, string>
+    {
+        [MetodoPagamento.Pix] = "fa-brands fa-pix",
+        [MetodoPagamento.CartaoCredito] = "fa-regular fa-credit-card",
+        [MetodoPagamento.CartaoDebito] = "fa-solid fa-credit-card",
+        [MetodoPagamento.Boleto] = "fa-solid fa-barcode",
+    };
+
     var itemIndisponivel = ViewData["ItemIndisponivel"] as string;
     var valorDosProdutosAtual = ViewData["ValorDosProdutosAtual"] as decimal?;
     var valorDoFreteAtual = ViewData["ValorDoFreteAtual"] as decimal?;
@@ -59,28 +67,32 @@
 
             <fieldset class="opcoes-pagamento-fechamento">
                 <legend>Forma de pagamento</legend>
-                @foreach (var metodo in rotulosDePagamento.Keys)
-                {
-                    <label class="opcao-pagamento-fechamento">
-                        <input type="radio" name="MetodoPagamento" value="@((int)metodo)"
-                               checked="@(metodo == MetodoPagamento.Pix ? "checked" : null)" />
-                        @rotulosDePagamento[metodo]
-                    </label>
-                }
+                <div class="grade-pagamento-fechamento">
+                    @foreach (var metodo in rotulosDePagamento.Keys)
+                    {
+                        <label class="opcao-pagamento-fechamento">
+                            <input type="radio" name="MetodoPagamento" value="@((int)metodo)"
+                                   checked="@(metodo == MetodoPagamento.Pix ? "checked" : null)" />
+                            <i class="@iconesDePagamento[metodo] icone-pagamento-fechamento" aria-hidden="true"></i>
+                            <span class="nome-pagamento-fechamento">@rotulosDePagamento[metodo]</span>
+                        </label>
+                    }
+                </div>
             </fieldset>
 
             <p class="aviso-pagamento-fechamento">
-                Nenhum dado de pagamento é coletado aqui. Depois de confirmar, a forma de pagamento é combinada
-                diretamente com a loja.
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                <span>Nenhum dado de pagamento é coletado aqui. Depois de confirmar, a forma de pagamento é combinada
+                diretamente com a loja.</span>
             </p>
 
-            <div class="resumo-pagamento-fechamento">
+            <div class="painel painel--rebaixado resumo-pagamento-fechamento">
                 <p>Produtos <strong>R$ @Model.Carrinho.Subtotal.ToString("N2")</strong></p>
                 <p>Entrega <strong>R$ @opcaoEscolhida.Preco.ToString("N2")</strong></p>
                 <p class="total-pagamento-fechamento">Total <strong>R$ @((Model.Carrinho.Subtotal + opcaoEscolhida.Preco).ToString("N2"))</strong></p>
             </div>
 
-            <button type="submit" class="botao botao--primario botao-acao">Confirmar pedido</button>
+            <button type="submit" class="botao botao--destaque botao-acao botao-confirmar-pedido">Confirmar pedido</button>
         </form>
     }
 </div>

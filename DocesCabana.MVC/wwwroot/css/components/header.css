@@ -1,9 +1,5 @@
-section {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 40px;
-  width: 100%;
-}
+/* Cabeçalho da loja (spec 033). A faixa de conteúdo (`section`) é global e
+   mora em base.css (D17). */
 
 header {
   background-color: var(--cor-primaria);
@@ -11,23 +7,27 @@ header {
 }
 
 .cabecalho-superior {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .cabecalho-superior section {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 25px 40px;
-  gap: 30px;
+  padding-top: var(--espaco-4);
+  padding-bottom: var(--espaco-4);
+  gap: var(--espaco-8);
 }
 
 .logo {
   flex-shrink: 0;
+  border-radius: var(--raio-pequeno);
 }
 
+/* Altura fixa: com 12vh o logo encolhia em tela baixa e crescia em
+   monitor alto sem relação com o resto do cabeçalho. */
 .logo img {
-  height: 12vh;
+  height: clamp(56px, 4rem + 2vw, 96px);
   width: auto;
   display: block;
 }
@@ -39,22 +39,30 @@ header {
   display: flex;
   align-items: center;
   background-color: var(--neutro-rebaixado);
-  border-radius: 30px;
-  padding: 0 15px 0 25px;
+  border: 1.5px solid transparent;
+  border-radius: var(--raio-pilula);
+  padding: 0 var(--espaco-2) 0 var(--espaco-6);
   min-width: 0;
   max-width: 700px;
   height: 48px;
   margin: 0 auto;
+  transition: border-color var(--duracao-rapida) var(--curva), background-color var(--duracao-rapida) var(--curva);
+}
+
+.barra-pesquisa:focus-within {
+  background-color: var(--neutro-superficie);
+  border-color: var(--cor-destaque);
 }
 
 .barra-pesquisa input {
   flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
   outline: none;
-  font-size: 15px;
+  font-size: var(--texto-base);
   font-family: var(--fonte-principal);
-  color: var(--neutro-texto-suave);
+  color: var(--cor-tinta);
 }
 
 .barra-pesquisa input::placeholder {
@@ -63,32 +71,41 @@ header {
 
 .separador-pesquisa {
   width: 1px;
-  height: 100%;
-  background-color: var(--cor-tinta);
-  margin: 0 12px;
+  height: 55%;
+  background-color: var(--neutro-borda);
+  margin: 0 var(--espaco-2);
 }
 
 .botao-pesquisar {
-  background: transparent;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
   border: none;
+  border-radius: var(--raio-pilula);
+  background: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--cor-tinta);
-  padding: 5px;
+  transition: background-color var(--duracao-rapida) var(--curva), color var(--duracao-rapida) var(--curva);
 }
 
-.botao-pesquisar svg {
-  width: 22px;
-  height: 22px;
+.botao-pesquisar:hover {
+  background-color: var(--cor-primaria);
+  color: var(--cor-sobre-primaria);
+}
+
+/* A busca tem fundo claro: o foco volta a ser verde, não branco. */
+.barra-pesquisa :focus-visible {
+  outline-color: var(--cor-primaria);
 }
 
 .acoes-usuario {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 2.5rem;
+  gap: var(--espaco-6);
 }
 
 .formulario-sair {
@@ -100,28 +117,24 @@ header {
 .acao-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0;
+  gap: var(--espaco-2);
+  min-height: 40px;
+  padding: 0 var(--espaco-3);
   border: none;
+  border-radius: var(--raio-pilula);
   background: none;
   font-family: inherit;
   text-decoration: none;
   color: var(--cor-sobre-primaria);
   font-weight: 500;
-  font-size: 16px;
+  font-size: var(--texto-base);
   white-space: nowrap;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: background-color var(--duracao-rapida) var(--curva);
 }
 
 .acao-header:hover {
-  opacity: 0.8;
-}
-
-.acao-header:focus-visible {
-  outline: 2px solid var(--cor-sobre-primaria);
-  outline-offset: 4px;
-  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.12);
 }
 
 /* Menu "Admin": abre no hover ou quando algo dentro dele recebe foco,
@@ -131,37 +144,37 @@ header {
 }
 
 .seta-menu-admin {
-  font-size: 12px;
-  transition: transform 0.25s ease;
+  font-size: 0.75rem;
+  transition: transform var(--duracao) var(--curva);
 }
 
 .submenu-admin {
   position: absolute;
-  top: calc(100% + 14px);
-  right: -12px;
+  top: calc(100% + var(--espaco-3));
+  right: 0;
   z-index: 30;
   min-width: 220px;
   list-style: none;
   margin: 0;
-  padding: 8px;
-  background-color: var(--neutro-divisor);
-  border-top: 3px solid var(--cor-destaque);
-  border-radius: 4px 4px 12px 12px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+  padding: var(--espaco-2);
+  background-color: var(--neutro-superficie);
+  border: 1px solid var(--neutro-borda);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-2);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px);
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  transition: opacity var(--duracao-rapida) var(--curva), transform var(--duracao-rapida) var(--curva), visibility var(--duracao-rapida);
 }
 
 /* Ponte invisível: o hover não cai no vão entre o botão e o menu. */
 .submenu-admin::before {
   content: "";
   position: absolute;
-  top: -17px;
+  top: calc(-1 * var(--espaco-3) - 1px);
   left: 0;
   right: 0;
-  height: 17px;
+  height: calc(var(--espaco-3) + 1px);
 }
 
 .menu-admin:hover .submenu-admin,
@@ -179,27 +192,32 @@ header {
 .submenu-admin a {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  color: var(--cor-primaria);
-  font-size: 15px;
+  gap: var(--espaco-3);
+  padding: var(--espaco-3) var(--espaco-3);
+  border-radius: var(--raio-pequeno);
+  color: var(--cor-tinta);
+  font-size: var(--texto-pequeno);
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--duracao-rapida) var(--curva), color var(--duracao-rapida) var(--curva);
 }
 
 .submenu-admin a i {
   width: 16px;
   text-align: center;
+  color: var(--cor-primaria);
 }
 
-.submenu-admin a:hover,
-.submenu-admin a:focus-visible {
-  background-color: var(--cor-destaque);
-  color: var(--cor-sobre-primaria);
-  outline: none;
+.submenu-admin a:hover {
+  background-color: var(--cor-primaria-clara);
+  color: var(--cor-primaria);
+}
+
+/* O submenu é claro: foco verde, não o branco do cabeçalho. */
+.submenu-admin :focus-visible {
+  outline-color: var(--cor-primaria);
+  outline-offset: -2px;
 }
 
 .icone-com-bolha {
@@ -214,10 +232,11 @@ header {
   min-width: 18px;
   height: 18px;
   padding: 0 4px;
-  border-radius: 999px;
+  border-radius: var(--raio-pilula);
   background-color: var(--cor-destaque);
   color: var(--cor-sobre-primaria);
-  font-size: 11px;
+  box-shadow: 0 0 0 2px var(--cor-primaria);
+  font-size: 0.6875rem;
   font-weight: 700;
   line-height: 18px;
   text-align: center;
@@ -232,30 +251,29 @@ header {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  padding: 0 40px;
+  gap: var(--espaco-6);
 }
 
 nav {
   display: flex;
   align-items: stretch;
-  gap: 35px;
+  gap: var(--espaco-6);
 }
 
 .link-nav {
   display: flex;
   align-items: center;
-  margin: 0 7px;
-  gap: 6px;
-  padding: 12px 0;
+  gap: var(--espaco-2);
+  padding: var(--espaco-3) var(--espaco-3);
   text-decoration: none;
   color: var(--cor-sobre-primaria);
-  font-size: 17px;
-  font-weight: 400;
-  transition: opacity 0.2s ease, background-color 0.15s ease;
+  font-size: var(--texto-base);
+  font-weight: 500;
+  transition: color var(--duracao-rapida) var(--curva);
 }
 
 .link-nav:hover {
-  opacity: 0.8;
+  color: var(--cor-primaria-borda);
 }
 
 .link-nav svg {
@@ -266,20 +284,20 @@ nav {
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  margin-bottom: 15%;
 }
 
 .botao-favoritos {
   display: flex;
   align-items: center;
   align-self: center;
-  gap: 10px;
+  gap: var(--espaco-2);
+  min-height: 36px;
   background-color: var(--cor-destaque);
   color: var(--cor-sobre-primaria);
   text-decoration: none;
-  padding: 8px 18px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
+  padding: 0 var(--espaco-4);
+  border-radius: var(--raio-pilula);
+  transition: background-color var(--duracao-rapida) var(--curva);
 }
 
 .botao-favoritos:hover {
@@ -288,14 +306,14 @@ nav {
 
 .botao-favoritos span {
   font-family: var(--fonte-secundaria);
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 1;
   margin-top: 2px;
 }
 
 .botao-favoritos svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
@@ -304,25 +322,31 @@ nav {
 }
 
 .seta-header {
-  margin-top: 10%;
-  transition: transform 0.5s ease, color 0.2s ease;
+  font-size: 0.75rem;
+  transition: transform var(--duracao) var(--curva);
 }
 
 .item-categoria-nav {
   position: static;
   display: flex;
   align-items: stretch;
+  border-radius: var(--raio-medio) var(--raio-medio) 0 0;
+  transition: background-color var(--duracao-rapida) var(--curva);
 }
 
 .item-categoria-nav:hover .link-nav,
 .item-categoria-nav:focus-within .link-nav {
-  color: var(--cor-destaque);
+  color: var(--cor-primaria);
 }
 
 .item-categoria-nav:hover,
 .item-categoria-nav:focus-within {
-  background-color: var(--neutro-divisor);
-  border-radius: 12px 12px 0 0;
+  background-color: var(--neutro-superficie);
+}
+
+.item-categoria-nav:focus-within :focus-visible {
+  outline-color: var(--cor-primaria);
+  outline-offset: -2px;
 }
 
 .item-categoria-nav:hover .seta-header,
@@ -330,19 +354,21 @@ nav {
   transform: rotate(180deg);
 }
 
+/* Painel de subcategorias: papel branco que nasce da aba aberta. */
 .submenu-categoria {
   position: absolute;
   top: 100%;
-  left: 0;
-  right: 0;
+  left: var(--margem-lateral);
+  right: var(--margem-lateral);
   z-index: 20;
-  background-color: var(--neutro-divisor);
-  border-radius: 0 0 12px 12px;
-  padding: 28px 40px;
+  background-color: var(--neutro-superficie);
+  border-radius: 0 0 var(--raio-medio) var(--raio-medio);
+  box-shadow: var(--sombra-2);
+  padding: var(--espaco-6) var(--espaco-8);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px);
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  transition: opacity var(--duracao-rapida) var(--curva), transform var(--duracao-rapida) var(--curva), visibility var(--duracao-rapida);
 }
 
 .item-categoria-nav:hover .submenu-categoria,
@@ -354,30 +380,29 @@ nav {
 
 .submenu-categoria ul {
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background-color: var(--cor-destaque);
-  border-radius: 10px;
-  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--espaco-1) var(--espaco-6);
 }
 
 .submenu-categoria a {
   display: block;
-  color: var(--cor-sobre-primaria);
+  color: var(--cor-tinta);
   text-decoration: none;
-  font-size: 15px;
+  font-size: var(--texto-pequeno);
   font-weight: 500;
   white-space: nowrap;
-  padding: 4px 0;
+  padding: var(--espaco-2) var(--espaco-3);
+  border-radius: var(--raio-pequeno);
+  transition: background-color var(--duracao-rapida) var(--curva), color var(--duracao-rapida) var(--curva);
 }
 
-.submenu-categoria a:hover,
-.submenu-categoria a:focus-visible {
-  text-decoration: underline;
+.submenu-categoria a:hover {
+  background-color: var(--cor-destaque-clara);
+  color: var(--cor-destaque);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .submenu-categoria {
     display: none;
   }

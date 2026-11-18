@@ -1,23 +1,17 @@
 .pagina-conta {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem 40px;
-}
-
-.titulo-conta {
-  font-family: var(--fonte-principal);
-  color: var(--cor-primaria);
-  margin-bottom: 1.5rem;
+  padding: var(--espaco-8) var(--margem-lateral) var(--espaco-12);
 }
 
 .corpo-conta {
   display: grid;
   grid-template-columns: 220px 1fr;
-  gap: 2rem;
+  gap: var(--espaco-8);
   align-items: start;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 768px) {
   .corpo-conta {
     grid-template-columns: 1fr;
   }
@@ -26,27 +20,31 @@
 .menu-conta {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--espaco-1);
   background-color: var(--neutro-superficie);
   border: 1px solid var(--neutro-borda);
-  border-radius: 12px;
-  padding: 0.75rem;
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-1);
+  padding: var(--espaco-3);
 }
 
 .link-menu-conta {
-  padding: 0.65rem 0.9rem;
-  border-radius: 8px;
-  color: var(--cor-primaria);
+  position: relative;
+  padding: var(--espaco-3) var(--espaco-4);
+  border-radius: var(--raio-pequeno);
+  color: var(--cor-tinta);
   text-decoration: none;
   font-weight: 500;
+  transition: background-color var(--duracao-rapida) var(--curva), color var(--duracao-rapida) var(--curva);
 }
 
 .link-menu-conta:hover {
-  background-color: var(--neutro-fundo);
+  background-color: var(--neutro-rebaixado);
 }
 
 .link-menu-conta--ativo {
-  background-color: var(--neutro-fundo);
+  background-color: var(--cor-primaria-clara);
+  color: var(--cor-primaria);
   font-weight: 700;
 }
 
@@ -59,17 +57,11 @@
   background-color: transparent;
 }
 
-.conteudo-conta {
-  background-color: var(--neutro-superficie);
-  border: 1px solid var(--neutro-borda);
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
 .titulo-secao-conta {
   font-family: var(--fonte-principal);
+  font-size: 1.25rem;
   color: var(--cor-primaria);
-  margin: 0 0 1.25rem;
+  margin: 0 0 var(--espaco-6);
 }
 
 .cabecalho-secao-conta {
@@ -97,10 +89,11 @@
 
 .enderecos-vazio {
   color: var(--neutro-texto-suave);
-  padding: 3rem 1rem;
+  padding: var(--espaco-12) var(--espaco-4);
   text-align: center;
   border: 1px dashed var(--neutro-borda);
-  border-radius: 12px;
+  border-radius: var(--raio-medio);
+  background-color: var(--neutro-fundo);
 }
 
 .enderecos-vazio a {
@@ -127,13 +120,13 @@
 .cartao-endereco {
   position: relative;
   border: 1px solid var(--neutro-borda);
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-4) var(--espaco-6);
 }
 
 .cartao-endereco--principal {
   border-color: var(--cor-destaque);
-  background-color: var(--neutro-fundo);
+  background-color: var(--cor-destaque-clara);
 }
 
 .etiqueta-principal {
@@ -167,22 +160,3 @@
   display: inline;
 }
 
-.botao-secundario-endereco {
-  border: 1px solid var(--neutro-borda);
-  background-color: var(--neutro-superficie);
-  color: var(--cor-primaria);
-  border-radius: 8px;
-  padding: 0.5rem 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-.botao-secundario-endereco:hover {
-  background-color: var(--neutro-fundo);
-}
-
-.botao-secundario-endereco--excluir {
-  color: var(--cor-destaque-escura);
-}
