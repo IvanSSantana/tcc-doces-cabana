@@ -1,0 +1,90 @@
+/* Tokens do design-system da Doces Cabana (spec 033).
+   Único arquivo do CSS onde um valor de cor aparece escrito. Toda regra
+   em outro arquivo usa var(--...). Nenhuma cor daqui é nova: cada valor
+   já existia em algum CSS da loja e foi escolhido como o representante
+   da sua função.
+
+   Breakpoints oficiais (variável CSS não funciona dentro de @media, então
+   a convenção fica escrita aqui):
+     480px  — celular pequeno
+     768px  — celular grande / tablet em pé
+     1024px — tablet deitado / notebook pequeno
+     1280px — desktop
+   Escreva sempre @media (max-width: <um destes>px). */
+
+:root {
+  /* Marca */
+  --cor-primaria: #055C40;
+  --cor-primaria-escura: #033626;
+  --cor-primaria-clara: #F0F7F4;
+  --cor-primaria-borda: #CFE0D9;
+  --cor-primaria-suave: #7A8F85;
+  --cor-destaque: #D93B26;
+  --cor-destaque-escura: #B3261E;
+  --cor-destaque-clara: #FDF2F2;
+  --cor-perigo: var(--cor-destaque-escura);
+  --cor-sobre-primaria: #FFFFFF;
+  --cor-tinta: #1E1E1E;
+  --cor-botao-padrao: #E2E0DD;
+  --cor-estrela: #F2B01E;
+
+  /* Neutros quentes — uma rampa para a loja inteira */
+  --neutro-superficie: #FFFFFF;
+  --neutro-fundo: #FDFBF8;
+  --neutro-rebaixado: #F2EFE9;
+  --neutro-divisor: #EAE3D8;
+  --neutro-borda: #DAD4CE;
+  --neutro-apagado: #9A9A9A;
+  --neutro-texto-suave: #6D6460;
+
+  /* Estados de pedido e mensagens */
+  --status-sucesso: #188D3D;
+  --status-sucesso-fundo: #E3F3EA;
+  --status-aviso: #8A5A00;
+  --status-aviso-fundo: #FFF1D6;
+  --status-informacao: #2D4F9C;
+  --status-informacao-fundo: #E1E8F5;
+
+  /* Aliases da migração — removidos no fim da 033 (D6) */
+  --cor-texto: var(--cor-sobre-primaria);
+  --cor-texto-secundario: var(--cor-tinta);
+
+  /* Tipografia */
+  --fonte-principal: 'Inter', sans-serif;
+  --fonte-secundaria: 'Nothing You Could Do', cursive;
+  --texto-pequeno: 0.875rem;
+  --texto-base: 1rem;
+  --texto-grande: 1.125rem;
+  --texto-titulo: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  --texto-etiqueta: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+
+  /* Espaço — base 4px */
+  --espaco-1: 0.25rem;
+  --espaco-2: 0.5rem;
+  --espaco-3: 0.75rem;
+  --espaco-4: 1rem;
+  --espaco-6: 1.5rem;
+  --espaco-8: 2rem;
+  --espaco-12: 3rem;
+  --espaco-16: 4rem;
+
+  /* Raio */
+  --raio-pequeno: 8px;
+  --raio-medio: 12px;
+  --raio-grande: 20px;
+  --raio-pilula: 999px;
+
+  /* Sombra — tinta translúcida, três níveis */
+  --sombra-1: 0 1px 2px rgba(30, 30, 30, 0.06);
+  --sombra-2: 0 6px 16px rgba(30, 30, 30, 0.10);
+  --sombra-3: 0 16px 40px rgba(30, 30, 30, 0.18);
+
+  /* Movimento */
+  --duracao-rapida: 150ms;
+  --duracao: 220ms;
+  --curva: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Largura */
+  --largura-conteudo: 1400px;
+  --margem-lateral: clamp(16px, 4vw, 40px);
+}

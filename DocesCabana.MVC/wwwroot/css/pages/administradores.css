@@ -28,9 +28,9 @@
     height: 46px;
     padding: 0 1.5rem;
     border-radius: 14px;
-    background-color: var(--cor-primaria, #055C40);
-    color: #FFFFFF;
-    font-family: 'Inter', sans-serif;
+    background-color: var(--cor-primaria);
+    color: var(--cor-sobre-primaria);
+    font-family: var(--fonte-principal);
     font-size: 0.95rem;
     font-weight: 600;
     text-decoration: none;
@@ -40,7 +40,7 @@
 }
 
 .botao-novo-administrador:hover {
-    background-color: #07714F;
+    background-color: var(--cor-primaria-escura);
     box-shadow: 0 4px 12px rgba(5, 92, 64, 0.28);
     transform: translateY(-1px);
 }
@@ -62,16 +62,16 @@
 }
 
 .mensagem-vazia {
-    font-family: 'Inter', sans-serif;
-    color: #7A8F85;
+    font-family: var(--fonte-principal);
+    color: var(--cor-primaria-suave);
     font-size: 1rem;
 }
 
 .tabela-administradores {
     width: 100%;
     border-collapse: collapse;
-    background-color: #FFFFFF;
-    border: 1.5px solid #A2C4B9;
+    background-color: var(--neutro-superficie);
+    border: 1.5px solid var(--cor-primaria-borda);
     border-radius: 16px;
     overflow: hidden;
 }
@@ -80,20 +80,20 @@
 .tabela-administradores td {
     text-align: left;
     padding: 0.9rem 1.5rem;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--fonte-principal);
     font-size: 0.95rem;
 }
 
 .tabela-administradores th {
-    background-color: #055C40;
-    color: #FFFFFF;
+    background-color: var(--cor-primaria);
+    color: var(--cor-sobre-primaria);
     font-weight: 600;
 }
 
 .tabela-administradores tbody tr {
-    border-top: 1px solid #E3ECE8;
+    border-top: 1px solid var(--cor-primaria-clara);
 }
 
 .tabela-administradores tbody tr:nth-child(even) {
-    background-color: #F6FBF9;
+    background-color: var(--cor-primaria-clara);
 }

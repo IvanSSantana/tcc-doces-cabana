@@ -1,6 +1,6 @@
 header {
     background-color: var(--cor-primaria);
-    color: var(--cor-texto);
+    color: var(--cor-sobre-primaria);
     border-bottom: 1px solid rgba(255, 255, 255, .2);
 }
 

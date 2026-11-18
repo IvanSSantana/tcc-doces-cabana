@@ -1,7 +1,5 @@
 .footer-container {
-  --texto-rodape: #333333;
-
-  background-color: #FAFAFA;
+  background-color: var(--neutro-fundo);
   width: 100%;
   font-family: var(--fonte-principal);
 }
@@ -9,7 +7,7 @@
 .footer-container .linha-separacao-footer {
   height: 2px;
   width: 100%;
-  background-color: #C63114;
+  background-color: var(--cor-destaque-escura);
 }
 
 .footer-container .area-footer {
@@ -55,7 +53,7 @@
   font-style: normal;
   line-height: 1;
   letter-spacing: 0.02em;
-  color: #055C40;
+  color: var(--cor-primaria);
   transform: none;
 }
 
@@ -76,8 +74,8 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: var(--cor-tinta);
+  color: var(--cor-sobre-primaria);
   text-decoration: none;
   font-size: 1.5rem;
   transition: opacity 0.2s ease;
@@ -99,7 +97,7 @@
 }
 
 .footer-container .outras-paginas a {
-  color: var(--texto-rodape);
+  color: var(--cor-tinta);
   text-decoration: none;
   font-size: 0.9375rem;
   font-weight: 400;
@@ -112,7 +110,7 @@
 }
 
 .footer-container .separador-link {
-  color: var(--texto-rodape);
+  color: var(--cor-tinta);
   font-size: 0.9375rem;
   line-height: 1;
   user-select: none;
@@ -120,7 +118,7 @@
 
 .footer-container .copyright {
   margin: 0;
-  color: #777777;
+  color: var(--neutro-texto-suave);
   font-size: 0.8125rem;
   font-weight: 400;
   line-height: 1.5;

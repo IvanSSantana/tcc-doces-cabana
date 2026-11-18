@@ -3,15 +3,19 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - DocesCabana.MVC</title>
+    <title>@ViewData["Title"] - Doces Cabana</title>
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nothing+You+Could+Do&display=swap">
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/botao.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/painel.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/formulario.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/header-nao-autenticado.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/card-produto.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/vitrine-produtos.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/DocesCabana.MVC.styles.css" asp-append-version="true" />
 </head>
 <body>
     <partial name="_HeaderNaoAutenticado" />
@@ -24,8 +28,6 @@
 
     <partial name="_Footer" />
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/components/vitrine-produtos.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

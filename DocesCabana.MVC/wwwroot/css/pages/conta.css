@@ -27,8 +27,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  background-color: #FFFFFF;
-  border: 1px solid #DAD4CE;
+  background-color: var(--neutro-superficie);
+  border: 1px solid var(--neutro-borda);
   border-radius: 12px;
   padding: 0.75rem;
 }
@@ -42,16 +42,16 @@
 }
 
 .link-menu-conta:hover {
-  background-color: #FDFBF8;
+  background-color: var(--neutro-fundo);
 }
 
 .link-menu-conta--ativo {
-  background-color: #FDFBF8;
+  background-color: var(--neutro-fundo);
   font-weight: 700;
 }
 
 .link-menu-conta--desabilitado {
-  color: #B0AA9E;
+  color: var(--neutro-apagado);
   cursor: default;
 }
 
@@ -60,8 +60,8 @@
 }
 
 .conteudo-conta {
-  background-color: #FFFFFF;
-  border: 1px solid #DAD4CE;
+  background-color: var(--neutro-superficie);
+  border: 1px solid var(--neutro-borda);
   border-radius: 12px;
   padding: 1.5rem;
 }
@@ -84,26 +84,22 @@
 }
 
 .botao-novo-endereco {
-  width: auto;
   min-width: unset;
-  height: 44px;
-  padding: 0 1.25rem;
-  display: inline-flex;
-  align-items: center;
+  min-height: 44px;
 }
 
 .cpf-somente-leitura {
   display: block;
   padding: 0.75rem 0;
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
   font-weight: 600;
 }
 
 .enderecos-vazio {
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
   padding: 3rem 1rem;
   text-align: center;
-  border: 1px dashed #d8d3c8;
+  border: 1px dashed var(--neutro-borda);
   border-radius: 12px;
 }
 
@@ -130,14 +126,14 @@
 
 .cartao-endereco {
   position: relative;
-  border: 1px solid #DAD4CE;
+  border: 1px solid var(--neutro-borda);
   border-radius: 12px;
   padding: 1rem 1.25rem;
 }
 
 .cartao-endereco--principal {
   border-color: var(--cor-destaque);
-  background-color: #FDFBF8;
+  background-color: var(--neutro-fundo);
 }
 
 .etiqueta-principal {
@@ -155,7 +151,7 @@
 }
 
 .linha-endereco--secundaria {
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
   font-size: 0.9rem;
   margin-top: 0.2rem;
 }
@@ -172,8 +168,8 @@
 }
 
 .botao-secundario-endereco {
-  border: 1px solid #DAD4CE;
-  background-color: #FFFFFF;
+  border: 1px solid var(--neutro-borda);
+  background-color: var(--neutro-superficie);
   color: var(--cor-primaria);
   border-radius: 8px;
   padding: 0.5rem 0.9rem;
@@ -184,9 +180,9 @@
 }
 
 .botao-secundario-endereco:hover {
-  background-color: #FDFBF8;
+  background-color: var(--neutro-fundo);
 }
 
 .botao-secundario-endereco--excluir {
-  color: #b3413a;
+  color: var(--cor-destaque-escura);
 }

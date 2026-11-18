@@ -10,8 +10,8 @@
   padding: 0.875rem 1rem;
   border-left: 4px solid var(--cor-primaria);
   border-radius: 0.5rem;
-  background: #FFFFFF;
-  color: var(--cor-texto-secundario);
+  background: var(--neutro-superficie);
+  color: var(--cor-tinta);
   font-family: var(--fonte-principal);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   opacity: 0;
@@ -55,7 +55,7 @@
   padding: 0.375rem 0.75rem;
   border-radius: 0.375rem;
   background: var(--cor-primaria);
-  color: var(--cor-texto);
+  color: var(--cor-sobre-primaria);
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
@@ -70,7 +70,7 @@
   flex-shrink: 0;
   border: none;
   background: none;
-  color: var(--cor-texto-secundario);
+  color: var(--cor-tinta);
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;

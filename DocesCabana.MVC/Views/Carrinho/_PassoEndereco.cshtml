@@ -88,7 +88,7 @@
             <div class="acoes-passo-fechamento">
                 <a asp-action="Index" asp-route-passo="Pagamento" asp-route-enderecoId="@Model.EnderecoSelecionadoId"
                    asp-route-servicoDeEntregaId="@Model.ServicoDeEntregaSelecionadoId"
-                   data-navegacao-fechamento class="botao-acao">Continuar para pagamento</a>
+                   data-navegacao-fechamento class="botao botao--primario botao-acao">Continuar para pagamento</a>
             </div>
         }
         else if (Model.Cotacao is not null)

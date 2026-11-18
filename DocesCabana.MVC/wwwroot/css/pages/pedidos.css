@@ -1,9 +1,9 @@
 
 .pedidos-vazio {
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
   padding: 2rem 1rem;
   text-align: center;
-  border: 1px dashed #d8d3c8;
+  border: 1px dashed var(--neutro-borda);
   border-radius: 12px;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .cartao-pedido {
-  border: 1px solid #DAD4CE;
+  border: 1px solid var(--neutro-borda);
   border-radius: 12px;
 }
 
@@ -44,7 +44,7 @@
 }
 
 .link-cartao-pedido:hover {
-  background-color: #FDFBF8;
+  background-color: var(--neutro-fundo);
 }
 
 .detalhes-cartao-pedido {
@@ -60,7 +60,7 @@
 
 .data-cartao-pedido,
 .itens-cartao-pedido {
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
   font-size: 0.9rem;
 }
 
@@ -80,18 +80,18 @@
 }
 
 .situacao-cartao-pedido--pendente {
-  background-color: #FCEFD8;
-  color: #9a6b1f;
+  background-color: var(--status-aviso-fundo);
+  color: var(--status-aviso);
 }
 
 .situacao-cartao-pedido--confirmado {
-  background-color: #E1EEE8;
-  color: #1f6b4a;
+  background-color: var(--cor-primaria-clara);
+  color: var(--cor-primaria-escura);
 }
 
 .situacao-cartao-pedido--enviado {
-  background-color: #E1E8F5;
-  color: #2d4f9c;
+  background-color: var(--status-informacao-fundo);
+  color: var(--status-informacao);
 }
 
 .situacao-cartao-pedido--entregue {
@@ -100,8 +100,8 @@
 }
 
 .situacao-cartao-pedido--cancelado {
-  background-color: #EFEAE2;
-  color: #9a9a9a;
+  background-color: var(--neutro-rebaixado);
+  color: var(--neutro-apagado);
 }
 
 .link-voltar-pedidos {
@@ -124,7 +124,7 @@
 }
 
 .data-detalhe-pedido {
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
   margin: 0.25rem 0 1.5rem;
 }
 
@@ -162,7 +162,7 @@
 }
 
 .bloco-detalhe-pedido {
-  border-top: 1px solid #EFEAE2;
+  border-top: 1px solid var(--neutro-rebaixado);
   padding-top: 0.75rem;
   margin-bottom: 1rem;
 }
@@ -175,11 +175,11 @@
 
 .bloco-detalhe-pedido p {
   margin: 0.15rem 0;
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
 }
 
 .resumo-detalhe-pedido {
-  border-top: 1px solid #EFEAE2;
+  border-top: 1px solid var(--neutro-rebaixado);
   padding-top: 0.75rem;
 }
 

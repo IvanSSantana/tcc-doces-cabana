@@ -5,7 +5,6 @@
     Layout = "_LayoutNaoAutenticado";
 }
 
-<link rel="stylesheet" href="~/css/components/formulario.css" asp-append-version="true">
 <link rel="stylesheet" href="~/css/pages/autenticacao.css" asp-append-version="true">
 
 <main class="container-autenticacao">
@@ -55,7 +54,7 @@
         </div>
 
         <div class="container-botao">
-            <button type="submit" class="botao-acao">Confirmar</button>
+            <button type="submit" class="botao botao--primario botao-acao">Confirmar</button>
         </div>
 
             @if (!ViewData.ModelState.IsValid)

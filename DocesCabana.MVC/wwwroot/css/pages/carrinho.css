@@ -11,10 +11,10 @@
 }
 
 .carrinho-vazio {
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
   padding: 3rem 1rem;
   text-align: center;
-  border: 1px dashed #d8d3c8;
+  border: 1px dashed var(--neutro-borda);
   border-radius: 12px;
 }
 
@@ -63,7 +63,7 @@
   grid-template-columns: 96px 1fr auto;
   align-items: center;
   gap: 1rem;
-  background-color: #FFFFFF;
+  background-color: var(--neutro-superficie);
   border: 1px solid color-mix(in srgb, var(--cor-destaque) 35%, white);
   border-radius: 16px;
   padding: 1rem 1.25rem;
@@ -71,8 +71,8 @@
 
 .item-carrinho--indisponivel {
   opacity: 0.65;
-  background-color: #FDFBF8;
-  border-color: #DAD4CE;
+  background-color: var(--neutro-fundo);
+  border-color: var(--neutro-borda);
 }
 
 .imagem-item-carrinho {
@@ -80,7 +80,7 @@
   height: 96px;
   object-fit: cover;
   border-radius: 10px;
-  background-color: #FDFBF8;
+  background-color: var(--neutro-fundo);
 }
 
 .detalhes-item-carrinho {
@@ -95,7 +95,7 @@
 }
 
 .motivo-indisponivel-carrinho {
-  color: #b3413a;
+  color: var(--cor-destaque-escura);
   font-size: 0.9rem;
   font-weight: 600;
 }
@@ -115,7 +115,7 @@
 
 .rotulo-coluna-carrinho {
   font-size: 0.75rem;
-  color: #9a9a9a;
+  color: var(--neutro-apagado);
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
@@ -136,8 +136,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 1px solid #DAD4CE;
-  background-color: #FFFFFF;
+  border: 1px solid var(--neutro-borda);
+  background-color: var(--neutro-superficie);
   color: var(--cor-primaria);
   font-weight: 700;
   cursor: pointer;
@@ -145,7 +145,7 @@
 }
 
 .botao-quantidade-carrinho:hover {
-  background-color: #FDFBF8;
+  background-color: var(--neutro-fundo);
 }
 
 .valor-quantidade-carrinho {
@@ -161,14 +161,14 @@
   border-radius: 50%;
   border: none;
   background: transparent;
-  color: #9a9a9a;
+  color: var(--neutro-apagado);
   font-size: 1.2rem;
   cursor: pointer;
   line-height: 1;
 }
 
 .botao-remover-carrinho:hover {
-  color: #b3413a;
+  color: var(--cor-destaque-escura);
 }
 
 .acoes-lista-carrinho {
@@ -206,8 +206,8 @@
 }
 
 .resumo-carrinho {
-  background-color: #FFFFFF;
-  border: 1px solid #DAD4CE;
+  background-color: var(--neutro-superficie);
+  border: 1px solid var(--neutro-borda);
   border-radius: 12px;
   padding: 1.25rem;
   display: flex;
@@ -226,7 +226,7 @@
   flex-direction: column;
   gap: 0.35rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #EFEAE2;
+  border-bottom: 1px solid var(--neutro-rebaixado);
 }
 
 .campo-cupom-carrinho label {
@@ -243,7 +243,7 @@
 .entrada-cupom-carrinho input,
 .entrada-cupom-carrinho button {
   border-radius: 8px;
-  border: 1px solid #DAD4CE;
+  border: 1px solid var(--neutro-borda);
   padding: 0.5rem 0.75rem;
 }
 
@@ -254,25 +254,25 @@
 
 .entrada-cupom-carrinho input:disabled,
 .entrada-cupom-carrinho button:disabled {
-  background-color: #F5F2EC;
-  color: #9a9a9a;
+  background-color: var(--neutro-fundo);
+  color: var(--neutro-apagado);
   cursor: not-allowed;
 }
 
 .explicacao-cupom-carrinho {
   font-size: 0.8rem;
-  color: #9a9a9a;
+  color: var(--neutro-apagado);
 }
 
 .total-itens-carrinho {
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
   margin: 0;
 }
 
 .linha-frete-carrinho {
   margin: 0;
   font-size: 0.9rem;
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
 }
 
 .formulario-frete-carrinho {
@@ -280,7 +280,7 @@
   flex-direction: column;
   gap: 0.35rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #EFEAE2;
+  border-bottom: 1px solid var(--neutro-rebaixado);
 }
 
 .formulario-frete-carrinho label {
@@ -297,7 +297,7 @@
 .entrada-cep-carrinho input,
 .entrada-cep-carrinho button {
   border-radius: 8px;
-  border: 1px solid #DAD4CE;
+  border: 1px solid var(--neutro-borda);
   padding: 0.5rem 0.75rem;
 }
 
@@ -308,7 +308,7 @@
 
 .entrada-cep-carrinho button {
   background-color: var(--cor-primaria);
-  color: #FFFFFF;
+  color: var(--cor-sobre-primaria);
   font-weight: 600;
   cursor: pointer;
   border-color: var(--cor-primaria);
@@ -330,7 +330,7 @@
   align-items: start;
   gap: 0.75rem;
   padding: 0.625rem 0.75rem;
-  border: 1px solid #EFEAE2;
+  border: 1px solid var(--neutro-rebaixado);
   border-radius: 8px;
   font-size: 0.85rem;
 }
@@ -349,7 +349,7 @@
 }
 
 .prazo-opcao-frete {
-  color: #6b6b6b;
+  color: var(--neutro-texto-suave);
 }
 
 .preco-opcao-frete {
@@ -385,7 +385,7 @@
 }
 
 .mensagem-falha-frete {
-  color: #b3413a;
+  color: var(--cor-destaque-escura);
   font-size: 0.85rem;
   margin: 0;
 }
@@ -404,7 +404,7 @@
   border-radius: 8px;
   border: none;
   background-color: var(--cor-destaque);
-  color: #FFFFFF;
+  color: var(--cor-sobre-primaria);
   font-weight: 600;
   text-decoration: none;
   text-align: center;
@@ -443,16 +443,16 @@
   border-radius: 8px;
   padding: 0.5rem 1rem;
   background-color: var(--cor-destaque);
-  color: #FFFFFF;
+  color: var(--cor-sobre-primaria);
   font-weight: 600;
   cursor: pointer;
 }
 
 .botao-cancelar-esvaziar-carrinho {
-  border: 1px solid #DAD4CE;
+  border: 1px solid var(--neutro-borda);
   border-radius: 8px;
   padding: 0.5rem 1rem;
-  background-color: #FFFFFF;
+  background-color: var(--neutro-superficie);
   cursor: pointer;
 }
 
@@ -475,13 +475,13 @@
   border-radius: 8px;
   padding: 0.6rem 1.25rem;
   background-color: var(--cor-destaque);
-  color: #FFFFFF;
+  color: var(--cor-sobre-primaria);
   font-weight: 600;
   cursor: pointer;
 }
 
 .botao-cancelar-esvaziar {
-  border: 1px solid #DAD4CE;
+  border: 1px solid var(--neutro-borda);
   border-radius: 8px;
   padding: 0.6rem 1.25rem;
   color: var(--cor-primaria);
@@ -598,7 +598,7 @@
   border: 1px dashed color-mix(in srgb, var(--cor-destaque) 45%, white);
   border-radius: 8px;
   background-color: color-mix(in srgb, var(--cor-destaque) 6%, white);
-  color: var(--cor-texto-secundario);
+  color: var(--cor-tinta);
 }
 
 .aviso-sem-endereco__icone {
@@ -652,7 +652,7 @@
   padding: 0.875rem 1rem;
   border: 1px solid color-mix(in srgb, var(--cor-destaque) 35%, white);
   border-radius: 8px;
-  background-color: #FFFFFF;
+  background-color: var(--neutro-superficie);
   color: inherit;
   text-decoration: none;
   transition: border-color 0.2s ease, background-color 0.2s ease;
@@ -677,7 +677,7 @@
   margin-top: 0.1rem;
   border: 2px solid color-mix(in srgb, var(--cor-destaque) 45%, white);
   border-radius: 50%;
-  background-color: #FFFFFF;
+  background-color: var(--neutro-superficie);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -688,7 +688,7 @@
 
 .opcao-frete--selecionada .marcador-opcao-frete {
   border-color: var(--cor-destaque);
-  box-shadow: inset 0 0 0 3px #FFFFFF;
+  box-shadow: inset 0 0 0 3px var(--neutro-superficie);
   background-color: var(--cor-destaque);
 }
 
@@ -820,8 +820,8 @@
   gap: 1rem;
   max-width: 640px;
   padding: 1.25rem;
-  background-color: #FFFFFF;
-  border: 1px solid #DAD4CE;
+  background-color: var(--neutro-superficie);
+  border: 1px solid var(--neutro-borda);
   border-radius: 12px;
 }
 
@@ -846,17 +846,17 @@
   width: 100%;
   height: 44px;
   padding: 0 0.875rem;
-  border: 1px solid #DAD4CE;
+  border: 1px solid var(--neutro-borda);
   border-radius: 8px;
-  background-color: #FFFFFF;
-  color: var(--cor-texto-secundario);
+  background-color: var(--neutro-superficie);
+  color: var(--cor-tinta);
   font-family: var(--fonte-principal);
   font-size: 0.95rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .pagina-carrinho .formulario-endereco .campo-texto::placeholder {
-  color: #9CAFA6;
+  color: var(--cor-primaria-suave);
 }
 
 .pagina-carrinho .formulario-endereco .campo-texto:focus {
@@ -888,34 +888,6 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 0.25rem;
-}
-
-.pagina-carrinho .botao-acao {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 1.5rem;
-  border: none;
-  border-radius: 8px;
-  background-color: var(--cor-primaria);
-  color: #FFFFFF;
-  font-family: var(--fonte-principal);
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: filter 0.2s ease;
-}
-
-.pagina-carrinho .botao-acao:hover {
-  filter: brightness(1.15);
-}
-
-.pagina-carrinho .botao-acao:focus-visible,
-.pagina-carrinho .novo-endereco-fechamento summary:focus-visible {
-  outline: 2px solid var(--cor-primaria);
-  outline-offset: 2px;
 }
 
 @media (max-width: 480px) {

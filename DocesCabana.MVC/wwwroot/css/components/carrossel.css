@@ -13,7 +13,7 @@
     aspect-ratio: 3.2 / 1;
     border-radius: 24px;
     overflow: hidden;
-    background-color: #f1f3f5;
+    background-color: var(--neutro-rebaixado);
 }
 
 .carrossel-slides {
@@ -45,8 +45,8 @@
     height: 2.75rem;
     border: 0.8px solid black;
     border-radius: 50%;
-    background-color: #ffffff;
-    color: #333333;
+    background-color: var(--neutro-superficie);
+    color: var(--cor-tinta);
     cursor: pointer;
     z-index: 10;
     display: flex;
@@ -58,7 +58,7 @@
 }
 
 .seta-controle:hover {
-    background-color: #f3f3f3;
+    background-color: var(--neutro-rebaixado);
 }
 
 .seta-controle:ativo {
@@ -82,8 +82,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.30rem 0.8rem;
-    background-color: #EFEFEF;
-    border: 1px solid #B3B3B3;
+    background-color: var(--neutro-rebaixado);
+    border: 1px solid var(--neutro-apagado);
     border-radius: 999px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     z-index: 10;
@@ -93,18 +93,18 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: #D8D8D8;
+    background-color: var(--neutro-divisor);
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .ponto-indicador:hover {
-    background-color: #94a3b8;
+    background-color: var(--neutro-apagado);
     transform: scale(1.15);
 }
 
 .ponto-indicador.ativo {
-    background-color: var(--cor-primaria, #055C40);
+    background-color: var(--cor-primaria);
     transform: scale(1.2);
 }
 

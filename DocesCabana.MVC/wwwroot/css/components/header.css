@@ -7,7 +7,7 @@ section {
 
 header {
   background-color: var(--cor-primaria);
-  color: var(--cor-texto);
+  color: var(--cor-sobre-primaria);
 }
 
 .cabecalho-superior {
@@ -38,7 +38,7 @@ header {
   flex: 1 1 700px;
   display: flex;
   align-items: center;
-  background-color: #F2F2F2;
+  background-color: var(--neutro-rebaixado);
   border-radius: 30px;
   padding: 0 15px 0 25px;
   min-width: 0;
@@ -54,17 +54,17 @@ header {
   outline: none;
   font-size: 15px;
   font-family: var(--fonte-principal);
-  color: #5A5A5A;
+  color: var(--neutro-texto-suave);
 }
 
 .barra-pesquisa input::placeholder {
-  color: #5A5A5A;
+  color: var(--neutro-texto-suave);
 }
 
 .separador-pesquisa {
   width: 1px;
   height: 100%;
-  background-color: #000000;
+  background-color: var(--cor-tinta);
   margin: 0 12px;
 }
 
@@ -75,7 +75,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #000;
+  color: var(--cor-tinta);
   padding: 5px;
 }
 
@@ -106,7 +106,7 @@ header {
   background: none;
   font-family: inherit;
   text-decoration: none;
-  color: var(--cor-texto);
+  color: var(--cor-sobre-primaria);
   font-weight: 500;
   font-size: 16px;
   white-space: nowrap;
@@ -119,7 +119,7 @@ header {
 }
 
 .acao-header:focus-visible {
-  outline: 2px solid var(--cor-texto);
+  outline: 2px solid var(--cor-sobre-primaria);
   outline-offset: 4px;
   border-radius: 4px;
 }
@@ -144,7 +144,7 @@ header {
   list-style: none;
   margin: 0;
   padding: 8px;
-  background-color: #EAE3D8;
+  background-color: var(--neutro-divisor);
   border-top: 3px solid var(--cor-destaque);
   border-radius: 4px 4px 12px 12px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
@@ -198,7 +198,7 @@ header {
 .submenu-admin a:hover,
 .submenu-admin a:focus-visible {
   background-color: var(--cor-destaque);
-  color: var(--cor-texto);
+  color: var(--cor-sobre-primaria);
   outline: none;
 }
 
@@ -216,7 +216,7 @@ header {
   padding: 0 4px;
   border-radius: 999px;
   background-color: var(--cor-destaque);
-  color: #FFFFFF;
+  color: var(--cor-sobre-primaria);
   font-size: 11px;
   font-weight: 700;
   line-height: 18px;
@@ -248,7 +248,7 @@ nav {
   gap: 6px;
   padding: 12px 0;
   text-decoration: none;
-  color: var(--cor-texto);
+  color: var(--cor-sobre-primaria);
   font-size: 17px;
   font-weight: 400;
   transition: opacity 0.2s ease, background-color 0.15s ease;
@@ -275,7 +275,7 @@ nav {
   align-self: center;
   gap: 10px;
   background-color: var(--cor-destaque);
-  color: var(--cor-texto);
+  color: var(--cor-sobre-primaria);
   text-decoration: none;
   padding: 8px 18px;
   border-radius: 8px;
@@ -283,7 +283,7 @@ nav {
 }
 
 .botao-favoritos:hover {
-  background-color: #B8301E;
+  background-color: var(--cor-destaque-escura);
 }
 
 .botao-favoritos span {
@@ -321,7 +321,7 @@ nav {
 
 .item-categoria-nav:hover,
 .item-categoria-nav:focus-within {
-  background-color: #EAE3D8;
+  background-color: var(--neutro-divisor);
   border-radius: 12px 12px 0 0;
 }
 
@@ -336,7 +336,7 @@ nav {
   left: 0;
   right: 0;
   z-index: 20;
-  background-color: #EAE3D8;
+  background-color: var(--neutro-divisor);
   border-radius: 0 0 12px 12px;
   padding: 28px 40px;
   opacity: 0;
@@ -364,7 +364,7 @@ nav {
 
 .submenu-categoria a {
   display: block;
-  color: var(--cor-texto);
+  color: var(--cor-sobre-primaria);
   text-decoration: none;
   font-size: 15px;
   font-weight: 500;

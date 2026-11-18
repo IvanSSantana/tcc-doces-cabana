@@ -5,7 +5,6 @@
     ViewData["PaginaAtiva"] = "Enderecos";
 }
 
-<link rel="stylesheet" href="~/css/components/formulario.css" asp-append-version="true">
 <link rel="stylesheet" href="~/css/pages/conta.css" asp-append-version="true">
 
 <main class="pagina-conta">
@@ -17,7 +16,7 @@
         <section class="conteudo-conta">
             <div class="cabecalho-secao-conta">
                 <h2 class="titulo-secao-conta">Endereços</h2>
-                <a asp-action="NovoEndereco" class="botao-acao botao-novo-endereco">+ Novo endereço</a>
+                <a asp-action="NovoEndereco" class="botao botao--primario botao-acao botao-novo-endereco">+ Novo endereço</a>
             </div>
 
             @if (Model.Count == 0)

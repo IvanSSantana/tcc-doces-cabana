@@ -1,0 +1,124 @@
+/* Botão da loja (spec 033, D8). Uma base e modificadores de papel:
+     .botao.botao--primario    ação principal da tela (verde)
+     .botao.botao--destaque    compra / conversão (vermelho)
+     .botao.botao--secundario  ação de apoio (contorno verde)
+     .botao.botao--perigo      ação destrutiva (contorno vermelho)
+     .botao.botao--fantasma    só texto
+     .botao.botao--icone       quadrado, só ícone (exige aria-label)
+     .botao--pequeno           altura reduzida, combinável com os demais
+   Classes antigas de página continuam no markup só para posição/largura
+   ou quando JS/E2E as usam. */
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-2);
+  min-height: 44px;
+  padding: 0 var(--espaco-6);
+  border: 1.5px solid transparent;
+  border-radius: var(--raio-pilula);
+  background-color: var(--cor-botao-padrao);
+  color: var(--cor-tinta);
+  font-family: var(--fonte-principal);
+  font-size: var(--texto-base);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duracao-rapida) var(--curva),
+    border-color var(--duracao-rapida) var(--curva),
+    color var(--duracao-rapida) var(--curva),
+    transform var(--duracao-rapida) var(--curva);
+}
+
+.botao:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.botao:disabled,
+.botao[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.botao[aria-busy="true"] {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.botao--primario {
+  background-color: var(--cor-primaria);
+  color: var(--cor-sobre-primaria);
+}
+
+.botao--primario:hover:not(:disabled) {
+  background-color: var(--cor-primaria-escura);
+}
+
+.botao--destaque {
+  background-color: var(--cor-destaque);
+  color: var(--cor-sobre-primaria);
+}
+
+.botao--destaque:hover:not(:disabled) {
+  background-color: var(--cor-destaque-escura);
+}
+
+.botao--secundario {
+  background-color: transparent;
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.botao--secundario:hover:not(:disabled) {
+  background-color: var(--cor-primaria-clara);
+}
+
+.botao--perigo {
+  background-color: transparent;
+  border-color: var(--cor-destaque);
+  color: var(--cor-destaque);
+}
+
+.botao--perigo:hover:not(:disabled) {
+  background-color: var(--cor-destaque-clara);
+  border-color: var(--cor-perigo);
+  color: var(--cor-perigo);
+}
+
+.botao--fantasma {
+  background-color: transparent;
+  color: var(--cor-primaria);
+  padding: 0 var(--espaco-3);
+}
+
+.botao--fantasma:hover:not(:disabled) {
+  background-color: var(--cor-primaria-clara);
+}
+
+.botao--icone {
+  width: 44px;
+  padding: 0;
+  background-color: var(--neutro-superficie);
+  border-color: var(--neutro-borda);
+  color: var(--cor-tinta);
+}
+
+.botao--icone:hover:not(:disabled) {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.botao--pequeno {
+  min-height: 36px;
+  padding: 0 var(--espaco-4);
+  font-size: var(--texto-pequeno);
+}
+
+.botao--pequeno.botao--icone {
+  width: 36px;
+  padding: 0;
+}

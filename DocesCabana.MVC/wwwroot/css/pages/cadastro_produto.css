@@ -9,7 +9,7 @@
 .campo-caixa-selecao input[type="checkbox"] {
     width: 1.1rem;
     height: 1.1rem;
-    accent-color: #055C40;
+    accent-color: var(--cor-primaria);
 }
 
 .campo-caixa-selecao {

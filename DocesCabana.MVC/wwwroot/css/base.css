@@ -1,0 +1,132 @@
+/* Base global (spec 033): reset, tipografia do corpo, foco, movimento
+   reduzido e o título "etiqueta de confeitaria". Depende de tokens.css. */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--neutro-fundo);
+  color: var(--cor-tinta);
+  font-family: var(--fonte-principal);
+  -webkit-font-smoothing: antialiased;
+}
+
+p {
+  line-height: 1.5;
+}
+
+img {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* Faixa de conteúdo. Muitas views dependem desta regra sem saber
+   (veio do header.css, D17 da 033). */
+section {
+  max-width: var(--largura-conteudo);
+  margin: 0 auto;
+  padding: 0 var(--margem-lateral);
+  width: 100%;
+}
+
+/* Foco visível único para a loja inteira (D12). Sobre fundo verde, o
+   contorno fica branco. */
+:focus-visible {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 2px;
+}
+
+header :focus-visible {
+  outline-color: var(--cor-sobre-primaria);
+}
+
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Etiqueta de confeitaria (D3): o manuscrito alinhado à esquerda da faixa
+   de conteúdo, com um traço feito à mão por baixo, revelado uma vez. */
+.titulo {
+  position: relative;
+  width: fit-content;
+  max-width: calc(100% - 2 * var(--margem-lateral));
+  margin-top: var(--espaco-16);
+  margin-bottom: var(--espaco-8);
+  margin-left: max(var(--margem-lateral), calc((100% - var(--largura-conteudo)) / 2 + var(--margem-lateral)));
+  padding-bottom: 0.35em;
+  font-family: var(--fonte-secundaria);
+  font-size: var(--texto-etiqueta);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--cor-destaque);
+}
+
+.titulo--verde {
+  color: var(--cor-primaria);
+}
+
+@supports (mask-image: url("")) or (-webkit-mask-image: url("")) {
+  .titulo::after {
+    content: "";
+    position: absolute;
+    left: -0.1em;
+    right: -0.2em;
+    bottom: 0;
+    height: 0.32em;
+    background-color: var(--cor-destaque);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'%3E%3Cpath d='M3 11C38 5 78 3 118 7s62 7 79-3' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'%3E%3Cpath d='M3 11C38 5 78 3 118 7s62 7 79-3' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    animation: tracar-etiqueta 600ms var(--curva) 200ms both;
+  }
+}
+
+@keyframes tracar-etiqueta {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Movimento reduzido: uma regra para a loja inteira (D12). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

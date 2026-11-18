@@ -1,13 +1,7 @@
 
 .pagina-institucional {
-  --institucional-verde: var(--cor-primaria);
-  --institucional-coral: var(--cor-destaque);
-  --institucional-fundo: #FDF6F4;
-  --institucional-tinta: #1E1E1E;
-  --institucional-regua: #E8A79A;
-
-  color: var(--institucional-tinta);
-  font-family: 'Inter', sans-serif;
+  color: var(--cor-tinta);
+  font-family: var(--fonte-principal);
 }
 
 .pagina-institucional a {
@@ -15,7 +9,7 @@
 }
 
 .pagina-institucional a:focus-visible {
-  outline: 2px solid var(--institucional-verde);
+  outline: 2px solid var(--cor-primaria);
   outline-offset: 2px;
 }
 
@@ -27,12 +21,12 @@
 }
 
 .palavra-manuscrita {
-  font-family: 'Nothing You Could Do', cursive;
-  color: var(--institucional-coral);
+  font-family: var(--fonte-secundaria);
+  color: var(--cor-destaque);
 }
 
 .imagem-reservada {
-  background-color: #D9D9D9;
+  background-color: var(--neutro-divisor);
   border-radius: 4px;
 }
 
@@ -60,7 +54,7 @@
 .pagina-institucional--politica h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--institucional-coral);
+  color: var(--cor-destaque);
   margin-left: -1.25rem;
   margin-bottom: 1rem;
 }
@@ -74,7 +68,7 @@
 .pagina-institucional--politica p,
 .pagina-institucional--politica li {
   line-height: 1.7;
-  color: var(--institucional-tinta);
+  color: var(--cor-tinta);
 }
 
 .pagina-institucional--politica ul {
@@ -82,18 +76,18 @@
 }
 
 .pagina-institucional--politica a {
-  color: var(--institucional-verde);
+  color: var(--cor-primaria);
   text-decoration: underline;
 }
 
 .regua-institucional {
   border: none;
-  border-top: 1px solid var(--institucional-regua);
+  border-top: 1px solid var(--cor-destaque);
   margin: 2rem 0;
 }
 
 .pagina-institucional--quem-somos {
-  background-color: var(--institucional-fundo);
+  background-color: var(--neutro-fundo);
 }
 
 .faixa-destaque {
@@ -138,7 +132,7 @@
   bottom: 0;
   left: 50%;
   width: 2px;
-  background-color: var(--institucional-verde);
+  background-color: var(--cor-primaria);
 }
 
 .bloco-institucional {
@@ -170,9 +164,9 @@
 }
 
 .bloco-institucional__titulo {
-  font-family: 'Nothing You Could Do', cursive;
+  font-family: var(--fonte-secundaria);
   font-size: 2rem;
-  color: var(--institucional-tinta);
+  color: var(--cor-tinta);
   margin-bottom: 0.75rem;
 }
 

@@ -1,0 +1,26 @@
+/* Painel: a superfície "papel" da loja (spec 033, D9). Caixa branca sobre
+   o fundo creme, com borda fina e sombra mínima. */
+
+.painel {
+  background-color: var(--neutro-superficie);
+  border: 1px solid var(--neutro-borda);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-1);
+  padding: var(--espaco-6);
+}
+
+.painel--rebaixado {
+  background-color: var(--neutro-rebaixado);
+  border-color: var(--neutro-divisor);
+  box-shadow: none;
+}
+
+.painel__cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-4);
+  padding-bottom: var(--espaco-4);
+  margin-bottom: var(--espaco-4);
+  border-bottom: 1px solid var(--neutro-divisor);
+}

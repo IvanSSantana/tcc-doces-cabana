@@ -1,7 +1,7 @@
 .modal-autenticacao {
     border: none;
     border-radius: 28px;
-    background-color: #FCF5F3;
+    background-color: var(--neutro-fundo);
     padding: 0;
     width: 35vw;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -34,18 +34,18 @@
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background-color: #E6DDD9;
+    background-color: var(--neutro-divisor);
     border: none;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    color: #6D6460;
+    color: var(--neutro-texto-suave);
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .botao-fechar:hover {
-    background-color: #D3C9C4;
+    background-color: var(--neutro-borda);
     transform: scale(1.05);
 }
 
@@ -94,8 +94,8 @@
 }
 
 .botao-cadastro {
-    background-color: #033626;
-    color: #FFFFFF !important;
+    background-color: var(--cor-primaria-escura);
+    color: var(--cor-sobre-primaria) !important;
     border: none;
     transition: filter 0.2s ease;
 }
@@ -106,8 +106,8 @@
 
 .botao-entrar {
     background-color: transparent;
-    color: #033626 !important;
-    border: 1.5px solid #033626;
+    color: var(--cor-primaria-escura) !important;
+    border: 1.5px solid var(--cor-primaria-escura);
     transition: background-color 0.2s ease;
 }
 
@@ -121,7 +121,7 @@
 }
 
 .link-privacidade {
-    color: #1A1A1A;
+    color: var(--cor-tinta);
     font-family: var(--fonte-principal), 'Inter', sans-serif;
     font-size: 15px;
     font-weight: 500;
