@@ -67,8 +67,13 @@ public class Pedido
         Data = DateTime.UtcNow;
     }
 
-    public void AcrescentarItem(Guid produtoId, short quantidade, decimal precoUnitario) =>
-        _itens.Add(new ItemPedido(PedidoId, produtoId, quantidade, precoUnitario));
+    public void AcrescentarItem(
+        Guid produtoId,
+        short quantidade,
+        decimal precoUnitario,
+        decimal descontoDaPromocao = 0m,
+        string? rotuloDaPromocao = null) =>
+        _itens.Add(new ItemPedido(PedidoId, produtoId, quantidade, precoUnitario, descontoDaPromocao, rotuloDaPromocao));
 
     public string NumeroVisivel() => PedidoId.ToString("N")[..8].ToUpperInvariant();
 

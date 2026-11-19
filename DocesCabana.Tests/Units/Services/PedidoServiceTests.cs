@@ -247,6 +247,78 @@ public class PedidoServiceTests
         Assert.Equal(11m, pedidoGravado!.Itens.First().PrecoUnitario);
     }
 
+    private LinhaDoCarrinhoDTO CriarLinhaComLeve3Pague2() => new()
+    {
+        ProdutoId = _produtoId,
+        Nome = "Brigadeiro",
+        ImagemUrl = "https://imagem.com/brigadeiro.jpg",
+        PrecoUnitario = 10m,
+        Quantidade = 3,
+        DescontoDaPromocao = 10m,
+        RotuloDaPromocao = "Leve 3, pague 2",
+        ValorDaLinha = 20m,
+        Peso = 0.5m,
+        Altura = 10m,
+        Largura = 15m,
+        Comprimento = 20m
+    };
+
+    private void PrepararFechamentoComPromocao()
+    {
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(_usuarioId)).ReturnsAsync(CriarCarrinho(CriarLinhaComLeve3Pague2()));
+        PrepararEnderecoValido();
+        PrepararCotacaoValida(preco: 8m);
+        _itemCarrinhoRepositoryMock.Setup(r => r.BuscarPorUsuario(_usuarioId)).ReturnsAsync([]);
+    }
+
+    [Fact]
+    public async Task Dado_CarrinhoComPromocao_Quando_Fechar_Entao_ItemDeveTerDescontoERotulo()
+    {
+        PrepararFechamentoComPromocao();
+        Pedido? pedidoGravado = null;
+        _pedidoRepositoryMock
+            .Setup(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()))
+            .Callback<Pedido, Pagamento>((p, _) => pedidoGravado = p)
+            .Returns(Task.CompletedTask);
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDados(valorDosProdutosExibido: 20m, valorDoFreteExibido: 8m));
+
+        Assert.True(resultado.Sucesso);
+        var item = Assert.Single(pedidoGravado!.Itens);
+        Assert.Equal(10m, item.PrecoUnitario);
+        Assert.Equal(10m, item.DescontoDaPromocao);
+        Assert.Equal("Leve 3, pague 2", item.RotuloDaPromocao);
+    }
+
+    [Fact]
+    public async Task Dado_CarrinhoComPromocao_Quando_Fechar_Entao_ValorDoPedidoDeveSerLiquidoMaisFrete()
+    {
+        PrepararFechamentoComPromocao();
+        Pedido? pedidoGravado = null;
+        Pagamento? pagamentoGravado = null;
+        _pedidoRepositoryMock
+            .Setup(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()))
+            .Callback<Pedido, Pagamento>((p, pag) => { pedidoGravado = p; pagamentoGravado = pag; })
+            .Returns(Task.CompletedTask);
+
+        await _pedidoService.Fechar(_usuarioId, CriarDados(valorDosProdutosExibido: 20m, valorDoFreteExibido: 8m));
+
+        Assert.Equal(28m, pedidoGravado!.Valor);
+        Assert.Equal(28m, pagamentoGravado!.Valor);
+    }
+
+    [Fact]
+    public async Task Dado_SubtotalExibidoSemPromocaoQueComecou_Quando_Fechar_Entao_DeveRecusarComValorAtual()
+    {
+        PrepararFechamentoComPromocao();
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDados(valorDosProdutosExibido: 30m, valorDoFreteExibido: 8m));
+
+        Assert.False(resultado.Sucesso);
+        Assert.Equal(20m, resultado.ValorDosProdutosAtual);
+        _pedidoRepositoryMock.Verify(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()), Times.Never);
+    }
+
     private Pedido CriarPedidoPersistido(DateTime data, PedidoStatus status = PedidoStatus.Pendente)
     {
         var pedido = new Pedido(_usuarioId, _enderecoId, 28m, 8m, "Correios", "PAC", 3, 7);

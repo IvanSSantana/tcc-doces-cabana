@@ -18,4 +18,6 @@ public interface IProdutoRepository : IRepository<Produto>
     Task<int> ContarNaGestao(FiltroDeGestaoDeProduto filtro);
 
     Task<Dictionary<Guid, int>> ContarDisponivelPorSubcategoria();
+
+    Task<List<Produto>> BuscarPorIds(IEnumerable<Guid> ids);
 }

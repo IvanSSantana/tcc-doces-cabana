@@ -1,5 +1,6 @@
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
+using DocesCabana.Application.Helpers;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Enums;
 
@@ -7,25 +8,18 @@ namespace DocesCabana.Application.Mappings;
 
 public static class CarrinhoMapper
 {
-    public static CarrinhoDTO ToDTO(IEnumerable<ItemCarrinho> itens, CotacaoDeFreteDTO? cotacao = null) =>
-        Montar(itens.Select(i => (i.Produto!, i.Quantidade)), cotacao);
+    public static CarrinhoDTO ToDTO(
+        IEnumerable<ItemCarrinho> itens, CotacaoDeFreteDTO? cotacao = null, PromocoesVigentes? promocoes = null) =>
+        Montar(itens.Select(i => (i.Produto!, i.Quantidade)), cotacao, promocoes);
 
-    public static CarrinhoDTO Montar(IEnumerable<(Produto Produto, short Quantidade)> pares, CotacaoDeFreteDTO? cotacao = null)
+    public static CarrinhoDTO Montar(
+        IEnumerable<(Produto Produto, short Quantidade)> pares,
+        CotacaoDeFreteDTO? cotacao = null,
+        PromocoesVigentes? promocoes = null)
     {
-        var linhas = pares.Select(par => new LinhaDoCarrinhoDTO
-        {
-            ProdutoId = par.Produto.ProdutoId,
-            Nome = par.Produto.Nome,
-            ImagemUrl = par.Produto.ImagemUrl,
-            PrecoUnitario = par.Produto.Preco,
-            Quantidade = par.Quantidade,
-            ValorDaLinha = par.Produto.Preco * par.Quantidade,
-            MotivoIndisponibilidade = ResolverMotivo(par.Produto.Status),
-            Peso = par.Produto.Peso,
-            Altura = par.Produto.Altura,
-            Largura = par.Produto.Largura,
-            Comprimento = par.Produto.Comprimento
-        }).ToList();
+        promocoes ??= PromocoesVigentes.Nenhuma;
+
+        var linhas = pares.Select(par => MontarLinha(par.Produto, par.Quantidade, promocoes)).ToList();
 
         return new CarrinhoDTO
         {
@@ -33,6 +27,32 @@ public static class CarrinhoMapper
             Subtotal = linhas.Where(l => l.Disponivel).Sum(l => l.ValorDaLinha),
             TotalDeItens = linhas.Sum(l => (int)l.Quantidade),
             Cotacao = cotacao
+        };
+    }
+
+    private static LinhaDoCarrinhoDTO MontarLinha(Produto produto, short quantidade, PromocoesVigentes promocoes)
+    {
+        var motivo = ResolverMotivo(produto.Status);
+
+        var desconto = motivo == MotivoIndisponibilidade.Nenhum
+            ? promocoes.MelhorPara(produto.ProdutoId, produto.SubcategoriaId, produto.Preco, quantidade)
+            : null;
+
+        return new LinhaDoCarrinhoDTO
+        {
+            ProdutoId = produto.ProdutoId,
+            Nome = produto.Nome,
+            ImagemUrl = produto.ImagemUrl,
+            PrecoUnitario = produto.Preco,
+            Quantidade = quantidade,
+            DescontoDaPromocao = desconto?.Valor ?? 0m,
+            RotuloDaPromocao = desconto?.Rotulo,
+            ValorDaLinha = produto.Preco * quantidade - (desconto?.Valor ?? 0m),
+            MotivoIndisponibilidade = motivo,
+            Peso = produto.Peso,
+            Altura = produto.Altura,
+            Largura = produto.Largura,
+            Comprimento = produto.Comprimento
         };
     }
 

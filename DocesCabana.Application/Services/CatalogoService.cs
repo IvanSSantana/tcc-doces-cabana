@@ -13,12 +13,16 @@ public class CatalogoService : ICatalogoService
     private readonly ICategoriaService _categoriaService;
     private readonly IProdutoRepository _produtoRepository;
     private readonly IFavoritoRepository _favoritoRepository;
+    private readonly IPromocaoService _promocaoService;
 
-    public CatalogoService(ICategoriaService categoriaService, IProdutoRepository produtoRepository, IFavoritoRepository favoritoRepository)
+    public CatalogoService(
+        ICategoriaService categoriaService, IProdutoRepository produtoRepository,
+        IFavoritoRepository favoritoRepository, IPromocaoService promocaoService)
     {
         _categoriaService = categoriaService;
         _produtoRepository = produtoRepository;
         _favoritoRepository = favoritoRepository;
+        _promocaoService = promocaoService;
     }
 
     public async Task<CatalogoDTO> Montar(CriteriosDoCatalogoDTO criterios, int pagina, Guid? usuarioId = null)
@@ -60,6 +64,8 @@ public class CatalogoService : ICatalogoService
             ? await _favoritoRepository.IdsPorUsuario(usuarioId.Value, produtos.Select(p => p.ProdutoId))
             : [];
 
+        var promocoes = await _promocaoService.CarregarVigentes();
+
         return new CatalogoDTO
         {
             Categorias = categorias,
@@ -70,7 +76,7 @@ public class CatalogoService : ICatalogoService
             Termo = criterios.Termo,
             Pagina = new PaginaDeProdutosDTO
             {
-                Itens = ProdutoMapper.ToDTO(produtos, idsFavoritados),
+                Itens = ProdutoMapper.ToDTO(produtos, idsFavoritados, promocoes),
                 PaginaAtual = paginaSaneada,
                 TotalDePaginas = totalDePaginas,
                 TotalDeItens = total

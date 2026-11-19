@@ -28,6 +28,13 @@
                 <div class="detalhes-item-confirmacao-pedido">
                     <span class="nome-item-confirmacao-pedido">@item.Nome</span>
                     <span>@item.Quantidade × R$ @item.PrecoUnitario.ToString("N2")</span>
+                    @if (item.RotuloDaPromocao is not null)
+                    {
+                        <span class="promocao-item-pedido">
+                            <span class="selo-promocao">@item.RotuloDaPromocao</span>
+                            &minus; R$ @item.DescontoDaPromocao.ToString("N2")
+                        </span>
+                    }
                 </div>
                 <span class="valor-item-confirmacao-pedido">R$ @item.ValorDaLinha.ToString("N2")</span>
             </li>

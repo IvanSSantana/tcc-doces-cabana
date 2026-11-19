@@ -17,8 +17,6 @@ public class Produto
 
     public ProdutoStatus Status { get; private set; }
 
-    public Guid? PromocaoId { get; private set; }
-
     public string ImagemUrl { get; private set; } = default!;
 
     public string? Descricao { get; private set; }
@@ -34,8 +32,6 @@ public class Produto
     public decimal Comprimento { get; private set; }   
 
     public Subcategoria? Subcategoria { get; private set; }
-
-    public Promocao? Promocao { get; private set; }
 
     protected Produto() { }
 
@@ -131,22 +127,6 @@ public class Produto
     public void MarcarComoSemAcucar() => SemAcucar = true;
 
     public void DesmarcarSemAcucar() => SemAcucar = false;
-
-    public void AplicarPromocao(Guid promocaoId)
-    {
-        if (promocaoId == Guid.Empty)
-            throw new ArgumentException("Promoção inválida.", nameof(promocaoId));
-
-        if (Status == ProdutoStatus.Inativo)
-            throw new InvalidOperationException("Produto inativo não pode entrar em promoção.");
-
-        if (Status == ProdutoStatus.ForaDeEstoque)
-            throw new InvalidOperationException("Produto fora de estoque não pode entrar em promoção.");
-
-        PromocaoId = promocaoId;
-    }
-
-    public void RemoverPromocao() => PromocaoId = null;
 
     private void ValidarSubcategoria(Guid subcategoriaId)
     {

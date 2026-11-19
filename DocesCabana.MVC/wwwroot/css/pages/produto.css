@@ -111,6 +111,28 @@
   color: var(--cor-destaque);
 }
 
+.bloco-preco-produto {
+  display: flex;
+  flex-direction: column;
+}
+
+.preco-produto--original {
+  color: var(--neutro-texto-suave);
+  font-weight: 500;
+}
+
+.selos-promocao-produto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-2);
+  margin-bottom: var(--espaco-3);
+}
+
+.selos-promocao-produto .selo-promocao {
+  font-size: var(--texto-pequeno);
+  padding: 4px 12px;
+}
+
 .aviso-fora-de-estoque {
   font-weight: 700;
   color: var(--cor-destaque);

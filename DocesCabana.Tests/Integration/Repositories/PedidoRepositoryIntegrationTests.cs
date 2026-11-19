@@ -36,6 +36,29 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartave
     }
 
     [Fact]
+    public async Task Dado_ItemComDesconto_Quando_Salvar_Entao_DeveVoltarComDescontoERotulo()
+    {
+        var unidadeDeTrabalho = new UnitOfWork(Contexto);
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var enderecoId = await SemearEndereco(usuarioId);
+        var produto = await SemearProdutoComSubcategoria();
+
+        var pedido = new Pedido(usuarioId, enderecoId, 20m, 10m, "Correios", "PAC", 3, 7);
+        pedido.AcrescentarItem(produto.ProdutoId, 3, 5m, 5m, "Leve 3, pague 2");
+        await repositorio.AdicionarComPagamento(pedido, new Pagamento(pedido.PedidoId, MetodoPagamento.Pix, 20m));
+        await unidadeDeTrabalho.SalvarAlteracoes();
+        Contexto.ChangeTracker.Clear();
+
+        var encontrado = await repositorio.Buscar(pedido.PedidoId, usuarioId);
+
+        var item = Assert.Single(encontrado!.Itens);
+        Assert.Equal(5m, item.DescontoDaPromocao);
+        Assert.Equal("Leve 3, pague 2", item.RotuloDaPromocao);
+        Assert.Equal(10m, item.CalcularValorDaLinha());
+    }
+
+    [Fact]
     public async Task Dado_PedidoDeOutroUsuario_Quando_Buscar_Entao_DeveRetornarNulo()
     {
         var unidadeDeTrabalho = new UnitOfWork(Contexto);

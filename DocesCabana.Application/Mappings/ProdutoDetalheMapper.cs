@@ -1,5 +1,6 @@
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
+using DocesCabana.Application.Helpers;
 using DocesCabana.Domain.Entities;
 
 namespace DocesCabana.Application.Mappings;
@@ -26,12 +27,18 @@ public static class ProdutoDetalheMapper
 
     public static ProdutoDetalheDTO ToDTO(
         Produto produto, ResumoAvaliacoesDTO resumoAvaliacoes, PaginaAvaliacoesDTO paginaAvaliacoes,
-        SituacaoDaAvaliacao? situacaoDaAvaliacao = null) =>
-        new()
+        SituacaoDaAvaliacao? situacaoDaAvaliacao = null, PromocoesVigentes? promocoes = null)
+    {
+        var (precoPromocional, selos) = (promocoes ?? PromocoesVigentes.Nenhuma)
+            .ParaVitrine(produto.ProdutoId, produto.SubcategoriaId, produto.Preco);
+
+        return new()
         {
             ProdutoId = produto.ProdutoId,
             Nome = produto.Nome,
             Preco = produto.Preco,
+            PrecoPromocional = precoPromocional,
+            SelosDePromocao = selos,
             Status = produto.Status,
             ImagemUrl = produto.ImagemUrl,
             Descricao = produto.Descricao,
@@ -41,4 +48,5 @@ public static class ProdutoDetalheMapper
             PaginaAvaliacoes = paginaAvaliacoes,
             SituacaoDaAvaliacao = situacaoDaAvaliacao
         };
+    }
 }

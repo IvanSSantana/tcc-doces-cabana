@@ -15,6 +15,15 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
     {
     }
 
+    public async Task<List<Produto>> BuscarPorIds(IEnumerable<Guid> ids)
+    {
+        var lista = ids.Distinct().ToList();
+
+        return await _context.Produtos
+            .Where(p => lista.Contains(p.ProdutoId))
+            .ToListAsync();
+    }
+
     public async Task<Produto?> BuscarDetalhePorId(Guid id) =>
         await _context.Produtos
             .Include(p => p.Subcategoria)

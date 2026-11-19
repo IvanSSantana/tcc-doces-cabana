@@ -198,3 +198,15 @@
   font-size: 1.1rem;
   font-weight: 600;
 }
+
+/* Promoção aplicada ao item (spec 034) */
+
+.promocao-item-pedido {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--espaco-2);
+    font-size: var(--texto-pequeno);
+    font-weight: 600;
+    color: var(--cor-destaque-escura);
+}

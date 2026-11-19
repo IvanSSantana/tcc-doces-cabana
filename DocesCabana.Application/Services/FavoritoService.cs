@@ -11,15 +11,18 @@ public class FavoritoService : IFavoritoService
 {
     private readonly IFavoritoRepository _favoritoRepository;
     private readonly IProdutoRepository _produtoRepository;
+    private readonly IPromocaoService _promocaoService;
     private readonly IUnitOfWork _unitOfWork;
 
     public FavoritoService(
         IFavoritoRepository favoritoRepository,
         IProdutoRepository produtoRepository,
+        IPromocaoService promocaoService,
         IUnitOfWork unitOfWork)
     {
         _favoritoRepository = favoritoRepository;
         _produtoRepository = produtoRepository;
+        _promocaoService = promocaoService;
         _unitOfWork = unitOfWork;
     }
 
@@ -55,6 +58,8 @@ public class FavoritoService : IFavoritoService
 
         var idsFavoritados = produtosDisponiveis.Select(p => p.ProdutoId).ToHashSet();
 
-        return ProdutoMapper.ToDTO(produtosDisponiveis, idsFavoritados);
+        var promocoes = await _promocaoService.CarregarVigentes();
+
+        return ProdutoMapper.ToDTO(produtosDisponiveis, idsFavoritados, promocoes);
     }
 }

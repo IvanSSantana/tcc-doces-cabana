@@ -141,57 +141,6 @@ public class ProdutoTests
     }
 
     [Fact]
-    public void Dado_PromocaoValida_Quando_AplicarPromocao_Entao_DeveDefinirPromocaoId()
-    {
-        var produto = CriarProduto();
-        var promocaoId = Guid.NewGuid();
-
-        produto.AplicarPromocao(promocaoId);
-
-        Assert.Equal(promocaoId, produto.PromocaoId);
-    }
-
-    [Fact]
-    public void Dado_PromocaoInvalida_Quando_AplicarPromocao_Entao_DeveLancarArgumentException()
-    {
-        var produto = CriarProduto();
-
-        Assert.Throws<ArgumentException>(() =>
-            produto.AplicarPromocao(Guid.Empty));
-    }
-
-    [Fact]
-    public void Dado_ProdutoInativo_Quando_AplicarPromocao_Entao_DeveLancarInvalidOperationException()
-    {
-        var produto = CriarProduto();
-        produto.AlterarStatus(ProdutoStatus.Inativo);
-
-        Assert.Throws<InvalidOperationException>(() =>
-            produto.AplicarPromocao(Guid.NewGuid()));
-    }
-
-    [Fact]
-    public void Dado_ProdutoSemEstoque_Temporariamente_Quando_AplicarPromocao_Entao_DeveLancarInvalidOperationException()
-    {
-        var produto = CriarProduto();
-        produto.AlterarStatus(ProdutoStatus.ForaDeEstoque);
-
-        Assert.Throws<InvalidOperationException>(() =>
-            produto.AplicarPromocao(Guid.NewGuid()));
-    }
-
-    [Fact]
-    public void Dado_PromocaoExistente_Quando_RemoverPromocao_Entao_DeveDeixarPromocaoIdNulo()
-    {
-        var produto = CriarProduto();
-        produto.AplicarPromocao(Guid.NewGuid());
-
-        produto.RemoverPromocao();
-
-        Assert.Null(produto.PromocaoId);
-    }
-
-    [Fact]
     public void Dado_DescricaoNula_Quando_CriarProduto_Entao_DeveAceitar()
     {
         var produto = new Produto(_subcategoriaValida, _nomeValido, _precoValido, _imagemValida,

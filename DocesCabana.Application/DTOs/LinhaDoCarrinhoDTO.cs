@@ -14,6 +14,10 @@ public class LinhaDoCarrinhoDTO
 
     public short Quantidade { get; init; }
 
+    public decimal DescontoDaPromocao { get; init; }
+
+    public string? RotuloDaPromocao { get; init; }
+
     public decimal ValorDaLinha { get; init; }
 
     public MotivoIndisponibilidade MotivoIndisponibilidade { get; init; }

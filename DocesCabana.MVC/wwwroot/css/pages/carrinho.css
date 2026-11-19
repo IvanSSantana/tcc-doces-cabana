@@ -900,3 +900,16 @@
     position: static;
   }
 }
+
+/* Promoção aplicada à linha (spec 034) */
+
+.promocao-item-carrinho {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--espaco-2);
+    margin-top: var(--espaco-1);
+    font-size: var(--texto-pequeno);
+    font-weight: 600;
+    color: var(--cor-destaque-escura);
+}

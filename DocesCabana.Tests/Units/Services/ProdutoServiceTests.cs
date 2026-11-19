@@ -2,6 +2,7 @@ using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
+using DocesCabana.Application.Helpers;
 using DocesCabana.Application.Services;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
@@ -16,6 +17,7 @@ public class ProdutoServiceTests
     private readonly Mock<IAvaliacaoService> _avaliacaoServiceMock;
     private readonly Mock<IFavoritoRepository> _favoritoRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<IPromocaoService> _promocaoServiceMock;
     private readonly ProdutoService _produtoService;
 
     public ProdutoServiceTests()
@@ -24,8 +26,56 @@ public class ProdutoServiceTests
         _avaliacaoServiceMock = new Mock<IAvaliacaoService>();
         _favoritoRepositoryMock = new Mock<IFavoritoRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _promocaoServiceMock = new Mock<IPromocaoService>();
+        _promocaoServiceMock.Setup(s => s.CarregarVigentes()).ReturnsAsync(PromocoesVigentes.Nenhuma);
         _produtoService = new ProdutoService(
-            _produtoRepositoryMock.Object, _avaliacaoServiceMock.Object, _favoritoRepositoryMock.Object, _unitOfWorkMock.Object);
+            _produtoRepositoryMock.Object, _avaliacaoServiceMock.Object, _favoritoRepositoryMock.Object,
+            _promocaoServiceMock.Object, _unitOfWorkMock.Object);
+    }
+
+    private static PromocoesVigentes Percentual10Para(Produto produto) =>
+        new([new Promocao("Dez", TipoDeDesconto.Percentual, 10, null, null,
+                new DateOnly(2026, 11, 20), new DateOnly(2026, 11, 20), null, null, [produto])],
+            new Dictionary<Guid, Guid>());
+
+    [Fact]
+    public async Task Dado_ProdutoEmPromocao_Quando_BuscarDestaquesDaVitrine_Entao_DevePreencherPrecoPromocional()
+    {
+        var produto = new Produto(Guid.NewGuid(), "Brigadeiro", 10m, "https://imagem.com/b.jpg", 0.5m, 10m, 15m, 20m);
+        _produtoRepositoryMock
+            .Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), 1, 8))
+            .ReturnsAsync([produto]);
+        _promocaoServiceMock.Setup(s => s.CarregarVigentes()).ReturnsAsync(Percentual10Para(produto));
+
+        var destaques = await _produtoService.BuscarDestaquesDaVitrine(8);
+
+        Assert.Equal(9m, Assert.Single(destaques).PrecoPromocional);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoEmPromocao_Quando_BuscarDetalhe_Entao_DevePreencherPrecoPromocional()
+    {
+        var produtoId = Guid.NewGuid();
+        ConfigurarDetalheDoProduto(produtoId, usuarioAtual: null);
+        var produto = (await _produtoRepositoryMock.Object.BuscarDetalhePorId(produtoId))!;
+        _promocaoServiceMock.Setup(s => s.CarregarVigentes()).ReturnsAsync(Percentual10Para(produto));
+
+        var detalhe = await _produtoService.BuscarDetalhe(produtoId, OrdenacaoAvaliacao.Relevantes, 5, usuarioAtual: null);
+
+        Assert.Equal(4.5m, detalhe.PrecoPromocional);
+        Assert.Equal(["-10%"], detalhe.SelosDePromocao);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoEmPromocao_Quando_BuscarProdutoPorIdNaGestao_Entao_NaoDeveConsultarPromocoes()
+    {
+        var produto = new Produto(Guid.NewGuid(), "Brigadeiro", 10m, "https://imagem.com/b.jpg", 0.5m, 10m, 15m, 20m);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
+
+        var dto = await _produtoService.BuscarProdutoPorId(produto.ProdutoId);
+
+        Assert.Null(dto.PrecoPromocional);
+        _promocaoServiceMock.Verify(s => s.CarregarVigentes(), Times.Never);
     }
 
     [Fact]

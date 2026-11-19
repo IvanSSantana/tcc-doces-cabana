@@ -1,6 +1,6 @@
 namespace DocesCabana.Domain.Enums;
 
-public enum PromocaoTipo : byte
+public enum TipoDeDesconto : byte
 {
     Percentual   = 0,
     ValorFixo    = 1,

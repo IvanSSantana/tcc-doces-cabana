@@ -122,7 +122,9 @@ public class PedidoService : IPedidoService
             opcaoEscolhida.PrazoMinimoEmDias, opcaoEscolhida.PrazoMaximoEmDias);
 
         foreach (var linha in carrinho.Linhas)
-            pedido.AcrescentarItem(linha.ProdutoId, linha.Quantidade, linha.PrecoUnitario);
+            pedido.AcrescentarItem(
+                linha.ProdutoId, linha.Quantidade, linha.PrecoUnitario,
+                linha.DescontoDaPromocao, linha.RotuloDaPromocao);
 
         var pagamento = new Pagamento(pedido.PedidoId, dados.MetodoPagamento, valorTotal);
 

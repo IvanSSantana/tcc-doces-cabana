@@ -24,12 +24,32 @@ public class PromocaoConfiguration : IEntityTypeConfiguration<Promocao>
             .HasColumnType("decimal(18,2)");
 
         builder.Property(p => p.DataInicio)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnType("date");
 
         builder.Property(p => p.DataFim)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnType("date");
 
         builder.Property(p => p.Ativa)
             .IsRequired();
+
+        builder.HasOne(p => p.Categoria)
+            .WithMany()
+            .HasForeignKey(p => p.CategoriaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.Subcategoria)
+            .WithMany()
+            .HasForeignKey(p => p.SubcategoriaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(p => p.Produtos)
+            .WithMany()
+            .UsingEntity("PromocaoProduto");
+
+        builder.Navigation(p => p.Produtos)
+            .HasField("_produtos")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

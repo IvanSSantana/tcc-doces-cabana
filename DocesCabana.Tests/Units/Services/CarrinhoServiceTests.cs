@@ -1,6 +1,8 @@
 using DocesCabana.Application.Contracts.Repositories;
+using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
+using DocesCabana.Application.Helpers;
 using DocesCabana.Application.Services;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
@@ -14,6 +16,7 @@ public class CarrinhoServiceTests
     private readonly Mock<IItemCarrinhoRepository> _itemCarrinhoRepositoryMock;
     private readonly Mock<IProdutoRepository> _produtoRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<IPromocaoService> _promocaoServiceMock;
     private readonly CarrinhoService _carrinhoService;
 
     public CarrinhoServiceTests()
@@ -21,11 +24,51 @@ public class CarrinhoServiceTests
         _itemCarrinhoRepositoryMock = new Mock<IItemCarrinhoRepository>();
         _produtoRepositoryMock = new Mock<IProdutoRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _promocaoServiceMock = new Mock<IPromocaoService>();
+        _promocaoServiceMock.Setup(s => s.CarregarVigentes()).ReturnsAsync(PromocoesVigentes.Nenhuma);
 
         _carrinhoService = new CarrinhoService(
             _itemCarrinhoRepositoryMock.Object,
             _produtoRepositoryMock.Object,
+            _promocaoServiceMock.Object,
             _unitOfWorkMock.Object);
+    }
+
+    private void ColocarEmPromocaoDe10PorCento(Produto produto)
+    {
+        var promocao = new Promocao("Dez", TipoDeDesconto.Percentual, 10, null, null,
+            new DateOnly(2026, 11, 20), new DateOnly(2026, 11, 20), null, null, [produto]);
+        _promocaoServiceMock.Setup(s => s.CarregarVigentes())
+            .ReturnsAsync(new PromocoesVigentes([promocao], new Dictionary<Guid, Guid>()));
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoEmPromocao_Quando_ObterDoUsuario_Entao_LinhaESubtotalDevemSerLiquidos()
+    {
+        var produto = CriarProduto(preco: 10m);
+        var usuarioId = Guid.NewGuid();
+        var item = new ItemCarrinho(usuarioId, produto.ProdutoId, 3);
+        typeof(ItemCarrinho).GetProperty(nameof(ItemCarrinho.Produto))!.SetValue(item, produto);
+        _itemCarrinhoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId)).ReturnsAsync([item]);
+        ColocarEmPromocaoDe10PorCento(produto);
+
+        var carrinho = await _carrinhoService.ObterDoUsuario(usuarioId);
+
+        Assert.Equal(27m, Assert.Single(carrinho.Linhas).ValorDaLinha);
+        Assert.Equal(27m, carrinho.Subtotal);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoEmPromocao_Quando_MontarAvulso_Entao_LinhaESubtotalDevemSerLiquidos()
+    {
+        var produto = CriarProduto(preco: 10m);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
+        ColocarEmPromocaoDe10PorCento(produto);
+
+        var carrinho = await _carrinhoService.MontarAvulso([new ItemDoCarrinhoDTO(produto.ProdutoId, 2)]);
+
+        Assert.Equal(18m, Assert.Single(carrinho.Linhas).ValorDaLinha);
+        Assert.Equal(18m, carrinho.Subtotal);
     }
 
     private static Produto CriarProduto(ProdutoStatus status = ProdutoStatus.Ativo, decimal preco = 10m) =>

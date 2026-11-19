@@ -123,6 +123,18 @@ public class PedidoTests
     }
 
     [Fact]
+    public void Dado_ItemComPromocao_Quando_AcrescentarItem_Entao_DeveGuardarDescontoERotulo()
+    {
+        var pedido = CriarPedido();
+
+        pedido.AcrescentarItem(Guid.NewGuid(), 3, 10m, 10m, "Leve 3, pague 2");
+
+        var item = Assert.Single(pedido.Itens);
+        Assert.Equal(10m, item.DescontoDaPromocao);
+        Assert.Equal("Leve 3, pague 2", item.RotuloDaPromocao);
+    }
+
+    [Fact]
     public void Dado_PedidoComItens_Quando_LerAColecao_Entao_DeveSerSomenteLeitura()
     {
         var pedido = CriarPedido();

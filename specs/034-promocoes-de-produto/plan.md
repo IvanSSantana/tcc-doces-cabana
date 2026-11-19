@@ -44,6 +44,7 @@ respondida: cupom e promoção na vitrine são dois conceitos.
 | D18 | **O seletor de produtos lista só os produtos `Ativo`, agrupados por subcategoria, com um campo de busca que filtra por nome no navegador.** Sem JavaScript, a lista aparece inteira e funciona. Na edição, um produto escolhido que deixou de estar `Ativo` sai da lista e, ao salvar, sai da promoção. Um aviso no formulário explica isso. | É coerente com a invariante de D9. A busca no navegador basta para 100 produtos, sem endpoint novo. | Listar também produtos inativos: a entidade recusaria salvar. |
 | D19 | **O menu "Administração" do cabeçalho ganha o item "Promoções".** | É o único caminho de navegação da área administrativa (`Header/Default.cshtml`). | Link só na tela de produtos: a tela ficaria escondida. |
 | D20 | **Não há promoção de demonstração no seed.** | Os E2E usam o seed da aplicação (`AplicacaoEmExecucao`). Uma promoção semeada mudaria preços que `FechamentoTests` e outros conferem. A demonstração se faz criando uma promoção pela tela. | Semear e ajustar os E2E: acopla os testes de fluxo a um dado de demonstração. |
+| D22 | **A promoção percentual aceita de 1 a 99.** Decidido na execução. | Com 100%, o desconto do item seria igual ao bruto, e o `ItemPedido` recusa isso (D14). O produto nunca sai de graça, como em D6. | Aceitar desconto igual ao bruto no `ItemPedido`: item a R$ 0,00 no pedido. |
 | D21 | **Nenhum E2E novo.** | O Princípio V pede para justificar o E2E. Cálculo, escolha da melhor promoção, carrinho e fechamento são provados em unidade e integração (`PedidoService.Fechar` com repositórios mockados e o repositório com Postgres real). A tela de admin é um CRUD sem cookie, sessão ou e-mail. | E2E de compra com promoção: repetiria o caminho feliz de `FechamentoTests` mudando só o valor. |
 
 **Fora de escopo:** cupom por código (`035`); frete grátis (`035`);
@@ -272,23 +273,23 @@ Os construtores de `CarrinhoService`, `CatalogoService`, `ProdutoService` e
 
 ## 6. Ordem de execução
 
-- [ ] 1. Renomear `PromocaoTipo` → `TipoDeDesconto` em toda a base. Rodar `dotnet build` e `dotnet test` para confirmar que tudo continua verde.
-- [ ] 2. Testes de `DescontoHelper` (vermelhos) → implementar → verde.
-- [ ] 3. Reescrever `PromocaoTests` (construtor, tipos, quantidades, período, abrangência, invariante de produto, `Alcanca`, `CalcularDesconto` e `EstaVigente`) (vermelhos) → reescrever `Promocao` e criar `AbrangenciaDaPromocao` → verde.
-- [ ] 4. Remover `PromocaoId`, `AplicarPromocao` e `RemoverPromocao` de `Produto`, os testes correspondentes de `ProdutoTests` e `PromocaoId` de `ProdutoDTO`/`ProdutoMapper`.
-- [ ] 5. Testes de `ItemPedido` com desconto (vermelhos) → implementar `ItemPedido` e `Pedido.AcrescentarItem` → verde.
-- [ ] 6. Configurações EF (`Promocao`, `Produto`, `ItemPedido`) → gerar a migration `AddPromocoesDeProduto` → revisar o SQL gerado (a conversão de `timestamptz` para `date` e a remoção da FK do produto).
-- [ ] 7. Testes de integração de `PromocaoRepository` e do item com desconto em `PedidoRepository` (vermelhos) → implementar `PromocaoRepository` e `ProdutoRepository.BuscarPorIds` → verde.
-- [ ] 8. Testes de `HorarioDeBrasilia` e `PromocoesVigentes` (vermelhos) → implementar → verde.
-- [ ] 9. Testes de `PromocaoDTOValidator` (vermelhos) → implementar → verde.
-- [ ] 10. Testes de `PromocaoService` (vigentes com relógio mockado, cadastrar, atualizar, ativar/desativar e `KeyNotFoundException`) (vermelhos) → implementar o serviço e o mapper. Registrar a injeção de dependência e `TimeProvider.System` → verde.
-- [ ] 11. Testes de `CarrinhoService` e `CarrinhoMapper` com promoção (linha líquida, subtotal, maior desconto) (vermelhos) → implementar → verde.
-- [ ] 12. Testes de `PedidoService.Fechar` gravando o desconto no item (vermelhos) → implementar → verde.
-- [ ] 13. Testes de vitrine em `CatalogoService`, `ProdutoService` (destaques e detalhe) e `FavoritoService` (vermelhos) → implementar os DTOs e mappers → verde.
-- [ ] 14. Testes de `Admin/PromocaoController` (vermelhos) → controller, view model, views, JS e CSS → verde.
-- [ ] 15. Item "Promoções" no menu de admin.
-- [ ] 16. Vitrine: cartão, página do produto, carrinho, confirmação e detalhe do pedido (views e CSS).
-- [ ] 17. Emenda PATCH 1.7.1 da constituição (exemplo do Princípio II) e linha da `034` no `specs/README.md`.
+- [x] 1. Renomear `PromocaoTipo` → `TipoDeDesconto` em toda a base. Rodar `dotnet build` e `dotnet test` para confirmar que tudo continua verde.
+- [x] 2. Testes de `DescontoHelper` (vermelhos) → implementar → verde.
+- [x] 3. Reescrever `PromocaoTests` (construtor, tipos, quantidades, período, abrangência, invariante de produto, `Alcanca`, `CalcularDesconto` e `EstaVigente`) (vermelhos) → reescrever `Promocao` e criar `AbrangenciaDaPromocao` → verde.
+- [x] 4. Remover `PromocaoId`, `AplicarPromocao` e `RemoverPromocao` de `Produto`, os testes correspondentes de `ProdutoTests` e `PromocaoId` de `ProdutoDTO`/`ProdutoMapper`.
+- [x] 5. Testes de `ItemPedido` com desconto (vermelhos) → implementar `ItemPedido` e `Pedido.AcrescentarItem` → verde.
+- [x] 6. Configurações EF (`Promocao`, `Produto`, `ItemPedido`) → gerar a migration `AddPromocoesDeProduto` → revisar o SQL gerado (a conversão de `timestamptz` para `date` e a remoção da FK do produto).
+- [x] 7. Testes de integração de `PromocaoRepository` e do item com desconto em `PedidoRepository` (vermelhos) → implementar `PromocaoRepository` e `ProdutoRepository.BuscarPorIds` → verde.
+- [x] 8. Testes de `HorarioDeBrasilia` e `PromocoesVigentes` (vermelhos) → implementar → verde.
+- [x] 9. Testes de `PromocaoDTOValidator` (vermelhos) → implementar → verde.
+- [x] 10. Testes de `PromocaoService` (vigentes com relógio mockado, cadastrar, atualizar, ativar/desativar e `KeyNotFoundException`) (vermelhos) → implementar o serviço e o mapper. Registrar a injeção de dependência e `TimeProvider.System` → verde.
+- [x] 11. Testes de `CarrinhoService` e `CarrinhoMapper` com promoção (linha líquida, subtotal, maior desconto) (vermelhos) → implementar → verde.
+- [x] 12. Testes de `PedidoService.Fechar` gravando o desconto no item (vermelhos) → implementar → verde.
+- [x] 13. Testes de vitrine em `CatalogoService`, `ProdutoService` (destaques e detalhe) e `FavoritoService` (vermelhos) → implementar os DTOs e mappers → verde.
+- [x] 14. Testes de `Admin/PromocaoController` (vermelhos) → controller, view model, views, JS e CSS → verde.
+- [x] 15. Item "Promoções" no menu de admin.
+- [x] 16. Vitrine: cartão, página do produto, carrinho, confirmação e detalhe do pedido (views e CSS).
+- [x] 17. Emenda PATCH 1.7.1 da constituição (exemplo do Princípio II) e linha da `034` no `specs/README.md`.
 - [ ] 18. `dotnet build` e `dotnet test` completos (unidade, integração e E2E).
 - [ ] 19. Verificação manual da seção 7.
 

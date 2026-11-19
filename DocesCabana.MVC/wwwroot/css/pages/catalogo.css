@@ -420,7 +420,6 @@
   color: var(--cor-sobre-primaria);
 }
 
-.grade-produtos .card-produto:hover .botao-adicionar-card:not(:disabled),
 .grade-produtos .botao-adicionar-card:hover:not(:disabled) {
   background-color: var(--cor-destaque-escura);
 }

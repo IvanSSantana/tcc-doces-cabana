@@ -1,0 +1,99 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Application.Enums
+@model IReadOnlyList<ResumoDePromocaoDTO>
+@{
+    ViewData["Title"] = "Promoções";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/pages/gestao-produtos.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/gestao-promocoes.css" asp-append-version="true">
+
+<main class="container-gestao-produtos">
+    <div class="cabecalho-gestao">
+        <h1 class="titulo-gestao">Promoções</h1>
+        <a asp-area="Admin" asp-controller="Promocao" asp-action="Cadastro" class="botao botao--primario">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Nova promoção
+        </a>
+    </div>
+
+    @if (TempData["Confirmacao"] is string confirmacao)
+    {
+        <div class="resumo-sucesso" role="status">
+            <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <p class="gestao-vazia">Nenhuma promoção cadastrada. Use “+ Nova promoção” para começar.</p>
+    }
+    else
+    {
+        <div class="painel tabela-rolavel">
+            <table class="tabela-produtos tabela-promocoes">
+                <thead>
+                    <tr>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Desconto</th>
+                        <th scope="col">Período</th>
+                        <th scope="col">Vale para</th>
+                        <th scope="col">Situação</th>
+                        <th scope="col" class="coluna-acoes"><span class="visualmente-oculto">Ações</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var promocao in Model)
+                    {
+                        var (rotuloDaSituacao, classeDaSituacao) = promocao.Situacao switch
+                        {
+                            SituacaoDaPromocao.Vigente => ("Vigente", "selo-status--ativo"),
+                            SituacaoDaPromocao.Agendada => ("Agendada", "selo-status--agendada"),
+                            SituacaoDaPromocao.Encerrada => ("Encerrada", "selo-status--inativo"),
+                            _ => ("Desativada", "selo-status--sem-estoque")
+                        };
+
+                        <tr>
+                            <td class="coluna-nome">@promocao.Nome</td>
+                            <td><span class="selo-promocao">@promocao.RotuloDoDesconto</span></td>
+                            <td class="coluna-periodo">
+                                @promocao.DataInicio.ToString("dd/MM/yyyy")
+                                @if (promocao.DataFim != promocao.DataInicio)
+                                {
+                                    <text>a @promocao.DataFim.ToString("dd/MM/yyyy")</text>
+                                }
+                            </td>
+                            <td>@promocao.Abrangencia</td>
+                            <td><span class="selo-status @classeDaSituacao">@rotuloDaSituacao</span></td>
+                            <td class="coluna-acoes">
+                                <div class="acoes-produto">
+                                    <a asp-area="Admin" asp-controller="Promocao" asp-action="Edicao" asp-route-id="@promocao.PromocaoId"
+                                       class="botao botao--icone botao--pequeno botao-icone" title="Editar" aria-label="Editar @promocao.Nome">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </a>
+                                    <form asp-area="Admin" asp-controller="Promocao" asp-action="@(promocao.Ativa ? "Desativar" : "Ativar")"
+                                          asp-route-id="@promocao.PromocaoId" method="post">
+                                        @Html.AntiForgeryToken()
+                                        @if (promocao.Ativa)
+                                        {
+                                            <button type="submit" class="botao botao--icone botao--pequeno botao-icone" title="Desativar" aria-label="Desativar @promocao.Nome">
+                                                <i class="fa-solid fa-pause" aria-hidden="true"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="botao botao--icone botao--pequeno botao-icone" title="Ativar" aria-label="Ativar @promocao.Nome">
+                                                <i class="fa-solid fa-play" aria-hidden="true"></i>
+                                            </button>
+                                        }
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</main>

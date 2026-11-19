@@ -53,8 +53,28 @@
                 </div>
             }
 
+            @if (Model.SelosDePromocao.Any())
+            {
+                <div class="selos-promocao-produto">
+                    @foreach (var selo in Model.SelosDePromocao)
+                    {
+                        <span class="selo-promocao">@selo</span>
+                    }
+                </div>
+            }
+
             <div class="linha-preco-quantidade">
-                <span class="preco-produto">R$ @Model.Preco.ToString("N2")</span>
+                @if (Model.PrecoPromocional is decimal precoPromocional)
+                {
+                    <span class="bloco-preco-produto">
+                        <s class="preco-produto--original"><span class="visualmente-oculto">De </span>R$ @Model.Preco.ToString("N2")</s>
+                        <span class="preco-produto"><span class="visualmente-oculto">por </span>R$ @precoPromocional.ToString("N2")</span>
+                    </span>
+                }
+                else
+                {
+                    <span class="preco-produto">R$ @Model.Preco.ToString("N2")</span>
+                }
 
                 @if (foraDeEstoque)
                 {

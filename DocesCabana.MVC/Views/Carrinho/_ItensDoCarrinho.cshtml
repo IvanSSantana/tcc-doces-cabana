@@ -48,6 +48,14 @@
                             <div class="detalhes-item-carrinho">
                                 <span class="nome-item-carrinho">@linha.Nome</span>
 
+                                @if (linha.Disponivel && linha.RotuloDaPromocao is not null)
+                                {
+                                    <span class="promocao-item-carrinho">
+                                        <span class="selo-promocao">@linha.RotuloDaPromocao</span>
+                                        <span>&minus; R$ @linha.DescontoDaPromocao.ToString("N2")</span>
+                                    </span>
+                                }
+
                                 @if (linha.Disponivel)
                                 {
                                     <div class="colunas-item-carrinho">

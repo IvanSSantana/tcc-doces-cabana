@@ -1,0 +1,200 @@
+@using DocesCabana.Domain.Enums
+@model FormularioDePromocaoViewModel
+
+@{
+    var promocao = Model.Promocao;
+    var acao = Model.EhNova ? "Cadastro" : "Edicao";
+    var errosGerais = ViewData.ModelState[string.Empty]?.Errors;
+
+    var nomeDaSubcategoria = Model.Categorias
+        .SelectMany(c => c.Subcategorias.Select(s => (s.SubcategoriaId, Rotulo: $"{c.Nome} › {s.Nome}")))
+        .ToDictionary(par => par.SubcategoriaId, par => par.Rotulo);
+
+    var gruposDeProdutos = Model.Produtos
+        .GroupBy(p => p.SubcategoriaId)
+        .Select(g => (Rotulo: nomeDaSubcategoria.GetValueOrDefault(g.Key, "Sem subcategoria"), Produtos: g.ToList()))
+        .OrderBy(g => g.Rotulo);
+
+    var tipos = new[]
+    {
+        (TipoDeDesconto.Percentual, "Percentual (%)"),
+        (TipoDeDesconto.ValorFixo, "Valor fixo por unidade (R$)"),
+        (TipoDeDesconto.CompreXLeveY, "Leve X, pague Y"),
+    };
+
+    var abrangencias = new[]
+    {
+        (AbrangenciaDaPromocao.ProdutosEscolhidos, "Produtos escolhidos"),
+        (AbrangenciaDaPromocao.Categoria, "Uma categoria"),
+        (AbrangenciaDaPromocao.Subcategoria, "Uma subcategoria"),
+    };
+}
+
+<form asp-area="Admin" asp-controller="Promocao" asp-action="@acao" method="post"
+      class="formulario-autenticacao formulario-promocao painel" data-formulario-promocao novalidate>
+    @Html.AntiForgeryToken()
+
+    @if (!Model.EhNova)
+    {
+        <input type="hidden" asp-for="Promocao.PromocaoId" />
+    }
+
+    <div class="campo-entrada">
+        <label asp-for="Promocao.Nome">Nome da promoção</label>
+        <input asp-for="Promocao.Nome" class="campo-texto" maxlength="255" placeholder="Ex.: Semana do brigadeiro" required />
+        <span asp-validation-for="Promocao.Nome" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="Promocao.Descricao">Descrição (opcional, só para a equipe)</label>
+        <input asp-for="Promocao.Descricao" class="campo-texto" maxlength="255" />
+        <span asp-validation-for="Promocao.Descricao" class="mensagem-erro"></span>
+    </div>
+
+    <fieldset class="grupo-opcoes">
+        <legend>Tipo de desconto</legend>
+        <div class="opcoes-em-linha">
+            @foreach (var (tipo, rotulo) in tipos)
+            {
+                <label class="opcao-radio">
+                    <input type="radio" name="Promocao.Tipo" value="@tipo" checked="@(promocao.Tipo == tipo)" data-escolha-tipo />
+                    @rotulo
+                </label>
+            }
+        </div>
+        <span asp-validation-for="Promocao.Tipo" class="mensagem-erro"></span>
+    </fieldset>
+
+    <div class="campo-entrada" data-campo-do-tipo="@TipoDeDesconto.Percentual @TipoDeDesconto.ValorFixo">
+        <label asp-for="Promocao.Valor">Valor do desconto</label>
+        <input asp-for="Promocao.Valor" type="text" inputmode="decimal" class="campo-texto campo-curto"
+               aria-describedby="ajuda-valor" />
+        <small id="ajuda-valor" class="texto-ajuda">
+            Percentual: de 1 a 99. Valor fixo: em reais, descontado de cada unidade. Um produto com preço menor ou igual ao valor fixo não entra na promoção.
+        </small>
+        <span asp-validation-for="Promocao.Valor" class="mensagem-erro"></span>
+    </div>
+
+    <div class="linha-dupla" data-campo-do-tipo="@TipoDeDesconto.CompreXLeveY">
+        <div class="campo-entrada">
+            <label asp-for="Promocao.QuantidadeLeve">Leve (unidades)</label>
+            <input asp-for="Promocao.QuantidadeLeve" type="number" min="2" step="1" class="campo-texto" />
+            <span asp-validation-for="Promocao.QuantidadeLeve" class="mensagem-erro"></span>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="Promocao.QuantidadePague">Pague (unidades)</label>
+            <input asp-for="Promocao.QuantidadePague" type="number" min="1" step="1" class="campo-texto" />
+            <span asp-validation-for="Promocao.QuantidadePague" class="mensagem-erro"></span>
+        </div>
+    </div>
+
+    <div class="linha-dupla">
+        <div class="campo-entrada">
+            <label asp-for="Promocao.DataInicio">Começa em</label>
+            <input asp-for="Promocao.DataInicio" type="date" asp-format="{0:yyyy-MM-dd}" class="campo-texto" required />
+            <span asp-validation-for="Promocao.DataInicio" class="mensagem-erro"></span>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="Promocao.DataFim">Termina em (inclusive)</label>
+            <input asp-for="Promocao.DataFim" type="date" asp-format="{0:yyyy-MM-dd}" class="campo-texto" required />
+            <span asp-validation-for="Promocao.DataFim" class="mensagem-erro"></span>
+        </div>
+    </div>
+
+    <fieldset class="grupo-opcoes">
+        <legend>Vale para</legend>
+        <div class="opcoes-em-linha">
+            @foreach (var (abrangencia, rotulo) in abrangencias)
+            {
+                <label class="opcao-radio">
+                    <input type="radio" name="Promocao.Abrangencia" value="@abrangencia" checked="@(promocao.Abrangencia == abrangencia)" data-escolha-abrangencia />
+                    @rotulo
+                </label>
+            }
+        </div>
+    </fieldset>
+
+    <div class="campo-entrada" data-campo-da-abrangencia="@AbrangenciaDaPromocao.Categoria">
+        <label asp-for="Promocao.CategoriaId">Categoria</label>
+        <select asp-for="Promocao.CategoriaId" class="campo-texto">
+            <option value="">Selecione...</option>
+            @foreach (var categoria in Model.Categorias.OrderBy(c => c.Nome))
+            {
+                <option value="@categoria.CategoriaId" selected="@(promocao.CategoriaId == categoria.CategoriaId)">@categoria.Nome</option>
+            }
+        </select>
+        <span asp-validation-for="Promocao.CategoriaId" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada" data-campo-da-abrangencia="@AbrangenciaDaPromocao.Subcategoria">
+        <label asp-for="Promocao.SubcategoriaId">Subcategoria</label>
+        <select asp-for="Promocao.SubcategoriaId" class="campo-texto">
+            <option value="">Selecione...</option>
+            @foreach (var categoria in Model.Categorias.OrderBy(c => c.Nome))
+            {
+                <optgroup label="@categoria.Nome">
+                    @foreach (var subcategoria in categoria.Subcategorias.OrderBy(s => s.Nome))
+                    {
+                        <option value="@subcategoria.SubcategoriaId" selected="@(promocao.SubcategoriaId == subcategoria.SubcategoriaId)">@subcategoria.Nome</option>
+                    }
+                </optgroup>
+            }
+        </select>
+        <span asp-validation-for="Promocao.SubcategoriaId" class="mensagem-erro"></span>
+    </div>
+
+    <fieldset class="grupo-opcoes seletor-de-produtos" data-campo-da-abrangencia="@AbrangenciaDaPromocao.ProdutosEscolhidos">
+        <legend>Produtos escolhidos</legend>
+
+        <p class="texto-ajuda">
+            Só aparecem produtos ativos. Um produto que ficar inativo ou fora de estoque sai da promoção quando ela for salva de novo.
+        </p>
+
+        <div class="campo-entrada busca-de-produtos" data-busca-de-produtos hidden>
+            <label for="busca-produto-promocao">Buscar produto</label>
+            <input type="search" id="busca-produto-promocao" class="campo-texto" placeholder="Digite parte do nome..." autocomplete="off" />
+        </div>
+
+        @if (!Model.Produtos.Any())
+        {
+            <p class="gestao-vazia">Nenhum produto ativo para escolher.</p>
+        }
+
+        @foreach (var grupo in gruposDeProdutos)
+        {
+            <div class="grupo-de-produtos" data-grupo-de-produtos>
+                <p class="titulo-grupo-de-produtos">@grupo.Rotulo</p>
+                <div class="lista-de-produtos">
+                    @foreach (var produto in grupo.Produtos)
+                    {
+                        <label class="opcao-produto" data-nome-do-produto="@produto.Nome.ToLowerInvariant()">
+                            <input type="checkbox" name="Promocao.ProdutoIds" value="@produto.ProdutoId"
+                                   checked="@promocao.ProdutoIds.Contains(produto.ProdutoId)" />
+                            <span>@produto.Nome</span>
+                            <span class="preco-opcao-produto">@produto.Preco.ToString("C")</span>
+                        </label>
+                    }
+                </div>
+            </div>
+        }
+
+        <span asp-validation-for="Promocao.ProdutoIds" class="mensagem-erro exibicao-bloco"></span>
+    </fieldset>
+
+    @if (errosGerais != null && errosGerais.Any())
+    {
+        <div class="resumo-erros">
+            @foreach (var erro in errosGerais)
+            {
+                <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+            }
+        </div>
+    }
+
+    <div class="rodape-formulario-promocao">
+        <a asp-area="Admin" asp-controller="Promocao" asp-action="Index" class="botao botao--secundario">Cancelar</a>
+        <button type="submit" class="botao botao--primario">@(Model.EhNova ? "Cadastrar promoção" : "Salvar alterações")</button>
+    </div>
+</form>

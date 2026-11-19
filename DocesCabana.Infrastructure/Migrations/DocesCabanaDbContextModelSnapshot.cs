@@ -178,6 +178,11 @@ namespace DocesCabana.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("DescontoDaPromocao")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(10,2)")
+                        .HasDefaultValue(0m);
+
                     b.Property<Guid>("PedidoId")
                         .HasColumnType("uuid");
 
@@ -189,6 +194,10 @@ namespace DocesCabana.Infrastructure.Migrations
 
                     b.Property<short>("Quantidade")
                         .HasColumnType("smallint");
+
+                    b.Property<string>("RotuloDaPromocao")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("ItemPedidoId");
 
@@ -322,9 +331,6 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.Property<decimal>("Preco")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid?>("PromocaoId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("SemAcucar")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -337,8 +343,6 @@ namespace DocesCabana.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("ProdutoId");
-
-                    b.HasIndex("PromocaoId");
 
                     b.HasIndex("SubcategoriaId");
 
@@ -354,11 +358,14 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.Property<bool>("Ativa")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime>("DataFim")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<Guid?>("CategoriaId")
+                        .HasColumnType("uuid");
 
-                    b.Property<DateTime>("DataInicio")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("DataFim")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("DataInicio")
+                        .HasColumnType("date");
 
                     b.Property<string>("Descricao")
                         .HasMaxLength(255)
@@ -369,6 +376,15 @@ namespace DocesCabana.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<short?>("QuantidadeLeve")
+                        .HasColumnType("smallint");
+
+                    b.Property<short?>("QuantidadePague")
+                        .HasColumnType("smallint");
+
+                    b.Property<Guid?>("SubcategoriaId")
+                        .HasColumnType("uuid");
+
                     b.Property<byte>("Tipo")
                         .HasColumnType("smallint");
 
@@ -376,6 +392,10 @@ namespace DocesCabana.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("PromocaoId");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("SubcategoriaId");
 
                     b.ToTable("Promocao", (string)null);
                 });
@@ -642,6 +662,21 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PromocaoProduto", b =>
+                {
+                    b.Property<Guid>("ProdutosProdutoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PromocaoId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ProdutosProdutoId", "PromocaoId");
+
+                    b.HasIndex("PromocaoId");
+
+                    b.ToTable("PromocaoProduto");
+                });
+
             modelBuilder.Entity("DocesCabana.Domain.Entities.Avaliacao", b =>
                 {
                     b.HasOne("DocesCabana.Domain.Entities.Produto", "Produto")
@@ -772,18 +807,28 @@ namespace DocesCabana.Infrastructure.Migrations
 
             modelBuilder.Entity("DocesCabana.Domain.Entities.Produto", b =>
                 {
-                    b.HasOne("DocesCabana.Domain.Entities.Promocao", "Promocao")
-                        .WithMany()
-                        .HasForeignKey("PromocaoId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("DocesCabana.Domain.Entities.Subcategoria", "Subcategoria")
                         .WithMany()
                         .HasForeignKey("SubcategoriaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Promocao");
+                    b.Navigation("Subcategoria");
+                });
+
+            modelBuilder.Entity("DocesCabana.Domain.Entities.Promocao", b =>
+                {
+                    b.HasOne("DocesCabana.Domain.Entities.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DocesCabana.Domain.Entities.Subcategoria", "Subcategoria")
+                        .WithMany()
+                        .HasForeignKey("SubcategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Categoria");
 
                     b.Navigation("Subcategoria");
                 });
@@ -872,6 +917,21 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.HasOne("DocesCabana.Infrastructure.Identity.ContaDeAcesso", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PromocaoProduto", b =>
+                {
+                    b.HasOne("DocesCabana.Domain.Entities.Produto", null)
+                        .WithMany()
+                        .HasForeignKey("ProdutosProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DocesCabana.Domain.Entities.Promocao", null)
+                        .WithMany()
+                        .HasForeignKey("PromocaoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -16,7 +16,9 @@ public static class PedidoMapper
                 i.Produto?.ImagemUrl ?? string.Empty,
                 i.Quantidade,
                 i.PrecoUnitario,
-                i.PrecoUnitario * i.Quantidade))
+                i.CalcularValorDaLinha(),
+                i.DescontoDaPromocao,
+                i.RotuloDaPromocao))
             .ToList(),
 
         ValorDosProdutos = pedido.Valor - pedido.ValorDoFrete,
@@ -48,7 +50,9 @@ public static class PedidoMapper
                 i.Produto?.ImagemUrl ?? string.Empty,
                 i.Quantidade,
                 i.PrecoUnitario,
-                i.PrecoUnitario * i.Quantidade))
+                i.CalcularValorDaLinha(),
+                i.DescontoDaPromocao,
+                i.RotuloDaPromocao))
             .ToList(),
         Endereco = pedido.EnderecoEntrega is not null ? EnderecoMapper.ToDTO(pedido.EnderecoEntrega) : new EnderecoDTO(),
         Transportadora = pedido.Transportadora,

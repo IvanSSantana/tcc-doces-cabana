@@ -1,4 +1,6 @@
 using DocesCabana.Application.Contracts.Repositories;
+using DocesCabana.Application.Contracts.Services;
+using DocesCabana.Application.Helpers;
 using DocesCabana.Application.Services;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
@@ -12,6 +14,7 @@ public class FavoritoServiceTests
     private readonly Mock<IFavoritoRepository> _favoritoRepositoryMock;
     private readonly Mock<IProdutoRepository> _produtoRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<IPromocaoService> _promocaoServiceMock;
     private readonly FavoritoService _favoritoService;
 
     public FavoritoServiceTests()
@@ -20,10 +23,33 @@ public class FavoritoServiceTests
         _produtoRepositoryMock = new Mock<IProdutoRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
 
+        _promocaoServiceMock = new Mock<IPromocaoService>();
+        _promocaoServiceMock.Setup(s => s.CarregarVigentes()).ReturnsAsync(PromocoesVigentes.Nenhuma);
         _favoritoService = new FavoritoService(
             _favoritoRepositoryMock.Object,
             _produtoRepositoryMock.Object,
+            _promocaoServiceMock.Object,
             _unitOfWorkMock.Object);
+    }
+
+    private static PromocoesVigentes Percentual10Para(Produto produto) =>
+        new([new Promocao("Dez", TipoDeDesconto.Percentual, 10, null, null,
+                new DateOnly(2026, 11, 20), new DateOnly(2026, 11, 20), null, null, [produto])],
+            new Dictionary<Guid, Guid>());
+
+    [Fact]
+    public async Task Dado_FavoritoEmPromocao_Quando_ListarDoUsuario_Entao_DevePreencherPrecoPromocional()
+    {
+        var usuarioId = Guid.NewGuid();
+        var produto = CriarProduto();
+        var favorito = new Favorito(produto.ProdutoId, usuarioId);
+        typeof(Favorito).GetProperty(nameof(Favorito.Produto))!.SetValue(favorito, produto);
+        _favoritoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId)).ReturnsAsync([favorito]);
+        _promocaoServiceMock.Setup(s => s.CarregarVigentes()).ReturnsAsync(Percentual10Para(produto));
+
+        var resultado = await _favoritoService.ListarDoUsuario(usuarioId);
+
+        Assert.Equal(produto.Preco * 0.9m, Assert.Single(resultado).PrecoPromocional);
     }
 
     private static Produto CriarProduto(ProdutoStatus status = ProdutoStatus.Ativo) =>

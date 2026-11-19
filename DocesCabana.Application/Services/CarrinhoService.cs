@@ -11,22 +11,27 @@ public class CarrinhoService : ICarrinhoService
 {
     private readonly IItemCarrinhoRepository _itemCarrinhoRepository;
     private readonly IProdutoRepository _produtoRepository;
+    private readonly IPromocaoService _promocaoService;
     private readonly IUnitOfWork _unitOfWork;
 
     public CarrinhoService(
         IItemCarrinhoRepository itemCarrinhoRepository,
         IProdutoRepository produtoRepository,
+        IPromocaoService promocaoService,
         IUnitOfWork unitOfWork)
     {
         _itemCarrinhoRepository = itemCarrinhoRepository;
         _produtoRepository = produtoRepository;
+        _promocaoService = promocaoService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<CarrinhoDTO> ObterDoUsuario(Guid usuarioId)
     {
         var itens = await _itemCarrinhoRepository.BuscarPorUsuario(usuarioId);
-        return CarrinhoMapper.ToDTO(itens);
+        var promocoes = await _promocaoService.CarregarVigentes();
+
+        return CarrinhoMapper.ToDTO(itens, promocoes: promocoes);
     }
 
     public async Task Acrescentar(Guid usuarioId, Guid produtoId, short quantidade)
@@ -100,7 +105,9 @@ public class CarrinhoService : ICarrinhoService
                 pares.Add((produto, item.Quantidade));
         }
 
-        return CarrinhoMapper.Montar(pares);
+        var promocoes = await _promocaoService.CarregarVigentes();
+
+        return CarrinhoMapper.Montar(pares, promocoes: promocoes);
     }
 
     public async Task<IReadOnlyList<ItemDoCarrinhoDTO>> AcrescentarAvulso(

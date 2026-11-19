@@ -1,6 +1,6 @@
 # Constituição — Doces Cabana
 
-**Versão:** 1.7.0 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-11-08
+**Versão:** 1.7.1 · **Ratificada em:** 2026-08-07 · **Última alteração:** 2026-11-19
 
 Este documento define os princípios inegociáveis do projeto. Todo `plan.md` é
 validado contra ele antes de virar código. Quando uma decisão técnica
@@ -51,7 +51,7 @@ tarefa exige uma referência nova, ela viola este princípio até prova em contr
 Entidades de domínio são ricas, não sacos de propriedades.
 
 - Propriedades têm `private set`. Estado só muda por método de intenção
-  (`AlterarPreco`, `AplicarPromocao`, `AtualizarDados`) — nunca por atribuição direta.
+  (`AlterarPreco`, `AlterarAbrangencia`, `AtualizarDados`) — nunca por atribuição direta.
 - O construtor público **valida antes de atribuir** e lança `ArgumentException` /
   `ArgumentNullException` com mensagem em português. Um objeto que existe é um
   objeto válido.
@@ -247,3 +247,4 @@ justificativa escrita no `plan.md`:
 | 1.5.0 | 2026-11-03 | Troca de processo: o SDD clássico (`spec` → `plan` → `tasks` → `checklist`) dá lugar a três etapas — debate sem arquivo, `plan.md` com as decisões e execução. Preâmbulo, Princípio VII e Governança passam a citar só o `plan.md`; a Governança ganha o item 3 descrevendo o fluxo. Nenhum princípio técnico muda. MINOR — redefine o processo de governança, não um princípio. |
 | 1.6.0 | 2026-11-06 | Feature `029-correcoes-estruturais`. Remove a "exceção conhecida" do Princípio I: `IUsuarioService` e `IAdministradorService` passam para `Application/Contracts/Services` e `RealizarLogin` retorna `ResultadoDoLogin`, de modo que a `Application` não conhece o Identity. Princípio V aponta o novo caminho de `InfraestruturaPostgresDescartavel`. MINOR — remove uma exceção material, sem incompatibilidade com os demais princípios. |
 | 1.7.0 | 2026-11-08 | Feature `030-enxugamento-da-suite-de-testes`. Princípio V ganha a régua do E2E: só jornada de fluxo crítico, um caminho feliz e no máximo uma proteção por fluxo; regra de negócio se prova em unidade ou integração; layout, responsividade, foco e funcionamento sem JavaScript não têm E2E. A suíte E2E caiu de 182 para 16 testes. MINOR — expansão material de um princípio existente. |
+| 1.7.1 | 2026-11-19 | Feature `034-promocoes-de-produto`. O exemplo de método de intenção do Princípio II troca `AplicarPromocao` por `AlterarAbrangencia`: a promoção deixou de ser uma FK no produto e passou a guardar os produtos que alcança. PATCH — corrige um exemplo, não muda regra. |

@@ -11,6 +11,10 @@ public class ProdutoDetalheDTO
 
     public decimal Preco { get; init; }
 
+    public decimal? PrecoPromocional { get; init; }
+
+    public IReadOnlyList<string> SelosDePromocao { get; init; } = [];
+
     public ProdutoStatus Status { get; init; }
 
     public string ImagemUrl { get; init; } = string.Empty;

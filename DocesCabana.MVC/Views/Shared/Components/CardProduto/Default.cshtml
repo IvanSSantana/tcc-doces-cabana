@@ -46,7 +46,27 @@
 
     <a asp-controller="Produto" asp-action="Detalhes" asp-route-id="@Model.ProdutoId" class="nome-card">@Model.Nome</a>
 
-    <div class="preco-card">R$ @Model.Preco.ToString("N2")</div>
+    @if (Model.SelosDePromocao.Any())
+    {
+        <div class="selos-promocao-card">
+            @foreach (var selo in Model.SelosDePromocao)
+            {
+                <span class="selo-promocao">@selo</span>
+            }
+        </div>
+    }
+
+    @if (Model.PrecoPromocional is decimal precoPromocional)
+    {
+        <div class="preco-card">
+            <s class="preco-card--original"><span class="visualmente-oculto">De </span>R$ @Model.Preco.ToString("N2")</s>
+            <span class="preco-card--promocional"><span class="visualmente-oculto">por </span>R$ @precoPromocional.ToString("N2")</span>
+        </div>
+    }
+    else
+    {
+        <div class="preco-card">R$ @Model.Preco.ToString("N2")</div>
+    }
 
     @{
         var foraDeCompra = Model.Status != ProdutoStatus.Ativo;

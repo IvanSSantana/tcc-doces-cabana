@@ -18,8 +18,6 @@ public class ProdutoDTO
 
     public Guid SubcategoriaId { get; init; }
 
-    public Guid? PromocaoId { get; init; }
-
     public bool EstaFavorito { get; init; }
 
     public bool SemAcucar { get; init; }
@@ -32,6 +30,10 @@ public class ProdutoDTO
 
     public decimal Comprimento { get; init; }
 
+    public decimal? PrecoPromocional { get; init; }
+
+    public IReadOnlyList<string> SelosDePromocao { get; init; } = [];
+
     public ProdutoDTO ComImagem(string imagemUrl) => new()
     {
         ProdutoId = ProdutoId,
@@ -41,12 +43,13 @@ public class ProdutoDTO
         ImagemUrl = imagemUrl,
         Descricao = Descricao,
         SubcategoriaId = SubcategoriaId,
-        PromocaoId = PromocaoId,
         EstaFavorito = EstaFavorito,
         SemAcucar = SemAcucar,
         Peso = Peso,
         Altura = Altura,
         Largura = Largura,
-        Comprimento = Comprimento
+        Comprimento = Comprimento,
+        PrecoPromocional = PrecoPromocional,
+        SelosDePromocao = SelosDePromocao
     };
 }

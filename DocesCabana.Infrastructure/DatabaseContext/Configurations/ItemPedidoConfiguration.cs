@@ -18,6 +18,14 @@ public class ItemPedidoConfiguration : IEntityTypeConfiguration<ItemPedido>
             .IsRequired()
             .HasColumnType("decimal(18,2)");
 
+        builder.Property(i => i.DescontoDaPromocao)
+            .IsRequired()
+            .HasColumnType("decimal(10,2)")
+            .HasDefaultValue(0m);
+
+        builder.Property(i => i.RotuloDaPromocao)
+            .HasMaxLength(100);
+
         builder.HasOne(i => i.Produto)
             .WithMany()
             .HasForeignKey(i => i.ProdutoId)

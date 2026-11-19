@@ -74,7 +74,7 @@ public class ProdutoGestaoRepositoryIntegrationTests : InfraestruturaPostgresDes
         var repositorio = new ProdutoRepository(Contexto);
         var servico = new ProdutoService(
             repositorio, new Mock<IAvaliacaoService>().Object, new Mock<DocesCabana.Application.Contracts.Repositories.IFavoritoRepository>().Object,
-            new UnitOfWork(Contexto));
+            new Mock<IPromocaoService>().Object, new UnitOfWork(Contexto));
         var dto = new ProdutoDTO
         {
             ProdutoId = produto.ProdutoId, Nome = "Bolo Editado", Preco = 19.9m, Status = ProdutoStatus.ForaDeEstoque,

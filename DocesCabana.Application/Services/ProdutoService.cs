@@ -15,15 +15,17 @@ public class ProdutoService : IProdutoService
     private readonly IProdutoRepository _produtoRepository;
     private readonly IAvaliacaoService _avaliacaoService;
     private readonly IFavoritoRepository _favoritoRepository;
+    private readonly IPromocaoService _promocaoService;
     private readonly IUnitOfWork _unitOfWork;
 
     public ProdutoService(
         IProdutoRepository produtoRepository, IAvaliacaoService avaliacaoService,
-        IFavoritoRepository favoritoRepository, IUnitOfWork unitOfWork)
+        IFavoritoRepository favoritoRepository, IPromocaoService promocaoService, IUnitOfWork unitOfWork)
     {
         _produtoRepository = produtoRepository;
         _avaliacaoService = avaliacaoService;
         _favoritoRepository = favoritoRepository;
+        _promocaoService = promocaoService;
         _unitOfWork = unitOfWork;
     }
 
@@ -60,7 +62,9 @@ public class ProdutoService : IProdutoService
             ? await _favoritoRepository.IdsPorUsuario(usuarioId.Value, produtos.Select(p => p.ProdutoId))
             : [];
 
-        return ProdutoMapper.ToDTO(produtos, idsFavoritados);
+        var promocoes = await _promocaoService.CarregarVigentes();
+
+        return ProdutoMapper.ToDTO(produtos, idsFavoritados, promocoes);
     }
 
     public async Task<ProdutoDTO> Cadastrar(ProdutoDTO dto)
@@ -136,6 +140,8 @@ public class ProdutoService : IProdutoService
             ? await _avaliacaoService.VerificarSituacao(id, usuarioId)
             : null;
 
-        return ProdutoDetalheMapper.ToDTO(produto, resumoAvaliacoes, paginaAvaliacoes, situacaoDaAvaliacao);
+        var promocoes = await _promocaoService.CarregarVigentes();
+
+        return ProdutoDetalheMapper.ToDTO(produto, resumoAvaliacoes, paginaAvaliacoes, situacaoDaAvaliacao, promocoes);
     }
 }

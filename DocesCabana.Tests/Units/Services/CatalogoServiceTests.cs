@@ -2,8 +2,10 @@ using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
+using DocesCabana.Application.Helpers;
 using DocesCabana.Application.Services;
 using DocesCabana.Domain.Entities;
+using DocesCabana.Domain.Enums;
 using Moq;
 
 namespace DocesCabana.Tests.Units.Services;
@@ -13,6 +15,7 @@ public class CatalogoServiceTests
     private readonly Mock<ICategoriaService> _categoriaServiceMock;
     private readonly Mock<IProdutoRepository> _produtoRepositoryMock;
     private readonly Mock<IFavoritoRepository> _favoritoRepositoryMock;
+    private readonly Mock<IPromocaoService> _promocaoServiceMock;
     private readonly CatalogoService _catalogoService;
 
     private readonly Guid _categoriaDocesId = Guid.NewGuid();
@@ -24,7 +27,11 @@ public class CatalogoServiceTests
         _categoriaServiceMock = new Mock<ICategoriaService>();
         _produtoRepositoryMock = new Mock<IProdutoRepository>();
         _favoritoRepositoryMock = new Mock<IFavoritoRepository>();
-        _catalogoService = new CatalogoService(_categoriaServiceMock.Object, _produtoRepositoryMock.Object, _favoritoRepositoryMock.Object);
+        _promocaoServiceMock = new Mock<IPromocaoService>();
+        _promocaoServiceMock.Setup(s => s.CarregarVigentes()).ReturnsAsync(PromocoesVigentes.Nenhuma);
+        _catalogoService = new CatalogoService(
+            _categoriaServiceMock.Object, _produtoRepositoryMock.Object, _favoritoRepositoryMock.Object,
+            _promocaoServiceMock.Object);
 
         _categoriaServiceMock.Setup(s => s.ListarComSubcategorias())
             .ReturnsAsync(new List<CategoriaDTO>
@@ -60,6 +67,30 @@ public class CatalogoServiceTests
         bool apenasSemAcucar = false,
         string? termo = null) =>
         new(apelidoDaCategoria, apelidosDeSubcategoria ?? [], apenasSemAcucar, OrdenacaoCatalogo.NomeAZ, termo);
+
+
+    private static PromocoesVigentes Percentual10Para(Produto produto) =>
+        new([new Promocao("Dez", TipoDeDesconto.Percentual, 10, null, null,
+                new DateOnly(2026, 11, 20), new DateOnly(2026, 11, 20), null, null, [produto])],
+            new Dictionary<Guid, Guid>());
+
+    [Fact]
+    public async Task Dado_ProdutoEmPromocao_Quando_Montar_Entao_DevePreencherPrecoPromocional()
+    {
+        var produto = new Produto(_subcategoriaBarrasId, "Barra de doce", 10m,
+            "https://imagem.com/barra.jpg", 0.5m, 10m, 15m, 20m);
+        _produtoRepositoryMock.Setup(r => r.ContarNoCatalogo(It.IsAny<FiltroCatalogoDTO>())).ReturnsAsync(1);
+        _produtoRepositoryMock
+            .Setup(r => r.BuscarPaginaDoCatalogo(It.IsAny<FiltroCatalogoDTO>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync([produto]);
+        _promocaoServiceMock.Setup(s => s.CarregarVigentes()).ReturnsAsync(Percentual10Para(produto));
+
+        var catalogo = await _catalogoService.Montar(CriteriosPadrao(), 1);
+
+        var item = Assert.Single(catalogo.Pagina.Itens);
+        Assert.Equal(9m, item.PrecoPromocional);
+        Assert.Equal(["-10%"], item.SelosDePromocao);
+    }
 
     [Fact]
     public async Task Dado_ApelidoInexistente_Quando_Montar_Entao_DeveLancarKeyNotFoundException()

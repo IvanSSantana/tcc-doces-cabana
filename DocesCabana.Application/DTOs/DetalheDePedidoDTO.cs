@@ -36,4 +36,5 @@ public class DetalheDePedidoDTO
 }
 
 public record ItemDoDetalheDePedidoDTO(
-    string Nome, string ImagemUrl, short Quantidade, decimal PrecoUnitario, decimal ValorDaLinha);
+    string Nome, string ImagemUrl, short Quantidade, decimal PrecoUnitario, decimal ValorDaLinha,
+    decimal DescontoDaPromocao = 0m, string? RotuloDaPromocao = null);

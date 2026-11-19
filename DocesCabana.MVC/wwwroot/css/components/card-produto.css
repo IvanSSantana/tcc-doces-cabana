@@ -14,7 +14,6 @@
     height: 100%;
 }
 
-/* Cartão-papel (D11 da 033): sobe um pouco no hover, a foto amplia 3%. */
 .card-produto:hover {
     border-color: var(--neutro-borda);
     box-shadow: var(--sombra-2);
@@ -153,6 +152,38 @@ a.nome-card {
     margin-bottom: var(--espaco-4);
 }
 
+.preco-card--original {
+    display: block;
+    font-size: var(--texto-pequeno);
+    font-weight: 500;
+    color: var(--neutro-texto-suave);
+}
+
+.preco-card--promocional {
+    display: block;
+    color: var(--cor-destaque);
+}
+
+.selos-promocao-card {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--espaco-1);
+    margin-bottom: var(--espaco-2);
+}
+
+.selo-promocao {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: var(--raio-pilula);
+    background-color: var(--cor-destaque-clara);
+    color: var(--cor-destaque-escura);
+    font-family: var(--fonte-principal);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 .acoes-card {
     display: flex;
     width: 100%;
@@ -209,21 +240,19 @@ a.nome-card {
     text-align: center;
 }
 
-/* O desenho vem de .botao .botao--pequeno; aqui só a largura e a cor de
-   repouso, que fica neutra até o cartão receber atenção. */
 .botao-adicionar-card {
     flex: 1;
     min-height: 38px;
     padding: 0 var(--espaco-3);
 }
 
-.card-produto:hover .botao-adicionar-card:not(:disabled),
+.botao-adicionar-card:hover:not(:disabled),
 .botao-adicionar-card:focus-visible {
     background-color: var(--cor-primaria);
     color: var(--cor-sobre-primaria);
 }
 
-.botao-adicionar-card:hover:not(:disabled) {
+.botao-adicionar-card:active:not(:disabled) {
     background-color: var(--cor-primaria-escura);
     color: var(--cor-sobre-primaria);
 }
