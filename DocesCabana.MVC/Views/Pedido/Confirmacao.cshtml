@@ -42,8 +42,19 @@
     </ul>
 
     <div class="painel painel--rebaixado resumo-confirmacao-pedido">
-        <p>Produtos <strong>R$ @Model.ValorDosProdutos.ToString("N2")</strong></p>
-        <p>Entrega (@Model.Transportadora — @Model.Servico) <strong>R$ @Model.ValorDoFrete.ToString("N2")</strong></p>
+        <p>Produtos <strong>R$ @Model.ValorDosItens.ToString("N2")</strong></p>
+        @if (Model.DescontoDoCupom > 0)
+        {
+            <p class="linha-desconto-pedido"><span>Cupom <span class="codigo-linha-desconto">@Model.CodigoDoCupom</span></span> <strong>&minus; R$ @Model.DescontoDoCupom.ToString("N2")</strong></p>
+        }
+        @if (Model.DescontoNoFrete > 0)
+        {
+            <p>Entrega (@Model.Transportadora — @Model.Servico) <strong><s class="valor-riscado">R$ @Model.ValorDoFrete.ToString("N2")</s> <span class="frete-gratis">Grátis</span></strong></p>
+        }
+        else
+        {
+            <p>Entrega (@Model.Transportadora — @Model.Servico) <strong>R$ @Model.ValorDoFrete.ToString("N2")</strong></p>
+        }
         <p class="total-confirmacao-pedido">Total <strong>R$ @Model.ValorTotal.ToString("N2")</strong></p>
         <p>
             Prazo de entrega:

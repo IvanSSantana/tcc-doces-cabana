@@ -44,7 +44,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [032](./032-avaliacao-de-produto/plan.md) | Avaliação de produto (escrever; só quem recebeu o pedido) | Executada | [plan](./032-avaliacao-de-produto/plan.md) |
 | [033](./033-modernizacao-da-interface/plan.md) | Modernização da interface (tokens, componentes, etiqueta de confeitaria) | Executada (conferência visual pendente) | [plan](./033-modernizacao-da-interface/plan.md) |
 | [034](./034-promocoes-de-produto/plan.md) | Promoções de produto (percentual, valor fixo, leve X pague Y; admin + vitrine + carrinho + pedido) | Executada (verificação manual pendente) | [plan](./034-promocoes-de-produto/plan.md) |
-| [035](./035-cupons-de-desconto/plan.md) | Cupons de desconto (código no carrinho, frete grátis, mínimo, uso único, categoria; depende da `034`) | Planejada | [plan](./035-cupons-de-desconto/plan.md) |
+| [035](./035-cupons-de-desconto/plan.md) | Cupons de desconto (código no carrinho, frete grátis, mínimo, uso único, categoria; depende da `034`) | Executada (verificação manual pendente) | [plan](./035-cupons-de-desconto/plan.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023` → `027` → `028`.
 > A `028` fechou o par que a `027` abriu — as duas nasceram do mesmo pedido
@@ -326,9 +326,6 @@ Perguntas ainda abertas, **a resolver na spec de cada uma**:
   do provedor, ou manter o formulário no site? A decisão determina quanto do
   passo de pagamento da `022` sobrevive — que por isso nasce declaradamente
   provisório.
-- **Cupom de desconto** (`025` ou spec própria): a entidade `Promocao` existe
-  desde a `003` e nunca foi usada. Cupom por código é a mesma coisa que
-  promoção na vitrine, ou são dois conceitos?
 
 > **Nota de numeração:** a cadeia era `013`–`017` quando foi traçada, e já
 > deslocou oito vezes. As cinco primeiras foram `013` a `017`. A sexta foi a

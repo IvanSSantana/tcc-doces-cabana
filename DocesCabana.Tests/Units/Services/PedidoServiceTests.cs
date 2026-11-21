@@ -18,6 +18,7 @@ public class PedidoServiceTests
     private readonly Mock<IFreteService> _freteServiceMock;
     private readonly Mock<IPedidoRepository> _pedidoRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ICupomService> _cupomServiceMock;
     private readonly PedidoService _pedidoService;
 
     private readonly Guid _usuarioId = Guid.NewGuid();
@@ -33,6 +34,7 @@ public class PedidoServiceTests
         _freteServiceMock = new Mock<IFreteService>();
         _pedidoRepositoryMock = new Mock<IPedidoRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _cupomServiceMock = new Mock<ICupomService>();
 
         _pedidoService = new PedidoService(
             _carrinhoServiceMock.Object,
@@ -40,6 +42,7 @@ public class PedidoServiceTests
             _enderecoServiceMock.Object,
             _freteServiceMock.Object,
             _pedidoRepositoryMock.Object,
+            _cupomServiceMock.Object,
             _unitOfWorkMock.Object);
     }
 
@@ -381,5 +384,235 @@ public class PedidoServiceTests
         var detalhe = await _pedidoService.BuscarDetalhe(pedido.PedidoId, _usuarioId);
 
         Assert.Equal(10m, detalhe.Itens.First().PrecoUnitario);
+    }
+
+    // Cupom (035)
+
+    private readonly Guid _cupomId = Guid.NewGuid();
+
+    private ResultadoDoCupomDTO CupomValido(decimal nosProdutos = 2m, decimal noFrete = 0m) => new()
+    {
+        Codigo = "BEMVINDO10",
+        CupomId = _cupomId,
+        Valido = true,
+        Rotulo = "10%",
+        DescontoNosProdutos = nosProdutos,
+        DescontoNoFrete = noFrete
+    };
+
+    private void PrepararFechamentoComCupom(ResultadoDoCupomDTO resultado)
+    {
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(_usuarioId)).ReturnsAsync(CriarCarrinho(CriarLinha(10m, 2)));
+        _itemCarrinhoRepositoryMock.Setup(r => r.BuscarPorUsuario(_usuarioId)).ReturnsAsync([]);
+        PrepararEnderecoValido();
+        PrepararCotacaoValida(preco: 8m);
+        _cupomServiceMock
+            .Setup(s => s.Avaliar("BEMVINDO10", _usuarioId, It.IsAny<CarrinhoDTO>(), 8m))
+            .ReturnsAsync(resultado);
+    }
+
+    private FechamentoDePedidoDTO CriarDadosComCupom(decimal descontoExibido)
+    {
+        var dados = CriarDados(valorDosProdutosExibido: 20m, valorDoFreteExibido: 8m);
+        dados.CodigoDoCupom = "BEMVINDO10";
+        dados.DescontoDoCupomExibido = descontoExibido;
+        return dados;
+    }
+
+    [Fact]
+    public async Task Dado_CupomValido_Quando_Fechar_Entao_PedidoDeveTerCupomDescontosEValorLiquido()
+    {
+        PrepararFechamentoComCupom(CupomValido(nosProdutos: 2m));
+        Pedido? pedidoGravado = null;
+        Pagamento? pagamentoGravado = null;
+        _pedidoRepositoryMock
+            .Setup(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()))
+            .Callback<Pedido, Pagamento>((p, pag) => { pedidoGravado = p; pagamentoGravado = pag; })
+            .Returns(Task.CompletedTask);
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDadosComCupom(2m));
+
+        Assert.True(resultado.Sucesso);
+        Assert.Equal(_cupomId, pedidoGravado!.CupomId);
+        Assert.Equal("BEMVINDO10", pedidoGravado.CodigoDoCupom);
+        Assert.Equal(2m, pedidoGravado.DescontoDoCupom);
+        Assert.Equal(0m, pedidoGravado.DescontoNoFrete);
+        Assert.Equal(18m, pedidoGravado.ValorDosProdutos());
+        Assert.Equal(26m, pedidoGravado.Valor);
+        Assert.Equal(26m, pagamentoGravado!.Valor);
+    }
+
+    [Fact]
+    public async Task Dado_CupomDeFreteGratis_Quando_Fechar_Entao_PedidoDeveDescontarOFrete()
+    {
+        PrepararFechamentoComCupom(CupomValido(nosProdutos: 0m, noFrete: 8m));
+        Pedido? pedidoGravado = null;
+        _pedidoRepositoryMock
+            .Setup(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()))
+            .Callback<Pedido, Pagamento>((p, _) => pedidoGravado = p)
+            .Returns(Task.CompletedTask);
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDadosComCupom(8m));
+
+        Assert.True(resultado.Sucesso);
+        Assert.Equal(8m, pedidoGravado!.ValorDoFrete);
+        Assert.Equal(8m, pedidoGravado.DescontoNoFrete);
+        Assert.Equal(20m, pedidoGravado.Valor);
+    }
+
+    [Fact]
+    public async Task Dado_CupomExpiradoNoFechamento_Quando_Fechar_Entao_DeveRecusarComCupomRecusado()
+    {
+        PrepararFechamentoComCupom(ResultadoDoCupomDTO.ParaRecusa("BEMVINDO10", "Este cupom expirou."));
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDadosComCupom(2m));
+
+        Assert.False(resultado.Sucesso);
+        Assert.True(resultado.CupomRecusado);
+        Assert.Equal("Este cupom expirou.", resultado.Mensagem);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_DescontoExibidoDiferente_Quando_Fechar_Entao_DeveRecusarComDescontoAtual()
+    {
+        PrepararFechamentoComCupom(CupomValido(nosProdutos: 2m));
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDadosComCupom(3m));
+
+        Assert.False(resultado.Sucesso);
+        Assert.False(resultado.CupomRecusado);
+        Assert.Equal("O desconto do cupom mudou desde a última vez que você revisou. Confira o valor atual.", resultado.Mensagem);
+        Assert.Equal(2m, resultado.DescontoDoCupomAtual);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_CupomQueZeraOPedido_Quando_Fechar_Entao_DeveRecusarSemCriarPagamento()
+    {
+        PrepararFechamentoComCupom(CupomValido(nosProdutos: 20m, noFrete: 8m));
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDadosComCupom(28m));
+
+        Assert.False(resultado.Sucesso);
+        Assert.Equal("Não foi possível aplicar este cupom a um pedido sem valor.", resultado.Mensagem);
+        _pedidoRepositoryMock.Verify(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_SemCodigoDeCupom_Quando_Fechar_Entao_NaoDeveAvaliarCupom()
+    {
+        PrepararFechamentoComCupom(CupomValido());
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDados(valorDosProdutosExibido: 20m, valorDoFreteExibido: 8m));
+
+        Assert.True(resultado.Sucesso);
+        _cupomServiceMock.Verify(s => s.Avaliar(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CarrinhoDTO>(), It.IsAny<decimal?>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_PassoCarrinhoComFreteGratis_Quando_MontarPasso_Entao_DeveUsarCotacaoMaisBarata()
+    {
+        var carrinho = CriarCarrinho(CriarLinha(10m, 2)).ComCotacao(new CotacaoDeFreteDTO("17340001",
+            [
+                new OpcaoDeFreteDTO(1, "Correios", "SEDEX", 15m, 1, 2),
+                new OpcaoDeFreteDTO(2, "Correios", "PAC", 9m, 3, 7)
+            ], null));
+        _cupomServiceMock
+            .Setup(s => s.Avaliar("BEMVINDO10", _usuarioId, carrinho, 9m))
+            .ReturnsAsync(CupomValido(nosProdutos: 0m, noFrete: 9m));
+
+        var passo = await _pedidoService.MontarPasso(
+            PassoDoFechamento.Carrinho, carrinho, _usuarioId, null, codigoDoCupom: "BEMVINDO10");
+
+        Assert.NotNull(passo.Cupom);
+        Assert.Equal(9m, passo.DescontoTotalDoCupom);
+        Assert.Equal(9m, passo.ValorDoFreteDeReferencia);
+        Assert.Equal(20m, passo.ValorTotal);
+    }
+
+    [Fact]
+    public async Task Dado_PassoPagamentoComFreteGratis_Quando_MontarPasso_Entao_DeveUsarOpcaoEscolhida()
+    {
+        var carrinho = CriarCarrinho(CriarLinha(10m, 2));
+        _enderecoServiceMock.Setup(s => s.ListarDoUsuario(_usuarioId)).ReturnsAsync(
+            [new EnderecoDTO { EnderecoId = _enderecoId, CEP = "17340001", Padrao = true }]);
+        _freteServiceMock
+            .Setup(s => s.Cotar("17340001", It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>()))
+            .ReturnsAsync(new CotacaoDeFreteDTO("17340001",
+            [
+                new OpcaoDeFreteDTO(1, "Correios", "SEDEX", 15m, 1, 2),
+                new OpcaoDeFreteDTO(2, "Correios", "PAC", 9m, 3, 7)
+            ], null));
+        _cupomServiceMock
+            .Setup(s => s.Avaliar("BEMVINDO10", _usuarioId, carrinho, 15m))
+            .ReturnsAsync(CupomValido(nosProdutos: 0m, noFrete: 15m));
+
+        var passo = await _pedidoService.MontarPasso(
+            PassoDoFechamento.Pagamento, carrinho, _usuarioId, _enderecoId, servicoDeEntregaId: 1, codigoDoCupom: "BEMVINDO10");
+
+        Assert.Equal(15m, passo.DescontoTotalDoCupom);
+        Assert.Equal(15m, passo.ValorDoFreteDeReferencia);
+        Assert.Equal(20m, passo.ValorTotal);
+    }
+
+    [Fact]
+    public async Task Dado_CupomQueDeixouDeValer_Quando_MontarPasso_Entao_DeveTrazerMotivoSemDesconto()
+    {
+        var carrinho = CriarCarrinho(CriarLinha(10m, 2));
+        _cupomServiceMock
+            .Setup(s => s.Avaliar("BEMVINDO10", _usuarioId, carrinho, null))
+            .ReturnsAsync(ResultadoDoCupomDTO.ParaRecusa("BEMVINDO10", "Este cupom expirou."));
+
+        var passo = await _pedidoService.MontarPasso(
+            PassoDoFechamento.Carrinho, carrinho, _usuarioId, null, codigoDoCupom: "BEMVINDO10");
+
+        Assert.Equal("Este cupom expirou.", passo.Cupom!.Motivo);
+        Assert.Equal(0m, passo.DescontoTotalDoCupom);
+        Assert.Equal(20m, passo.ValorTotal);
+    }
+
+    [Fact]
+    public async Task Dado_VisitanteComCodigo_Quando_MontarPasso_Entao_NaoDeveAvaliarCupom()
+    {
+        var passo = await _pedidoService.MontarPasso(
+            PassoDoFechamento.Carrinho, CriarCarrinho(CriarLinha()), null, null, codigoDoCupom: "BEMVINDO10");
+
+        Assert.Null(passo.Cupom);
+        _cupomServiceMock.Verify(s => s.Avaliar(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CarrinhoDTO>(), It.IsAny<decimal?>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoComCupom_Quando_BuscarDetalhe_Entao_DeveTrazerCupomEDescontos()
+    {
+        var pedido = new Pedido(_usuarioId, _enderecoId, 18m, 8m, "Correios", "PAC", 3, 7);
+        pedido.AcrescentarItem(_produtoId, 2, 10m);
+        pedido.AplicarCupom(_cupomId, "FRETEGRATIS", 2m, 8m);
+        _pedidoRepositoryMock.Setup(r => r.Buscar(pedido.PedidoId, _usuarioId)).ReturnsAsync(pedido);
+
+        var detalhe = await _pedidoService.BuscarDetalhe(pedido.PedidoId, _usuarioId);
+
+        Assert.Equal("FRETEGRATIS", detalhe.CodigoDoCupom);
+        Assert.Equal(2m, detalhe.DescontoDoCupom);
+        Assert.Equal(8m, detalhe.DescontoNoFrete);
+        Assert.Equal(18m, detalhe.ValorDosProdutos);
+        Assert.Equal(20m, detalhe.ValorDosItens);
+        Assert.Equal(18m, detalhe.ValorTotal);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoComCupom_Quando_ObterConfirmacao_Entao_DeveTrazerCupomEDescontos()
+    {
+        var pedido = new Pedido(_usuarioId, _enderecoId, 26m, 8m, "Correios", "PAC", 3, 7);
+        pedido.AcrescentarItem(_produtoId, 2, 10m);
+        pedido.AplicarCupom(_cupomId, "BEMVINDO10", 2m, 0m);
+        _pedidoRepositoryMock.Setup(r => r.Buscar(pedido.PedidoId, _usuarioId)).ReturnsAsync(pedido);
+
+        var confirmacao = await _pedidoService.ObterConfirmacao(pedido.PedidoId, _usuarioId);
+
+        Assert.Equal("BEMVINDO10", confirmacao!.CodigoDoCupom);
+        Assert.Equal(2m, confirmacao.DescontoDoCupom);
+        Assert.Equal(18m, confirmacao.ValorDosProdutos);
+        Assert.Equal(26m, confirmacao.ValorTotal);
     }
 }

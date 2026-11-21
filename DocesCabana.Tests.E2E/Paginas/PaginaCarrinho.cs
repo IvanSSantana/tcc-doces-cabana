@@ -16,6 +16,17 @@ public class PaginaCarrinho
 
     public ILocator CampoCep => Container.Locator("#cep-carrinho");
 
+    public ILocator CampoCupom => Container.Locator("#cupom-carrinho");
+    public ILocator CupomAplicado => Container.Locator(".canhoto-cupom");
+    public ILocator LinhaDescontoDoCupom => Container.Locator(".linha-desconto-carrinho");
+
+    public async Task AplicarCupom(string codigo)
+    {
+        await CampoCupom.FillAsync(codigo);
+        await Container.Locator(".formulario-cupom-carrinho").GetByRole(AriaRole.Button, new() { Name = "Aplicar" }).ClickAsync();
+        await _pagina.WaitForLoadStateAsync(LoadState.NetworkIdle);
+    }
+
     public ILocator ItemPeloProduto(Guid produtoId) =>
         Container.Locator($".item-carrinho[data-produto-id='{produtoId}']");
 

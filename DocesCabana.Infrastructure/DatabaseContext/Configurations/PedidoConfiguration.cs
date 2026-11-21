@@ -28,6 +28,24 @@ public class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
         builder.Property(p => p.PagamentoAprovado).IsRequired();
         builder.Property(p => p.Data).IsRequired();
 
+        builder.Property(p => p.CodigoDoCupom)
+            .HasMaxLength(Cupom.TamanhoMaximoDoCodigo);
+
+        builder.Property(p => p.DescontoDoCupom)
+            .IsRequired()
+            .HasColumnType("decimal(10,2)")
+            .HasDefaultValue(0m);
+
+        builder.Property(p => p.DescontoNoFrete)
+            .IsRequired()
+            .HasColumnType("decimal(10,2)")
+            .HasDefaultValue(0m);
+
+        builder.HasOne(p => p.Cupom)
+            .WithMany()
+            .HasForeignKey(p => p.CupomId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(p => p.Itens)
             .WithOne(i => i.Pedido)
             .HasForeignKey(i => i.PedidoId)

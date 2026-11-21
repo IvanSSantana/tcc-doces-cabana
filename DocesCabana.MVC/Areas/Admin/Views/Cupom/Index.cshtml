@@ -1,0 +1,102 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Application.Enums
+@model IReadOnlyList<ResumoDeCupomDTO>
+@{
+    ViewData["Title"] = "Cupons";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/pages/gestao-produtos.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/gestao-promocoes.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/gestao-cupons.css" asp-append-version="true">
+
+<main class="container-gestao-produtos">
+    <div class="cabecalho-gestao">
+        <h1 class="titulo-gestao">Cupons</h1>
+        <a asp-area="Admin" asp-controller="Cupom" asp-action="Cadastro" class="botao botao--primario">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Novo cupom
+        </a>
+    </div>
+
+    @if (TempData["Confirmacao"] is string confirmacao)
+    {
+        <div class="resumo-sucesso" role="status">
+            <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <p class="gestao-vazia">Nenhum cupom cadastrado. Use “+ Novo cupom” para criar o primeiro código.</p>
+    }
+    else
+    {
+        <div class="painel tabela-rolavel">
+            <table class="tabela-produtos tabela-promocoes tabela-cupons">
+                <thead>
+                    <tr>
+                        <th scope="col">Código</th>
+                        <th scope="col">Desconto</th>
+                        <th scope="col">Período</th>
+                        <th scope="col">Restrições</th>
+                        <th scope="col" class="coluna-usos">Usos</th>
+                        <th scope="col">Situação</th>
+                        <th scope="col" class="coluna-acoes"><span class="visualmente-oculto">Ações</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cupom in Model)
+                    {
+                        var (rotuloDaSituacao, classeDaSituacao) = cupom.Situacao switch
+                        {
+                            SituacaoDaPromocao.Vigente => ("Vigente", "selo-status--ativo"),
+                            SituacaoDaPromocao.Agendada => ("Agendado", "selo-status--agendada"),
+                            SituacaoDaPromocao.Encerrada => ("Encerrado", "selo-status--inativo"),
+                            _ => ("Desativado", "selo-status--sem-estoque")
+                        };
+
+                        <tr>
+                            <td class="coluna-codigo-cupom">@cupom.Codigo</td>
+                            <td><span class="selo-promocao">@cupom.RotuloDoDesconto</span></td>
+                            <td class="coluna-periodo">
+                                @cupom.DataInicio.ToString("dd/MM/yyyy")
+                                @if (cupom.DataFim != cupom.DataInicio)
+                                {
+                                    <text>a @cupom.DataFim.ToString("dd/MM/yyyy")</text>
+                                }
+                            </td>
+                            <td class="coluna-restricoes-cupom">@cupom.Restricoes</td>
+                            <td class="coluna-usos">@cupom.Usos</td>
+                            <td><span class="selo-status @classeDaSituacao">@rotuloDaSituacao</span></td>
+                            <td class="coluna-acoes">
+                                <div class="acoes-produto">
+                                    <a asp-area="Admin" asp-controller="Cupom" asp-action="Edicao" asp-route-id="@cupom.CupomId"
+                                       class="botao botao--icone botao--pequeno botao-icone" title="Editar" aria-label="Editar @cupom.Codigo">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </a>
+                                    <form asp-area="Admin" asp-controller="Cupom" asp-action="@(cupom.Ativo ? "Desativar" : "Ativar")"
+                                          asp-route-id="@cupom.CupomId" method="post">
+                                        @Html.AntiForgeryToken()
+                                        @if (cupom.Ativo)
+                                        {
+                                            <button type="submit" class="botao botao--icone botao--pequeno botao-icone" title="Desativar" aria-label="Desativar @cupom.Codigo">
+                                                <i class="fa-solid fa-pause" aria-hidden="true"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="botao botao--icone botao--pequeno botao-icone" title="Ativar" aria-label="Ativar @cupom.Codigo">
+                                                <i class="fa-solid fa-play" aria-hidden="true"></i>
+                                            </button>
+                                        }
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</main>

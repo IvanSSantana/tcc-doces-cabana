@@ -26,7 +26,7 @@ public class CarrinhoControllerTests
         _pedidoServiceMock = new Mock<IPedidoService>();
         _enderecoServiceMock = new Mock<IEnderecoService>();
         _pedidoServiceMock
-            .Setup(s => s.MontarPasso(It.IsAny<PassoDoFechamento>(), It.IsAny<CarrinhoDTO>(), It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<int?>()))
+            .Setup(s => s.MontarPasso(It.IsAny<PassoDoFechamento>(), It.IsAny<CarrinhoDTO>(), It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<int?>(), It.IsAny<string?>()))
             .ReturnsAsync(new PassoDoFechamentoDTO());
         var httpContext = new DefaultHttpContext { Session = new SessaoFalsa() };
         _controller = new CarrinhoController(
@@ -436,5 +436,126 @@ public class CarrinhoControllerTests
         };
 
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+    }
+
+    // Cupom (035)
+
+    private void PrepararAvaliacaoDoCupom(string codigo, ResultadoDoCupomDTO resultado) =>
+        _pedidoServiceMock
+            .Setup(s => s.MontarPasso(PassoDoFechamento.Carrinho, It.IsAny<CarrinhoDTO>(), It.IsAny<Guid?>(),
+                It.IsAny<Guid?>(), It.IsAny<int?>(), codigo))
+            .ReturnsAsync(new PassoDoFechamentoDTO { Cupom = resultado });
+
+    [Fact]
+    public async Task Dado_CodigoVazio_Quando_AplicarCupom_Entao_DeveRetornarViewIndexComErroNoCampo()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+        _controller.ModelState.AddModelError("Codigo", "Informe o código do cupom.");
+
+        var resultado = await _controller.AplicarCupom(new AplicacaoDeCupomDTO());
+
+        var view = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal("Index", view.ViewName);
+        Assert.IsType<CarrinhoDTO>(view.Model);
+        Assert.NotNull(_controller.ViewData["PassoDoFechamento"]);
+        Assert.Null(HttpContext.Session.LerCupom());
+    }
+
+    [Fact]
+    public async Task Dado_CupomRecusado_Quando_AplicarCupom_Entao_DeveRetornarViewComMotivoNoCampo()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+        PrepararAvaliacaoDoCupom("expirado", ResultadoDoCupomDTO.ParaRecusa("EXPIRADO", "Este cupom expirou."));
+
+        var resultado = await _controller.AplicarCupom(new AplicacaoDeCupomDTO { Codigo = "expirado" });
+
+        var view = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal("Index", view.ViewName);
+        Assert.Equal("Este cupom expirou.", _controller.ModelState["Codigo"]!.Errors.Single().ErrorMessage);
+        Assert.Null(HttpContext.Session.LerCupom());
+    }
+
+    [Fact]
+    public async Task Dado_CupomRecusadoComOutroJaAplicado_Quando_AplicarCupom_Entao_DeveManterOAnterior()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        HttpContext.Session.EscreverCupom("BEMVINDO10");
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+        PrepararAvaliacaoDoCupom("expirado", ResultadoDoCupomDTO.ParaRecusa("EXPIRADO", "Este cupom expirou."));
+
+        await _controller.AplicarCupom(new AplicacaoDeCupomDTO { Codigo = "expirado" });
+
+        Assert.Equal("BEMVINDO10", HttpContext.Session.LerCupom());
+        _pedidoServiceMock.Verify(s => s.MontarPasso(PassoDoFechamento.Carrinho, It.IsAny<CarrinhoDTO>(), usuarioId,
+            It.IsAny<Guid?>(), It.IsAny<int?>(), "BEMVINDO10"), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_CupomValido_Quando_AplicarCupom_Entao_DeveGravarNaSessaoERedirecionar()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+        PrepararAvaliacaoDoCupom("bemvindo10", new ResultadoDoCupomDTO { Codigo = "BEMVINDO10", Valido = true });
+
+        var resultado = await _controller.AplicarCupom(new AplicacaoDeCupomDTO { Codigo = "bemvindo10" });
+
+        var redirecionamento = Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Equal(nameof(CarrinhoController.Index), redirecionamento.ActionName);
+        Assert.Equal("BEMVINDO10", HttpContext.Session.LerCupom());
+    }
+
+    [Fact]
+    public void Dado_Requisicao_Quando_RemoverCupom_Entao_DeveLimparSessaoERedirecionar()
+    {
+        ConfigurarUsuarioAutenticado(Guid.NewGuid());
+        HttpContext.Session.EscreverCupom("BEMVINDO10");
+
+        var resultado = _controller.RemoverCupom();
+
+        Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Null(HttpContext.Session.LerCupom());
+    }
+
+    [Fact]
+    public async Task Dado_CupomNaSessao_Quando_Index_Entao_DeveRepassarOCodigoAoPasso()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        HttpContext.Session.EscreverCupom("BEMVINDO10");
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+
+        await _controller.Index();
+
+        _pedidoServiceMock.Verify(s => s.MontarPasso(PassoDoFechamento.Carrinho, It.IsAny<CarrinhoDTO>(), usuarioId,
+            It.IsAny<Guid?>(), It.IsAny<int?>(), "BEMVINDO10"), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_CupomNaSessao_Quando_Esvaziar_Entao_DeveLimparOCupom()
+    {
+        ConfigurarUsuarioAutenticado(Guid.NewGuid());
+        HttpContext.Session.EscreverCupom("BEMVINDO10");
+
+        await _controller.Esvaziar();
+
+        Assert.Null(HttpContext.Session.LerCupom());
+    }
+
+    [Fact]
+    public void Dado_AcoesDeCupom_Quando_InspecionarAtributos_Entao_DevemExigirPostAntiforgeryELogin()
+    {
+        foreach (var nome in new[] { nameof(CarrinhoController.AplicarCupom), nameof(CarrinhoController.RemoverCupom) })
+        {
+            var metodo = typeof(CarrinhoController).GetMethod(nome)!;
+            Assert.NotNull(metodo.GetCustomAttributes(typeof(HttpPostAttribute), false).SingleOrDefault());
+            Assert.NotNull(metodo.GetCustomAttributes(typeof(ValidateAntiForgeryTokenAttribute), false).SingleOrDefault());
+            Assert.NotNull(metodo.GetCustomAttributes(typeof(Microsoft.AspNetCore.Authorization.AuthorizeAttribute), false).SingleOrDefault());
+        }
     }
 }

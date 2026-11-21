@@ -24,6 +24,7 @@
     var itemIndisponivel = ViewData["ItemIndisponivel"] as string;
     var valorDosProdutosAtual = ViewData["ValorDosProdutosAtual"] as decimal?;
     var valorDoFreteAtual = ViewData["ValorDoFreteAtual"] as decimal?;
+    var descontoDoCupomAtual = ViewData["DescontoDoCupomAtual"] as decimal?;
     var erroGeral = ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage;
 }
 
@@ -55,6 +56,10 @@
         {
             <p class="mensagem-erro exibicao-bloco">O valor do frete agora é R$ @valorDoFreteAtual.Value.ToString("N2").</p>
         }
+        @if (descontoDoCupomAtual is not null)
+        {
+            <p class="mensagem-erro exibicao-bloco">O desconto do cupom agora é R$ @descontoDoCupomAtual.Value.ToString("N2").</p>
+        }
 
         <form method="post" asp-controller="Pedido" asp-action="Fechar" class="formulario-pagamento-fechamento">
             @Html.AntiForgeryToken()
@@ -64,6 +69,11 @@
                Com InvariantCulture, "139.80" seria lido como 13980. *@
             <input type="hidden" name="ValorDosProdutosExibido" value="@Model.Carrinho.Subtotal.ToString(System.Globalization.CultureInfo.CurrentCulture)" />
             <input type="hidden" name="ValorDoFreteExibido" value="@opcaoEscolhida.Preco.ToString(System.Globalization.CultureInfo.CurrentCulture)" />
+            @if (Model.CupomValido)
+            {
+                <input type="hidden" name="CodigoDoCupom" value="@Model.Cupom!.Codigo" />
+                <input type="hidden" name="DescontoDoCupomExibido" value="@Model.DescontoTotalDoCupom.ToString(System.Globalization.CultureInfo.CurrentCulture)" />
+            }
 
             <fieldset class="opcoes-pagamento-fechamento">
                 <legend>Forma de pagamento</legend>
@@ -88,8 +98,19 @@
 
             <div class="painel painel--rebaixado resumo-pagamento-fechamento">
                 <p>Produtos <strong>R$ @Model.Carrinho.Subtotal.ToString("N2")</strong></p>
-                <p>Entrega <strong>R$ @opcaoEscolhida.Preco.ToString("N2")</strong></p>
-                <p class="total-pagamento-fechamento">Total <strong>R$ @((Model.Carrinho.Subtotal + opcaoEscolhida.Preco).ToString("N2"))</strong></p>
+                @if (Model.CupomValido && Model.Cupom!.DescontoNosProdutos > 0)
+                {
+                    <p class="linha-desconto-pedido"><span>Cupom <span class="codigo-linha-desconto">@Model.Cupom.Codigo</span></span> <strong>&minus; R$ @Model.Cupom.DescontoNosProdutos.ToString("N2")</strong></p>
+                }
+                @if (Model.CupomValido && Model.Cupom!.DescontoNoFrete > 0)
+                {
+                    <p>Entrega <strong><s class="valor-riscado">R$ @opcaoEscolhida.Preco.ToString("N2")</s> <span class="frete-gratis">Grátis</span></strong></p>
+                }
+                else
+                {
+                    <p>Entrega <strong>R$ @opcaoEscolhida.Preco.ToString("N2")</strong></p>
+                }
+                <p class="total-pagamento-fechamento">Total <strong>R$ @Model.ValorTotal.ToString("N2")</strong></p>
             </div>
 
             <button type="submit" class="botao botao--destaque botao-acao botao-confirmar-pedido">Confirmar pedido</button>

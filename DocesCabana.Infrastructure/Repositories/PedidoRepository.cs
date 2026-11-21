@@ -40,6 +40,21 @@ public class PedidoRepository : Repository<Pedido>, IPedidoRepository
                 && p.Status == PedidoStatus.Entregue
                 && p.Itens.Any(i => i.ProdutoId == produtoId));
 
+    public async Task<bool> ClienteJaUsouCupom(Guid usuarioId, Guid cupomId) =>
+        await _context.Pedidos
+            .AsNoTracking()
+            .AnyAsync(p => p.UsuarioId == usuarioId
+                && p.CupomId == cupomId
+                && p.Status != PedidoStatus.Cancelado);
+
+    public async Task<Dictionary<Guid, int>> ContarUsosPorCupom() =>
+        await _context.Pedidos
+            .AsNoTracking()
+            .Where(p => p.CupomId != null && p.Status != PedidoStatus.Cancelado)
+            .GroupBy(p => p.CupomId!.Value)
+            .Select(g => new { CupomId = g.Key, Usos = g.Count() })
+            .ToDictionaryAsync(g => g.CupomId, g => g.Usos);
+
     public async Task AdicionarComPagamento(Pedido pedido, Pagamento pagamento)
     {
         await _context.Pedidos.AddAsync(pedido);

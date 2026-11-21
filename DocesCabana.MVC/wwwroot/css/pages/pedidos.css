@@ -210,3 +210,21 @@
     font-weight: 600;
     color: var(--cor-destaque-escura);
 }
+
+.resumo-detalhe-pedido .linha-desconto-pedido strong {
+  color: var(--cor-destaque-escura);
+}
+
+.resumo-detalhe-pedido .codigo-linha-desconto {
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.resumo-detalhe-pedido .valor-riscado {
+  font-weight: 400;
+  color: var(--neutro-apagado);
+}
+
+.resumo-detalhe-pedido .frete-gratis {
+  color: var(--status-sucesso);
+}

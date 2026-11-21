@@ -78,6 +78,40 @@ public class CarrinhoController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> AplicarCupom(AplicacaoDeCupomDTO dto)
+    {
+        var carrinho = await CotarComCepGuardado(await ObterCarrinhoAtual(), PassoDoFechamento.Carrinho);
+
+        if (ModelState.IsValid)
+        {
+            var avaliacao = await _pedidoService.MontarPasso(
+                PassoDoFechamento.Carrinho, carrinho, UsuarioAtualId, null, null, dto.Codigo);
+
+            if (avaliacao.Cupom is { Valido: true } cupom)
+            {
+                HttpContext.Session.EscreverCupom(cupom.Codigo);
+                return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError(nameof(AplicacaoDeCupomDTO.Codigo), avaliacao.Cupom?.Motivo ?? "Cupom não encontrado.");
+        }
+
+        await MontarPassoDoFechamento(carrinho, PassoDoFechamento.Carrinho, null, null);
+        return View(nameof(Index), carrinho);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public IActionResult RemoverCupom()
+    {
+        HttpContext.Session.LimparCupom();
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Acrescentar(Guid produtoId, short quantidade = 1)
     {
         var usuarioId = UsuarioAtualId;
@@ -147,6 +181,8 @@ public class CarrinhoController : Controller
             HttpContext.Session.Limpar();
         }
 
+        HttpContext.Session.LimparCupom();
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -194,7 +230,8 @@ public class CarrinhoController : Controller
     private async Task MontarPassoDoFechamento(CarrinhoDTO carrinho, PassoDoFechamento passo, Guid? enderecoId, int? servicoDeEntregaId)
     {
         ViewData["PassoDoFechamento"] =
-            await _pedidoService.MontarPasso(PassoEfetivo(passo), carrinho, UsuarioAtualId, enderecoId, servicoDeEntregaId);
+            await _pedidoService.MontarPasso(
+                PassoEfetivo(passo), carrinho, UsuarioAtualId, enderecoId, servicoDeEntregaId, HttpContext.Session.LerCupom());
     }
 
     private PassoDoFechamento PassoEfetivo(PassoDoFechamento passo) =>

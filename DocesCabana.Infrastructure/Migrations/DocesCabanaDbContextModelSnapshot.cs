@@ -70,6 +70,66 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.ToTable("Categoria", (string)null);
                 });
 
+            modelBuilder.Entity("DocesCabana.Domain.Entities.Cupom", b =>
+                {
+                    b.Property<Guid>("CupomId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("CategoriaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateOnly>("DataFim")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("DataInicio")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<short?>("QuantidadeLeve")
+                        .HasColumnType("smallint");
+
+                    b.Property<short?>("QuantidadePague")
+                        .HasColumnType("smallint");
+
+                    b.Property<Guid?>("SubcategoriaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte>("Tipo")
+                        .HasColumnType("smallint");
+
+                    b.Property<bool>("UmUsoPorCliente")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("Valor")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal?>("ValorMinimo")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("CupomId");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("Codigo")
+                        .IsUnique();
+
+                    b.HasIndex("SubcategoriaId");
+
+                    b.ToTable("Cupom", (string)null);
+                });
+
             modelBuilder.Entity("DocesCabana.Domain.Entities.Endereco", b =>
                 {
                     b.Property<Guid>("EnderecoId")
@@ -243,8 +303,25 @@ namespace DocesCabana.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("CodigoDoCupom")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid?>("CupomId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("Data")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("DescontoDoCupom")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(10,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<decimal>("DescontoNoFrete")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(10,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<Guid>("EnderecoEntregaId")
                         .HasColumnType("uuid");
@@ -281,6 +358,8 @@ namespace DocesCabana.Infrastructure.Migrations
                         .HasColumnType("decimal(10,2)");
 
                     b.HasKey("PedidoId");
+
+                    b.HasIndex("CupomId");
 
                     b.HasIndex("EnderecoEntregaId");
 
@@ -696,6 +775,23 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("DocesCabana.Domain.Entities.Cupom", b =>
+                {
+                    b.HasOne("DocesCabana.Domain.Entities.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DocesCabana.Domain.Entities.Subcategoria", "Subcategoria")
+                        .WithMany()
+                        .HasForeignKey("SubcategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("Subcategoria");
+                });
+
             modelBuilder.Entity("DocesCabana.Domain.Entities.Endereco", b =>
                 {
                     b.HasOne("DocesCabana.Domain.Entities.Usuario", "Usuario")
@@ -788,6 +884,11 @@ namespace DocesCabana.Infrastructure.Migrations
 
             modelBuilder.Entity("DocesCabana.Domain.Entities.Pedido", b =>
                 {
+                    b.HasOne("DocesCabana.Domain.Entities.Cupom", "Cupom")
+                        .WithMany()
+                        .HasForeignKey("CupomId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("DocesCabana.Domain.Entities.Endereco", "EnderecoEntrega")
                         .WithMany()
                         .HasForeignKey("EnderecoEntregaId")
@@ -799,6 +900,8 @@ namespace DocesCabana.Infrastructure.Migrations
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Cupom");
 
                     b.Navigation("EnderecoEntrega");
 

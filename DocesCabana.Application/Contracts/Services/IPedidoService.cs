@@ -6,7 +6,8 @@ namespace DocesCabana.Application.Contracts.Services;
 public interface IPedidoService
 {
     Task<PassoDoFechamentoDTO> MontarPasso(
-        PassoDoFechamento passo, CarrinhoDTO carrinho, Guid? usuarioId, Guid? enderecoId, int? servicoDeEntregaId = null);
+        PassoDoFechamento passo, CarrinhoDTO carrinho, Guid? usuarioId, Guid? enderecoId,
+        int? servicoDeEntregaId = null, string? codigoDoCupom = null);
 
     Task<ResultadoDoFechamentoDTO> Fechar(Guid usuarioId, FechamentoDePedidoDTO dados);
 

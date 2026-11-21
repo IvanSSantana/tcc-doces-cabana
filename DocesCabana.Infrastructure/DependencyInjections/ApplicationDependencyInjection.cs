@@ -31,6 +31,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<IEnderecoRepository, EnderecoRepository>();
         services.AddScoped<IPedidoRepository, PedidoRepository>();
         services.AddScoped<IPromocaoRepository, PromocaoRepository>();
+        services.AddScoped<ICupomRepository, CupomRepository>();
         services.AddScoped<IUsuarioService, UsuarioService>();
         services.AddScoped<IAdministradorService, AdministradorService>();
         services.AddScoped<IProdutoService, ProdutoService>();
@@ -43,6 +44,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<IEnderecoService, EnderecoService>();
         services.AddScoped<IPedidoService, PedidoService>();
         services.AddScoped<IPromocaoService, PromocaoService>();
+        services.AddScoped<ICupomService, CupomService>();
         services.AddSingleton(TimeProvider.System);
         services.AddEmailService(configuration);
         services.AddFreteService();

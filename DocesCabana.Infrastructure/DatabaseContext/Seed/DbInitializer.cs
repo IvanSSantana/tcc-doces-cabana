@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DocesCabana.Application.Helpers;
 using DocesCabana.Domain.Constants;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Enums;
@@ -140,6 +141,26 @@ public static class DbInitializer
         }
 
         await SemearAdministrador(scope.ServiceProvider);
+        await SemearCupomDeDemonstracao(context, HorarioDeBrasilia.Hoje(TimeProvider.System));
+    }
+
+    public const string CodigoDoCupomDeDemonstracao = "BEMVINDO10";
+
+    /// <summary>
+    /// Cupom de 10% para demonstração e para o E2E de cupom (035, D18): sem mínimo, um uso por
+    /// cliente, válido por um ano a partir do dia em que o banco é semeado.
+    /// </summary>
+    internal static async Task SemearCupomDeDemonstracao(DocesCabanaDbContext context, DateOnly hoje)
+    {
+        if (await context.Cupons.AnyAsync(c => c.Codigo == CodigoDoCupomDeDemonstracao))
+            return;
+
+        context.Cupons.Add(new Cupom(
+            CodigoDoCupomDeDemonstracao, TipoDeDesconto.Percentual, 10, null, null,
+            hoje, hoje.AddYears(1), null, true, null, null,
+            "Cupom de boas-vindas semeado para demonstração."));
+
+        await context.SaveChangesAsync();
     }
 
     internal static List<Produto> GerarProdutosMock(Dictionary<string, Dictionary<string, Subcategoria>> subcategoriasPorCategoria)

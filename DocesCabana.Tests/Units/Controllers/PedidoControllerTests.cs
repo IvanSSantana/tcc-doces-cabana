@@ -34,7 +34,7 @@ public class PedidoControllerTests
 
         _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(_usuarioId)).ReturnsAsync(new CarrinhoDTO());
         _pedidoServiceMock
-            .Setup(s => s.MontarPasso(It.IsAny<PassoDoFechamento>(), It.IsAny<CarrinhoDTO>(), It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<int?>()))
+            .Setup(s => s.MontarPasso(It.IsAny<PassoDoFechamento>(), It.IsAny<CarrinhoDTO>(), It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<int?>(), It.IsAny<string?>()))
             .ReturnsAsync(new PassoDoFechamentoDTO());
     }
 
@@ -173,5 +173,52 @@ public class PedidoControllerTests
 
         var viewResult = Assert.IsType<ViewResult>(resultado);
         Assert.Equal(detalhe, viewResult.Model);
+    }
+
+    // Cupom (035)
+
+    [Fact]
+    public async Task Dado_FechamentoComSucesso_Quando_Fechar_Entao_DeveLimparCupomDaSessao()
+    {
+        _controller.HttpContext.Session.EscreverCupom("BEMVINDO10");
+        _pedidoServiceMock
+            .Setup(s => s.Fechar(_usuarioId, It.IsAny<FechamentoDePedidoDTO>()))
+            .ReturnsAsync(ResultadoDoFechamentoDTO.ParaSucesso(Guid.NewGuid()));
+
+        await _controller.Fechar(CriarDados());
+
+        Assert.Null(_controller.HttpContext.Session.LerCupom());
+    }
+
+    [Fact]
+    public async Task Dado_CupomRecusado_Quando_Fechar_Entao_DeveLimparCupomDaSessao()
+    {
+        _controller.HttpContext.Session.EscreverCupom("BEMVINDO10");
+        _pedidoServiceMock
+            .Setup(s => s.Fechar(_usuarioId, It.IsAny<FechamentoDePedidoDTO>()))
+            .ReturnsAsync(ResultadoDoFechamentoDTO.ParaRecusa("Este cupom expirou.", cupomRecusado: true));
+
+        var resultado = await _controller.Fechar(CriarDados());
+
+        Assert.IsType<ViewResult>(resultado);
+        Assert.Null(_controller.HttpContext.Session.LerCupom());
+        _pedidoServiceMock.Verify(s => s.MontarPasso(PassoDoFechamento.Pagamento, It.IsAny<CarrinhoDTO>(), _usuarioId,
+            It.IsAny<Guid?>(), It.IsAny<int?>(), null), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_DescontoDivergente_Quando_Fechar_Entao_DeveManterCupomEExporDescontoAtual()
+    {
+        _controller.HttpContext.Session.EscreverCupom("BEMVINDO10");
+        _pedidoServiceMock
+            .Setup(s => s.Fechar(_usuarioId, It.IsAny<FechamentoDePedidoDTO>()))
+            .ReturnsAsync(ResultadoDoFechamentoDTO.ParaRecusa("O desconto do cupom mudou.", descontoDoCupomAtual: 3m));
+
+        await _controller.Fechar(CriarDados());
+
+        Assert.Equal("BEMVINDO10", _controller.HttpContext.Session.LerCupom());
+        Assert.Equal(3m, _controller.ViewData["DescontoDoCupomAtual"]);
+        _pedidoServiceMock.Verify(s => s.MontarPasso(PassoDoFechamento.Pagamento, It.IsAny<CarrinhoDTO>(), _usuarioId,
+            It.IsAny<Guid?>(), 1, "BEMVINDO10"), Times.Once);
     }
 }

@@ -41,6 +41,7 @@ public static class CarrinhoMapper
         return new LinhaDoCarrinhoDTO
         {
             ProdutoId = produto.ProdutoId,
+            SubcategoriaId = produto.SubcategoriaId,
             Nome = produto.Nome,
             ImagemUrl = produto.ImagemUrl,
             PrecoUnitario = produto.Preco,

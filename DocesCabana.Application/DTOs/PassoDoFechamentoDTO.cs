@@ -17,4 +17,14 @@ public class PassoDoFechamentoDTO
     public CotacaoDeFreteDTO? Cotacao { get; init; }
 
     public int? ServicoDeEntregaSelecionadoId { get; init; }
+
+    public ResultadoDoCupomDTO? Cupom { get; init; }
+
+    public decimal? ValorDoFreteDeReferencia { get; init; }
+
+    public bool CupomValido => Cupom is { Valido: true };
+
+    public decimal DescontoTotalDoCupom => CupomValido ? Cupom!.DescontoTotal : 0m;
+
+    public decimal ValorTotal => Carrinho.Subtotal + (ValorDoFreteDeReferencia ?? 0m) - DescontoTotalDoCupom;
 }

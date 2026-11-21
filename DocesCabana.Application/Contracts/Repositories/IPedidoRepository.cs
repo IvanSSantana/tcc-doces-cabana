@@ -14,4 +14,8 @@ public interface IPedidoRepository : IRepository<Pedido>
     Task AdicionarComPagamento(Pedido pedido, Pagamento pagamento);
 
     Task<bool> ExisteEntregueComProduto(Guid usuarioId, Guid produtoId);
+
+    Task<bool> ClienteJaUsouCupom(Guid usuarioId, Guid cupomId);
+
+    Task<Dictionary<Guid, int>> ContarUsosPorCupom();
 }

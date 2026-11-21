@@ -23,6 +23,8 @@ public class DocesCabanaDbContext : IdentityDbContext<ContaDeAcesso, IdentityRol
 
     public DbSet<Promocao> Promocoes { get; set; }
 
+    public DbSet<Cupom> Cupons { get; set; }
+
     public DbSet<Estoque> Estoques { get; set; }
 
     public DbSet<Endereco> Enderecos { get; set; }

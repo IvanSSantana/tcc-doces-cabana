@@ -15,6 +15,7 @@ public class PedidoService : IPedidoService
     private readonly IEnderecoService _enderecoService;
     private readonly IFreteService _freteService;
     private readonly IPedidoRepository _pedidoRepository;
+    private readonly ICupomService _cupomService;
     private readonly IUnitOfWork _unitOfWork;
 
     public PedidoService(
@@ -23,6 +24,7 @@ public class PedidoService : IPedidoService
         IEnderecoService enderecoService,
         IFreteService freteService,
         IPedidoRepository pedidoRepository,
+        ICupomService cupomService,
         IUnitOfWork unitOfWork)
     {
         _carrinhoService = carrinhoService;
@@ -30,11 +32,13 @@ public class PedidoService : IPedidoService
         _enderecoService = enderecoService;
         _freteService = freteService;
         _pedidoRepository = pedidoRepository;
+        _cupomService = cupomService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<PassoDoFechamentoDTO> MontarPasso(
-        PassoDoFechamento passo, CarrinhoDTO carrinho, Guid? usuarioId, Guid? enderecoId, int? servicoDeEntregaId = null)
+        PassoDoFechamento passo, CarrinhoDTO carrinho, Guid? usuarioId, Guid? enderecoId,
+        int? servicoDeEntregaId = null, string? codigoDoCupom = null)
     {
         var autenticado = usuarioId is not null;
 
@@ -67,6 +71,14 @@ public class PedidoService : IPedidoService
             }
         }
 
+        var freteDeReferencia = passo == PassoDoFechamento.Carrinho
+            ? (carrinho.TemEntregaCalculada ? carrinho.Cotacao!.Opcoes.Min(o => o.Preco) : null)
+            : cotacao?.Opcoes.FirstOrDefault(o => o.ServicoId == servicoSelecionadoId)?.Preco;
+
+        ResultadoDoCupomDTO? cupom = null;
+        if (autenticado && !string.IsNullOrWhiteSpace(codigoDoCupom))
+            cupom = await _cupomService.Avaliar(codigoDoCupom, usuarioId!.Value, carrinho, freteDeReferencia);
+
         return new PassoDoFechamentoDTO
         {
             PassoAtivo = passo,
@@ -75,7 +87,9 @@ public class PedidoService : IPedidoService
             Enderecos = enderecos,
             EnderecoSelecionadoId = enderecoSelecionadoId,
             ServicoDeEntregaSelecionadoId = servicoSelecionadoId,
-            Cotacao = cotacao
+            Cotacao = cotacao,
+            Cupom = cupom,
+            ValorDoFreteDeReferencia = freteDeReferencia
         };
     }
 
@@ -114,7 +128,24 @@ public class PedidoService : IPedidoService
                 "O valor do frete mudou desde a última vez que você revisou. Confira o valor atual.",
                 valorDoFreteAtual: opcaoEscolhida.Preco);
 
-        var valorTotal = carrinho.Subtotal + opcaoEscolhida.Preco;
+        ResultadoDoCupomDTO? cupom = null;
+        if (!string.IsNullOrWhiteSpace(dados.CodigoDoCupom))
+        {
+            cupom = await _cupomService.Avaliar(dados.CodigoDoCupom, usuarioId, carrinho, opcaoEscolhida.Preco);
+
+            if (!cupom.Valido)
+                return ResultadoDoFechamentoDTO.ParaRecusa(cupom.Motivo!, cupomRecusado: true);
+
+            if (cupom.DescontoTotal != dados.DescontoDoCupomExibido)
+                return ResultadoDoFechamentoDTO.ParaRecusa(
+                    "O desconto do cupom mudou desde a última vez que você revisou. Confira o valor atual.",
+                    descontoDoCupomAtual: cupom.DescontoTotal);
+        }
+
+        var valorTotal = carrinho.Subtotal + opcaoEscolhida.Preco - (cupom?.DescontoTotal ?? 0m);
+
+        if (valorTotal <= 0)
+            return ResultadoDoFechamentoDTO.ParaRecusa("Não foi possível aplicar este cupom a um pedido sem valor.");
 
         var pedido = new Pedido(
             usuarioId, dados.EnderecoId, valorTotal, opcaoEscolhida.Preco,
@@ -125,6 +156,9 @@ public class PedidoService : IPedidoService
             pedido.AcrescentarItem(
                 linha.ProdutoId, linha.Quantidade, linha.PrecoUnitario,
                 linha.DescontoDaPromocao, linha.RotuloDaPromocao);
+
+        if (cupom is not null)
+            pedido.AplicarCupom(cupom.CupomId!.Value, cupom.Codigo, cupom.DescontoNosProdutos, cupom.DescontoNoFrete);
 
         var pagamento = new Pagamento(pedido.PedidoId, dados.MetodoPagamento, valorTotal);
 

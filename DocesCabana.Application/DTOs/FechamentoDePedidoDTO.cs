@@ -13,4 +13,8 @@ public class FechamentoDePedidoDTO
     public decimal ValorDosProdutosExibido { get; set; }
 
     public decimal ValorDoFreteExibido { get; set; }
+
+    public string? CodigoDoCupom { get; set; }
+
+    public decimal DescontoDoCupomExibido { get; set; }
 }

@@ -173,35 +173,10 @@ public class Promocao
 
     private static void ValidarDesconto(TipoDeDesconto tipo, decimal valor, short? quantidadeLeve, short? quantidadePague)
     {
-        switch (tipo)
-        {
-            case TipoDeDesconto.Percentual:
-                if (valor < 1 || valor > 99)
-                    throw new ArgumentException("Promoção percentual deve ter valor entre 1 e 99.", nameof(valor));
-                break;
+        if (tipo == TipoDeDesconto.FreteGratis)
+            throw new ArgumentException("Frete grátis só existe como cupom.", nameof(tipo));
 
-            case TipoDeDesconto.ValorFixo:
-                if (valor <= 0)
-                    throw new ArgumentException("Valor da promoção deve ser maior que zero.", nameof(valor));
-                break;
-
-            case TipoDeDesconto.CompreXLeveY:
-                if (quantidadeLeve is null || quantidadePague is null)
-                    throw new ArgumentException("Informe as quantidades de \"leve\" e \"pague\".", nameof(quantidadeLeve));
-
-                if (quantidadeLeve < 2)
-                    throw new ArgumentException("A quantidade de \"leve\" deve ser no mínimo 2.", nameof(quantidadeLeve));
-
-                if (quantidadePague < 1 || quantidadePague >= quantidadeLeve)
-                    throw new ArgumentException("A quantidade de \"pague\" deve ser no mínimo 1 e menor que a de \"leve\".", nameof(quantidadePague));
-                break;
-
-            case TipoDeDesconto.FreteGratis:
-                throw new ArgumentException("Frete grátis só existe como cupom.", nameof(tipo));
-
-            default:
-                throw new ArgumentException("Tipo de desconto inválido.", nameof(tipo));
-        }
+        DescontoHelper.ValidarTipoEValor(tipo, valor, quantidadeLeve, quantidadePague);
     }
 
     private static void ValidarProduto(Produto produto)

@@ -1,7 +1,7 @@
 # Plano — Promoções de produto
 
 **ID:** 034-promocoes-de-produto · **Criado em:** 2026-11-18
-**Status:** Rascunho
+**Status:** Executado
 
 ---
 

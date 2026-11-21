@@ -1,7 +1,7 @@
 # Plano — Cupons de desconto
 
 **ID:** 035-cupons-de-desconto · **Criado em:** 2026-11-18
-**Status:** Rascunho · **Depende de:** `034-promocoes-de-produto` executada
+**Status:** Executado · **Depende de:** `034-promocoes-de-produto` executada
 
 ---
 
@@ -233,20 +233,20 @@ public static void LimparCupom(this ISession sessao);
 
 ## 6. Ordem de execução
 
-- [ ] 1. Extrair `DescontoHelper.ValidarTipoEValor` de `Promocao`. Os `PromocaoTests` da `034` precisam continuar verdes sem edição.
-- [ ] 2. `CupomTests` (código, tipos, período, mínimo, restrição, `Alcanca`, `AtingeMinimo`, cálculos de D6 e `EstaVigente`) (vermelhos) → criar `Cupom` → verde.
-- [ ] 3. `PedidoTests` de `AplicarCupom` e `ValorDosProdutos` (vermelhos) → implementar → verde.
-- [ ] 4. `CupomConfiguration`, `PedidoConfiguration` e `DbSet` → gerar a migration `AddCupons` → revisar o SQL.
-- [ ] 5. Integração de `CupomRepository` e das consultas novas de `PedidoRepository` (vermelhos) → implementar → verde.
-- [ ] 6. Validators (vermelhos) → implementar → verde.
-- [ ] 7. `CupomServiceTests` de `Avaliar` (cada motivo, cada tipo, acúmulo, mínimo e uso) e da gestão (vermelhos) → `LinhaDoCarrinhoDTO.SubcategoriaId`, `CupomService`, `CupomMapper` e injeção de dependência → verde.
-- [ ] 8. `PedidoServiceTests` de `MontarPasso` com cupom e de `Fechar` com cupom válido, recusado e com desconto divergente (vermelhos) → implementar → verde.
-- [ ] 9. Controller tests de `AplicarCupom`, `RemoverCupom` e da limpeza no `Fechar` (vermelhos) → `CupomDaSessao` e as ações → verde.
-- [ ] 10. Views do carrinho, do pagamento, da confirmação e do detalhe, e CSS.
-- [ ] 11. Controller tests de `Admin/CupomController` (vermelhos) → controller, view model, views, JS, CSS e item do menu → verde.
-- [ ] 12. Escrever o E2E `CupomTests` e vê-lo falhar sem o seed → semear `BEMVINDO10` → verde.
-- [ ] 13. Linha da `035` no `specs/README.md` atualizada. A pergunta aberta sobre cupom sai de "Perguntas ainda abertas".
-- [ ] 14. `dotnet build` e `dotnet test` completos (unidade, integração e E2E).
+- [x] 1. Extrair `DescontoHelper.ValidarTipoEValor` de `Promocao`. Os `PromocaoTests` da `034` precisam continuar verdes sem edição.
+- [x] 2. `CupomTests` (código, tipos, período, mínimo, restrição, `Alcanca`, `AtingeMinimo`, cálculos de D6 e `EstaVigente`) (vermelhos) → criar `Cupom` → verde.
+- [x] 3. `PedidoTests` de `AplicarCupom` e `ValorDosProdutos` (vermelhos) → implementar → verde.
+- [x] 4. `CupomConfiguration`, `PedidoConfiguration` e `DbSet` → gerar a migration `AddCupons` → revisar o SQL.
+- [x] 5. Integração de `CupomRepository` e das consultas novas de `PedidoRepository` (vermelhos) → implementar → verde.
+- [x] 6. Validators (vermelhos) → implementar → verde.
+- [x] 7. `CupomServiceTests` de `Avaliar` (cada motivo, cada tipo, acúmulo, mínimo e uso) e da gestão (vermelhos) → `LinhaDoCarrinhoDTO.SubcategoriaId`, `CupomService`, `CupomMapper` e injeção de dependência → verde.
+- [x] 8. `PedidoServiceTests` de `MontarPasso` com cupom e de `Fechar` com cupom válido, recusado e com desconto divergente (vermelhos) → implementar → verde.
+- [x] 9. Controller tests de `AplicarCupom`, `RemoverCupom` e da limpeza no `Fechar` (vermelhos) → `CupomDaSessao` e as ações → verde.
+- [x] 10. Views do carrinho, do pagamento, da confirmação e do detalhe, e CSS.
+- [x] 11. Controller tests de `Admin/CupomController` (vermelhos) → controller, view model, views, JS, CSS e item do menu → verde.
+- [x] 12. Escrever o E2E `CupomTests` e vê-lo falhar sem o seed → semear `BEMVINDO10` → verde.
+- [x] 13. Linha da `035` no `specs/README.md` atualizada. A pergunta aberta sobre cupom sai de "Perguntas ainda abertas".
+- [x] 14. `dotnet build` e `dotnet test` completos (unidade, integração e E2E).
 - [ ] 15. Verificação manual da seção 7.
 
 ## 7. Testes e verificação
@@ -291,4 +291,65 @@ public static void LimparCupom(this ISession sessao);
 
 ## 9. Resultado da execução
 
-*Preenchido na execução.*
+**Executado em:** 2026-11-20.
+
+**Suíte:** `dotnet build` sem erros nem avisos. `DocesCabana.Tests`: 1018 aprovados
+(unidade e integração). `DocesCabana.Tests.E2E`: 16 de 17 aprovados, incluindo o
+novo `CupomTests`. O que falhou foi `CadastroDeProdutoTests.Dado_Administrador_Quando_CadastrarProduto_Entao_DeveConfirmar`,
+que tem `Trait("Categoria", "Externo")` e precisa da credencial do Supabase. Sem
+ela, esse teste falha com ou sem esta feature.
+
+**Testes novos:** `CupomTests` (entidade, 45 casos), os casos de cupom em
+`PedidoTests`, `CupomDTOValidatorTests`, `AplicacaoDeCupomDTOValidatorTests`,
+`CupomServiceTests`, os casos de cupom em `PedidoServiceTests`,
+`CarrinhoControllerTests` e `PedidoControllerTests`, `Admin/CupomControllerTests`,
+`CupomRepositoryIntegrationTests` (com o seed idempotente de `BEMVINDO10`), os
+casos de cupom em `PedidoRepositoryIntegrationTests` e o E2E `Fluxos/CupomTests`.
+
+**Desvios e detalhes que o plano não fixava:**
+
+1. **O E2E não chega ao formulário de pagamento.** No E2E, a cotação de frete não
+   responde, por causa da pendência de credencial da `022`. Então o passo de
+   Pagamento mostra "Escolha um endereço e uma opção de entrega" e não mostra
+   o formulário. O E2E prova que o código fica na sessão entre requisições e
+   chega ao passo de Pagamento, com o canhoto e a linha do cupom no resumo. Ele
+   **não** prova os campos ocultos `CodigoDoCupom` e `DescontoDoCupomExibido`.
+   Esses campos ficam cobertos pela leitura da view e pelos testes de
+   `PedidoService.Fechar`. Quando a credencial de frete existir, vale estender
+   o E2E até o fechamento.
+2. **Mensagens de `DescontoHelper.ValidarTipoEValor`.** As exceções extraídas de
+   `Promocao` passaram a dizer "Desconto percentual..." e "Valor do desconto...",
+   no lugar de "Promoção percentual..." e "Valor da promoção...". Assim elas
+   valem para os dois usos. Os `PromocaoTests` continuaram verdes sem edição.
+   A mensagem "Frete grátis só existe como cupom." continua em `Promocao`.
+3. **`Pedido.Valor` é o total pago:** produtos + frete − os dois descontos do
+   cupom. `ValorDoFrete` guarda o preço cheio da entrega. Os DTOs de confirmação
+   e de detalhe ganharam `ValorDosItens`, que é a soma das linhas antes do
+   cupom e alimenta a linha "Produtos". `ValorTotal` passou a ser
+   `ValorDosProdutos + ValorDoFrete − DescontoNoFrete`.
+4. **`PassoDoFechamentoDTO`** ganhou `ValorDoFreteDeReferencia`, `CupomValido`,
+   `DescontoTotalDoCupom` e `ValorTotal`. As views do resumo e do pagamento
+   passaram a tirar o total daí.
+5. **A listagem do admin reaproveita o enum `SituacaoDaPromocao`** (Vigente,
+   Agendado, Encerrado, Desativado). Não foi criado um enum só para cupom.
+6. **Erro de código duplicado no admin.** A chave do erro é `Cupom.Codigo`,
+   porque o formulário usa `[Bind(Prefix = "Cupom")]`, como em
+   `Admin/Promocao`. O plano dizia só `"Codigo"`. Na edição, o código vai num
+   campo oculto para o validator aceitar, e `CupomService.Atualizar` o ignora.
+7. **Restrição no formulário do admin.** O rádio "Vale para" (todos, categoria,
+   subcategoria) não é um campo do DTO. O JS desabilita a lista escondida, para
+   que ela não seja enviada. Sem JS, as duas listas aparecem, e escolher as
+   duas cai no erro do validator.
+8. **Novo código recusado com outro cupom já aplicado.** O cupom anterior
+   continua na sessão. O motivo da recusa aparece no campo.
+9. **`ResultadoDoCupomDTO.ParaRecusa`** é um método de fábrica, no mesmo padrão
+   de `ResultadoDoFechamentoDTO`.
+10. **Visual do cupom aplicado.** O cupom aparece como um "canhoto" de papel,
+    com recortes laterais feitos por `mask`. O rótulo do desconto usa a fonte
+    manuscrita da marca (`--fonte-secundaria`). O estilo "em breve" saiu. O
+    estilo do campo desabilitado ficou, porque o visitante ainda o vê.
+11. **Status da `034`.** O cabeçalho do plano da `034` foi corrigido para
+    `Executado`, com aprovação do usuário. O `specs/README.md` já a marcava
+    como executada.
+
+**Pendente:** passo 15, a verificação manual da seção 7.

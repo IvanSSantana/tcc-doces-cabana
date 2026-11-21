@@ -31,6 +31,7 @@ public class PedidoController : Controller
             if (resultado.Sucesso)
             {
                 HttpContext.Session.LimparCep();
+                HttpContext.Session.LimparCupom();
                 return RedirectToAction(nameof(Confirmacao), new { id = resultado.PedidoId });
             }
 
@@ -38,11 +39,16 @@ public class PedidoController : Controller
             ViewData["ValorDosProdutosAtual"] = resultado.ValorDosProdutosAtual;
             ViewData["ValorDoFreteAtual"] = resultado.ValorDoFreteAtual;
             ViewData["ItemIndisponivel"] = resultado.ItemIndisponivel;
+            ViewData["DescontoDoCupomAtual"] = resultado.DescontoDoCupomAtual;
+
+            if (resultado.CupomRecusado)
+                HttpContext.Session.LimparCupom();
         }
 
         var carrinho = await _carrinhoService.ObterDoUsuario(UsuarioAtualId);
         ViewData["PassoDoFechamento"] = await _pedidoService.MontarPasso(
-            PassoDoFechamento.Pagamento, carrinho, UsuarioAtualId, dados.EnderecoId);
+            PassoDoFechamento.Pagamento, carrinho, UsuarioAtualId, dados.EnderecoId,
+            dados.ServicoDeEntregaId, HttpContext.Session.LerCupom());
 
         return View("~/Views/Carrinho/Index.cshtml", carrinho);
     }

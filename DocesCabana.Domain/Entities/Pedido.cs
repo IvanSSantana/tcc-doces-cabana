@@ -28,6 +28,16 @@ public class Pedido
 
     public DateTime Data { get; private set; }
 
+    public Guid? CupomId { get; private set; }
+
+    public Cupom? Cupom { get; private set; }
+
+    public string? CodigoDoCupom { get; private set; }
+
+    public decimal DescontoDoCupom { get; private set; }
+
+    public decimal DescontoNoFrete { get; private set; }
+
     private readonly List<ItemPedido> _itens = [];
 
     public IReadOnlyCollection<ItemPedido> Itens => _itens.AsReadOnly();
@@ -74,6 +84,33 @@ public class Pedido
         decimal descontoDaPromocao = 0m,
         string? rotuloDaPromocao = null) =>
         _itens.Add(new ItemPedido(PedidoId, produtoId, quantidade, precoUnitario, descontoDaPromocao, rotuloDaPromocao));
+
+    public void AplicarCupom(Guid cupomId, string codigo, decimal descontoNosProdutos, decimal descontoNoFrete)
+    {
+        if (cupomId == Guid.Empty)
+            throw new ArgumentException("Cupom inválido.", nameof(cupomId));
+
+        if (string.IsNullOrWhiteSpace(codigo))
+            throw new ArgumentException("Código do cupom é obrigatório.", nameof(codigo));
+
+        if (descontoNosProdutos < 0 || descontoNoFrete < 0)
+            throw new ArgumentException("Desconto do cupom não pode ser negativo.");
+
+        if (descontoNosProdutos > SomarLinhas())
+            throw new ArgumentException("Desconto do cupom não pode passar do valor dos produtos.", nameof(descontoNosProdutos));
+
+        if (descontoNoFrete > ValorDoFrete)
+            throw new ArgumentException("Desconto no frete não pode passar do valor do frete.", nameof(descontoNoFrete));
+
+        CupomId = cupomId;
+        CodigoDoCupom = codigo;
+        DescontoDoCupom = descontoNosProdutos;
+        DescontoNoFrete = descontoNoFrete;
+    }
+
+    public decimal ValorDosProdutos() => SomarLinhas() - DescontoDoCupom;
+
+    private decimal SomarLinhas() => _itens.Sum(i => i.CalcularValorDaLinha());
 
     public string NumeroVisivel() => PedidoId.ToString("N")[..8].ToUpperInvariant();
 

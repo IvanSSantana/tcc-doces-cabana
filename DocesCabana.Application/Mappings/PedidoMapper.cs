@@ -21,8 +21,11 @@ public static class PedidoMapper
                 i.RotuloDaPromocao))
             .ToList(),
 
-        ValorDosProdutos = pedido.Valor - pedido.ValorDoFrete,
+        ValorDosProdutos = pedido.ValorDosProdutos(),
         ValorDoFrete = pedido.ValorDoFrete,
+        CodigoDoCupom = pedido.CodigoDoCupom,
+        DescontoDoCupom = pedido.DescontoDoCupom,
+        DescontoNoFrete = pedido.DescontoNoFrete,
         Transportadora = pedido.Transportadora,
         Servico = pedido.Servico,
         PrazoMinimoEmDias = pedido.PrazoMinimoEmDias,
@@ -59,8 +62,11 @@ public static class PedidoMapper
         Servico = pedido.Servico,
         PrazoMinimoEmDias = pedido.PrazoMinimoEmDias,
         PrazoMaximoEmDias = pedido.PrazoMaximoEmDias,
-        ValorDosProdutos = pedido.Valor - pedido.ValorDoFrete,
+        ValorDosProdutos = pedido.ValorDosProdutos(),
         ValorDoFrete = pedido.ValorDoFrete,
+        CodigoDoCupom = pedido.CodigoDoCupom,
+        DescontoDoCupom = pedido.DescontoDoCupom,
+        DescontoNoFrete = pedido.DescontoNoFrete,
         MetodoPagamento = pagamento?.Metodo ?? default,
         StatusDoPagamento = pagamento?.Status ?? PagamentoStatus.Pendente
     };

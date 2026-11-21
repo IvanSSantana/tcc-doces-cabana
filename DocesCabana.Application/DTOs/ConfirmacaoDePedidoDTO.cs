@@ -14,7 +14,17 @@ public class ConfirmacaoDePedidoDTO
 
     public decimal ValorDoFrete { get; init; }
 
-    public decimal ValorTotal => ValorDosProdutos + ValorDoFrete;
+    public string? CodigoDoCupom { get; init; }
+
+    public decimal DescontoDoCupom { get; init; }
+
+    public decimal DescontoNoFrete { get; init; }
+
+    public bool TemCupom => CodigoDoCupom is not null;
+
+    public decimal ValorDosItens => ValorDosProdutos + DescontoDoCupom;
+
+    public decimal ValorTotal => ValorDosProdutos + ValorDoFrete - DescontoNoFrete;
 
     public string Transportadora { get; init; } = string.Empty;
 

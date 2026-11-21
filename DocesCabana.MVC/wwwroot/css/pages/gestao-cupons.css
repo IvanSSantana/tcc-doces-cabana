@@ -1,0 +1,56 @@
+/* Gestão de cupons (spec 035). Reaproveita gestao-produtos.css e gestao-promocoes.css. */
+
+.tabela-cupons .coluna-codigo-cupom,
+.codigo-fixo-cupom,
+.campo-codigo-cupom {
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.tabela-cupons .coluna-codigo-cupom {
+    color: var(--cor-primaria);
+    white-space: nowrap;
+}
+
+.tabela-cupons .coluna-restricoes-cupom {
+    color: var(--neutro-texto-suave);
+    font-size: var(--texto-pequeno);
+    min-width: 12rem;
+}
+
+.tabela-cupons .coluna-usos {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.campo-codigo-cupom {
+    text-transform: uppercase;
+}
+
+.campo-codigo-cupom::placeholder {
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+}
+
+.rotulo-codigo-fixo,
+.rotulo-grupo-restricao {
+    font-weight: 600;
+}
+
+.codigo-fixo-cupom {
+    margin: 0;
+    padding: 0.5rem 0.9rem;
+    align-self: flex-start;
+    border-radius: var(--raio-pequeno);
+    background-color: var(--cor-primaria-clara);
+    color: var(--cor-primaria);
+}
+
+.grupo-restricoes-cupom {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-3);
+    padding-top: var(--espaco-4);
+    border-top: 1px solid var(--neutro-divisor);
+}

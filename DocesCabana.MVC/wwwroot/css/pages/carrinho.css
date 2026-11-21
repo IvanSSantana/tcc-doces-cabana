@@ -203,10 +203,17 @@
   border-bottom: 1px solid var(--neutro-divisor);
 }
 
-.campo-cupom-carrinho label {
+.campo-cupom-carrinho label,
+.titulo-cupom-carrinho {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--cor-primaria);
+}
+
+.formulario-cupom-carrinho {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .entrada-cupom-carrinho {
@@ -215,15 +222,29 @@
 }
 
 .entrada-cupom-carrinho input {
+  flex: 1;
+  min-width: 0;
   border-radius: var(--raio-pequeno);
   border: 1px solid var(--neutro-borda);
   background-color: var(--neutro-rebaixado);
   padding: 0.5rem 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.entrada-cupom-carrinho input {
-  flex: 1;
-  min-width: 0;
+.entrada-cupom-carrinho input::placeholder {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.entrada-cupom-carrinho input:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+  background-color: var(--neutro-superficie);
+}
+
+.entrada-cupom-carrinho input[aria-invalid="true"] {
+  border-color: var(--cor-destaque-escura);
 }
 
 .entrada-cupom-carrinho input:disabled {
@@ -234,7 +255,112 @@
 
 .explicacao-cupom-carrinho {
   font-size: 0.8rem;
+  color: var(--neutro-texto-suave);
+}
+
+/* Cupom aplicado: um canhoto de papel com recortes nas laterais */
+.cupom-aplicado {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+}
+
+.canhoto-cupom {
+  --recorte: 7px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  padding: 0.55rem 1.1rem;
+  background-color: var(--cor-primaria-clara);
+  -webkit-mask:
+    radial-gradient(circle var(--recorte) at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--recorte) at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle var(--recorte) at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--recorte) at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+}
+
+.codigo-canhoto-cupom {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--cor-primaria);
+  overflow-wrap: anywhere;
+}
+
+.rotulo-canhoto-cupom {
+  font-family: var(--fonte-secundaria);
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--cor-destaque-escura);
+  white-space: nowrap;
+}
+
+.cupom-aplicado--sem-efeito .canhoto-cupom {
+  background-color: var(--neutro-rebaixado);
+}
+
+.cupom-aplicado--sem-efeito .codigo-canhoto-cupom,
+.cupom-aplicado--sem-efeito .rotulo-canhoto-cupom {
+  color: var(--neutro-texto-suave);
+}
+
+.botao-remover-cupom {
+  border: none;
+  background: none;
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+  color: var(--neutro-texto-suave);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.botao-remover-cupom:hover {
+  color: var(--cor-destaque-escura);
+}
+
+.botao-remover-cupom:focus-visible {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.motivo-cupom-carrinho {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--raio-pequeno);
+  background-color: var(--status-aviso-fundo);
+  color: var(--status-aviso);
+  font-size: 0.85rem;
+}
+
+/* Linhas de desconto do cupom no resumo, no pagamento e na confirmação */
+.linha-desconto-carrinho {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--neutro-texto-suave);
+}
+
+.linha-desconto-carrinho strong,
+.linha-desconto-pedido strong {
+  color: var(--cor-destaque-escura);
+}
+
+.codigo-linha-desconto {
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.valor-riscado {
+  font-weight: 400;
   color: var(--neutro-apagado);
+}
+
+.frete-gratis {
+  color: var(--status-sucesso);
 }
 
 .total-itens-carrinho {

@@ -118,13 +118,66 @@
             <aside class="painel resumo-carrinho">
                 <h2 class="titulo-resumo-carrinho">Resumo do pedido</h2>
 
+                @{
+                    var cupom = passoDoFechamento?.Cupom;
+                    var cupomValido = passoDoFechamento?.CupomValido == true;
+                    var descontoNosProdutos = cupomValido ? cupom!.DescontoNosProdutos : 0m;
+                    var freteGratis = cupomValido && cupom!.FreteGratis && cupom.DescontoNoFrete > 0;
+                    var erroCupom = ViewData.ModelState["Codigo"]?.Errors.FirstOrDefault()?.ErrorMessage;
+                    var codigoDigitado = ViewData.ModelState["Codigo"]?.AttemptedValue;
+                }
+
                 <div class="campo-cupom-carrinho">
-                    <label for="cupom-carrinho">Cupom de desconto</label>
-                    <div class="entrada-cupom-carrinho">
-                        <input type="text" id="cupom-carrinho" disabled placeholder="Em breve" />
-                        <button type="button" class="botao botao--secundario botao--pequeno" disabled>Aplicar</button>
-                    </div>
-                    <span class="explicacao-cupom-carrinho">Cupom de desconto ainda não está disponível.</span>
+                    @if (User.Identity is not { IsAuthenticated: true })
+                    {
+                        <label for="cupom-carrinho">Cupom de desconto</label>
+                        <div class="entrada-cupom-carrinho">
+                            <input type="text" id="cupom-carrinho" disabled placeholder="Código do cupom"
+                                   aria-describedby="explicacao-cupom-carrinho" />
+                            <button type="button" class="botao botao--secundario botao--pequeno" onclick="abrirModal()">Entrar</button>
+                        </div>
+                        <span id="explicacao-cupom-carrinho" class="explicacao-cupom-carrinho">Entre na sua conta para usar um cupom.</span>
+                    }
+                    else if (cupom is not null)
+                    {
+                        <span class="titulo-cupom-carrinho">Cupom de desconto</span>
+                        <div class="cupom-aplicado @(cupomValido ? "" : "cupom-aplicado--sem-efeito")">
+                            <div class="canhoto-cupom">
+                                <span class="codigo-canhoto-cupom">@cupom.Codigo</span>
+                                @if (!string.IsNullOrEmpty(cupom.Rotulo))
+                                {
+                                    <span class="rotulo-canhoto-cupom">@cupom.Rotulo</span>
+                                }
+                            </div>
+                            <form method="post" asp-controller="Carrinho" asp-action="RemoverCupom" class="formulario-remover-cupom">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="botao-remover-cupom" aria-label="Remover o cupom @cupom.Codigo">Remover</button>
+                            </form>
+                        </div>
+                        @if (!cupomValido)
+                        {
+                            <p class="motivo-cupom-carrinho" role="status">@cupom.Motivo</p>
+                        }
+                    }
+                    else
+                    {
+                        <form method="post" asp-controller="Carrinho" asp-action="AplicarCupom" class="formulario-cupom-carrinho" novalidate>
+                            @Html.AntiForgeryToken()
+                            <label for="cupom-carrinho">Cupom de desconto</label>
+                            <div class="entrada-cupom-carrinho">
+                                <input type="text" id="cupom-carrinho" name="Codigo" value="@codigoDigitado"
+                                       maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false"
+                                       placeholder="Código do cupom"
+                                       aria-invalid="@(erroCupom is not null ? "true" : null)"
+                                       aria-describedby="@(erroCupom is not null ? "erro-cupom-carrinho" : null)" />
+                                <button type="submit" class="botao botao--secundario botao--pequeno">Aplicar</button>
+                            </div>
+                            @if (erroCupom is not null)
+                            {
+                                <span id="erro-cupom-carrinho" class="mensagem-erro">@erroCupom</span>
+                            }
+                        </form>
+                    }
                 </div>
 
                 <p class="total-itens-carrinho">@Model.TotalDeItens ite@(Model.TotalDeItens == 1 ? "m" : "ns")</p>
@@ -140,6 +193,17 @@
                     var entregaEscolhida = resumoPeloEndereco
                         ? passoDoFechamento!.Cotacao?.Opcoes.FirstOrDefault(o => o.ServicoId == passoDoFechamento.ServicoDeEntregaSelecionadoId)
                         : null;
+
+                    // Com cupom, o total vem do passo (produtos + frete de referência − descontos do cupom).
+                    var totalLiquido = passoDoFechamento?.ValorTotal ?? Model.ValorTotal;
+                }
+
+                @if (descontoNosProdutos > 0)
+                {
+                    <p class="linha-desconto-carrinho">
+                        Cupom <span class="codigo-linha-desconto">@cupom!.Codigo</span>
+                        <strong>&minus; R$ @descontoNosProdutos.ToString("N2")</strong>
+                    </p>
                 }
 
                 @if (resumoPeloEndereco)
@@ -148,17 +212,24 @@
                     {
                         <p class="linha-frete-carrinho">
                             Entrega (@entregaEscolhida.Transportadora — @entregaEscolhida.Servico)
-                            <strong>R$ @entregaEscolhida.Preco.ToString("N2")</strong>
+                            @if (freteGratis)
+                            {
+                                <strong><s class="valor-riscado">R$ @entregaEscolhida.Preco.ToString("N2")</s> <span class="frete-gratis">Grátis</span></strong>
+                            }
+                            else
+                            {
+                                <strong>R$ @entregaEscolhida.Preco.ToString("N2")</strong>
+                            }
                         </p>
                         <p class="subtotal-carrinho">
-                            Total a pagar <strong>R$ @((Model.Subtotal + entregaEscolhida.Preco).ToString("N2"))</strong>
+                            Total a pagar <strong>R$ @totalLiquido.ToString("N2")</strong>
                         </p>
                     }
                     else
                     {
                         <p class="linha-frete-carrinho">Escolha o endereço e a entrega para ver o total.</p>
                         <p class="subtotal-carrinho">
-                            Subtotal <strong>R$ @Model.Subtotal.ToString("N2")</strong>
+                            Subtotal <strong>R$ @totalLiquido.ToString("N2")</strong>
                         </p>
                     }
                 }
@@ -202,18 +273,31 @@
                 }
                 else if (Model.TemEntregaCalculada)
                 {
+                    var freteMaisBarato = Model.Cotacao!.Opcoes.Min(o => o.Preco);
                     <p class="linha-frete-carrinho">
-                        Frete <strong>R$ @Model.Cotacao!.Opcoes.Min(o => o.Preco).ToString("N2")</strong>
+                        Frete
+                        @if (freteGratis)
+                        {
+                            <strong><s class="valor-riscado">R$ @freteMaisBarato.ToString("N2")</s> <span class="frete-gratis">Grátis</span></strong>
+                        }
+                        else
+                        {
+                            <strong>R$ @freteMaisBarato.ToString("N2")</strong>
+                        }
                     </p>
                     <p class="subtotal-carrinho">
-                        Total a pagar <strong>R$ @Model.ValorTotal.ToString("N2")</strong>
+                        Total a pagar <strong>R$ @totalLiquido.ToString("N2")</strong>
                     </p>
                 }
                 else
                 {
-                    <p class="linha-frete-carrinho">Calcule o frete no carrinho para ver o total.</p>
+                    <p class="linha-frete-carrinho">
+                        @(cupomValido && cupom!.FreteGratis
+                            ? "Calcule o frete: o cupom cobre a entrega escolhida."
+                            : "Calcule o frete no carrinho para ver o total.")
+                    </p>
                     <p class="subtotal-carrinho">
-                        Subtotal <strong>R$ @Model.Subtotal.ToString("N2")</strong>
+                        Subtotal <strong>R$ @totalLiquido.ToString("N2")</strong>
                     </p>
                 }
 

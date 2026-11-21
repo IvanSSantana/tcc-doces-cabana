@@ -194,4 +194,81 @@ public class PedidoTests
         pedido.MarcarComoEntregue();
         Assert.Equal(PedidoStatus.Entregue, pedido.Status);
     }
+
+    private Pedido CriarPedidoComItens()
+    {
+        var pedido = CriarPedido(valor: 90m, valorDoFrete: 10m);
+        pedido.AcrescentarItem(Guid.NewGuid(), 2, 25m);
+        pedido.AcrescentarItem(Guid.NewGuid(), 3, 10m);
+        return pedido;
+    }
+
+    [Fact]
+    public void Dado_PedidoSemCupom_Quando_ValorDosProdutos_Entao_DeveSerASomaDasLinhas()
+    {
+        var pedido = CriarPedidoComItens();
+
+        Assert.Equal(80m, pedido.ValorDosProdutos());
+        Assert.Null(pedido.CupomId);
+        Assert.Equal(0m, pedido.DescontoDoCupom);
+        Assert.Equal(0m, pedido.DescontoNoFrete);
+    }
+
+    [Fact]
+    public void Dado_CupomAplicado_Quando_ValorDosProdutos_Entao_DeveDescontar()
+    {
+        var pedido = CriarPedidoComItens();
+        var cupomId = Guid.NewGuid();
+
+        pedido.AplicarCupom(cupomId, "BEMVINDO10", 8m, 0m);
+
+        Assert.Equal(72m, pedido.ValorDosProdutos());
+        Assert.Equal(cupomId, pedido.CupomId);
+        Assert.Equal("BEMVINDO10", pedido.CodigoDoCupom);
+        Assert.Equal(8m, pedido.DescontoDoCupom);
+    }
+
+    [Fact]
+    public void Dado_CupomDeFreteGratis_Quando_AplicarCupom_Entao_DeveGuardarDescontoNoFrete()
+    {
+        var pedido = CriarPedidoComItens();
+
+        pedido.AplicarCupom(Guid.NewGuid(), "FRETEGRATIS", 0m, 10m);
+
+        Assert.Equal(10m, pedido.DescontoNoFrete);
+        Assert.Equal(80m, pedido.ValorDosProdutos());
+    }
+
+    [Fact]
+    public void Dado_DescontoMaiorQueProdutos_Quando_AplicarCupom_Entao_DeveLancarArgumentException()
+    {
+        var pedido = CriarPedidoComItens();
+
+        Assert.Throws<ArgumentException>(() => pedido.AplicarCupom(Guid.NewGuid(), "BEMVINDO10", 80.01m, 0m));
+    }
+
+    [Fact]
+    public void Dado_DescontoNoFreteMaiorQueOFrete_Quando_AplicarCupom_Entao_DeveLancarArgumentException()
+    {
+        var pedido = CriarPedidoComItens();
+
+        Assert.Throws<ArgumentException>(() => pedido.AplicarCupom(Guid.NewGuid(), "FRETEGRATIS", 0m, 10.01m));
+    }
+
+    [Fact]
+    public void Dado_DescontoNegativo_Quando_AplicarCupom_Entao_DeveLancarArgumentException()
+    {
+        var pedido = CriarPedidoComItens();
+
+        Assert.Throws<ArgumentException>(() => pedido.AplicarCupom(Guid.NewGuid(), "BEMVINDO10", -1m, 0m));
+    }
+
+    [Fact]
+    public void Dado_CupomInvalido_Quando_AplicarCupom_Entao_DeveLancarArgumentException()
+    {
+        var pedido = CriarPedidoComItens();
+
+        Assert.Throws<ArgumentException>(() => pedido.AplicarCupom(Guid.Empty, "BEMVINDO10", 8m, 0m));
+        Assert.ThrowsAny<ArgumentException>(() => pedido.AplicarCupom(Guid.NewGuid(), " ", 8m, 0m));
+    }
 }

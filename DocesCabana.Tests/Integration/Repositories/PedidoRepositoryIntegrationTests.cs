@@ -184,11 +184,106 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartave
         return await SemearProduto(subcategoriaId, "Brigadeiro", 5m);
     }
 
-    private async Task SemearPedido(Guid usuarioId, Guid produtoId, PedidoStatus status)
+    [Fact]
+    public async Task Dado_PedidoComCupom_Quando_Buscar_Entao_DeveVoltarComCodigoEDescontos()
+    {
+        var unidadeDeTrabalho = new UnitOfWork(Contexto);
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var enderecoId = await SemearEndereco(usuarioId);
+        var produto = await SemearProdutoComSubcategoria();
+        var cupom = await SemearCupom();
+
+        var pedido = new Pedido(usuarioId, enderecoId, 9m, 10m, "Correios", "PAC", 3, 7);
+        pedido.AcrescentarItem(produto.ProdutoId, 2, 5m);
+        pedido.AplicarCupom(cupom.CupomId, cupom.Codigo, 1m, 10m);
+        await repositorio.AdicionarComPagamento(pedido, new Pagamento(pedido.PedidoId, MetodoPagamento.Pix, 9m));
+        await unidadeDeTrabalho.SalvarAlteracoes();
+        Contexto.ChangeTracker.Clear();
+
+        var encontrado = await repositorio.Buscar(pedido.PedidoId, usuarioId);
+
+        Assert.Equal(cupom.CupomId, encontrado!.CupomId);
+        Assert.Equal("BEMVINDO10", encontrado.CodigoDoCupom);
+        Assert.Equal(1m, encontrado.DescontoDoCupom);
+        Assert.Equal(10m, encontrado.DescontoNoFrete);
+        Assert.Equal(9m, encontrado.ValorDosProdutos());
+    }
+
+    [Fact]
+    public async Task Dado_PedidoPendenteComCupom_Quando_ClienteJaUsouCupom_Entao_DeveSerVerdadeiro()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var produto = await SemearProdutoComSubcategoria();
+        var cupom = await SemearCupom();
+        await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Pendente, cupom);
+
+        Assert.True(await repositorio.ClienteJaUsouCupom(usuarioId, cupom.CupomId));
+    }
+
+    [Fact]
+    public async Task Dado_PedidoCanceladoComCupom_Quando_ClienteJaUsouCupom_Entao_DeveSerFalso()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var produto = await SemearProdutoComSubcategoria();
+        var cupom = await SemearCupom();
+        await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Cancelado, cupom);
+
+        Assert.False(await repositorio.ClienteJaUsouCupom(usuarioId, cupom.CupomId));
+    }
+
+    [Fact]
+    public async Task Dado_PedidoDeOutroClienteComCupom_Quando_ClienteJaUsouCupom_Entao_DeveSerFalso()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var dono = await SemearUsuario("Dono", "52998224725");
+        var outro = await SemearUsuario("Outro", "11144477735");
+        var produto = await SemearProdutoComSubcategoria();
+        var cupom = await SemearCupom();
+        await SemearPedido(dono, produto.ProdutoId, PedidoStatus.Entregue, cupom);
+
+        Assert.False(await repositorio.ClienteJaUsouCupom(outro, cupom.CupomId));
+    }
+
+    [Fact]
+    public async Task Dado_PedidosComCupons_Quando_ContarUsosPorCupom_Entao_DeveIgnorarCancelados()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var clienteA = await SemearUsuario("Cliente A", "52998224725");
+        var clienteB = await SemearUsuario("Cliente B", "11144477735");
+        var produto = await SemearProdutoComSubcategoria();
+        var cupom = await SemearCupom();
+        await SemearPedido(clienteA, produto.ProdutoId, PedidoStatus.Pendente, cupom);
+        await SemearPedido(clienteB, produto.ProdutoId, PedidoStatus.Entregue, cupom);
+        await SemearPedido(clienteB, produto.ProdutoId, PedidoStatus.Cancelado, cupom);
+        await SemearPedido(clienteB, produto.ProdutoId, PedidoStatus.Pendente);
+
+        var usos = await repositorio.ContarUsosPorCupom();
+
+        var uso = Assert.Single(usos);
+        Assert.Equal(cupom.CupomId, uso.Key);
+        Assert.Equal(2, uso.Value);
+    }
+
+    private async Task<Cupom> SemearCupom()
+    {
+        var cupom = new Cupom("BEMVINDO10", TipoDeDesconto.Percentual, 10, null, null,
+            new DateOnly(2026, 1, 1), new DateOnly(2026, 12, 31), null, true, null, null);
+        Contexto.Cupons.Add(cupom);
+        await Contexto.SaveChangesAsync();
+        return cupom;
+    }
+
+    private async Task SemearPedido(Guid usuarioId, Guid produtoId, PedidoStatus status, Cupom? cupom = null)
     {
         var enderecoId = await SemearEndereco(usuarioId);
         var pedido = new Pedido(usuarioId, enderecoId, 20m, 10m, "Correios", "PAC", 3, 7);
         pedido.AcrescentarItem(produtoId, 1, 5m);
+
+        if (cupom is not null)
+            pedido.AplicarCupom(cupom.CupomId, cupom.Codigo, 0.5m, 0m);
 
         switch (status)
         {

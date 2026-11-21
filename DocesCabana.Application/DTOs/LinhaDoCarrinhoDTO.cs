@@ -6,6 +6,8 @@ public class LinhaDoCarrinhoDTO
 {
     public Guid ProdutoId { get; init; }
 
+    public Guid SubcategoriaId { get; init; }
+
     public string Nome { get; init; } = string.Empty;
 
     public string ImagemUrl { get; init; } = string.Empty;
