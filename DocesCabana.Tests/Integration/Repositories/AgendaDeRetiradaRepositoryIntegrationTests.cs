@@ -14,7 +14,8 @@ public class AgendaDeRetiradaRepositoryIntegrationTests : InfraestruturaPostgres
     {
         var unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new AgendaDeRetiradaRepository(Contexto);
-        var agenda = new AgendaDeRetirada(90, 30);
+        var agenda = new AgendaDeRetirada(90);
+        agenda.DefinirAlmoco(new TimeOnly(12, 0), new TimeOnly(13, 0));
         agenda.DefinirHorario(DayOfWeek.Monday, new TimeOnly(9, 0), new TimeOnly(18, 0));
         agenda.BloquearDia(Segunda, "Feriado", Segunda);
         await repositorio.Adicionar(agenda);
@@ -23,8 +24,9 @@ public class AgendaDeRetiradaRepositoryIntegrationTests : InfraestruturaPostgres
 
         var recarregada = await repositorio.Obter();
 
-        Assert.Equal(90, recarregada.DuracaoDaFaixaEmMinutos);
-        Assert.Equal(30, recarregada.PreparoEmMinutos);
+        Assert.Equal(90, recarregada.TempoDePreparoEmMinutos);
+        Assert.Equal(new TimeOnly(12, 0), recarregada.InicioDoAlmoco);
+        Assert.Equal(new TimeOnly(13, 0), recarregada.FimDoAlmoco);
         Assert.Equal(7, recarregada.Horarios.Count);
         var segunda = recarregada.Horarios.Single(h => h.DiaDaSemana == DayOfWeek.Monday);
         Assert.Equal(new TimeOnly(9, 0), segunda.Abertura);
@@ -40,14 +42,14 @@ public class AgendaDeRetiradaRepositoryIntegrationTests : InfraestruturaPostgres
     {
         var unidadeDeTrabalho = new UnitOfWork(Contexto);
         var repositorio = new AgendaDeRetiradaRepository(Contexto);
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
         agenda.BloquearDia(Segunda, null, Segunda);
         await repositorio.Adicionar(agenda);
         await unidadeDeTrabalho.SalvarAlteracoes();
         Contexto.ChangeTracker.Clear();
 
         var rastreada = await repositorio.Obter();
-        rastreada.AlterarFaixas(30, 0);
+        rastreada.AlterarTempoDePreparo(30);
         rastreada.DefinirHorario(DayOfWeek.Saturday, new TimeOnly(8, 0), new TimeOnly(12, 0));
         rastreada.DesbloquearDia(Segunda);
         rastreada.BloquearDia(Segunda.AddDays(1), "Folga", Segunda);
@@ -56,7 +58,7 @@ public class AgendaDeRetiradaRepositoryIntegrationTests : InfraestruturaPostgres
 
         var recarregada = await repositorio.Obter();
 
-        Assert.Equal(30, recarregada.DuracaoDaFaixaEmMinutos);
+        Assert.Equal(30, recarregada.TempoDePreparoEmMinutos);
         Assert.Equal(new TimeOnly(8, 0), recarregada.Horarios.Single(h => h.DiaDaSemana == DayOfWeek.Saturday).Abertura);
         var bloqueio = Assert.Single(recarregada.DiasBloqueados);
         Assert.Equal(Segunda.AddDays(1), bloqueio.Data);
@@ -80,8 +82,8 @@ public class AgendaDeRetiradaRepositoryIntegrationTests : InfraestruturaPostgres
         var agenda = await new AgendaDeRetiradaRepository(Contexto).Obter();
 
         Assert.Single(Contexto.AgendasDeRetirada);
-        Assert.Equal(60, agenda.DuracaoDaFaixaEmMinutos);
-        Assert.Equal(60, agenda.PreparoEmMinutos);
+        Assert.Equal(60, agenda.TempoDePreparoEmMinutos);
+        Assert.False(agenda.TemAlmoco);
         Assert.False(agenda.Horarios.Single(h => h.DiaDaSemana == DayOfWeek.Sunday).Aberto);
         Assert.All(agenda.Horarios.Where(h => h.DiaDaSemana != DayOfWeek.Sunday), h =>
         {

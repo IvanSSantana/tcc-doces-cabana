@@ -2,9 +2,14 @@ namespace DocesCabana.Application.DTOs;
 
 public class AgendaDeRetiradaDTO
 {
-    public int? DuracaoDaFaixaEmMinutos { get; set; }
+    /// <summary>Antecedência mínima do pedido e duração de cada faixa.</summary>
+    public int? TempoDePreparoEmMinutos { get; set; }
 
-    public int? PreparoEmMinutos { get; set; }
+    public bool TemAlmoco { get; set; }
+
+    public TimeOnly? InicioDoAlmoco { get; set; }
+
+    public TimeOnly? FimDoAlmoco { get; set; }
 
     /// <summary>Um item por dia da semana, de segunda a domingo.</summary>
     public List<HorarioDeRetiradaDTO> Horarios { get; set; } = [];

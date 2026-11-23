@@ -23,8 +23,7 @@ public class RetiradaControllerTests
     {
         _agendaSalva = new AgendaDeRetiradaDTO
         {
-            DuracaoDaFaixaEmMinutos = 60,
-            PreparoEmMinutos = 60,
+            TempoDePreparoEmMinutos = 60,
             Horarios = Enum.GetValues<DayOfWeek>().Select(d => new HorarioDeRetiradaDTO { DiaDaSemana = d }).ToList(),
             DiasBloqueados = [new DiaSemRetiradaDTO { Data = Segunda, Motivo = "Feriado" }]
         };
@@ -74,7 +73,7 @@ public class RetiradaControllerTests
     [Fact]
     public async Task Dado_HorariosValidos_Quando_SalvarHorarios_Entao_DeveSalvarERedirecionar()
     {
-        var dto = new AgendaDeRetiradaDTO { DuracaoDaFaixaEmMinutos = 30, PreparoEmMinutos = 0 };
+        var dto = new AgendaDeRetiradaDTO { TempoDePreparoEmMinutos = 30 };
 
         var resultado = await _controller.SalvarHorarios(dto);
 
@@ -86,8 +85,8 @@ public class RetiradaControllerTests
     [Fact]
     public async Task Dado_ModelStateInvalido_Quando_SalvarHorarios_Entao_DeveDevolverIndexComOPostadoEOsBloqueiosSalvos()
     {
-        var dto = new AgendaDeRetiradaDTO { DuracaoDaFaixaEmMinutos = 5 };
-        _controller.ModelState.AddModelError("Agenda.DuracaoDaFaixaEmMinutos", "Inválida");
+        var dto = new AgendaDeRetiradaDTO { TempoDePreparoEmMinutos = 5 };
+        _controller.ModelState.AddModelError("Agenda.TempoDePreparoEmMinutos", "Inválida");
 
         var resultado = await _controller.SalvarHorarios(dto);
 

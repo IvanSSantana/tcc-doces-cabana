@@ -3,23 +3,29 @@ using DocesCabana.Domain.ValueObjects;
 namespace DocesCabana.Domain.Entities;
 
 /// <summary>
-/// Configuração única da retirada na loja: horário de cada dia da semana, duração das faixas,
-/// tempo de preparo e datas sem retirada. Gera as faixas que o cliente pode escolher no dia.
+/// Configuração única da retirada na loja: horário de cada dia da semana, tempo de preparo
+/// (que também é a duração de cada faixa), intervalo de almoço opcional e datas sem retirada.
+/// Gera as faixas que o cliente pode escolher no dia.
 /// </summary>
 public class AgendaDeRetirada
 {
     public static readonly Guid IdUnico = Guid.Parse("5b8e2f4a-1c3d-4e6f-9a0b-7c2d1e3f4a5b");
 
-    public const int DuracaoMinima = 15;
-    public const int DuracaoMaxima = 240;
-    public const int PreparoMaximo = 480;
+    public const int PreparoMinimo = 15;
+    public const int PreparoMaximo = 240;
     public const int DiasDeBuscaDaProximaAbertura = 14;
 
     public Guid AgendaDeRetiradaId { get; private set; }
 
-    public int DuracaoDaFaixaEmMinutos { get; private set; }
+    /// <summary>Antecedência mínima do pedido e, ao mesmo tempo, duração de cada faixa.</summary>
+    public int TempoDePreparoEmMinutos { get; private set; }
 
-    public int PreparoEmMinutos { get; private set; }
+    /// <summary>Início do almoço; nulo junto com o fim quando não há intervalo.</summary>
+    public TimeOnly? InicioDoAlmoco { get; private set; }
+
+    public TimeOnly? FimDoAlmoco { get; private set; }
+
+    public bool TemAlmoco => InicioDoAlmoco is not null && FimDoAlmoco is not null;
 
     private readonly List<HorarioDeRetirada> _horarios = [];
 
@@ -31,9 +37,9 @@ public class AgendaDeRetirada
 
     protected AgendaDeRetirada() { }
 
-    public AgendaDeRetirada(int duracaoDaFaixaEmMinutos, int preparoEmMinutos, Guid id = default)
+    public AgendaDeRetirada(int tempoDePreparoEmMinutos, Guid id = default)
     {
-        AlterarFaixas(duracaoDaFaixaEmMinutos, preparoEmMinutos);
+        AlterarTempoDePreparo(tempoDePreparoEmMinutos);
 
         AgendaDeRetiradaId = id == Guid.Empty
             ? IdUnico
@@ -43,18 +49,26 @@ public class AgendaDeRetirada
             _horarios.Add(new HorarioDeRetirada(dia, null, null));
     }
 
-    public void AlterarFaixas(int duracaoDaFaixaEmMinutos, int preparoEmMinutos)
+    public void AlterarTempoDePreparo(int tempoDePreparoEmMinutos)
     {
-        if (duracaoDaFaixaEmMinutos < DuracaoMinima || duracaoDaFaixaEmMinutos > DuracaoMaxima)
+        if (tempoDePreparoEmMinutos < PreparoMinimo || tempoDePreparoEmMinutos > PreparoMaximo)
             throw new ArgumentException(
-                $"A duração da faixa precisa ficar entre {DuracaoMinima} e {DuracaoMaxima} minutos.", nameof(duracaoDaFaixaEmMinutos));
+                $"O tempo de preparo precisa ficar entre {PreparoMinimo} e {PreparoMaximo} minutos.", nameof(tempoDePreparoEmMinutos));
 
-        if (preparoEmMinutos < 0 || preparoEmMinutos > PreparoMaximo)
-            throw new ArgumentException(
-                $"O tempo de preparo precisa ficar entre 0 e {PreparoMaximo} minutos.", nameof(preparoEmMinutos));
+        TempoDePreparoEmMinutos = tempoDePreparoEmMinutos;
+    }
 
-        DuracaoDaFaixaEmMinutos = duracaoDaFaixaEmMinutos;
-        PreparoEmMinutos = preparoEmMinutos;
+    /// <summary>Início e fim nulos removem o intervalo de almoço.</summary>
+    public void DefinirAlmoco(TimeOnly? inicio, TimeOnly? fim)
+    {
+        if (inicio is null != fim is null)
+            throw new ArgumentException("Informe o início e o fim do almoço, ou deixe sem almoço.", nameof(inicio));
+
+        if (inicio is not null && inicio >= fim)
+            throw new ArgumentException("O início do almoço precisa ser antes do fim.", nameof(inicio));
+
+        InicioDoAlmoco = inicio;
+        FimDoAlmoco = fim;
     }
 
     /// <summary>Abertura e fechamento nulos deixam o dia fechado.</summary>
@@ -76,8 +90,10 @@ public class AgendaDeRetirada
         _diasBloqueados.RemoveAll(d => d.Data == data);
 
     /// <summary>
-    /// Faixas do dia de <paramref name="agoraLocal"/>: começam na abertura, de duração em duração,
-    /// e a última termina no fechamento. Só entram as que começam depois de agora + preparo.
+    /// Faixas do dia de <paramref name="agoraLocal"/>: começam na abertura, de preparo em preparo,
+    /// e a última termina no fechamento. O almoço divide o dia em dois turnos: a faixa que encostaria
+    /// nele termina no início do almoço e a contagem recomeça no fim dele.
+    /// Só entram as faixas que começam depois de agora + preparo.
     /// </summary>
     public IReadOnlyList<FaixaDeRetirada> FaixasDisponiveis(DateTime agoraLocal)
     {
@@ -87,23 +103,43 @@ public class AgendaDeRetirada
         if (horario is null)
             return [];
 
-        var limite = agoraLocal.AddMinutes(PreparoEmMinutos);
-        var fechamento = data.ToDateTime(horario.Fechamento!.Value);
+        var limite = agoraLocal.AddMinutes(TempoDePreparoEmMinutos);
         var faixas = new List<FaixaDeRetirada>();
 
-        for (var inicio = data.ToDateTime(horario.Abertura!.Value); inicio < fechamento; inicio = inicio.AddMinutes(DuracaoDaFaixaEmMinutos))
+        foreach (var (inicioDoTurno, fimDoTurno) in Turnos(horario.Abertura!.Value, horario.Fechamento!.Value))
         {
-            if (inicio < limite)
-                continue;
+            var fechamento = data.ToDateTime(fimDoTurno);
 
-            var fim = inicio.AddMinutes(DuracaoDaFaixaEmMinutos);
-            if (fim > fechamento)
-                fim = fechamento;
+            for (var inicio = data.ToDateTime(inicioDoTurno); inicio < fechamento; inicio = inicio.AddMinutes(TempoDePreparoEmMinutos))
+            {
+                if (inicio < limite)
+                    continue;
 
-            faixas.Add(new FaixaDeRetirada(data, TimeOnly.FromDateTime(inicio), TimeOnly.FromDateTime(fim)));
+                var fim = inicio.AddMinutes(TempoDePreparoEmMinutos);
+                if (fim > fechamento)
+                    fim = fechamento;
+
+                faixas.Add(new FaixaDeRetirada(data, TimeOnly.FromDateTime(inicio), TimeOnly.FromDateTime(fim)));
+            }
         }
 
         return faixas;
+    }
+
+    /// <summary>Períodos de atendimento do dia, descontado o almoço que cair dentro do horário.</summary>
+    private IEnumerable<(TimeOnly Inicio, TimeOnly Fim)> Turnos(TimeOnly abertura, TimeOnly fechamento)
+    {
+        if (!TemAlmoco || InicioDoAlmoco >= fechamento || FimDoAlmoco <= abertura)
+        {
+            yield return (abertura, fechamento);
+            yield break;
+        }
+
+        if (InicioDoAlmoco!.Value > abertura)
+            yield return (abertura, InicioDoAlmoco.Value);
+
+        if (FimDoAlmoco!.Value < fechamento)
+            yield return (FimDoAlmoco.Value, fechamento);
     }
 
     /// <summary>Abertura do primeiro dia seguinte aberto e não bloqueado, até 14 dias à frente.</summary>

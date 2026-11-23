@@ -9,8 +9,7 @@ public class AgendaDeRetiradaDTOValidatorTests
 
     private static AgendaDeRetiradaDTO CriarValida() => new()
     {
-        DuracaoDaFaixaEmMinutos = 60,
-        PreparoEmMinutos = 60,
+        TempoDePreparoEmMinutos = 60,
         Horarios = Enum.GetValues<DayOfWeek>()
             .Select(dia => dia == DayOfWeek.Sunday
                 ? new HorarioDeRetiradaDTO { DiaDaSemana = dia, Aberto = false }
@@ -36,35 +35,64 @@ public class AgendaDeRetiradaDTOValidatorTests
     [InlineData(null)]
     [InlineData(14)]
     [InlineData(241)]
-    public void Dado_DuracaoInvalida_Quando_Validar_Entao_DeveSerInvalida(int? duracao)
+    public void Dado_PreparoInvalido_Quando_Validar_Entao_DeveSerInvalido(int? preparo)
     {
         var dto = CriarValida();
-        dto.DuracaoDaFaixaEmMinutos = duracao;
+        dto.TempoDePreparoEmMinutos = preparo;
 
-        AssertInvalido(dto, nameof(AgendaDeRetiradaDTO.DuracaoDaFaixaEmMinutos));
+        AssertInvalido(dto, nameof(AgendaDeRetiradaDTO.TempoDePreparoEmMinutos));
     }
 
     [Theory]
     [InlineData(15)]
     [InlineData(240)]
-    public void Dado_DuracaoNoLimite_Quando_Validar_Entao_DeveSerValida(int duracao)
+    public void Dado_PreparoNoLimite_Quando_Validar_Entao_DeveSerValido(int preparo)
     {
         var dto = CriarValida();
-        dto.DuracaoDaFaixaEmMinutos = duracao;
+        dto.TempoDePreparoEmMinutos = preparo;
 
         Assert.True(_validator.Validate(dto).IsValid);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(-1)]
-    [InlineData(481)]
-    public void Dado_PreparoInvalido_Quando_Validar_Entao_DeveSerInvalido(int? preparo)
+    [Fact]
+    public void Dado_AlmocoValido_Quando_Validar_Entao_DeveSerValida()
     {
         var dto = CriarValida();
-        dto.PreparoEmMinutos = preparo;
+        dto.TemAlmoco = true;
+        dto.InicioDoAlmoco = new TimeOnly(12, 0);
+        dto.FimDoAlmoco = new TimeOnly(13, 0);
 
-        AssertInvalido(dto, nameof(AgendaDeRetiradaDTO.PreparoEmMinutos));
+        Assert.True(_validator.Validate(dto).IsValid);
+    }
+
+    [Fact]
+    public void Dado_AlmocoSemInicio_Quando_Validar_Entao_DeveSerInvalida()
+    {
+        var dto = CriarValida();
+        dto.TemAlmoco = true;
+        dto.FimDoAlmoco = new TimeOnly(13, 0);
+
+        AssertInvalido(dto, nameof(AgendaDeRetiradaDTO.InicioDoAlmoco));
+    }
+
+    [Fact]
+    public void Dado_AlmocoComFimAntesDoInicio_Quando_Validar_Entao_DeveSerInvalida()
+    {
+        var dto = CriarValida();
+        dto.TemAlmoco = true;
+        dto.InicioDoAlmoco = new TimeOnly(13, 0);
+        dto.FimDoAlmoco = new TimeOnly(12, 0);
+
+        AssertInvalido(dto, nameof(AgendaDeRetiradaDTO.FimDoAlmoco));
+    }
+
+    [Fact]
+    public void Dado_SemAlmocoComHorariosVazios_Quando_Validar_Entao_DeveSerValida()
+    {
+        var dto = CriarValida();
+        dto.TemAlmoco = false;
+
+        Assert.True(_validator.Validate(dto).IsValid);
     }
 
     [Fact]

@@ -43,7 +43,12 @@ public class AgendaDeRetiradaService : IAgendaDeRetiradaService
     {
         var agenda = await _agendaDeRetiradaRepository.Obter();
 
-        agenda.AlterarFaixas(dto.DuracaoDaFaixaEmMinutos!.Value, dto.PreparoEmMinutos!.Value);
+        agenda.AlterarTempoDePreparo(dto.TempoDePreparoEmMinutos!.Value);
+
+        if (dto.TemAlmoco)
+            agenda.DefinirAlmoco(dto.InicioDoAlmoco, dto.FimDoAlmoco);
+        else
+            agenda.DefinirAlmoco(null, null);
 
         foreach (var horario in dto.Horarios)
         {

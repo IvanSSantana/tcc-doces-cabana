@@ -20,7 +20,7 @@ public class AgendaDeRetiradaServiceTests
 
     public AgendaDeRetiradaServiceTests()
     {
-        _agenda = new AgendaDeRetirada(60, 60);
+        _agenda = new AgendaDeRetirada(60);
         foreach (var dia in new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday })
             _agenda.DefinirHorario(dia, new TimeOnly(9, 0), new TimeOnly(18, 0));
 
@@ -61,8 +61,8 @@ public class AgendaDeRetiradaServiceTests
     {
         var dto = await _service.ObterParaGestao();
 
-        Assert.Equal(60, dto.DuracaoDaFaixaEmMinutos);
-        Assert.Equal(60, dto.PreparoEmMinutos);
+        Assert.Equal(60, dto.TempoDePreparoEmMinutos);
+        Assert.False(dto.TemAlmoco);
         Assert.Equal(7, dto.Horarios.Count);
         Assert.Equal(DayOfWeek.Monday, dto.Horarios[0].DiaDaSemana);
         Assert.Equal(DayOfWeek.Sunday, dto.Horarios[^1].DiaDaSemana);
@@ -73,8 +73,10 @@ public class AgendaDeRetiradaServiceTests
     public async Task Dado_NovoHorario_Quando_SalvarHorarios_Entao_DeveAlterarAgendaESalvar()
     {
         var dto = await _service.ObterParaGestao();
-        dto.DuracaoDaFaixaEmMinutos = 30;
-        dto.PreparoEmMinutos = 0;
+        dto.TempoDePreparoEmMinutos = 30;
+        dto.TemAlmoco = true;
+        dto.InicioDoAlmoco = new TimeOnly(12, 0);
+        dto.FimDoAlmoco = new TimeOnly(13, 0);
         dto.Horarios[0].Abertura = new TimeOnly(10, 0);
         dto.Horarios[^1] = new HorarioDeRetiradaDTO
         {
@@ -83,8 +85,9 @@ public class AgendaDeRetiradaServiceTests
 
         await _service.SalvarHorarios(dto);
 
-        Assert.Equal(30, _agenda.DuracaoDaFaixaEmMinutos);
-        Assert.Equal(0, _agenda.PreparoEmMinutos);
+        Assert.Equal(30, _agenda.TempoDePreparoEmMinutos);
+        Assert.Equal(new TimeOnly(12, 0), _agenda.InicioDoAlmoco);
+        Assert.Equal(new TimeOnly(13, 0), _agenda.FimDoAlmoco);
         Assert.Equal(new TimeOnly(10, 0), _agenda.Horarios.Single(h => h.DiaDaSemana == DayOfWeek.Monday).Abertura);
         Assert.True(_agenda.Horarios.Single(h => h.DiaDaSemana == DayOfWeek.Sunday).Aberto);
         _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(It.IsAny<CancellationToken>()), Times.Once);

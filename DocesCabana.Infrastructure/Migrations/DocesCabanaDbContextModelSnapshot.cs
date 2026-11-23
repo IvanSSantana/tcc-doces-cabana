@@ -28,10 +28,13 @@ namespace DocesCabana.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("DuracaoDaFaixaEmMinutos")
-                        .HasColumnType("integer");
+                    b.Property<TimeOnly?>("FimDoAlmoco")
+                        .HasColumnType("time without time zone");
 
-                    b.Property<int>("PreparoEmMinutos")
+                    b.Property<TimeOnly?>("InicioDoAlmoco")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<int>("TempoDePreparoEmMinutos")
                         .HasColumnType("integer");
 
                     b.HasKey("AgendaDeRetiradaId");

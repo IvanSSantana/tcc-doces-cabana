@@ -32,8 +32,8 @@
     <section class="secao-retirada" aria-labelledby="titulo-horarios">
         <h2 id="titulo-horarios" class="subtitulo-retirada">Horários e faixas</h2>
         <p class="texto-ajuda">
-            O cliente retira no mesmo dia do pedido, numa faixa de horário. Só aparecem as faixas que
-            começam depois do tempo de preparo.
+            O cliente retira no mesmo dia do pedido, numa faixa de horário. Cada faixa dura o tempo de
+            preparo, e só aparecem as que começam depois dele. No horário de almoço não há retirada.
         </p>
 
         <form asp-area="Admin" asp-controller="Retirada" asp-action="SalvarHorarios" method="post"
@@ -43,18 +43,35 @@
 
             <div class="linha-campos-retirada">
                 <div class="campo-entrada">
-                    <label asp-for="Agenda.DuracaoDaFaixaEmMinutos">Duração da faixa (minutos)</label>
-                    <input asp-for="Agenda.DuracaoDaFaixaEmMinutos" type="number" min="15" max="240" step="5"
+                    <label asp-for="Agenda.TempoDePreparoEmMinutos">Tempo de preparo (minutos)</label>
+                    <input asp-for="Agenda.TempoDePreparoEmMinutos" type="number" min="15" max="240" step="5"
                            class="campo-texto" required />
-                    <span asp-validation-for="Agenda.DuracaoDaFaixaEmMinutos" class="mensagem-erro"></span>
-                </div>
-                <div class="campo-entrada">
-                    <label asp-for="Agenda.PreparoEmMinutos">Tempo de preparo (minutos)</label>
-                    <input asp-for="Agenda.PreparoEmMinutos" type="number" min="0" max="480" step="5"
-                           class="campo-texto" required />
-                    <span asp-validation-for="Agenda.PreparoEmMinutos" class="mensagem-erro"></span>
+                    <span asp-validation-for="Agenda.TempoDePreparoEmMinutos" class="mensagem-erro"></span>
                 </div>
             </div>
+
+            <fieldset class="grupo-almoco-retirada">
+                <legend>Horário de almoço</legend>
+                <label class="opcao-almoco-retirada">
+                    <input type="checkbox" name="Agenda.TemAlmoco" value="true" checked="@Model.Agenda.TemAlmoco" />
+                    Pausar a retirada no almoço
+                </label>
+                <input type="hidden" name="Agenda.TemAlmoco" value="false" />
+                <div class="linha-campos-retirada">
+                    <div class="campo-entrada">
+                        <label for="Agenda_InicioDoAlmoco">Início do almoço</label>
+                        <input id="Agenda_InicioDoAlmoco" type="time" name="Agenda.InicioDoAlmoco"
+                               value="@Hora(Model.Agenda.InicioDoAlmoco)" class="campo-texto campo-hora-retirada" />
+                        <span asp-validation-for="Agenda.InicioDoAlmoco" class="mensagem-erro"></span>
+                    </div>
+                    <div class="campo-entrada">
+                        <label for="Agenda_FimDoAlmoco">Fim do almoço</label>
+                        <input id="Agenda_FimDoAlmoco" type="time" name="Agenda.FimDoAlmoco"
+                               value="@Hora(Model.Agenda.FimDoAlmoco)" class="campo-texto campo-hora-retirada" />
+                        <span asp-validation-for="Agenda.FimDoAlmoco" class="mensagem-erro"></span>
+                    </div>
+                </div>
+            </fieldset>
 
             <div class="tabela-rolavel">
                 <table class="tabela-produtos tabela-horarios-retirada">

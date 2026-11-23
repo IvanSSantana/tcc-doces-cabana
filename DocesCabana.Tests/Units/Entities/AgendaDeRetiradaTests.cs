@@ -12,9 +12,9 @@ public class AgendaDeRetiradaTests
     private static readonly TimeOnly Nove = new(9, 0);
     private static readonly TimeOnly Dezoito = new(18, 0);
 
-    private static AgendaDeRetirada CriarAgendaPadrao(int duracao = 60, int preparo = 60)
+    private static AgendaDeRetirada CriarAgendaPadrao(int preparo = 60)
     {
-        var agenda = new AgendaDeRetirada(duracao, preparo);
+        var agenda = new AgendaDeRetirada(preparo);
 
         foreach (var dia in new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday })
             agenda.DefinirHorario(dia, Nove, Dezoito);
@@ -27,7 +27,7 @@ public class AgendaDeRetiradaTests
     [Fact]
     public void Dado_AgendaNova_Quando_Criar_Entao_DeveTerSeteDiasFechados()
     {
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
 
         Assert.Equal(7, agenda.Horarios.Count);
         Assert.All(agenda.Horarios, h => Assert.False(h.Aberto));
@@ -48,9 +48,9 @@ public class AgendaDeRetiradaTests
     }
 
     [Fact]
-    public void Dado_FaixaDe90Minutos_Quando_FaixasDisponiveis_Entao_UltimaFaixaDeveTerminarNoFechamento()
+    public void Dado_PreparoDe90Minutos_Quando_FaixasDisponiveis_Entao_UltimaFaixaDeveTerminarNoFechamento()
     {
-        var faixas = CriarAgendaPadrao(duracao: 90, preparo: 0).FaixasDisponiveis(Em(Segunda, 7));
+        var faixas = CriarAgendaPadrao(preparo: 90).FaixasDisponiveis(Em(Segunda, 7));
 
         Assert.Equal(6, faixas.Count);
         Assert.Equal(new TimeOnly(16, 30), faixas[^1].Inicio);
@@ -114,7 +114,7 @@ public class AgendaDeRetiradaTests
     [Fact]
     public void Dado_SemanaTodaFechada_Quando_ProximaAbertura_Entao_DeveSerNula()
     {
-        Assert.Null(new AgendaDeRetirada(60, 60).ProximaAbertura(Em(Segunda, 7)));
+        Assert.Null(new AgendaDeRetirada(60).ProximaAbertura(Em(Segunda, 7)));
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class AgendaDeRetiradaTests
     [Fact]
     public void Dado_AberturaDepoisDoFechamento_Quando_DefinirHorario_Entao_DeveLancarArgumentException()
     {
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
 
         Assert.Throws<ArgumentException>(() => agenda.DefinirHorario(DayOfWeek.Monday, Dezoito, Nove));
     }
@@ -138,7 +138,7 @@ public class AgendaDeRetiradaTests
     [Fact]
     public void Dado_SoAbertura_Quando_DefinirHorario_Entao_DeveLancarArgumentException()
     {
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
 
         Assert.Throws<ArgumentException>(() => agenda.DefinirHorario(DayOfWeek.Monday, Nove, null));
     }
@@ -146,36 +146,102 @@ public class AgendaDeRetiradaTests
     [Theory]
     [InlineData(14)]
     [InlineData(241)]
-    public void Dado_DuracaoForaDoLimite_Quando_Criar_Entao_DeveLancarArgumentException(int duracao)
+    public void Dado_PreparoForaDoLimite_Quando_Criar_Entao_DeveLancarArgumentException(int preparo)
     {
-        Assert.Throws<ArgumentException>(() => new AgendaDeRetirada(duracao, 60));
+        Assert.Throws<ArgumentException>(() => new AgendaDeRetirada(preparo));
     }
 
     [Theory]
-    [InlineData(-1)]
-    [InlineData(481)]
-    public void Dado_PreparoForaDoLimite_Quando_AlterarFaixas_Entao_DeveLancarArgumentException(int preparo)
+    [InlineData(0)]
+    [InlineData(241)]
+    public void Dado_PreparoForaDoLimite_Quando_AlterarTempoDePreparo_Entao_DeveLancarArgumentException(int preparo)
     {
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
 
-        Assert.Throws<ArgumentException>(() => agenda.AlterarFaixas(60, preparo));
+        Assert.Throws<ArgumentException>(() => agenda.AlterarTempoDePreparo(preparo));
+    }
+
+    [Theory]
+    [InlineData(15)]
+    [InlineData(240)]
+    public void Dado_PreparoNoLimite_Quando_AlterarTempoDePreparo_Entao_DeveAlterar(int preparo)
+    {
+        var agenda = new AgendaDeRetirada(60);
+
+        agenda.AlterarTempoDePreparo(preparo);
+
+        Assert.Equal(preparo, agenda.TempoDePreparoEmMinutos);
     }
 
     [Fact]
-    public void Dado_LimitesValidos_Quando_AlterarFaixas_Entao_DeveAlterar()
+    public void Dado_AlmocoDas12hAs13h_Quando_FaixasDisponiveis_Entao_NaoDeveHaverFaixaNoAlmoco()
     {
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = CriarAgendaPadrao();
+        agenda.DefinirAlmoco(new TimeOnly(12, 0), new TimeOnly(13, 0));
 
-        agenda.AlterarFaixas(15, 480);
+        var faixas = agenda.FaixasDisponiveis(Em(Segunda, 7));
 
-        Assert.Equal(15, agenda.DuracaoDaFaixaEmMinutos);
-        Assert.Equal(480, agenda.PreparoEmMinutos);
+        Assert.Equal(8, faixas.Count);
+        Assert.DoesNotContain(faixas, f => f.Inicio < new TimeOnly(13, 0) && f.Fim > new TimeOnly(12, 0));
+        Assert.Equal(new TimeOnly(11, 0), faixas[2].Inicio);
+        Assert.Equal(new TimeOnly(13, 0), faixas[3].Inicio);
+    }
+
+    [Fact]
+    public void Dado_AlmocoForaDoPasso_Quando_FaixasDisponiveis_Entao_FaixaAnteriorTerminaNoAlmocoERecomecaNoFim()
+    {
+        var agenda = CriarAgendaPadrao();
+        agenda.DefinirAlmoco(new TimeOnly(12, 30), new TimeOnly(13, 30));
+
+        var faixas = agenda.FaixasDisponiveis(Em(Segunda, 7));
+
+        Assert.Contains(faixas, f => f.Inicio == new TimeOnly(12, 0) && f.Fim == new TimeOnly(12, 30));
+        Assert.Contains(faixas, f => f.Inicio == new TimeOnly(13, 30) && f.Fim == new TimeOnly(14, 30));
+        Assert.Equal(new TimeOnly(17, 30), faixas[^1].Inicio);
+        Assert.Equal(new TimeOnly(18, 0), faixas[^1].Fim);
+    }
+
+    [Fact]
+    public void Dado_AlmocoForaDoExpediente_Quando_FaixasDisponiveis_Entao_DeveIgnorarOAlmoco()
+    {
+        var agenda = CriarAgendaPadrao();
+        agenda.DefinirAlmoco(new TimeOnly(19, 0), new TimeOnly(20, 0));
+
+        Assert.Equal(9, agenda.FaixasDisponiveis(Em(Segunda, 7)).Count);
+    }
+
+    [Fact]
+    public void Dado_AlmocoDefinido_Quando_DefinirAlmocoComAmbosNulos_Entao_DeveRemover()
+    {
+        var agenda = CriarAgendaPadrao();
+        agenda.DefinirAlmoco(new TimeOnly(12, 0), new TimeOnly(13, 0));
+
+        agenda.DefinirAlmoco(null, null);
+
+        Assert.False(agenda.TemAlmoco);
+        Assert.Equal(9, agenda.FaixasDisponiveis(Em(Segunda, 7)).Count);
+    }
+
+    [Fact]
+    public void Dado_InicioDoAlmocoDepoisDoFim_Quando_DefinirAlmoco_Entao_DeveLancarArgumentException()
+    {
+        var agenda = new AgendaDeRetirada(60);
+
+        Assert.Throws<ArgumentException>(() => agenda.DefinirAlmoco(new TimeOnly(13, 0), new TimeOnly(12, 0)));
+    }
+
+    [Fact]
+    public void Dado_SoInicioDoAlmoco_Quando_DefinirAlmoco_Entao_DeveLancarArgumentException()
+    {
+        var agenda = new AgendaDeRetirada(60);
+
+        Assert.Throws<ArgumentException>(() => agenda.DefinirAlmoco(new TimeOnly(12, 0), null));
     }
 
     [Fact]
     public void Dado_DataNoPassado_Quando_BloquearDia_Entao_DeveLancarArgumentException()
     {
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
 
         Assert.Throws<ArgumentException>(() => agenda.BloquearDia(Sabado, null, Segunda));
     }
@@ -183,7 +249,7 @@ public class AgendaDeRetiradaTests
     [Fact]
     public void Dado_DataJaBloqueada_Quando_BloquearDia_Entao_DeveLancarInvalidOperationException()
     {
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
         agenda.BloquearDia(Segunda, null, Segunda);
 
         Assert.Throws<InvalidOperationException>(() => agenda.BloquearDia(Segunda, "De novo", Segunda));
@@ -192,7 +258,7 @@ public class AgendaDeRetiradaTests
     [Fact]
     public void Dado_MotivoLongo_Quando_BloquearDia_Entao_DeveLancarArgumentException()
     {
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
 
         Assert.Throws<ArgumentException>(() => agenda.BloquearDia(Segunda, new string('a', 101), Segunda));
     }
@@ -200,7 +266,7 @@ public class AgendaDeRetiradaTests
     [Fact]
     public void Dado_DiaBloqueado_Quando_DesbloquearDia_Entao_DeveRemover()
     {
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
         agenda.BloquearDia(Segunda, "Feriado", Segunda);
 
         agenda.DesbloquearDia(Segunda);

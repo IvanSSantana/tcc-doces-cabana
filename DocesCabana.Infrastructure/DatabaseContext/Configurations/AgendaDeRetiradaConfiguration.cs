@@ -12,8 +12,10 @@ public class AgendaDeRetiradaConfiguration : IEntityTypeConfiguration<AgendaDeRe
 
         builder.HasKey(a => a.AgendaDeRetiradaId);
 
-        builder.Property(a => a.DuracaoDaFaixaEmMinutos).IsRequired();
-        builder.Property(a => a.PreparoEmMinutos).IsRequired();
+        builder.Property(a => a.TempoDePreparoEmMinutos).IsRequired();
+        builder.Property(a => a.InicioDoAlmoco);
+        builder.Property(a => a.FimDoAlmoco);
+        builder.Ignore(a => a.TemAlmoco);
 
         builder.OwnsMany(a => a.Horarios, horario =>
         {

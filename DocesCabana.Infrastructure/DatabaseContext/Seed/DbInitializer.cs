@@ -158,7 +158,7 @@ public static class DbInitializer
 
     /// <summary>
     /// Agenda inicial da retirada na loja (036, D3): segunda a sábado das 09:00 às 18:00, domingo
-    /// fechado, faixas de 60 minutos e preparo de 60 minutos. O administrador altera depois.
+    /// fechado, preparo (e faixas) de 60 minutos, sem almoço. O administrador altera depois.
     /// Só cria se não existir: nunca sobrescreve o que o administrador salvou.
     /// </summary>
     internal static async Task SemearAgendaDeRetirada(DocesCabanaDbContext context)
@@ -166,7 +166,7 @@ public static class DbInitializer
         if (await context.AgendasDeRetirada.AnyAsync(a => a.AgendaDeRetiradaId == AgendaDeRetirada.IdUnico))
             return;
 
-        var agenda = new AgendaDeRetirada(60, 60);
+        var agenda = new AgendaDeRetirada(60);
         foreach (var dia in Enum.GetValues<DayOfWeek>().Where(d => d != DayOfWeek.Sunday))
             agenda.DefinirHorario(dia, new TimeOnly(9, 0), new TimeOnly(18, 0));
 

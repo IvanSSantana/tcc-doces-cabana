@@ -15,8 +15,10 @@ public static class AgendaDeRetiradaMapper
 
     public static AgendaDeRetiradaDTO ToDTO(AgendaDeRetirada agenda) => new()
     {
-        DuracaoDaFaixaEmMinutos = agenda.DuracaoDaFaixaEmMinutos,
-        PreparoEmMinutos = agenda.PreparoEmMinutos,
+        TempoDePreparoEmMinutos = agenda.TempoDePreparoEmMinutos,
+        TemAlmoco = agenda.TemAlmoco,
+        InicioDoAlmoco = agenda.InicioDoAlmoco,
+        FimDoAlmoco = agenda.FimDoAlmoco,
         Horarios = OrdemDaSemana
             .Select(dia => agenda.Horarios.Single(h => h.DiaDaSemana == dia))
             .Select(h => new HorarioDeRetiradaDTO
