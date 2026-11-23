@@ -4,6 +4,10 @@ namespace DocesCabana.Application.DTOs;
 
 public class FechamentoDePedidoDTO
 {
+    public ModalidadeDeEntrega Modalidade { get; set; }
+
+    public TimeOnly? InicioDaFaixa { get; set; }
+
     public Guid EnderecoId { get; set; }
 
     public int ServicoDeEntregaId { get; set; }

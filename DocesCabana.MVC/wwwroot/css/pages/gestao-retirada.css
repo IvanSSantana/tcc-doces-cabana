@@ -1,0 +1,53 @@
+/* Gestão da retirada na loja (spec 036). Reaproveita gestao-produtos.css. */
+
+.secao-retirada {
+    display: grid;
+    gap: var(--espaco-3, 0.75rem);
+    margin-block-end: var(--espaco-6, 2rem);
+}
+
+.subtitulo-retirada {
+    font-size: var(--texto-grande, 1.25rem);
+    margin: 0;
+}
+
+.formulario-retirada {
+    max-width: none;
+    display: grid;
+    gap: var(--espaco-4, 1rem);
+}
+
+.linha-campos-retirada {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--espaco-4, 1rem);
+}
+
+.tabela-horarios-retirada th[scope="row"] {
+    text-align: left;
+    white-space: nowrap;
+}
+
+.campo-hora-retirada {
+    min-width: 7rem;
+}
+
+.lista-bloqueios-retirada {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--espaco-2, 0.5rem);
+}
+
+.item-bloqueio-retirada {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espaco-3, 0.75rem);
+    flex-wrap: wrap;
+}
+
+.motivo-bloqueio-retirada {
+    color: var(--neutro-texto-suave);
+}

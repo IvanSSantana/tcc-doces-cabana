@@ -2,6 +2,7 @@ using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
+using DocesCabana.Domain.Enums;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +34,8 @@ public class CarrinhoController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(
         string? cep = null, PassoDoFechamento passo = PassoDoFechamento.Carrinho,
-        Guid? enderecoId = null, int? servicoDeEntregaId = null)
+        Guid? enderecoId = null, int? servicoDeEntregaId = null,
+        ModalidadeDeEntrega modalidade = ModalidadeDeEntrega.Entrega, TimeOnly? faixa = null)
     {
         var carrinho = await ObterCarrinhoAtual();
 
@@ -50,7 +52,7 @@ public class CarrinhoController : Controller
 
         carrinho = await CotarComCepGuardado(carrinho, passo);
 
-        await MontarPassoDoFechamento(carrinho, passo, enderecoId, servicoDeEntregaId);
+        await MontarPassoDoFechamento(carrinho, passo, enderecoId, servicoDeEntregaId, modalidade, faixa);
 
         if (EhRequisicaoAssincrona)
             return PartialView("_ItensDoCarrinho", carrinho);
@@ -227,11 +229,14 @@ public class CarrinhoController : Controller
         return carrinho.ComCotacao(await _freteService.Cotar(cep, disponiveis));
     }
 
-    private async Task MontarPassoDoFechamento(CarrinhoDTO carrinho, PassoDoFechamento passo, Guid? enderecoId, int? servicoDeEntregaId)
+    private async Task MontarPassoDoFechamento(
+        CarrinhoDTO carrinho, PassoDoFechamento passo, Guid? enderecoId, int? servicoDeEntregaId,
+        ModalidadeDeEntrega modalidade = ModalidadeDeEntrega.Entrega, TimeOnly? inicioDaFaixa = null)
     {
         ViewData["PassoDoFechamento"] =
             await _pedidoService.MontarPasso(
-                PassoEfetivo(passo), carrinho, UsuarioAtualId, enderecoId, servicoDeEntregaId, HttpContext.Session.LerCupom());
+                PassoEfetivo(passo), carrinho, UsuarioAtualId, enderecoId, servicoDeEntregaId, HttpContext.Session.LerCupom(),
+                modalidade, inicioDaFaixa);
     }
 
     private PassoDoFechamento PassoEfetivo(PassoDoFechamento passo) =>

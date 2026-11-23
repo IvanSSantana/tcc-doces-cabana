@@ -1,3 +1,4 @@
+using DocesCabana.Domain.Enums;
 using System.Security.Claims;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
@@ -393,6 +394,21 @@ public class CarrinhoControllerTests
 
         _pedidoServiceMock.Verify(s => s.MontarPasso(
             PassoDoFechamento.Conta, It.IsAny<CarrinhoDTO>(), null, It.IsAny<Guid?>(), It.IsAny<int?>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_RetiradaComFaixa_Quando_Index_Entao_DeveRepassarModalidadeEFaixa()
+    {
+        var usuarioId = Guid.NewGuid();
+        ConfigurarUsuarioAutenticado(usuarioId);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(usuarioId)).ReturnsAsync(new CarrinhoDTO());
+
+        await _controller.Index(
+            passo: PassoDoFechamento.Endereco, modalidade: ModalidadeDeEntrega.RetiradaNaLoja, faixa: new TimeOnly(15, 0));
+
+        _pedidoServiceMock.Verify(s => s.MontarPasso(
+            PassoDoFechamento.Endereco, It.IsAny<CarrinhoDTO>(), usuarioId, null, null, It.IsAny<string?>(),
+            ModalidadeDeEntrega.RetiradaNaLoja, new TimeOnly(15, 0)), Times.Once);
     }
 
     [Fact]

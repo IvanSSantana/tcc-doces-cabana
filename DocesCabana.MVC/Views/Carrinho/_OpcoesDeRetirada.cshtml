@@ -1,0 +1,38 @@
+@using DocesCabana.Application.DTOs
+@model PassoDoFechamentoDTO
+
+@{
+    var retirada = Model.Retirada!;
+}
+
+<div class="opcoes-retirada-fechamento">
+    <h2 class="titulo-passo-fechamento">Onde retirar</h2>
+    <partial name="_EnderecoDaLoja" />
+
+    <h2 class="titulo-passo-fechamento">Quando retirar</h2>
+    <p class="data-retirada-fechamento">Hoje, @retirada.Data.ToString("dd/MM") — escolha uma faixa de horário.</p>
+
+    <ul class="lista-opcoes-frete lista-opcoes-frete-fechamento lista-faixas-retirada">
+        @foreach (var faixa in retirada.Faixas)
+        {
+            var selecionada = faixa.Inicio == Model.InicioDaFaixaSelecionada;
+            <li class="opcao-frete@(selecionada ? " opcao-frete--selecionada" : "")">
+                <a asp-action="Index" asp-route-passo="Endereco" asp-route-modalidade="RetiradaNaLoja"
+                   asp-route-faixa="@faixa.Inicio.ToString("HH:mm")" data-navegacao-fechamento
+                   aria-current="@(selecionada ? "true" : null)">
+                    <span class="marcador-opcao-frete" aria-hidden="true"></span>
+                    <span class="descricao-opcao-frete">
+                        <span class="transportadora-opcao-frete">@faixa.Inicio.ToString("HH:mm") às @faixa.Fim.ToString("HH:mm")</span>
+                    </span>
+                    <span class="preco-opcao-frete">Grátis</span>
+                </a>
+            </li>
+        }
+    </ul>
+
+    <div class="acoes-passo-fechamento">
+        <a asp-action="Index" asp-route-passo="Pagamento" asp-route-modalidade="RetiradaNaLoja"
+           asp-route-faixa="@Model.InicioDaFaixaSelecionada?.ToString("HH:mm")"
+           data-navegacao-fechamento class="botao botao--primario botao-acao">Continuar para pagamento</a>
+    </div>
+</div>

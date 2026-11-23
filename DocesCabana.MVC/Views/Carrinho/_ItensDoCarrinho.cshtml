@@ -206,7 +206,21 @@
                     </p>
                 }
 
-                @if (resumoPeloEndereco)
+                @if (resumoPeloEndereco && passoDoFechamento!.RetiradaNaLoja)
+                {
+                    var faixaDoResumo = passoDoFechamento.FaixaSelecionada;
+                    var textoDaFaixa = faixaDoResumo is null
+                        ? string.Empty
+                        : " (hoje, " + faixaDoResumo.Inicio.ToString("HH:mm") + "–" + faixaDoResumo.Fim.ToString("HH:mm") + ")";
+                    <p class="linha-frete-carrinho">
+                        Retirada na loja@(textoDaFaixa)
+                        <strong><span class="frete-gratis">Grátis</span></strong>
+                    </p>
+                    <p class="subtotal-carrinho">
+                        Total a pagar <strong>R$ @totalLiquido.ToString("N2")</strong>
+                    </p>
+                }
+                else if (resumoPeloEndereco)
                 {
                     @if (entregaEscolhida is not null)
                     {

@@ -36,6 +36,8 @@ DbInitializer.Migrar(app.Services);
 
 await DbInitializer.PreencherNomesNormalizados(app.Services);
 
+await DbInitializer.SemearAgendaDeRetirada(app.Services);
+
 if (!app.Environment.IsProduction())
     await DbInitializer.Semear(app.Services);
 

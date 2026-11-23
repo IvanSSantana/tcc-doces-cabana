@@ -1,4 +1,5 @@
 using DocesCabana.Domain.Enums;
+using DocesCabana.Domain.ValueObjects;
 
 namespace DocesCabana.Domain.Entities;
 
@@ -8,7 +9,9 @@ public class Pedido
 
     public Guid UsuarioId { get; private set; }
 
-    public Guid EnderecoEntregaId { get; private set; }
+    public ModalidadeDeEntrega Modalidade { get; private set; }
+
+    public Guid? EnderecoEntregaId { get; private set; }
 
     public bool PagamentoAprovado { get; private set; }
 
@@ -16,13 +19,19 @@ public class Pedido
 
     public decimal ValorDoFrete { get; private set; }
 
-    public string Transportadora { get; private set; } = default!;
+    public string? Transportadora { get; private set; }
 
-    public string Servico { get; private set; } = default!;
+    public string? Servico { get; private set; }
 
-    public int PrazoMinimoEmDias { get; private set; }
+    public int? PrazoMinimoEmDias { get; private set; }
 
-    public int PrazoMaximoEmDias { get; private set; }
+    public int? PrazoMaximoEmDias { get; private set; }
+
+    public DateOnly? DataDaRetirada { get; private set; }
+
+    public TimeOnly? InicioDaRetirada { get; private set; }
+
+    public TimeOnly? FimDaRetirada { get; private set; }
 
     public PedidoStatus Status { get; private set; }
 
@@ -64,6 +73,7 @@ public class Pedido
             ? Guid.NewGuid()
             : id;
 
+        Modalidade = ModalidadeDeEntrega.Entrega;
         UsuarioId = usuarioId;
         EnderecoEntregaId = enderecoEntregaId;
         Valor = valor;
@@ -75,6 +85,36 @@ public class Pedido
         Status = PedidoStatus.Pendente;
         PagamentoAprovado = false;
         Data = DateTime.UtcNow;
+    }
+
+    /// <summary>Pedido retirado na loja: sem endereço nem transportadora, frete zero.</summary>
+    public static Pedido ParaRetirada(Guid usuarioId, decimal valor, FaixaDeRetirada faixa, Guid id = default)
+    {
+        ArgumentNullException.ThrowIfNull(faixa, nameof(faixa));
+
+        var pedido = new Pedido();
+        pedido.ValidarUsuario(usuarioId);
+        pedido.ValidarValor(valor);
+
+        if (faixa.Fim <= faixa.Inicio)
+            throw new ArgumentException("O fim da faixa de retirada precisa ser depois do início.", nameof(faixa));
+
+        pedido.PedidoId = id == Guid.Empty
+            ? Guid.NewGuid()
+            : id;
+
+        pedido.Modalidade = ModalidadeDeEntrega.RetiradaNaLoja;
+        pedido.UsuarioId = usuarioId;
+        pedido.Valor = valor;
+        pedido.ValorDoFrete = 0m;
+        pedido.DataDaRetirada = faixa.Data;
+        pedido.InicioDaRetirada = faixa.Inicio;
+        pedido.FimDaRetirada = faixa.Fim;
+        pedido.Status = PedidoStatus.Pendente;
+        pedido.PagamentoAprovado = false;
+        pedido.Data = DateTime.UtcNow;
+
+        return pedido;
     }
 
     public void AcrescentarItem(

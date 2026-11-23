@@ -269,6 +269,30 @@ public class CupomServiceTests
     }
 
     [Fact]
+    public async Task Dado_CupomFreteGratisERetirada_Quando_Avaliar_Entao_DeveRecusar()
+    {
+        Cadastrar(tipo: TipoDeDesconto.FreteGratis, valor: 0);
+
+        var resultado = await _service.Avaliar(
+            "BEMVINDO10", _usuarioId, Carrinho((_brigadeiro, 1)), 0m, ModalidadeDeEntrega.RetiradaNaLoja);
+
+        Assert.False(resultado.Valido);
+        Assert.Equal("Cupom de frete grátis não vale para retirada na loja.", resultado.Motivo);
+    }
+
+    [Fact]
+    public async Task Dado_CupomPercentualERetirada_Quando_Avaliar_Entao_DeveValer()
+    {
+        Cadastrar(tipo: TipoDeDesconto.Percentual, valor: 10);
+
+        var resultado = await _service.Avaliar(
+            "BEMVINDO10", _usuarioId, Carrinho((_brigadeiro, 1)), 0m, ModalidadeDeEntrega.RetiradaNaLoja);
+
+        Assert.True(resultado.Valido);
+        Assert.Equal(1m, resultado.DescontoNosProdutos);
+    }
+
+    [Fact]
     public async Task Dado_LinhaComPromocaoECupomPercentual_Quando_Avaliar_Entao_BaseDeveSerOValorLiquido()
     {
         var promocao = new Promocao("Metade", TipoDeDesconto.Percentual, 50, null, null,

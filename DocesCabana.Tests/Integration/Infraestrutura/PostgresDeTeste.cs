@@ -53,7 +53,9 @@ internal static class PostgresDeTeste
             await comando.ExecuteNonQueryAsync();
         }
 
-        var construtor = new NpgsqlConnectionStringBuilder(conexaoBase) { Database = nomeDoBanco };
+        // Sem pool: cada teste usa um banco próprio, e o pool deixaria uma conexão ociosa aberta por
+        // banco até estourar o max_connections (100) do contêiner — "53300: too many clients".
+        var construtor = new NpgsqlConnectionStringBuilder(conexaoBase) { Database = nomeDoBanco, Pooling = false };
         return construtor.ConnectionString;
     }
 }

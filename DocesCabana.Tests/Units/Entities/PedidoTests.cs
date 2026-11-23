@@ -1,5 +1,6 @@
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Enums;
+using DocesCabana.Domain.ValueObjects;
 
 namespace DocesCabana.Tests.Units.Entities;
 
@@ -270,5 +271,74 @@ public class PedidoTests
 
         Assert.Throws<ArgumentException>(() => pedido.AplicarCupom(Guid.Empty, "BEMVINDO10", 8m, 0m));
         Assert.ThrowsAny<ArgumentException>(() => pedido.AplicarCupom(Guid.NewGuid(), " ", 8m, 0m));
+    }
+
+    private static readonly FaixaDeRetirada _faixaValida =
+        new(new DateOnly(2026, 11, 23), new TimeOnly(14, 0), new TimeOnly(15, 0));
+
+    [Fact]
+    public void Dado_FaixaValida_Quando_ParaRetirada_Entao_DeveTerModalidadeRetiradaEFreteZero()
+    {
+        var pedido = Pedido.ParaRetirada(_usuarioValido, 42.50m, _faixaValida);
+
+        Assert.Equal(ModalidadeDeEntrega.RetiradaNaLoja, pedido.Modalidade);
+        Assert.Equal(0m, pedido.ValorDoFrete);
+        Assert.Equal(42.50m, pedido.Valor);
+        Assert.Null(pedido.EnderecoEntregaId);
+        Assert.Null(pedido.Transportadora);
+        Assert.Null(pedido.Servico);
+        Assert.Null(pedido.PrazoMinimoEmDias);
+        Assert.Null(pedido.PrazoMaximoEmDias);
+        Assert.Equal(new DateOnly(2026, 11, 23), pedido.DataDaRetirada);
+        Assert.Equal(new TimeOnly(14, 0), pedido.InicioDaRetirada);
+        Assert.Equal(new TimeOnly(15, 0), pedido.FimDaRetirada);
+        Assert.Equal(PedidoStatus.Pendente, pedido.Status);
+        Assert.NotEqual(Guid.Empty, pedido.PedidoId);
+    }
+
+    [Fact]
+    public void Dado_DadosValidos_Quando_CriarPedido_Entao_DeveTerModalidadeEntregaSemRetirada()
+    {
+        var pedido = CriarPedido();
+
+        Assert.Equal(ModalidadeDeEntrega.Entrega, pedido.Modalidade);
+        Assert.Null(pedido.DataDaRetirada);
+        Assert.Null(pedido.InicioDaRetirada);
+        Assert.Null(pedido.FimDaRetirada);
+    }
+
+    [Fact]
+    public void Dado_UsuarioInvalido_Quando_ParaRetirada_Entao_DeveLancarArgumentException()
+    {
+        Assert.Throws<ArgumentException>(() => Pedido.ParaRetirada(Guid.Empty, 42.50m, _faixaValida));
+    }
+
+    [Fact]
+    public void Dado_ValorNegativo_Quando_ParaRetirada_Entao_DeveLancarArgumentException()
+    {
+        Assert.Throws<ArgumentException>(() => Pedido.ParaRetirada(_usuarioValido, -1m, _faixaValida));
+    }
+
+    [Fact]
+    public void Dado_FaixaNula_Quando_ParaRetirada_Entao_DeveLancarArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>(() => Pedido.ParaRetirada(_usuarioValido, 42.50m, null!));
+    }
+
+    [Fact]
+    public void Dado_FaixaComFimAntesDoInicio_Quando_ParaRetirada_Entao_DeveLancarArgumentException()
+    {
+        var faixa = new FaixaDeRetirada(new DateOnly(2026, 11, 23), new TimeOnly(15, 0), new TimeOnly(14, 0));
+
+        Assert.Throws<ArgumentException>(() => Pedido.ParaRetirada(_usuarioValido, 42.50m, faixa));
+    }
+
+    [Fact]
+    public void Dado_PedidoDeRetirada_Quando_AplicarCupomComDescontoNoFrete_Entao_DeveLancarArgumentException()
+    {
+        var pedido = Pedido.ParaRetirada(_usuarioValido, 42.50m, _faixaValida);
+        pedido.AcrescentarItem(Guid.NewGuid(), 1, 42.50m);
+
+        Assert.Throws<ArgumentException>(() => pedido.AplicarCupom(Guid.NewGuid(), "FRETEGRATIS", 0m, 1m));
     }
 }

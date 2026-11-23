@@ -1,10 +1,13 @@
 using DocesCabana.Application.DTOs;
+using DocesCabana.Domain.Enums;
 
 namespace DocesCabana.Application.Contracts.Services;
 
 public interface ICupomService
 {
-    Task<ResultadoDoCupomDTO> Avaliar(string codigo, Guid usuarioId, CarrinhoDTO carrinho, decimal? valorDoFrete);
+    Task<ResultadoDoCupomDTO> Avaliar(
+        string codigo, Guid usuarioId, CarrinhoDTO carrinho, decimal? valorDoFrete,
+        ModalidadeDeEntrega modalidade = ModalidadeDeEntrega.Entrega);
 
     Task<bool> CodigoJaExiste(string codigo);
 

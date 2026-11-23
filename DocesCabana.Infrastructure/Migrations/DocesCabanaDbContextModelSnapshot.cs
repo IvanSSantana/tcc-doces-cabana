@@ -22,6 +22,23 @@ namespace DocesCabana.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("DocesCabana.Domain.Entities.AgendaDeRetirada", b =>
+                {
+                    b.Property<Guid>("AgendaDeRetiradaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DuracaoDaFaixaEmMinutos")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreparoEmMinutos")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AgendaDeRetiradaId");
+
+                    b.ToTable("AgendaDeRetirada", (string)null);
+                });
+
             modelBuilder.Entity("DocesCabana.Domain.Entities.Avaliacao", b =>
                 {
                     b.Property<Guid>("AvaliacaoId")
@@ -313,6 +330,9 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.Property<DateTime>("Data")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateOnly?>("DataDaRetirada")
+                        .HasColumnType("date");
+
                     b.Property<decimal>("DescontoDoCupom")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(10,2)")
@@ -323,20 +343,28 @@ namespace DocesCabana.Infrastructure.Migrations
                         .HasColumnType("decimal(10,2)")
                         .HasDefaultValue(0m);
 
-                    b.Property<Guid>("EnderecoEntregaId")
+                    b.Property<Guid?>("EnderecoEntregaId")
                         .HasColumnType("uuid");
+
+                    b.Property<TimeOnly?>("FimDaRetirada")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<TimeOnly?>("InicioDaRetirada")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<byte>("Modalidade")
+                        .HasColumnType("smallint");
 
                     b.Property<bool>("PagamentoAprovado")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("PrazoMaximoEmDias")
+                    b.Property<int?>("PrazoMaximoEmDias")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PrazoMinimoEmDias")
+                    b.Property<int?>("PrazoMinimoEmDias")
                         .HasColumnType("integer");
 
                     b.Property<string>("Servico")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -344,7 +372,6 @@ namespace DocesCabana.Infrastructure.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Transportadora")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -756,6 +783,55 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.ToTable("PromocaoProduto");
                 });
 
+            modelBuilder.Entity("DocesCabana.Domain.Entities.AgendaDeRetirada", b =>
+                {
+                    b.OwnsMany("DocesCabana.Domain.Entities.DiaSemRetirada", "DiasBloqueados", b1 =>
+                        {
+                            b1.Property<Guid>("AgendaDeRetiradaId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateOnly>("Data")
+                                .HasColumnType("date");
+
+                            b1.Property<string>("Motivo")
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)");
+
+                            b1.HasKey("AgendaDeRetiradaId", "Data");
+
+                            b1.ToTable("DiaSemRetirada", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AgendaDeRetiradaId");
+                        });
+
+                    b.OwnsMany("DocesCabana.Domain.Entities.HorarioDeRetirada", "Horarios", b1 =>
+                        {
+                            b1.Property<Guid>("AgendaDeRetiradaId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("DiaDaSemana")
+                                .HasColumnType("integer");
+
+                            b1.Property<TimeOnly?>("Abertura")
+                                .HasColumnType("time without time zone");
+
+                            b1.Property<TimeOnly?>("Fechamento")
+                                .HasColumnType("time without time zone");
+
+                            b1.HasKey("AgendaDeRetiradaId", "DiaDaSemana");
+
+                            b1.ToTable("HorarioDeRetirada", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AgendaDeRetiradaId");
+                        });
+
+                    b.Navigation("DiasBloqueados");
+
+                    b.Navigation("Horarios");
+                });
+
             modelBuilder.Entity("DocesCabana.Domain.Entities.Avaliacao", b =>
                 {
                     b.HasOne("DocesCabana.Domain.Entities.Produto", "Produto")
@@ -892,8 +968,7 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.HasOne("DocesCabana.Domain.Entities.Endereco", "EnderecoEntrega")
                         .WithMany()
                         .HasForeignKey("EnderecoEntregaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("DocesCabana.Domain.Entities.Usuario", "Usuario")
                         .WithMany()

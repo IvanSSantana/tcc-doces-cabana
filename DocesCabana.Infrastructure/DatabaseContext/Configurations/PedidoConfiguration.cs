@@ -20,10 +20,18 @@ public class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
             .IsRequired()
             .HasColumnType("decimal(10,2)");
 
-        builder.Property(p => p.Transportadora).IsRequired().HasMaxLength(100);
-        builder.Property(p => p.Servico).IsRequired().HasMaxLength(100);
-        builder.Property(p => p.PrazoMinimoEmDias).IsRequired();
-        builder.Property(p => p.PrazoMaximoEmDias).IsRequired();
+        // Pedido de retirada (036) não tem transportadora, serviço nem prazo.
+        builder.Property(p => p.Transportadora).HasMaxLength(100);
+        builder.Property(p => p.Servico).HasMaxLength(100);
+        builder.Property(p => p.PrazoMinimoEmDias);
+        builder.Property(p => p.PrazoMaximoEmDias);
+
+        // Coluna nova não anulável: a migration preenche os pedidos antigos com 0 (Entrega).
+        builder.Property(p => p.Modalidade).IsRequired();
+
+        builder.Property(p => p.DataDaRetirada);
+        builder.Property(p => p.InicioDaRetirada);
+        builder.Property(p => p.FimDaRetirada);
 
         builder.Property(p => p.PagamentoAprovado).IsRequired();
         builder.Property(p => p.Data).IsRequired();
@@ -54,6 +62,7 @@ public class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
         builder.HasOne(p => p.EnderecoEntrega)
             .WithMany()
             .HasForeignKey(p => p.EnderecoEntregaId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(p => p.Usuario)

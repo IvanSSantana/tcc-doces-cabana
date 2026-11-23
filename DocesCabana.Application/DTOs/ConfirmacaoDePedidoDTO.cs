@@ -26,13 +26,23 @@ public class ConfirmacaoDePedidoDTO
 
     public decimal ValorTotal => ValorDosProdutos + ValorDoFrete - DescontoNoFrete;
 
-    public string Transportadora { get; init; } = string.Empty;
+    public ModalidadeDeEntrega Modalidade { get; init; }
 
-    public string Servico { get; init; } = string.Empty;
+    public DateOnly? DataDaRetirada { get; init; }
 
-    public int PrazoMinimoEmDias { get; init; }
+    public TimeOnly? InicioDaRetirada { get; init; }
 
-    public int PrazoMaximoEmDias { get; init; }
+    public TimeOnly? FimDaRetirada { get; init; }
+
+    public bool RetiradaNaLoja => Modalidade == ModalidadeDeEntrega.RetiradaNaLoja;
+
+    public string? Transportadora { get; init; }
+
+    public string? Servico { get; init; }
+
+    public int? PrazoMinimoEmDias { get; init; }
+
+    public int? PrazoMaximoEmDias { get; init; }
 
     public MetodoPagamento MetodoPagamento { get; init; }
 }

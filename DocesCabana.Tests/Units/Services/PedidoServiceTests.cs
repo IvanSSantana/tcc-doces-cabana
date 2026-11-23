@@ -19,6 +19,7 @@ public class PedidoServiceTests
     private readonly Mock<IPedidoRepository> _pedidoRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<ICupomService> _cupomServiceMock;
+    private readonly Mock<IAgendaDeRetiradaService> _agendaDeRetiradaServiceMock;
     private readonly PedidoService _pedidoService;
 
     private readonly Guid _usuarioId = Guid.NewGuid();
@@ -35,6 +36,7 @@ public class PedidoServiceTests
         _pedidoRepositoryMock = new Mock<IPedidoRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _cupomServiceMock = new Mock<ICupomService>();
+        _agendaDeRetiradaServiceMock = new Mock<IAgendaDeRetiradaService>();
 
         _pedidoService = new PedidoService(
             _carrinhoServiceMock.Object,
@@ -43,6 +45,7 @@ public class PedidoServiceTests
             _freteServiceMock.Object,
             _pedidoRepositoryMock.Object,
             _cupomServiceMock.Object,
+            _agendaDeRetiradaServiceMock.Object,
             _unitOfWorkMock.Object);
     }
 
@@ -614,5 +617,188 @@ public class PedidoServiceTests
         Assert.Equal(2m, confirmacao.DescontoDoCupom);
         Assert.Equal(18m, confirmacao.ValorDosProdutos);
         Assert.Equal(26m, confirmacao.ValorTotal);
+    }
+
+    // Retirada na loja (036)
+
+    private static readonly DateOnly _hoje = new(2026, 11, 23);
+
+    private void PrepararRetiradaDisponivel(params (int Inicio, int Fim)[] faixas) =>
+        _agendaDeRetiradaServiceMock.Setup(s => s.ConsultarHoje()).ReturnsAsync(new RetiradaDisponivelDTO
+        {
+            Data = _hoje,
+            Faixas = faixas.Select(f => new FaixaDeRetiradaDTO(new TimeOnly(f.Inicio, 0), new TimeOnly(f.Fim, 0))).ToList()
+        });
+
+    private FechamentoDePedidoDTO CriarDadosDeRetirada(int inicioDaFaixa = 14, decimal valorDosProdutosExibido = 10m) => new()
+    {
+        Modalidade = ModalidadeDeEntrega.RetiradaNaLoja,
+        InicioDaFaixa = new TimeOnly(inicioDaFaixa, 0),
+        MetodoPagamento = MetodoPagamento.Pix,
+        ValorDosProdutosExibido = valorDosProdutosExibido
+    };
+
+    private void PrepararCarrinhoDeRetirada()
+    {
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(_usuarioId)).ReturnsAsync(CriarCarrinho(CriarLinha()));
+        _itemCarrinhoRepositoryMock.Setup(r => r.BuscarPorUsuario(_usuarioId)).ReturnsAsync([]);
+    }
+
+    [Fact]
+    public async Task Dado_PassoEnderecoComRetirada_Quando_MontarPasso_Entao_DeveTrazerFaixasSemCotarFrete()
+    {
+        PrepararRetiradaDisponivel((14, 15), (15, 16));
+        _enderecoServiceMock.Setup(s => s.ListarDoUsuario(_usuarioId)).ReturnsAsync(
+            [new EnderecoDTO { EnderecoId = _enderecoId, CEP = "17340001", Padrao = true }]);
+
+        var passo = await _pedidoService.MontarPasso(
+            PassoDoFechamento.Endereco, CriarCarrinho(CriarLinha()), _usuarioId, null,
+            modalidade: ModalidadeDeEntrega.RetiradaNaLoja);
+
+        Assert.Equal(ModalidadeDeEntrega.RetiradaNaLoja, passo.Modalidade);
+        Assert.NotNull(passo.Retirada);
+        Assert.Equal(2, passo.Retirada!.Faixas.Count);
+        Assert.Equal(new TimeOnly(14, 0), passo.InicioDaFaixaSelecionada);
+        Assert.Null(passo.Cotacao);
+        Assert.Equal(0m, passo.ValorDoFreteDeReferencia);
+        Assert.Equal(10m, passo.ValorTotal);
+        _freteServiceMock.Verify(s => s.Cotar(It.IsAny<string>(), It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_FaixaEscolhidaDisponivel_Quando_MontarPasso_Entao_DeveManterAFaixaEscolhida()
+    {
+        PrepararRetiradaDisponivel((14, 15), (15, 16));
+
+        var passo = await _pedidoService.MontarPasso(
+            PassoDoFechamento.Pagamento, CriarCarrinho(CriarLinha()), _usuarioId, null,
+            modalidade: ModalidadeDeEntrega.RetiradaNaLoja, inicioDaFaixa: new TimeOnly(15, 0));
+
+        Assert.Equal(new TimeOnly(15, 0), passo.InicioDaFaixaSelecionada);
+    }
+
+    [Fact]
+    public async Task Dado_RetiradaIndisponivel_Quando_MontarPasso_Entao_DeveVoltarParaEntregaSemFaixaSelecionada()
+    {
+        PrepararRetiradaDisponivel();
+        _enderecoServiceMock.Setup(s => s.ListarDoUsuario(_usuarioId)).ReturnsAsync([]);
+
+        var passo = await _pedidoService.MontarPasso(
+            PassoDoFechamento.Endereco, CriarCarrinho(CriarLinha()), _usuarioId, null,
+            modalidade: ModalidadeDeEntrega.RetiradaNaLoja);
+
+        Assert.False(passo.Retirada!.Disponivel);
+        Assert.Null(passo.InicioDaFaixaSelecionada);
+        Assert.Equal(ModalidadeDeEntrega.Entrega, passo.Modalidade);
+        Assert.Null(passo.ValorDoFreteDeReferencia);
+    }
+
+    [Fact]
+    public async Task Dado_PassoEnderecoComEntrega_Quando_MontarPasso_Entao_DeveTrazerDisponibilidadeDaRetirada()
+    {
+        PrepararRetiradaDisponivel((14, 15));
+        _enderecoServiceMock.Setup(s => s.ListarDoUsuario(_usuarioId)).ReturnsAsync([]);
+
+        var passo = await _pedidoService.MontarPasso(
+            PassoDoFechamento.Endereco, CriarCarrinho(CriarLinha()), _usuarioId, null);
+
+        Assert.Equal(ModalidadeDeEntrega.Entrega, passo.Modalidade);
+        Assert.True(passo.Retirada!.Disponivel);
+        Assert.Null(passo.InicioDaFaixaSelecionada);
+    }
+
+    [Fact]
+    public async Task Dado_RetiradaComCupom_Quando_MontarPasso_Entao_DeveAvaliarCupomComModalidadeRetirada()
+    {
+        PrepararRetiradaDisponivel((14, 15));
+        var carrinho = CriarCarrinho(CriarLinha());
+        _cupomServiceMock
+            .Setup(s => s.Avaliar("FRETEGRATIS", _usuarioId, carrinho, 0m, ModalidadeDeEntrega.RetiradaNaLoja))
+            .ReturnsAsync(ResultadoDoCupomDTO.ParaRecusa("FRETEGRATIS", "Cupom de frete grátis não vale para retirada na loja."));
+
+        var passo = await _pedidoService.MontarPasso(
+            PassoDoFechamento.Endereco, carrinho, _usuarioId, null, codigoDoCupom: "FRETEGRATIS",
+            modalidade: ModalidadeDeEntrega.RetiradaNaLoja);
+
+        Assert.Equal("Cupom de frete grátis não vale para retirada na loja.", passo.Cupom!.Motivo);
+    }
+
+    [Fact]
+    public async Task Dado_Retirada_Quando_Fechar_Entao_DeveGravarPedidoDeRetiradaSemCotarFrete()
+    {
+        PrepararCarrinhoDeRetirada();
+        PrepararRetiradaDisponivel((14, 15), (15, 16));
+        Pedido? pedidoGravado = null;
+        _pedidoRepositoryMock
+            .Setup(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()))
+            .Callback<Pedido, Pagamento>((p, _) => pedidoGravado = p);
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDadosDeRetirada(inicioDaFaixa: 15));
+
+        Assert.True(resultado.Sucesso);
+        Assert.Equal(ModalidadeDeEntrega.RetiradaNaLoja, pedidoGravado!.Modalidade);
+        Assert.Equal(_hoje, pedidoGravado.DataDaRetirada);
+        Assert.Equal(new TimeOnly(15, 0), pedidoGravado.InicioDaRetirada);
+        Assert.Equal(new TimeOnly(16, 0), pedidoGravado.FimDaRetirada);
+        Assert.Equal(0m, pedidoGravado.ValorDoFrete);
+        Assert.Equal(10m, pedidoGravado.Valor);
+        Assert.Null(pedidoGravado.EnderecoEntregaId);
+        _freteServiceMock.Verify(s => s.Cotar(It.IsAny<string>(), It.IsAny<IReadOnlyList<LinhaDoCarrinhoDTO>>()), Times.Never);
+        _enderecoServiceMock.Verify(s => s.BuscarDoUsuario(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_FaixaQueJaPassou_Quando_Fechar_Entao_DeveRecusarComMensagemDeFaixa()
+    {
+        PrepararCarrinhoDeRetirada();
+        PrepararRetiradaDisponivel((15, 16));
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, CriarDadosDeRetirada(inicioDaFaixa: 14));
+
+        Assert.False(resultado.Sucesso);
+        Assert.Equal("A faixa de retirada escolhida não está mais disponível. Escolha outra.", resultado.Mensagem);
+        _pedidoRepositoryMock.Verify(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_CupomFreteGratisNaRetirada_Quando_Fechar_Entao_DeveRecusarComCupomRecusado()
+    {
+        PrepararCarrinhoDeRetirada();
+        PrepararRetiradaDisponivel((14, 15));
+        _cupomServiceMock
+            .Setup(s => s.Avaliar("FRETEGRATIS", _usuarioId, It.IsAny<CarrinhoDTO>(), 0m, ModalidadeDeEntrega.RetiradaNaLoja))
+            .ReturnsAsync(ResultadoDoCupomDTO.ParaRecusa("FRETEGRATIS", "Cupom de frete grátis não vale para retirada na loja."));
+        var dados = CriarDadosDeRetirada();
+        dados.CodigoDoCupom = "FRETEGRATIS";
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, dados);
+
+        Assert.False(resultado.Sucesso);
+        Assert.True(resultado.CupomRecusado);
+        Assert.Equal("Cupom de frete grátis não vale para retirada na loja.", resultado.Mensagem);
+    }
+
+    [Fact]
+    public async Task Dado_RetiradaComCupomPercentual_Quando_Fechar_Entao_DeveDescontarSoOsProdutos()
+    {
+        PrepararCarrinhoDeRetirada();
+        PrepararRetiradaDisponivel((14, 15));
+        _cupomServiceMock
+            .Setup(s => s.Avaliar("BEMVINDO10", _usuarioId, It.IsAny<CarrinhoDTO>(), 0m, ModalidadeDeEntrega.RetiradaNaLoja))
+            .ReturnsAsync(CupomValido(nosProdutos: 1m));
+        Pedido? pedidoGravado = null;
+        _pedidoRepositoryMock
+            .Setup(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()))
+            .Callback<Pedido, Pagamento>((p, _) => pedidoGravado = p);
+        var dados = CriarDadosDeRetirada();
+        dados.CodigoDoCupom = "BEMVINDO10";
+        dados.DescontoDoCupomExibido = 1m;
+
+        var resultado = await _pedidoService.Fechar(_usuarioId, dados);
+
+        Assert.True(resultado.Sucesso);
+        Assert.Equal(9m, pedidoGravado!.Valor);
+        Assert.Equal(1m, pedidoGravado.DescontoDoCupom);
     }
 }

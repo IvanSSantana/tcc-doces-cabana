@@ -221,4 +221,26 @@ public class PedidoControllerTests
         _pedidoServiceMock.Verify(s => s.MontarPasso(PassoDoFechamento.Pagamento, It.IsAny<CarrinhoDTO>(), _usuarioId,
             It.IsAny<Guid?>(), 1, "BEMVINDO10"), Times.Once);
     }
+
+    [Fact]
+    public async Task Dado_RetiradaRecusada_Quando_Fechar_Entao_DeveRemontarOPassoComModalidadeEFaixa()
+    {
+        _pedidoServiceMock
+            .Setup(s => s.Fechar(_usuarioId, It.IsAny<FechamentoDePedidoDTO>()))
+            .ReturnsAsync(ResultadoDoFechamentoDTO.ParaRecusa("A faixa de retirada escolhida não está mais disponível. Escolha outra."));
+        var dados = new FechamentoDePedidoDTO
+        {
+            Modalidade = ModalidadeDeEntrega.RetiradaNaLoja,
+            InicioDaFaixa = new TimeOnly(14, 0),
+            MetodoPagamento = MetodoPagamento.Pix,
+            ValorDosProdutosExibido = 10m
+        };
+
+        var resultado = await _controller.Fechar(dados);
+
+        Assert.IsType<ViewResult>(resultado);
+        _pedidoServiceMock.Verify(s => s.MontarPasso(PassoDoFechamento.Pagamento, It.IsAny<CarrinhoDTO>(), _usuarioId,
+            It.IsAny<Guid?>(), It.IsAny<int?>(), It.IsAny<string?>(),
+            ModalidadeDeEntrega.RetiradaNaLoja, new TimeOnly(14, 0)), Times.Once);
+    }
 }

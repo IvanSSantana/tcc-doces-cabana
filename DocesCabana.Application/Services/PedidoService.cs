@@ -5,6 +5,8 @@ using DocesCabana.Application.Enums;
 using DocesCabana.Application.Mappings;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
+using DocesCabana.Domain.Enums;
+using DocesCabana.Domain.ValueObjects;
 
 namespace DocesCabana.Application.Services;
 
@@ -16,6 +18,7 @@ public class PedidoService : IPedidoService
     private readonly IFreteService _freteService;
     private readonly IPedidoRepository _pedidoRepository;
     private readonly ICupomService _cupomService;
+    private readonly IAgendaDeRetiradaService _agendaDeRetiradaService;
     private readonly IUnitOfWork _unitOfWork;
 
     public PedidoService(
@@ -25,6 +28,7 @@ public class PedidoService : IPedidoService
         IFreteService freteService,
         IPedidoRepository pedidoRepository,
         ICupomService cupomService,
+        IAgendaDeRetiradaService agendaDeRetiradaService,
         IUnitOfWork unitOfWork)
     {
         _carrinhoService = carrinhoService;
@@ -33,12 +37,14 @@ public class PedidoService : IPedidoService
         _freteService = freteService;
         _pedidoRepository = pedidoRepository;
         _cupomService = cupomService;
+        _agendaDeRetiradaService = agendaDeRetiradaService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<PassoDoFechamentoDTO> MontarPasso(
         PassoDoFechamento passo, CarrinhoDTO carrinho, Guid? usuarioId, Guid? enderecoId,
-        int? servicoDeEntregaId = null, string? codigoDoCupom = null)
+        int? servicoDeEntregaId = null, string? codigoDoCupom = null,
+        ModalidadeDeEntrega modalidade = ModalidadeDeEntrega.Entrega, TimeOnly? inicioDaFaixa = null)
     {
         var autenticado = usuarioId is not null;
 
@@ -50,9 +56,27 @@ public class PedidoService : IPedidoService
         Guid? enderecoSelecionadoId = null;
         CotacaoDeFreteDTO? cotacao = null;
         int? servicoSelecionadoId = null;
+        RetiradaDisponivelDTO? retirada = null;
+        TimeOnly? faixaSelecionada = null;
 
         var precisaDeEndereco = autenticado && passo is PassoDoFechamento.Endereco or PassoDoFechamento.Pagamento;
+
         if (precisaDeEndereco)
+            retirada = await _agendaDeRetiradaService.ConsultarHoje();
+
+        // Sem faixa hoje, a retirada fica desabilitada (D5) e o passo volta para a entrega.
+        if (retirada is not { Disponivel: true })
+            modalidade = ModalidadeDeEntrega.Entrega;
+
+        var retiradaNaLoja = modalidade == ModalidadeDeEntrega.RetiradaNaLoja;
+
+        if (precisaDeEndereco && retiradaNaLoja)
+        {
+            faixaSelecionada = inicioDaFaixa is not null && retirada!.Faixas.Any(f => f.Inicio == inicioDaFaixa)
+                ? inicioDaFaixa
+                : retirada!.Faixas.FirstOrDefault()?.Inicio;
+        }
+        else if (precisaDeEndereco)
         {
             enderecos = await _enderecoService.ListarDoUsuario(usuarioId!.Value);
             enderecoSelecionadoId = enderecoId ?? enderecos.FirstOrDefault(e => e.Padrao)?.EnderecoId;
@@ -73,14 +97,21 @@ public class PedidoService : IPedidoService
 
         var freteDeReferencia = passo == PassoDoFechamento.Carrinho
             ? (carrinho.TemEntregaCalculada ? carrinho.Cotacao!.Opcoes.Min(o => o.Preco) : null)
-            : cotacao?.Opcoes.FirstOrDefault(o => o.ServicoId == servicoSelecionadoId)?.Preco;
+            : retiradaNaLoja
+                ? 0m
+                : cotacao?.Opcoes.FirstOrDefault(o => o.ServicoId == servicoSelecionadoId)?.Preco;
 
         ResultadoDoCupomDTO? cupom = null;
         if (autenticado && !string.IsNullOrWhiteSpace(codigoDoCupom))
-            cupom = await _cupomService.Avaliar(codigoDoCupom, usuarioId!.Value, carrinho, freteDeReferencia);
+            cupom = await _cupomService.Avaliar(
+                codigoDoCupom, usuarioId!.Value, carrinho, freteDeReferencia,
+                precisaDeEndereco ? modalidade : ModalidadeDeEntrega.Entrega);
 
         return new PassoDoFechamentoDTO
         {
+            Modalidade = precisaDeEndereco ? modalidade : ModalidadeDeEntrega.Entrega,
+            Retirada = retirada,
+            InicioDaFaixaSelecionada = faixaSelecionada,
             PassoAtivo = passo,
             PassosVisiveis = passosVisiveis,
             Carrinho = carrinho,
@@ -111,27 +142,52 @@ public class PedidoService : IPedidoService
                 "O valor dos produtos mudou desde a última vez que você revisou. Confira o valor atual.",
                 valorDosProdutosAtual: carrinho.Subtotal);
 
-        var endereco = await _enderecoService.BuscarDoUsuario(dados.EnderecoId, usuarioId);
+        decimal valorDoFrete;
+        Func<decimal, Pedido> criarPedido;
 
-        var cotacao = await _freteService.Cotar(endereco.CEP, carrinho.Linhas);
-        if (cotacao.Opcoes.Count == 0)
-            return ResultadoDoFechamentoDTO.ParaRecusa(
-                cotacao.Mensagem ?? "Não foi possível confirmar a entrega agora. Tente novamente em instantes.");
+        if (dados.Modalidade == ModalidadeDeEntrega.RetiradaNaLoja)
+        {
+            var retirada = await _agendaDeRetiradaService.ConsultarHoje();
 
-        var opcaoEscolhida = cotacao.Opcoes.FirstOrDefault(o => o.ServicoId == dados.ServicoDeEntregaId);
-        if (opcaoEscolhida is null)
-            return ResultadoDoFechamentoDTO.ParaRecusa(
-                "A opção de entrega escolhida não está mais disponível. Escolha outra.");
+            var faixa = retirada.Faixas.FirstOrDefault(f => f.Inicio == dados.InicioDaFaixa);
+            if (faixa is null)
+                return ResultadoDoFechamentoDTO.ParaRecusa(
+                    "A faixa de retirada escolhida não está mais disponível. Escolha outra.");
 
-        if (opcaoEscolhida.Preco != dados.ValorDoFreteExibido)
-            return ResultadoDoFechamentoDTO.ParaRecusa(
-                "O valor do frete mudou desde a última vez que você revisou. Confira o valor atual.",
-                valorDoFreteAtual: opcaoEscolhida.Preco);
+            valorDoFrete = 0m;
+            criarPedido = valorTotal => Pedido.ParaRetirada(
+                usuarioId, valorTotal, new FaixaDeRetirada(retirada.Data, faixa.Inicio, faixa.Fim));
+        }
+        else
+        {
+            var endereco = await _enderecoService.BuscarDoUsuario(dados.EnderecoId, usuarioId);
+
+            var cotacao = await _freteService.Cotar(endereco.CEP, carrinho.Linhas);
+            if (cotacao.Opcoes.Count == 0)
+                return ResultadoDoFechamentoDTO.ParaRecusa(
+                    cotacao.Mensagem ?? "Não foi possível confirmar a entrega agora. Tente novamente em instantes.");
+
+            var opcaoEscolhida = cotacao.Opcoes.FirstOrDefault(o => o.ServicoId == dados.ServicoDeEntregaId);
+            if (opcaoEscolhida is null)
+                return ResultadoDoFechamentoDTO.ParaRecusa(
+                    "A opção de entrega escolhida não está mais disponível. Escolha outra.");
+
+            if (opcaoEscolhida.Preco != dados.ValorDoFreteExibido)
+                return ResultadoDoFechamentoDTO.ParaRecusa(
+                    "O valor do frete mudou desde a última vez que você revisou. Confira o valor atual.",
+                    valorDoFreteAtual: opcaoEscolhida.Preco);
+
+            valorDoFrete = opcaoEscolhida.Preco;
+            criarPedido = valorTotal => new Pedido(
+                usuarioId, dados.EnderecoId, valorTotal, opcaoEscolhida.Preco,
+                opcaoEscolhida.Transportadora, opcaoEscolhida.Servico,
+                opcaoEscolhida.PrazoMinimoEmDias, opcaoEscolhida.PrazoMaximoEmDias);
+        }
 
         ResultadoDoCupomDTO? cupom = null;
         if (!string.IsNullOrWhiteSpace(dados.CodigoDoCupom))
         {
-            cupom = await _cupomService.Avaliar(dados.CodigoDoCupom, usuarioId, carrinho, opcaoEscolhida.Preco);
+            cupom = await _cupomService.Avaliar(dados.CodigoDoCupom, usuarioId, carrinho, valorDoFrete, dados.Modalidade);
 
             if (!cupom.Valido)
                 return ResultadoDoFechamentoDTO.ParaRecusa(cupom.Motivo!, cupomRecusado: true);
@@ -142,15 +198,12 @@ public class PedidoService : IPedidoService
                     descontoDoCupomAtual: cupom.DescontoTotal);
         }
 
-        var valorTotal = carrinho.Subtotal + opcaoEscolhida.Preco - (cupom?.DescontoTotal ?? 0m);
+        var valorTotal = carrinho.Subtotal + valorDoFrete - (cupom?.DescontoTotal ?? 0m);
 
         if (valorTotal <= 0)
             return ResultadoDoFechamentoDTO.ParaRecusa("Não foi possível aplicar este cupom a um pedido sem valor.");
 
-        var pedido = new Pedido(
-            usuarioId, dados.EnderecoId, valorTotal, opcaoEscolhida.Preco,
-            opcaoEscolhida.Transportadora, opcaoEscolhida.Servico,
-            opcaoEscolhida.PrazoMinimoEmDias, opcaoEscolhida.PrazoMaximoEmDias);
+        var pedido = criarPedido(valorTotal);
 
         foreach (var linha in carrinho.Linhas)
             pedido.AcrescentarItem(

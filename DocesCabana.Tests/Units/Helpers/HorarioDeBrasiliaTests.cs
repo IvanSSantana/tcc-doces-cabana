@@ -27,4 +27,20 @@ public class HorarioDeBrasiliaTests
 
         Assert.Equal(new DateOnly(2026, 11, 20), hoje);
     }
+
+    [Fact]
+    public void Dado_UtcAs17h30_Quando_Agora_Entao_DeveSer14h30NoMesmoDia()
+    {
+        var agora = HorarioDeBrasilia.Agora(RelogioEm(new DateTimeOffset(2026, 11, 20, 17, 30, 0, TimeSpan.Zero)));
+
+        Assert.Equal(new DateTime(2026, 11, 20, 14, 30, 0), agora);
+    }
+
+    [Fact]
+    public void Dado_UtcAs1h00_Quando_Agora_Entao_DeveSer22hDoDiaAnterior()
+    {
+        var agora = HorarioDeBrasilia.Agora(RelogioEm(new DateTimeOffset(2026, 11, 20, 1, 0, 0, TimeSpan.Zero)));
+
+        Assert.Equal(new DateTime(2026, 11, 19, 22, 0, 0), agora);
+    }
 }

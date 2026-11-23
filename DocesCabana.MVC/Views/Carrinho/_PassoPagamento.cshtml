@@ -4,6 +4,10 @@
 
 @{
     var opcaoEscolhida = Model.Cotacao?.Opcoes.FirstOrDefault(o => o.ServicoId == Model.ServicoDeEntregaSelecionadoId);
+    var faixaEscolhida = Model.RetiradaNaLoja ? Model.FaixaSelecionada : null;
+    var entregaPronta = Model.RetiradaNaLoja
+        ? faixaEscolhida is not null
+        : Model.EnderecoSelecionadoId is not null && opcaoEscolhida is not null;
 
     var rotulosDePagamento = new Dictionary<MetodoPagamento, string>
     {
@@ -31,10 +35,10 @@
 <div class="passo-pagamento-fechamento">
     <h2 class="titulo-passo-fechamento">Como você quer pagar?</h2>
 
-    @if (Model.EnderecoSelecionadoId is null || opcaoEscolhida is null)
+    @if (!entregaPronta)
     {
         <p>
-            Escolha um endereço e uma opção de entrega antes de continuar.
+            Escolha um endereço e uma opção de entrega, ou uma faixa de retirada, antes de continuar.
             <a asp-action="Index" asp-route-passo="Endereco" data-navegacao-fechamento>Voltar para o endereço</a>
         </p>
     }
@@ -63,16 +67,29 @@
 
         <form method="post" asp-controller="Pedido" asp-action="Fechar" class="formulario-pagamento-fechamento">
             @Html.AntiForgeryToken()
-            <input type="hidden" name="EnderecoId" value="@Model.EnderecoSelecionadoId" />
-            <input type="hidden" name="ServicoDeEntregaId" value="@opcaoEscolhida.ServicoId" />
+            <input type="hidden" name="Modalidade" value="@Model.Modalidade" />
+            @if (faixaEscolhida is not null)
+            {
+                <input type="hidden" name="InicioDaFaixa" value="@faixaEscolhida.Inicio.ToString("HH:mm")" />
+            }
+            else
+            {
+                <input type="hidden" name="EnderecoId" value="@Model.EnderecoSelecionadoId" />
+                <input type="hidden" name="ServicoDeEntregaId" value="@opcaoEscolhida!.ServicoId" />
+            }
             @* Cultura atual (pt-BR, vírgula decimal): o model binder lê o formulário nessa mesma cultura.
                Com InvariantCulture, "139.80" seria lido como 13980. *@
             <input type="hidden" name="ValorDosProdutosExibido" value="@Model.Carrinho.Subtotal.ToString(System.Globalization.CultureInfo.CurrentCulture)" />
-            <input type="hidden" name="ValorDoFreteExibido" value="@opcaoEscolhida.Preco.ToString(System.Globalization.CultureInfo.CurrentCulture)" />
+            <input type="hidden" name="ValorDoFreteExibido" value="@((opcaoEscolhida?.Preco ?? 0m).ToString(System.Globalization.CultureInfo.CurrentCulture))" />
             @if (Model.CupomValido)
             {
                 <input type="hidden" name="CodigoDoCupom" value="@Model.Cupom!.Codigo" />
                 <input type="hidden" name="DescontoDoCupomExibido" value="@Model.DescontoTotalDoCupom.ToString(System.Globalization.CultureInfo.CurrentCulture)" />
+            }
+
+            @if (faixaEscolhida is not null)
+            {
+                <partial name="_EnderecoDaLoja" />
             }
 
             <fieldset class="opcoes-pagamento-fechamento">
@@ -102,13 +119,17 @@
                 {
                     <p class="linha-desconto-pedido"><span>Cupom <span class="codigo-linha-desconto">@Model.Cupom.Codigo</span></span> <strong>&minus; R$ @Model.Cupom.DescontoNosProdutos.ToString("N2")</strong></p>
                 }
-                @if (Model.CupomValido && Model.Cupom!.DescontoNoFrete > 0)
+                @if (faixaEscolhida is not null)
                 {
-                    <p>Entrega <strong><s class="valor-riscado">R$ @opcaoEscolhida.Preco.ToString("N2")</s> <span class="frete-gratis">Grátis</span></strong></p>
+                    <p>Retirada na loja (hoje, @faixaEscolhida.Inicio.ToString("HH:mm")–@faixaEscolhida.Fim.ToString("HH:mm")) <strong><span class="frete-gratis">Grátis</span></strong></p>
+                }
+                else if (Model.CupomValido && Model.Cupom!.DescontoNoFrete > 0)
+                {
+                    <p>Entrega <strong><s class="valor-riscado">R$ @opcaoEscolhida!.Preco.ToString("N2")</s> <span class="frete-gratis">Grátis</span></strong></p>
                 }
                 else
                 {
-                    <p>Entrega <strong>R$ @opcaoEscolhida.Preco.ToString("N2")</strong></p>
+                    <p>Entrega <strong>R$ @opcaoEscolhida!.Preco.ToString("N2")</strong></p>
                 }
                 <p class="total-pagamento-fechamento">Total <strong>R$ @Model.ValorTotal.ToString("N2")</strong></p>
             </div>

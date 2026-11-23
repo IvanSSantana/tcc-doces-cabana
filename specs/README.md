@@ -45,6 +45,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [033](./033-modernizacao-da-interface/plan.md) | Modernização da interface (tokens, componentes, etiqueta de confeitaria) | Executada (conferência visual pendente) | [plan](./033-modernizacao-da-interface/plan.md) |
 | [034](./034-promocoes-de-produto/plan.md) | Promoções de produto (percentual, valor fixo, leve X pague Y; admin + vitrine + carrinho + pedido) | Executada (verificação manual pendente) | [plan](./034-promocoes-de-produto/plan.md) |
 | [035](./035-cupons-de-desconto/plan.md) | Cupons de desconto (código no carrinho, frete grátis, mínimo, uso único, categoria; depende da `034`) | Executada (verificação manual pendente) | [plan](./035-cupons-de-desconto/plan.md) |
+| [036](./036-retirada-na-loja/plan.md) | Retirada na loja (no mesmo dia, por faixa de horário; agenda editável pelo admin) | Executada (verificação manual pendente) | [plan](./036-retirada-na-loja/plan.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023` → `027` → `028`.
 > A `028` fechou o par que a `027` abriu — as duas nasceram do mesmo pedido

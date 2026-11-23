@@ -1,4 +1,5 @@
 using DocesCabana.Application.Enums;
+using DocesCabana.Domain.Enums;
 
 namespace DocesCabana.Application.DTOs;
 
@@ -21,6 +22,18 @@ public class PassoDoFechamentoDTO
     public ResultadoDoCupomDTO? Cupom { get; init; }
 
     public decimal? ValorDoFreteDeReferencia { get; init; }
+
+    public ModalidadeDeEntrega Modalidade { get; init; }
+
+    /// <summary>Faixas de hoje; preenchido nos passos Endereço e Pagamento, para as duas modalidades.</summary>
+    public RetiradaDisponivelDTO? Retirada { get; init; }
+
+    public TimeOnly? InicioDaFaixaSelecionada { get; init; }
+
+    public bool RetiradaNaLoja => Modalidade == ModalidadeDeEntrega.RetiradaNaLoja;
+
+    public FaixaDeRetiradaDTO? FaixaSelecionada =>
+        Retirada?.Faixas.FirstOrDefault(f => f.Inicio == InicioDaFaixaSelecionada);
 
     public bool CupomValido => Cupom is { Valido: true };
 

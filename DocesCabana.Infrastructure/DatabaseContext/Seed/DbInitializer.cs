@@ -144,6 +144,36 @@ public static class DbInitializer
         await SemearCupomDeDemonstracao(context, HorarioDeBrasilia.Hoje(TimeProvider.System));
     }
 
+    /// <summary>
+    /// Roda em todo ambiente, inclusive produção: a agenda é configuração da loja, não dado de
+    /// demonstração, e sem ela o passo Endereço do fechamento não monta.
+    /// </summary>
+    public static async Task SemearAgendaDeRetirada(IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<DocesCabanaDbContext>();
+
+        await SemearAgendaDeRetirada(context);
+    }
+
+    /// <summary>
+    /// Agenda inicial da retirada na loja (036, D3): segunda a sábado das 09:00 às 18:00, domingo
+    /// fechado, faixas de 60 minutos e preparo de 60 minutos. O administrador altera depois.
+    /// Só cria se não existir: nunca sobrescreve o que o administrador salvou.
+    /// </summary>
+    internal static async Task SemearAgendaDeRetirada(DocesCabanaDbContext context)
+    {
+        if (await context.AgendasDeRetirada.AnyAsync(a => a.AgendaDeRetiradaId == AgendaDeRetirada.IdUnico))
+            return;
+
+        var agenda = new AgendaDeRetirada(60, 60);
+        foreach (var dia in Enum.GetValues<DayOfWeek>().Where(d => d != DayOfWeek.Sunday))
+            agenda.DefinirHorario(dia, new TimeOnly(9, 0), new TimeOnly(18, 0));
+
+        context.AgendasDeRetirada.Add(agenda);
+        await context.SaveChangesAsync();
+    }
+
     public const string CodigoDoCupomDeDemonstracao = "BEMVINDO10";
 
     /// <summary>

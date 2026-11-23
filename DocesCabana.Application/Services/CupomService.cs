@@ -31,7 +31,9 @@ public class CupomService : ICupomService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<ResultadoDoCupomDTO> Avaliar(string codigo, Guid usuarioId, CarrinhoDTO carrinho, decimal? valorDoFrete)
+    public async Task<ResultadoDoCupomDTO> Avaliar(
+        string codigo, Guid usuarioId, CarrinhoDTO carrinho, decimal? valorDoFrete,
+        ModalidadeDeEntrega modalidade = ModalidadeDeEntrega.Entrega)
     {
         var normalizado = Cupom.NormalizarCodigo(codigo);
         var cupom = await _cupomRepository.BuscarPorCodigo(normalizado);
@@ -47,6 +49,9 @@ public class CupomService : ICupomService
 
         if (hoje > cupom.DataFim)
             return ResultadoDoCupomDTO.ParaRecusa(normalizado, "Este cupom expirou.", rotulo);
+
+        if (cupom.Tipo == TipoDeDesconto.FreteGratis && modalidade == ModalidadeDeEntrega.RetiradaNaLoja)
+            return ResultadoDoCupomDTO.ParaRecusa(normalizado, "Cupom de frete grátis não vale para retirada na loja.", rotulo);
 
         if (cupom.UmUsoPorCliente && await _pedidoRepository.ClienteJaUsouCupom(usuarioId, cupom.CupomId))
             return ResultadoDoCupomDTO.ParaRecusa(normalizado, "Você já usou este cupom.", rotulo);

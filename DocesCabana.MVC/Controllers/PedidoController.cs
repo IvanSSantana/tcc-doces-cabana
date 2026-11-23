@@ -48,7 +48,7 @@ public class PedidoController : Controller
         var carrinho = await _carrinhoService.ObterDoUsuario(UsuarioAtualId);
         ViewData["PassoDoFechamento"] = await _pedidoService.MontarPasso(
             PassoDoFechamento.Pagamento, carrinho, UsuarioAtualId, dados.EnderecoId,
-            dados.ServicoDeEntregaId, HttpContext.Session.LerCupom());
+            dados.ServicoDeEntregaId, HttpContext.Session.LerCupom(), dados.Modalidade, dados.InicioDaFaixa);
 
         return View("~/Views/Carrinho/Index.cshtml", carrinho);
     }

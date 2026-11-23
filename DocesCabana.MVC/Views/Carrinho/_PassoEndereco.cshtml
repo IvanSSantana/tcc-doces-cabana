@@ -1,99 +1,154 @@
+@using System.Globalization
 @using DocesCabana.Application.DTOs
 @model PassoDoFechamentoDTO
 
-<div class="passo-endereco-fechamento">
-    <h2 class="titulo-passo-fechamento">Para onde vai?</h2>
-
-    @if (Model.Enderecos.Count > 0)
+@{
+    var retiradaDisponivel = Model.Retirada is { Disponivel: true };
+    string? avisoDeRetirada = null;
+    if (Model.Retirada is { Disponivel: false } retiradaFechada)
     {
-        <ul class="lista-enderecos-fechamento">
-            @foreach (var endereco in Model.Enderecos)
+        var proxima = retiradaFechada.ProximaAbertura;
+        avisoDeRetirada = proxima is null
+            ? "Retirada indisponível no momento."
+            : $"Retirada indisponível agora. Próxima: {proxima.Value.ToString("dddd", CultureInfo.GetCultureInfo("pt-BR"))}, "
+              + $"{proxima.Value:dd/MM}, a partir das {proxima.Value:HH:mm}.";
+    }
+}
+
+<div class="passo-endereco-fechamento">
+    <h2 class="titulo-passo-fechamento">Como você quer receber?</h2>
+
+    <ul class="seletor-modalidade-fechamento">
+        <li class="opcao-modalidade@(Model.RetiradaNaLoja ? "" : " opcao-modalidade--selecionada")">
+            <a asp-action="Index" asp-route-passo="Endereco" asp-route-modalidade="Entrega" data-navegacao-fechamento
+               aria-current="@(Model.RetiradaNaLoja ? null : "true")">
+                <i class="fa-solid fa-truck" aria-hidden="true"></i>
+                <span>Receber em casa</span>
+            </a>
+        </li>
+        <li class="opcao-modalidade@(Model.RetiradaNaLoja && retiradaDisponivel ? " opcao-modalidade--selecionada" : "")@(retiradaDisponivel ? "" : " opcao-modalidade--desabilitada")">
+            @if (retiradaDisponivel)
             {
-                var selecionado = endereco.EnderecoId == Model.EnderecoSelecionadoId;
-                <li class="endereco-fechamento@(selecionado ? " endereco-fechamento--selecionado" : "")">
-                    <a asp-action="Index" asp-route-passo="Endereco" asp-route-enderecoId="@endereco.EnderecoId"
-                       data-navegacao-fechamento aria-current="@(selecionado ? "true" : null)">
-                        <span class="linha-endereco-fechamento">@endereco.Rua, @endereco.Numero — @endereco.Bairro, @endereco.Cidade/@endereco.Estado</span>
-                        @if (endereco.Padrao)
-                        {
-                            <span class="rotulo-endereco-padrao">Principal</span>
-                        }
-                    </a>
-                </li>
+                <a asp-action="Index" asp-route-passo="Endereco" asp-route-modalidade="RetiradaNaLoja" data-navegacao-fechamento
+                   aria-current="@(Model.RetiradaNaLoja ? "true" : null)">
+                    <i class="fa-solid fa-store" aria-hidden="true"></i>
+                    <span>Retirar na loja <small>(grátis, hoje)</small></span>
+                </a>
             }
-        </ul>
+            else
+            {
+                <span aria-disabled="true" aria-describedby="aviso-retirada-indisponivel">
+                    <i class="fa-solid fa-store" aria-hidden="true"></i>
+                    <span>Retirar na loja</span>
+                </span>
+            }
+        </li>
+    </ul>
+
+    @if (avisoDeRetirada is not null)
+    {
+        <p id="aviso-retirada-indisponivel" class="aviso-retirada-indisponivel" role="status">@avisoDeRetirada</p>
+    }
+
+    @if (Model.RetiradaNaLoja && retiradaDisponivel)
+    {
+        <partial name="~/Views/Carrinho/_OpcoesDeRetirada.cshtml" model="Model" />
     }
     else
     {
-        <div class="aviso-sem-endereco" role="status">
-            <i class="fa-solid fa-location-dot aviso-sem-endereco__icone" aria-hidden="true"></i>
-            <div class="aviso-sem-endereco__texto">
-                <strong class="aviso-sem-endereco__titulo">Você ainda não tem nenhum endereço cadastrado.</strong>
-                <span>Cadastre um abaixo para continuar.</span>
-            </div>
-        </div>
-    }
+        <h2 class="titulo-passo-fechamento">Para onde vai?</h2>
 
-    <details class="novo-endereco-fechamento"@(Model.Enderecos.Count == 0 ? " open" : "")>
-        <summary>@(Model.Enderecos.Count == 0 ? "Cadastrar endereço" : "Cadastrar outro endereço")</summary>
-        <partial name="~/Views/Conta/_FormularioEndereco.cshtml" model="new EnderecoDTO()"
-                 view-data="@(new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData) { ["ControladorFormulario"] = "Carrinho", ["AcaoFormulario"] = "CadastrarEndereco" })" />
-    </details>
-
-    @if (Model.EnderecoSelecionadoId is not null)
-    {
-        <h2 class="titulo-passo-fechamento">Como chega?</h2>
-
-        @if (Model.Cotacao is { Opcoes.Count: > 0 })
+        @if (Model.Enderecos.Count > 0)
         {
-            var menorPreco = Model.Cotacao.Opcoes.Min(o => o.Preco);
-            var menorPrazo = Model.Cotacao.Opcoes.Min(o => o.PrazoMaximoEmDias);
-
-            <ul class="lista-opcoes-frete lista-opcoes-frete-fechamento">
-                @foreach (var opcao in Model.Cotacao.Opcoes.OrderBy(o => o.Preco).ThenBy(o => o.PrazoMaximoEmDias))
+            <ul class="lista-enderecos-fechamento">
+                @foreach (var endereco in Model.Enderecos)
                 {
-                    var selecionada = opcao.ServicoId == Model.ServicoDeEntregaSelecionadoId;
-                    <li class="opcao-frete@(selecionada ? " opcao-frete--selecionada" : "")">
-                        <a asp-action="Index" asp-route-passo="Endereco" asp-route-enderecoId="@Model.EnderecoSelecionadoId"
-                           asp-route-servicoDeEntregaId="@opcao.ServicoId" data-navegacao-fechamento
-                           aria-current="@(selecionada ? "true" : null)">
-                            <span class="marcador-opcao-frete" aria-hidden="true"></span>
-                            <span class="descricao-opcao-frete">
-                                <span class="transportadora-opcao-frete">@opcao.Transportadora — @opcao.Servico</span>
-                                <span class="prazo-opcao-frete">
-                                    @(opcao.PrazoMinimoEmDias == opcao.PrazoMaximoEmDias
-                                        ? $"{opcao.PrazoMinimoEmDias} dias úteis"
-                                        : $"{opcao.PrazoMinimoEmDias} a {opcao.PrazoMaximoEmDias} dias úteis")
-                                </span>
-                                @if (opcao.Preco == menorPreco || opcao.PrazoMaximoEmDias == menorPrazo)
-                                {
-                                    <span class="etiquetas-opcao-frete">
-                                        @if (opcao.Preco == menorPreco)
-                                        {
-                                            <span class="etiqueta-opcao-frete etiqueta-opcao-frete--barata">Mais barato</span>
-                                        }
-                                        @if (opcao.PrazoMaximoEmDias == menorPrazo)
-                                        {
-                                            <span class="etiqueta-opcao-frete etiqueta-opcao-frete--rapida">Mais rápido</span>
-                                        }
-                                    </span>
-                                }
-                            </span>
-                            <span class="preco-opcao-frete">R$ @opcao.Preco.ToString("N2")</span>
+                    var selecionado = endereco.EnderecoId == Model.EnderecoSelecionadoId;
+                    <li class="endereco-fechamento@(selecionado ? " endereco-fechamento--selecionado" : "")">
+                        <a asp-action="Index" asp-route-passo="Endereco" asp-route-enderecoId="@endereco.EnderecoId"
+                           data-navegacao-fechamento aria-current="@(selecionado ? "true" : null)">
+                            <span class="linha-endereco-fechamento">@endereco.Rua, @endereco.Numero — @endereco.Bairro, @endereco.Cidade/@endereco.Estado</span>
+                            @if (endereco.Padrao)
+                            {
+                                <span class="rotulo-endereco-padrao">Principal</span>
+                            }
                         </a>
                     </li>
                 }
             </ul>
-
-            <div class="acoes-passo-fechamento">
-                <a asp-action="Index" asp-route-passo="Pagamento" asp-route-enderecoId="@Model.EnderecoSelecionadoId"
-                   asp-route-servicoDeEntregaId="@Model.ServicoDeEntregaSelecionadoId"
-                   data-navegacao-fechamento class="botao botao--primario botao-acao">Continuar para pagamento</a>
+        }
+        else
+        {
+            <div class="aviso-sem-endereco" role="status">
+                <i class="fa-solid fa-location-dot aviso-sem-endereco__icone" aria-hidden="true"></i>
+                <div class="aviso-sem-endereco__texto">
+                    <strong class="aviso-sem-endereco__titulo">Você ainda não tem nenhum endereço cadastrado.</strong>
+                    <span>Cadastre um abaixo para continuar.</span>
+                </div>
             </div>
         }
-        else if (Model.Cotacao is not null)
+
+        <details class="novo-endereco-fechamento"@(Model.Enderecos.Count == 0 ? " open" : "")>
+            <summary>@(Model.Enderecos.Count == 0 ? "Cadastrar endereço" : "Cadastrar outro endereço")</summary>
+            <partial name="~/Views/Conta/_FormularioEndereco.cshtml" model="new EnderecoDTO()"
+                     view-data="@(new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData) { ["ControladorFormulario"] = "Carrinho", ["AcaoFormulario"] = "CadastrarEndereco" })" />
+        </details>
+
+        @if (Model.EnderecoSelecionadoId is not null)
         {
-            <p class="mensagem-falha-frete">@Model.Cotacao.Mensagem</p>
+            <h2 class="titulo-passo-fechamento">Como chega?</h2>
+
+            @if (Model.Cotacao is { Opcoes.Count: > 0 })
+            {
+                var menorPreco = Model.Cotacao.Opcoes.Min(o => o.Preco);
+                var menorPrazo = Model.Cotacao.Opcoes.Min(o => o.PrazoMaximoEmDias);
+
+                <ul class="lista-opcoes-frete lista-opcoes-frete-fechamento">
+                    @foreach (var opcao in Model.Cotacao.Opcoes.OrderBy(o => o.Preco).ThenBy(o => o.PrazoMaximoEmDias))
+                    {
+                        var selecionada = opcao.ServicoId == Model.ServicoDeEntregaSelecionadoId;
+                        <li class="opcao-frete@(selecionada ? " opcao-frete--selecionada" : "")">
+                            <a asp-action="Index" asp-route-passo="Endereco" asp-route-enderecoId="@Model.EnderecoSelecionadoId"
+                               asp-route-servicoDeEntregaId="@opcao.ServicoId" data-navegacao-fechamento
+                               aria-current="@(selecionada ? "true" : null)">
+                                <span class="marcador-opcao-frete" aria-hidden="true"></span>
+                                <span class="descricao-opcao-frete">
+                                    <span class="transportadora-opcao-frete">@opcao.Transportadora — @opcao.Servico</span>
+                                    <span class="prazo-opcao-frete">
+                                        @(opcao.PrazoMinimoEmDias == opcao.PrazoMaximoEmDias
+                                            ? $"{opcao.PrazoMinimoEmDias} dias úteis"
+                                            : $"{opcao.PrazoMinimoEmDias} a {opcao.PrazoMaximoEmDias} dias úteis")
+                                    </span>
+                                    @if (opcao.Preco == menorPreco || opcao.PrazoMaximoEmDias == menorPrazo)
+                                    {
+                                        <span class="etiquetas-opcao-frete">
+                                            @if (opcao.Preco == menorPreco)
+                                            {
+                                                <span class="etiqueta-opcao-frete etiqueta-opcao-frete--barata">Mais barato</span>
+                                            }
+                                            @if (opcao.PrazoMaximoEmDias == menorPrazo)
+                                            {
+                                                <span class="etiqueta-opcao-frete etiqueta-opcao-frete--rapida">Mais rápido</span>
+                                            }
+                                        </span>
+                                    }
+                                </span>
+                                <span class="preco-opcao-frete">R$ @opcao.Preco.ToString("N2")</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+                <div class="acoes-passo-fechamento">
+                    <a asp-action="Index" asp-route-passo="Pagamento" asp-route-enderecoId="@Model.EnderecoSelecionadoId"
+                       asp-route-servicoDeEntregaId="@Model.ServicoDeEntregaSelecionadoId"
+                       data-navegacao-fechamento class="botao botao--primario botao-acao">Continuar para pagamento</a>
+                </div>
+            }
+            else if (Model.Cotacao is not null)
+            {
+                <p class="mensagem-falha-frete">@Model.Cotacao.Mensagem</p>
+            }
         }
     }
 </div>

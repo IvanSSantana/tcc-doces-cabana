@@ -1,6 +1,7 @@
 using DocesCabana.Tests.Integration.Infraestrutura;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Domain.Enums;
+using DocesCabana.Domain.ValueObjects;
 using DocesCabana.Infrastructure.Repositories;
 
 namespace DocesCabana.Tests.Integration.Repositories;
@@ -312,5 +313,55 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartave
         Contexto.Produtos.Add(produto);
         await Contexto.SaveChangesAsync();
         return produto;
+    }
+
+    [Fact]
+    public async Task Dado_PedidoDeRetirada_Quando_Salvar_Entao_DevePersistirSemEndereco()
+    {
+        var unidadeDeTrabalho = new UnitOfWork(Contexto);
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var produto = await SemearProdutoComSubcategoria();
+        var faixa = new FaixaDeRetirada(new DateOnly(2026, 11, 23), new TimeOnly(14, 0), new TimeOnly(15, 0));
+
+        var pedido = Pedido.ParaRetirada(usuarioId, 10m, faixa);
+        pedido.AcrescentarItem(produto.ProdutoId, 2, 5m);
+        await repositorio.AdicionarComPagamento(pedido, new Pagamento(pedido.PedidoId, MetodoPagamento.Pix, 10m));
+        await unidadeDeTrabalho.SalvarAlteracoes();
+        Contexto.ChangeTracker.Clear();
+
+        var encontrado = await repositorio.Buscar(pedido.PedidoId, usuarioId);
+
+        Assert.NotNull(encontrado);
+        Assert.Equal(ModalidadeDeEntrega.RetiradaNaLoja, encontrado.Modalidade);
+        Assert.Null(encontrado.EnderecoEntregaId);
+        Assert.Null(encontrado.EnderecoEntrega);
+        Assert.Null(encontrado.Transportadora);
+        Assert.Null(encontrado.PrazoMinimoEmDias);
+        Assert.Equal(0m, encontrado.ValorDoFrete);
+        Assert.Equal(new DateOnly(2026, 11, 23), encontrado.DataDaRetirada);
+        Assert.Equal(new TimeOnly(14, 0), encontrado.InicioDaRetirada);
+        Assert.Equal(new TimeOnly(15, 0), encontrado.FimDaRetirada);
+        Assert.Single(encontrado.Itens);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoDeEntrega_Quando_Salvar_Entao_DeveVoltarComModalidadeEntrega()
+    {
+        var unidadeDeTrabalho = new UnitOfWork(Contexto);
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var enderecoId = await SemearEndereco(usuarioId);
+
+        var pedido = new Pedido(usuarioId, enderecoId, 20m, 10m, "Correios", "PAC", 3, 7);
+        await repositorio.AdicionarComPagamento(pedido, new Pagamento(pedido.PedidoId, MetodoPagamento.Pix, 20m));
+        await unidadeDeTrabalho.SalvarAlteracoes();
+        Contexto.ChangeTracker.Clear();
+
+        var encontrado = await repositorio.Buscar(pedido.PedidoId, usuarioId);
+
+        Assert.Equal(ModalidadeDeEntrega.Entrega, encontrado!.Modalidade);
+        Assert.Null(encontrado.DataDaRetirada);
+        Assert.Equal(3, encontrado.PrazoMinimoEmDias);
     }
 }

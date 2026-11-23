@@ -1,0 +1,155 @@
+@using System.Globalization
+@model AgendaDeRetiradaViewModel
+@{
+    ViewData["Title"] = "Retirada na loja";
+    Layout = "_Layout";
+
+    var ptBr = CultureInfo.GetCultureInfo("pt-BR");
+    string NomeDoDia(DayOfWeek dia)
+    {
+        var nome = ptBr.DateTimeFormat.GetDayName(dia);
+        return char.ToUpper(nome[0], ptBr) + nome[1..];
+    }
+
+    string? Hora(TimeOnly? hora) => hora?.ToString("HH:mm");
+}
+
+<link rel="stylesheet" href="~/css/pages/gestao-produtos.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/gestao-retirada.css" asp-append-version="true">
+
+<main class="container-gestao-produtos">
+    <div class="cabecalho-gestao">
+        <h1 class="titulo-gestao">Retirada na loja</h1>
+    </div>
+
+    @if (TempData["Confirmacao"] is string confirmacao)
+    {
+        <div class="resumo-sucesso" role="status">
+            <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
+        </div>
+    }
+
+    <section class="secao-retirada" aria-labelledby="titulo-horarios">
+        <h2 id="titulo-horarios" class="subtitulo-retirada">Horários e faixas</h2>
+        <p class="texto-ajuda">
+            O cliente retira no mesmo dia do pedido, numa faixa de horário. Só aparecem as faixas que
+            começam depois do tempo de preparo.
+        </p>
+
+        <form asp-area="Admin" asp-controller="Retirada" asp-action="SalvarHorarios" method="post"
+              class="formulario-autenticacao formulario-retirada painel" novalidate>
+            @Html.AntiForgeryToken()
+            <span asp-validation-for="Agenda.Horarios" class="mensagem-erro exibicao-bloco"></span>
+
+            <div class="linha-campos-retirada">
+                <div class="campo-entrada">
+                    <label asp-for="Agenda.DuracaoDaFaixaEmMinutos">Duração da faixa (minutos)</label>
+                    <input asp-for="Agenda.DuracaoDaFaixaEmMinutos" type="number" min="15" max="240" step="5"
+                           class="campo-texto" required />
+                    <span asp-validation-for="Agenda.DuracaoDaFaixaEmMinutos" class="mensagem-erro"></span>
+                </div>
+                <div class="campo-entrada">
+                    <label asp-for="Agenda.PreparoEmMinutos">Tempo de preparo (minutos)</label>
+                    <input asp-for="Agenda.PreparoEmMinutos" type="number" min="0" max="480" step="5"
+                           class="campo-texto" required />
+                    <span asp-validation-for="Agenda.PreparoEmMinutos" class="mensagem-erro"></span>
+                </div>
+            </div>
+
+            <div class="tabela-rolavel">
+                <table class="tabela-produtos tabela-horarios-retirada">
+                    <thead>
+                        <tr>
+                            <th scope="col">Dia</th>
+                            <th scope="col">Aberto</th>
+                            <th scope="col">Abertura</th>
+                            <th scope="col">Fechamento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.Agenda.Horarios.Count; i++)
+                        {
+                            var horario = Model.Agenda.Horarios[i];
+                            var nome = NomeDoDia(horario.DiaDaSemana);
+                            <tr>
+                                <th scope="row">
+                                    @nome
+                                    <input type="hidden" name="Agenda.Horarios[@i].DiaDaSemana" value="@horario.DiaDaSemana" />
+                                </th>
+                                <td>
+                                    <input type="checkbox" name="Agenda.Horarios[@i].Aberto" value="true"
+                                           checked="@horario.Aberto" aria-label="@nome aberto" />
+                                    <input type="hidden" name="Agenda.Horarios[@i].Aberto" value="false" />
+                                </td>
+                                <td>
+                                    <input type="time" name="Agenda.Horarios[@i].Abertura" value="@Hora(horario.Abertura)"
+                                           class="campo-texto campo-hora-retirada" aria-label="Abertura de @nome" />
+                                    <span asp-validation-for="Agenda.Horarios[i].Abertura" class="mensagem-erro"></span>
+                                </td>
+                                <td>
+                                    <input type="time" name="Agenda.Horarios[@i].Fechamento" value="@Hora(horario.Fechamento)"
+                                           class="campo-texto campo-hora-retirada" aria-label="Fechamento de @nome" />
+                                    <span asp-validation-for="Agenda.Horarios[i].Fechamento" class="mensagem-erro"></span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <button type="submit" class="botao botao--primario">Salvar horários</button>
+        </form>
+    </section>
+
+    <section class="secao-retirada" aria-labelledby="titulo-bloqueios">
+        <h2 id="titulo-bloqueios" class="subtitulo-retirada">Dias sem retirada</h2>
+        <p class="texto-ajuda">Feriados e folgas: nesses dias a opção aparece desabilitada para o cliente.</p>
+
+        <form asp-area="Admin" asp-controller="Retirada" asp-action="BloquearDia" method="post"
+              class="formulario-autenticacao formulario-retirada painel" novalidate>
+            @Html.AntiForgeryToken()
+            <div class="linha-campos-retirada">
+                <div class="campo-entrada">
+                    <label asp-for="NovoBloqueio.Data">Data</label>
+                    <input asp-for="NovoBloqueio.Data" type="date" class="campo-texto" required />
+                    <span asp-validation-for="NovoBloqueio.Data" class="mensagem-erro"></span>
+                </div>
+                <div class="campo-entrada">
+                    <label asp-for="NovoBloqueio.Motivo">Motivo (opcional)</label>
+                    <input asp-for="NovoBloqueio.Motivo" class="campo-texto" maxlength="100" placeholder="Ex.: Feriado" />
+                    <span asp-validation-for="NovoBloqueio.Motivo" class="mensagem-erro"></span>
+                </div>
+            </div>
+            <button type="submit" class="botao botao--secundario">Bloquear data</button>
+        </form>
+
+        @if (Model.Agenda.DiasBloqueados.Count == 0)
+        {
+            <p class="gestao-vazia">Nenhuma data bloqueada.</p>
+        }
+        else
+        {
+            <ul class="lista-bloqueios-retirada">
+                @foreach (var dia in Model.Agenda.DiasBloqueados)
+                {
+                    <li class="painel item-bloqueio-retirada">
+                        <span>
+                            <strong>@dia.Data!.Value.ToString("dd/MM/yyyy")</strong>
+                            · @NomeDoDia(dia.Data.Value.DayOfWeek)
+                            @if (!string.IsNullOrWhiteSpace(dia.Motivo))
+                            {
+                                <span class="motivo-bloqueio-retirada">— @dia.Motivo</span>
+                            }
+                        </span>
+                        <form asp-area="Admin" asp-controller="Retirada" asp-action="DesbloquearDia" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="data" value="@dia.Data.Value.ToString("yyyy-MM-dd")" />
+                            <button type="submit" class="botao botao--perigo botao--pequeno"
+                                    aria-label="Liberar retirada em @dia.Data.Value.ToString("dd/MM/yyyy")">Remover</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+</main>

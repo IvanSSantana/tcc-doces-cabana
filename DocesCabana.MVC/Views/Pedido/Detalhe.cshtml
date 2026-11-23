@@ -75,23 +75,37 @@
                 }
             </ul>
 
-            <div class="bloco-detalhe-pedido">
-                <h3 class="subtitulo-detalhe-pedido">Entrega</h3>
-                <p>
-                    @Model.Endereco.Rua, @Model.Endereco.Numero
-                    @if (!string.IsNullOrWhiteSpace(Model.Endereco.Complemento))
-                    {
-                        <text> — @Model.Endereco.Complemento</text>
-                    }
-                </p>
-                <p>@Model.Endereco.Bairro · @Model.Endereco.Cidade/@Model.Endereco.Estado · @Model.Endereco.CEP</p>
-                <p>
-                    @Model.Transportadora — @Model.Servico ·
-                    @(Model.PrazoMinimoEmDias == Model.PrazoMaximoEmDias
-                        ? $"{Model.PrazoMinimoEmDias} dias úteis"
-                        : $"{Model.PrazoMinimoEmDias} a {Model.PrazoMaximoEmDias} dias úteis")
-                </p>
-            </div>
+            @if (Model.RetiradaNaLoja)
+            {
+                <div class="bloco-detalhe-pedido">
+                    <h3 class="subtitulo-detalhe-pedido">Retirada na loja</h3>
+                    <p>
+                        @Model.DataDaRetirada?.ToString("dd/MM/yyyy"), entre
+                        @Model.InicioDaRetirada?.ToString("HH:mm") e @Model.FimDaRetirada?.ToString("HH:mm")
+                    </p>
+                    <partial name="_EnderecoDaLoja" />
+                </div>
+            }
+            else
+            {
+                <div class="bloco-detalhe-pedido">
+                    <h3 class="subtitulo-detalhe-pedido">Entrega</h3>
+                    <p>
+                        @Model.Endereco.Rua, @Model.Endereco.Numero
+                        @if (!string.IsNullOrWhiteSpace(Model.Endereco.Complemento))
+                        {
+                            <text> — @Model.Endereco.Complemento</text>
+                        }
+                    </p>
+                    <p>@Model.Endereco.Bairro · @Model.Endereco.Cidade/@Model.Endereco.Estado · @Model.Endereco.CEP</p>
+                    <p>
+                        @Model.Transportadora — @Model.Servico ·
+                        @(Model.PrazoMinimoEmDias == Model.PrazoMaximoEmDias
+                            ? $"{Model.PrazoMinimoEmDias} dias úteis"
+                            : $"{Model.PrazoMinimoEmDias} a {Model.PrazoMaximoEmDias} dias úteis")
+                    </p>
+                </div>
+            }
 
             <div class="bloco-detalhe-pedido">
                 <h3 class="subtitulo-detalhe-pedido">Pagamento</h3>
@@ -104,7 +118,11 @@
                 {
                     <p class="linha-desconto-pedido"><span>Cupom <span class="codigo-linha-desconto">@Model.CodigoDoCupom</span></span> <strong>&minus; R$ @Model.DescontoDoCupom.ToString("N2")</strong></p>
                 }
-                @if (Model.DescontoNoFrete > 0)
+                @if (Model.RetiradaNaLoja)
+                {
+                    <p>Retirada na loja <strong><span class="frete-gratis">Grátis</span></strong></p>
+                }
+                else if (Model.DescontoNoFrete > 0)
                 {
                     <p>Entrega <strong><s class="valor-riscado">R$ @Model.ValorDoFrete.ToString("N2")</s> <span class="frete-gratis">Grátis</span></strong></p>
                 }
