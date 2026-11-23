@@ -43,4 +43,30 @@ public class HorarioDeBrasiliaTests
 
         Assert.Equal(new DateTime(2026, 11, 19, 22, 0, 0), agora);
     }
+
+    [Fact]
+    public void Dado_Utc1hDoDia10_Quando_DeUtc_Entao_DeveSer22hDoDia9()
+    {
+        var local = HorarioDeBrasilia.DeUtc(new DateTime(2026, 11, 10, 1, 0, 0, DateTimeKind.Utc));
+
+        Assert.Equal(new DateTime(2026, 11, 9, 22, 0, 0), local);
+        Assert.Equal(DateTimeKind.Unspecified, local.Kind);
+    }
+
+    [Fact]
+    public void Dado_MeiaNoiteDeBrasilia_Quando_ParaUtc_Entao_DeveSer3hUtcComKindUtc()
+    {
+        var utc = HorarioDeBrasilia.ParaUtc(new DateTime(2026, 11, 1, 0, 0, 0));
+
+        Assert.Equal(new DateTime(2026, 11, 1, 3, 0, 0), utc);
+        Assert.Equal(DateTimeKind.Utc, utc.Kind);
+    }
+
+    [Fact]
+    public void Dado_HorarioQualquer_Quando_ParaUtcEDeUtc_Entao_DeveVoltarAoOriginal()
+    {
+        var original = new DateTime(2026, 12, 31, 23, 59, 0);
+
+        Assert.Equal(original, HorarioDeBrasilia.DeUtc(HorarioDeBrasilia.ParaUtc(original)));
+    }
 }

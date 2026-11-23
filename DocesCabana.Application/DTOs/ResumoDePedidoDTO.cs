@@ -8,4 +8,5 @@ public record ResumoDePedidoDTO(
     DateTime Data,
     PedidoStatus Status,
     int QuantidadeDeItens,
-    decimal ValorTotal);
+    decimal ValorTotal,
+    bool PodeMarcarComoEntregue);

@@ -82,7 +82,7 @@ public class Pedido
         Servico = servico;
         PrazoMinimoEmDias = prazoMinimoEmDias;
         PrazoMaximoEmDias = prazoMaximoEmDias;
-        Status = PedidoStatus.Pendente;
+        Status = PedidoStatus.Confirmado;
         PagamentoAprovado = false;
         Data = DateTime.UtcNow;
     }
@@ -110,7 +110,7 @@ public class Pedido
         pedido.DataDaRetirada = faixa.Data;
         pedido.InicioDaRetirada = faixa.Inicio;
         pedido.FimDaRetirada = faixa.Fim;
-        pedido.Status = PedidoStatus.Pendente;
+        pedido.Status = PedidoStatus.Confirmado;
         pedido.PagamentoAprovado = false;
         pedido.Data = DateTime.UtcNow;
 
@@ -160,7 +160,16 @@ public class Pedido
 
     public void MarcarComoEnviado() => Status = PedidoStatus.Enviado;
 
-    public void MarcarComoEntregue() => Status = PedidoStatus.Entregue;
+    public void MarcarComoEntregue()
+    {
+        if (Status == PedidoStatus.Cancelado)
+            throw new InvalidOperationException("Pedido cancelado não pode ser marcado como entregue.");
+
+        if (Status == PedidoStatus.Entregue)
+            throw new InvalidOperationException("Este pedido já foi marcado como entregue.");
+
+        Status = PedidoStatus.Entregue;
+    }
 
     private void ValidarUsuario(Guid usuarioId)
     {

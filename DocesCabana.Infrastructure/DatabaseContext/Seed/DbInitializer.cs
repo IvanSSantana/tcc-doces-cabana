@@ -362,11 +362,11 @@ public static class DbInitializer
             foreach (var (produto, quantidade) in itens)
                 pedido.AcrescentarItem(produto.ProdutoId, quantidade, produto.Preco);
 
+            // Pedido já nasce confirmado (spec 037); daqui ele só avança ou é cancelado.
             switch (status)
             {
-                case PedidoStatus.Confirmado: pedido.Confirmar(); break;
-                case PedidoStatus.Enviado: pedido.Confirmar(); pedido.MarcarComoEnviado(); break;
-                case PedidoStatus.Entregue: pedido.Confirmar(); pedido.MarcarComoEnviado(); pedido.MarcarComoEntregue(); break;
+                case PedidoStatus.Enviado: pedido.MarcarComoEnviado(); break;
+                case PedidoStatus.Entregue: pedido.MarcarComoEnviado(); pedido.MarcarComoEntregue(); break;
                 case PedidoStatus.Cancelado: pedido.Cancelar(); break;
             }
 
@@ -377,16 +377,25 @@ public static class DbInitializer
             context.Pagamentos.Add(new Pagamento(pedido.PedidoId, metodo, valorDosProdutos + valorDoFrete));
         }
 
+        // Datas e horas espalhadas pelos últimos dois meses, para o painel de vendas (spec 037) ter o que mostrar.
+        // Horas em UTC: 15h UTC = 12h em Brasília.
+        var hoje = DateTime.UtcNow.Date;
+        DateTime DiasAtras(int dias, int horaUtc) => hoje.AddDays(-dias).AddHours(horaUtc);
+
         CriarPedido(
             usuarioIds[0], [(maisVendido, 1)], PedidoStatus.Confirmado, MetodoPagamento.CartaoCredito,
-            data: DateTime.UtcNow.AddDays(-30));
-        CriarPedido(usuarioIds[0], [(maisVendido, 5)], PedidoStatus.Entregue, MetodoPagamento.Pix);
-        CriarPedido(usuarioIds[1 % usuarioIds.Count], [(maisVendido, 4)], PedidoStatus.Confirmado, MetodoPagamento.CartaoCredito);
-        CriarPedido(usuarioIds[2 % usuarioIds.Count], [(maisVendido, 100)], PedidoStatus.Cancelado, MetodoPagamento.Boleto);
-        CriarPedido(usuarioIds[3 % usuarioIds.Count], [(segundoMaisVendido, 3)], PedidoStatus.Enviado, MetodoPagamento.Pix);
-        CriarPedido(usuarioIds[4 % usuarioIds.Count], [(segundoMaisVendido, 2)], PedidoStatus.Pendente, MetodoPagamento.CartaoDebito);
-        CriarPedido(usuarioIds[5 % usuarioIds.Count], [(poucoVendido, 1)], PedidoStatus.Entregue, MetodoPagamento.Pix);
-        CriarPedido(usuarioIds[6 % usuarioIds.Count], [(maisVendido, 2), (segundoMaisVendido, 1)], PedidoStatus.Confirmado, MetodoPagamento.Boleto);
+            data: DiasAtras(30, 14));
+        CriarPedido(usuarioIds[0], [(maisVendido, 5)], PedidoStatus.Entregue, MetodoPagamento.Pix, data: DiasAtras(2, 15));
+        CriarPedido(usuarioIds[1 % usuarioIds.Count], [(maisVendido, 4)], PedidoStatus.Confirmado, MetodoPagamento.CartaoCredito, data: DateTime.UtcNow.AddHours(-1));
+        CriarPedido(usuarioIds[2 % usuarioIds.Count], [(maisVendido, 100)], PedidoStatus.Cancelado, MetodoPagamento.Boleto, data: DiasAtras(9, 18));
+        CriarPedido(usuarioIds[3 % usuarioIds.Count], [(segundoMaisVendido, 3)], PedidoStatus.Enviado, MetodoPagamento.Pix, data: DiasAtras(4, 21));
+        CriarPedido(usuarioIds[4 % usuarioIds.Count], [(segundoMaisVendido, 2)], PedidoStatus.Confirmado, MetodoPagamento.CartaoDebito, data: DiasAtras(1, 22));
+        CriarPedido(usuarioIds[5 % usuarioIds.Count], [(poucoVendido, 1)], PedidoStatus.Entregue, MetodoPagamento.Pix, data: DiasAtras(45, 16));
+        CriarPedido(usuarioIds[6 % usuarioIds.Count], [(maisVendido, 2), (segundoMaisVendido, 1)], PedidoStatus.Confirmado, MetodoPagamento.Boleto, data: DiasAtras(7, 19));
+        CriarPedido(usuarioIds[1 % usuarioIds.Count], [(segundoMaisVendido, 2)], PedidoStatus.Entregue, MetodoPagamento.Pix, data: DiasAtras(14, 21));
+        CriarPedido(usuarioIds[2 % usuarioIds.Count], [(poucoVendido, 3), (maisVendido, 1)], PedidoStatus.Entregue, MetodoPagamento.CartaoCredito, data: DiasAtras(21, 20));
+        CriarPedido(usuarioIds[3 % usuarioIds.Count], [(maisVendido, 2)], PedidoStatus.Entregue, MetodoPagamento.Pix, data: DiasAtras(38, 17));
+        CriarPedido(usuarioIds[4 % usuarioIds.Count], [(segundoMaisVendido, 1)], PedidoStatus.Entregue, MetodoPagamento.Pix, data: DiasAtras(52, 15));
 
         await context.SaveChangesAsync();
     }

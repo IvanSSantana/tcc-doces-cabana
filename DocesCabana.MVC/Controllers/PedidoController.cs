@@ -77,5 +77,13 @@ public class PedidoController : Controller
         return View(detalhe);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MarcarComoEntregue(Guid id)
+    {
+        await _pedidoService.MarcarComoEntregue(id, UsuarioAtualId);
+        return RedirectToAction(nameof(Meus));
+    }
+
     private Guid UsuarioAtualId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }

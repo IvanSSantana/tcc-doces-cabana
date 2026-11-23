@@ -43,7 +43,8 @@ public static class PedidoMapper
         pedido.Data,
         pedido.Status,
         pedido.Itens.Sum(i => (int)i.Quantidade),
-        pedido.Valor);
+        pedido.Valor,
+        pedido.Status is PedidoStatus.Pendente or PedidoStatus.Confirmado or PedidoStatus.Enviado);
 
      public static DetalheDePedidoDTO ToDetalheDTO(Pedido pedido, Pagamento? pagamento) => new()
     {

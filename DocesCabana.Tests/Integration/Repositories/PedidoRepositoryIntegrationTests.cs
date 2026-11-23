@@ -277,7 +277,8 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartave
         return cupom;
     }
 
-    private async Task SemearPedido(Guid usuarioId, Guid produtoId, PedidoStatus status, Cupom? cupom = null)
+    private async Task<Pedido> SemearPedido(
+        Guid usuarioId, Guid produtoId, PedidoStatus status, Cupom? cupom = null, DateTime? data = null)
     {
         var enderecoId = await SemearEndereco(usuarioId);
         var pedido = new Pedido(usuarioId, enderecoId, 20m, 10m, "Correios", "PAC", 3, 7);
@@ -292,10 +293,17 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartave
             case PedidoStatus.Enviado: pedido.Confirmar(); pedido.MarcarComoEnviado(); break;
             case PedidoStatus.Entregue: pedido.Confirmar(); pedido.MarcarComoEnviado(); pedido.MarcarComoEntregue(); break;
             case PedidoStatus.Cancelado: pedido.Cancelar(); break;
+            case PedidoStatus.Pendente:
+                typeof(Pedido).GetProperty(nameof(Pedido.Status))!.SetValue(pedido, PedidoStatus.Pendente);
+                break;
         }
+
+        if (data is not null)
+            typeof(Pedido).GetProperty(nameof(Pedido.Data))!.SetValue(pedido, data.Value);
 
         Contexto.Pedidos.Add(pedido);
         await Contexto.SaveChangesAsync();
+        return pedido;
     }
 
     private async Task<Guid> SemearEndereco(Guid usuarioId)
@@ -363,5 +371,81 @@ public class PedidoRepositoryIntegrationTests : InfraestruturaPostgresDescartave
         Assert.Equal(ModalidadeDeEntrega.Entrega, encontrado!.Modalidade);
         Assert.Null(encontrado.DataDaRetirada);
         Assert.Equal(3, encontrado.PrazoMinimoEmDias);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoDoUsuario_Quando_BuscarParaAlterarEMarcarComoEntregue_Entao_DevePersistirAEntrega()
+    {
+        var unidadeDeTrabalho = new UnitOfWork(Contexto);
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var produto = await SemearProdutoComSubcategoria();
+        var semeado = await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Confirmado);
+        Contexto.ChangeTracker.Clear();
+
+        var pedido = await repositorio.BuscarParaAlterar(semeado.PedidoId, usuarioId);
+        pedido!.MarcarComoEntregue();
+        await unidadeDeTrabalho.SalvarAlteracoes();
+        Contexto.ChangeTracker.Clear();
+
+        var relido = await repositorio.Buscar(semeado.PedidoId, usuarioId);
+        Assert.Equal(PedidoStatus.Entregue, relido!.Status);
+        Assert.Single(relido.Itens);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoDeOutroUsuario_Quando_BuscarParaAlterar_Entao_DeveRetornarNulo()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var dono = await SemearUsuario("Dono", "52998224725");
+        var outroUsuario = await SemearUsuario("Outro", "11144477735");
+        var produto = await SemearProdutoComSubcategoria();
+        var pedido = await SemearPedido(dono, produto.ProdutoId, PedidoStatus.Confirmado);
+
+        var encontrado = await repositorio.BuscarParaAlterar(pedido.PedidoId, outroUsuario);
+
+        Assert.Null(encontrado);
+    }
+
+    [Fact]
+    public async Task Dado_PedidosEmTodasAsSituacoes_Quando_ListarReceitaEntre_Entao_DeveTrazerSoConfirmadoEnviadoEntregue()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var produto = await SemearProdutoComSubcategoria();
+        var data = new DateTime(2026, 11, 10, 15, 0, 0, DateTimeKind.Utc);
+
+        var confirmado = await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Confirmado, data: data);
+        var enviado = await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Enviado, data: data);
+        var entregue = await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Entregue, data: data);
+        await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Pendente, data: data);
+        await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Cancelado, data: data);
+        Contexto.ChangeTracker.Clear();
+
+        var pedidos = await repositorio.ListarReceitaEntre(
+            new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc));
+
+        Assert.Equal(
+            new[] { confirmado.PedidoId, enviado.PedidoId, entregue.PedidoId }.OrderBy(i => i),
+            pedidos.Select(p => p.PedidoId).OrderBy(i => i));
+        Assert.All(pedidos, p => Assert.Equal("Brigadeiro", Assert.Single(p.Itens).Produto?.Nome));
+    }
+
+    [Fact]
+    public async Task Dado_PedidosNosLimitesDoIntervalo_Quando_ListarReceitaEntre_Entao_InicioDeveEntrarEFimNao()
+    {
+        var repositorio = new PedidoRepository(Contexto);
+        var usuarioId = await SemearUsuario();
+        var produto = await SemearProdutoComSubcategoria();
+        var inicio = new DateTime(2026, 11, 1, 3, 0, 0, DateTimeKind.Utc);
+        var fim = new DateTime(2026, 12, 1, 3, 0, 0, DateTimeKind.Utc);
+
+        var noInicio = await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Confirmado, data: inicio);
+        await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Confirmado, data: inicio.AddSeconds(-1));
+        await SemearPedido(usuarioId, produto.ProdutoId, PedidoStatus.Confirmado, data: fim);
+
+        var pedidos = await repositorio.ListarReceitaEntre(inicio, fim);
+
+        Assert.Equal(noInicio.PedidoId, Assert.Single(pedidos).PedidoId);
     }
 }

@@ -52,6 +52,16 @@
                                 </div>
                                 <span class="valor-cartao-pedido">R$ @pedido.ValorTotal.ToString("N2")</span>
                             </a>
+
+                            @if (pedido.PodeMarcarComoEntregue)
+                            {
+                                <form asp-action="MarcarComoEntregue" asp-route-id="@pedido.PedidoId" method="post" class="acoes-cartao-pedido">
+                                    <button type="submit" class="botao botao--secundario botao--pequeno">
+                                        <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+                                        Marcar como entregue
+                                    </button>
+                                </form>
+                            }
                         </li>
                     }
                 </ul>

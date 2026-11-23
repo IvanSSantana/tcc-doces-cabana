@@ -75,6 +75,12 @@
   white-space: nowrap;
 }
 
+.acoes-cartao-pedido {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--espaco-6) var(--espaco-4);
+}
+
 .situacao-cartao-pedido {
   display: inline-block;
   width: fit-content;

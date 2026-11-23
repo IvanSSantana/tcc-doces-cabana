@@ -1,0 +1,178 @@
+/* Painel de vendas (Admin/Vendas). Reaproveita o contêiner e a tabela da gestão de produtos. */
+
+.filtro-do-painel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espaco-4);
+    margin-bottom: var(--espaco-6);
+}
+
+.abas-do-painel {
+    display: inline-flex;
+    gap: var(--espaco-1);
+    margin: 0;
+    padding: var(--espaco-1);
+    list-style: none;
+    background-color: var(--neutro-rebaixado);
+    border-radius: var(--raio-pilula);
+}
+
+.aba-do-painel {
+    display: inline-block;
+    padding: var(--espaco-2) var(--espaco-4);
+    border-radius: var(--raio-pilula);
+    color: var(--neutro-texto-suave);
+    font-weight: 600;
+    font-size: var(--texto-pequeno);
+    text-decoration: none;
+    transition: background-color var(--duracao-rapida) var(--curva), color var(--duracao-rapida) var(--curva);
+}
+
+.aba-do-painel:hover {
+    color: var(--cor-primaria);
+}
+
+.aba-do-painel--ativa {
+    background-color: var(--neutro-superficie);
+    color: var(--cor-primaria);
+    box-shadow: var(--sombra-1);
+}
+
+.navegacao-do-painel {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--espaco-2);
+}
+
+.rotulo-do-periodo {
+    min-width: 11rem;
+    text-align: center;
+    font-weight: 600;
+    color: var(--cor-primaria);
+}
+
+.indicadores-do-painel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--espaco-4);
+}
+
+.indicador {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-1);
+}
+
+.nome-indicador {
+    font-size: var(--texto-pequeno);
+    color: var(--neutro-texto-suave);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.valor-indicador {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--cor-primaria);
+    font-variant-numeric: tabular-nums;
+}
+
+.variacao {
+    font-size: var(--texto-pequeno);
+    font-weight: 600;
+}
+
+.variacao--alta {
+    color: var(--status-sucesso);
+}
+
+.variacao--baixa {
+    color: var(--cor-perigo);
+}
+
+.variacao--neutra {
+    color: var(--neutro-apagado);
+    font-weight: 400;
+}
+
+.nota-do-painel {
+    margin: var(--espaco-2) 0 var(--espaco-6);
+    font-size: var(--texto-pequeno);
+    color: var(--neutro-texto-suave);
+}
+
+.bloco-do-painel {
+    margin-bottom: var(--espaco-6);
+}
+
+.bloco-do-painel .nota-do-painel {
+    margin-bottom: 0;
+}
+
+.titulo-bloco-do-painel {
+    margin: 0 0 var(--espaco-4);
+    font-size: var(--texto-grande);
+    font-weight: 600;
+    color: var(--cor-tinta);
+}
+
+.area-do-grafico {
+    position: relative;
+    height: 240px;
+}
+
+.area-do-grafico--larga {
+    height: 300px;
+}
+
+.tabela-do-grafico {
+    margin-top: var(--espaco-4);
+    font-size: var(--texto-pequeno);
+}
+
+.tabela-do-grafico summary {
+    cursor: pointer;
+    color: var(--cor-primaria);
+    font-weight: 600;
+}
+
+.tabela-compacta {
+    min-width: 0;
+}
+
+.picos-do-painel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--espaco-4);
+}
+
+.picos-do-painel .bloco-do-painel {
+    margin-bottom: 0;
+}
+
+@media (max-width: 760px) {
+    .indicadores-do-painel,
+    .picos-do-painel {
+        grid-template-columns: 1fr;
+    }
+
+    .filtro-do-painel {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .abas-do-painel {
+        justify-content: space-between;
+    }
+
+    .navegacao-do-painel {
+        justify-content: space-between;
+    }
+
+    .area-do-grafico--larga {
+        height: 240px;
+    }
+}

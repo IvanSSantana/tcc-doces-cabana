@@ -21,11 +21,11 @@ public class PedidoTests
         new(_usuarioValido, _enderecoValido, valor, valorDoFrete, transportadora, servico, prazoMinimoEmDias, prazoMaximoEmDias);
 
     [Fact]
-    public void Dado_DadosValidos_Quando_CriarPedido_Entao_DeveNascerPendenteComPagamentoNaoAprovado()
+    public void Dado_DadosValidos_Quando_CriarPedido_Entao_DeveNascerConfirmadoComPagamentoNaoAprovado()
     {
         var pedido = CriarPedido(valor: 50.00m);
 
-        Assert.Equal(PedidoStatus.Pendente, pedido.Status);
+        Assert.Equal(PedidoStatus.Confirmado, pedido.Status);
         Assert.False(pedido.PagamentoAprovado);
         Assert.Equal(50.00m, pedido.Valor);
         Assert.True((DateTime.UtcNow - pedido.Data) < TimeSpan.FromMinutes(1));
@@ -172,7 +172,7 @@ public class PedidoTests
     }
 
     [Fact]
-    public void Dado_PedidoPendente_Quando_Cancelar_Entao_DeveFicarCancelado()
+    public void Dado_PedidoConfirmado_Quando_Cancelar_Entao_DeveFicarCancelado()
     {
         var pedido = CriarPedido();
 
@@ -182,11 +182,9 @@ public class PedidoTests
     }
 
     [Fact]
-    public void Dado_PedidoPendente_Quando_ConfirmarEnviarEEntregar_Entao_DeveRefletirCadaSituacao()
+    public void Dado_PedidoConfirmado_Quando_EnviarEEntregar_Entao_DeveRefletirCadaSituacao()
     {
         var pedido = CriarPedido();
-
-        pedido.Confirmar();
         Assert.Equal(PedidoStatus.Confirmado, pedido.Status);
 
         pedido.MarcarComoEnviado();
@@ -194,6 +192,46 @@ public class PedidoTests
 
         pedido.MarcarComoEntregue();
         Assert.Equal(PedidoStatus.Entregue, pedido.Status);
+    }
+
+    [Fact]
+    public void Dado_PedidoConfirmado_Quando_MarcarComoEntregue_Entao_DeveFicarEntregue()
+    {
+        var pedido = CriarPedido();
+
+        pedido.MarcarComoEntregue();
+
+        Assert.Equal(PedidoStatus.Entregue, pedido.Status);
+    }
+
+    [Fact]
+    public void Dado_PedidoPendenteAntigo_Quando_MarcarComoEntregue_Entao_DeveFicarEntregue()
+    {
+        var pedido = CriarPedido();
+        typeof(Pedido).GetProperty(nameof(Pedido.Status))!.SetValue(pedido, PedidoStatus.Pendente);
+
+        pedido.MarcarComoEntregue();
+
+        Assert.Equal(PedidoStatus.Entregue, pedido.Status);
+    }
+
+    [Fact]
+    public void Dado_PedidoCancelado_Quando_MarcarComoEntregue_Entao_DeveLancarInvalidOperationException()
+    {
+        var pedido = CriarPedido();
+        pedido.Cancelar();
+
+        Assert.Throws<InvalidOperationException>(() => pedido.MarcarComoEntregue());
+        Assert.Equal(PedidoStatus.Cancelado, pedido.Status);
+    }
+
+    [Fact]
+    public void Dado_PedidoJaEntregue_Quando_MarcarComoEntregue_Entao_DeveLancarInvalidOperationException()
+    {
+        var pedido = CriarPedido();
+        pedido.MarcarComoEntregue();
+
+        Assert.Throws<InvalidOperationException>(() => pedido.MarcarComoEntregue());
     }
 
     private Pedido CriarPedidoComItens()
@@ -292,7 +330,7 @@ public class PedidoTests
         Assert.Equal(new DateOnly(2026, 11, 23), pedido.DataDaRetirada);
         Assert.Equal(new TimeOnly(14, 0), pedido.InicioDaRetirada);
         Assert.Equal(new TimeOnly(15, 0), pedido.FimDaRetirada);
-        Assert.Equal(PedidoStatus.Pendente, pedido.Status);
+        Assert.Equal(PedidoStatus.Confirmado, pedido.Status);
         Assert.NotEqual(Guid.Empty, pedido.PedidoId);
     }
 

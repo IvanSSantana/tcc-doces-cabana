@@ -34,7 +34,8 @@ public class FilterExceptionTests
     [Theory]
     [InlineData("VotarUtil")]
     [InlineData("Avaliar")]
-    public void Dado_InvalidOperationEmAcaoDeAvaliacaoComReferer_Quando_OnActionExecuted_Entao_DeveRedirecionarParaOReferer(string acao)
+    [InlineData("MarcarComoEntregue")]
+    public void Dado_InvalidOperationEmAcaoQueVoltaAOrigemComReferer_Quando_OnActionExecuted_Entao_DeveRedirecionarParaOReferer(string acao)
     {
         var contexto = CriarContexto(acao, new InvalidOperationException("Você já comentou sobre esse produto."),
             referer: "https://loja.test/Produto/Detalhes/abc");

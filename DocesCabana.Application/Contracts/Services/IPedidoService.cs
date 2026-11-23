@@ -18,4 +18,6 @@ public interface IPedidoService
     Task<IReadOnlyList<ResumoDePedidoDTO>> ListarDoUsuario(Guid usuarioId);
 
     Task<DetalheDePedidoDTO> BuscarDetalhe(Guid pedidoId, Guid usuarioId);
+
+    Task MarcarComoEntregue(Guid pedidoId, Guid usuarioId);
 }

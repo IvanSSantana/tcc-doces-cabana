@@ -1,0 +1,222 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Application.Enums
+@model PainelDeVendasDTO
+@{
+    ViewData["Title"] = "Vendas";
+    Layout = "_Layout";
+
+    var periodos = new (PeriodoDoPainel Periodo, string Rotulo)[]
+    {
+        (PeriodoDoPainel.Dia, "Dia"),
+        (PeriodoDoPainel.Semana, "Semana"),
+        (PeriodoDoPainel.Mes, "Mês"),
+        (PeriodoDoPainel.Ano, "Ano")
+    };
+
+    var nomeDaFaixa = Model.Periodo switch
+    {
+        PeriodoDoPainel.Dia => "Hora",
+        PeriodoDoPainel.Ano => "Mês",
+        _ => "Dia"
+    };
+
+    var semVendas = Model.Pedidos.Atual == 0;
+    var somaDosMaisVendidos = Model.MaisVendidos.Sum(p => p.Receita);
+
+    static string Variacao(IndicadorDoPainelDTO indicador) => indicador.VariacaoPercentual switch
+    {
+        null => "sem base de comparação",
+        > 0 => $"+{indicador.VariacaoPercentual:N1}% vs. período anterior",
+        _ => $"{indicador.VariacaoPercentual:N1}% vs. período anterior"
+    };
+
+    static string ClasseDaVariacao(IndicadorDoPainelDTO indicador) => indicador.VariacaoPercentual switch
+    {
+        null => "variacao--neutra",
+        > 0 => "variacao--alta",
+        < 0 => "variacao--baixa",
+        _ => "variacao--neutra"
+    };
+}
+
+<link rel="stylesheet" href="~/css/pages/gestao-produtos.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/painel-de-vendas.css" asp-append-version="true">
+
+<main class="container-gestao-produtos painel-de-vendas">
+    <div class="cabecalho-gestao">
+        <h1 class="titulo-gestao">Vendas</h1>
+    </div>
+
+    <nav class="filtro-do-painel" aria-label="Período do painel">
+        <ul class="abas-do-painel">
+            @foreach (var (periodo, rotulo) in periodos)
+            {
+                <li>
+                    <a asp-action="Index" asp-route-periodo="@periodo" asp-route-data="@Model.Referencia.ToString("yyyy-MM-dd")"
+                       class="aba-do-painel @(periodo == Model.Periodo ? "aba-do-painel--ativa" : "")"
+                       aria-current="@(periodo == Model.Periodo ? "page" : null)">@rotulo</a>
+                </li>
+            }
+        </ul>
+
+        <div class="navegacao-do-painel">
+            <a asp-action="Index" asp-route-periodo="@Model.Periodo" asp-route-data="@Model.ReferenciaAnterior.ToString("yyyy-MM-dd")"
+               class="botao botao--fantasma botao--icone" aria-label="Período anterior">
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            </a>
+            <span class="rotulo-do-periodo">@Model.RotuloDoPeriodo</span>
+            @if (Model.ReferenciaSeguinte is DateOnly seguinte)
+            {
+                <a asp-action="Index" asp-route-periodo="@Model.Periodo" asp-route-data="@seguinte.ToString("yyyy-MM-dd")"
+                   class="botao botao--fantasma botao--icone" aria-label="Próximo período">
+                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </a>
+            }
+            else
+            {
+                <span class="botao botao--fantasma botao--icone" aria-disabled="true" title="Período corrente">
+                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </span>
+            }
+        </div>
+    </nav>
+
+    <section class="indicadores-do-painel" aria-label="Resumo do período">
+        <div class="painel indicador">
+            <span class="nome-indicador">Receita</span>
+            <strong class="valor-indicador">R$ @Model.Receita.Atual.ToString("N2")</strong>
+            <span class="variacao @ClasseDaVariacao(Model.Receita)">@Variacao(Model.Receita)</span>
+        </div>
+        <div class="painel indicador">
+            <span class="nome-indicador">Pedidos</span>
+            <strong class="valor-indicador">@Model.Pedidos.Atual.ToString("N0")</strong>
+            <span class="variacao @ClasseDaVariacao(Model.Pedidos)">@Variacao(Model.Pedidos)</span>
+        </div>
+        <div class="painel indicador">
+            <span class="nome-indicador">Ticket médio</span>
+            <strong class="valor-indicador">R$ @Model.TicketMedio.Atual.ToString("N2")</strong>
+            <span class="variacao @ClasseDaVariacao(Model.TicketMedio)">@Variacao(Model.TicketMedio)</span>
+        </div>
+    </section>
+    <p class="nota-do-painel">Receita = produtos com promoção e cupom já descontados, sem frete. Conta pedidos confirmados, enviados e entregues.</p>
+
+    @if (semVendas)
+    {
+        <p class="gestao-vazia">Nenhuma venda neste período.</p>
+    }
+    else
+    {
+        <section class="painel bloco-do-painel">
+            <h2 class="titulo-bloco-do-painel">Receita no período</h2>
+            <div class="area-do-grafico area-do-grafico--larga">
+                <canvas id="grafico-serie" role="img" aria-label="Receita por @nomeDaFaixa.ToLowerInvariant() em @Model.RotuloDoPeriodo"></canvas>
+            </div>
+            <details class="tabela-do-grafico">
+                <summary>Ver em tabela</summary>
+                <div class="tabela-rolavel">
+                    <table class="tabela-produtos tabela-compacta">
+                        <thead><tr><th scope="col">@nomeDaFaixa</th><th scope="col">Pedidos</th><th scope="col">Receita</th></tr></thead>
+                        <tbody>
+                            @foreach (var ponto in Model.Serie)
+                            {
+                                <tr><td>@ponto.Rotulo</td><td>@ponto.Pedidos</td><td>R$ @ponto.Receita.ToString("N2")</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </section>
+
+        <section class="painel bloco-do-painel">
+            <h2 class="titulo-bloco-do-painel">Mais vendidos</h2>
+            <div class="tabela-rolavel">
+                <table class="tabela-produtos tabela-compacta">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Produto</th>
+                            <th scope="col">Quantidade</th>
+                            <th scope="col">Receita</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.MaisVendidos.Count; i++)
+                        {
+                            var produto = Model.MaisVendidos[i];
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>@produto.Nome</td>
+                                <td>@produto.Quantidade</td>
+                                <td>R$ @produto.Receita.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (somaDosMaisVendidos > Model.Receita.Atual)
+            {
+                <p class="nota-do-painel">A receita por produto não desconta cupons, que valem para o pedido inteiro. Por isso a soma pode passar da receita do período.</p>
+            }
+        </section>
+
+        @if (Model.PorDiaDaSemana.Count > 0)
+        {
+            <div class="picos-do-painel">
+                <section class="painel bloco-do-painel">
+                    <h2 class="titulo-bloco-do-painel">Por dia da semana</h2>
+                    <div class="area-do-grafico">
+                        <canvas id="grafico-dia-da-semana" role="img" aria-label="Receita por dia da semana"></canvas>
+                    </div>
+                    <details class="tabela-do-grafico">
+                        <summary>Ver em tabela</summary>
+                        <table class="tabela-produtos tabela-compacta">
+                            <thead><tr><th scope="col">Dia</th><th scope="col">Pedidos</th><th scope="col">Receita</th></tr></thead>
+                            <tbody>
+                                @foreach (var ponto in Model.PorDiaDaSemana)
+                                {
+                                    <tr><td>@ponto.Rotulo</td><td>@ponto.Pedidos</td><td>R$ @ponto.Receita.ToString("N2")</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </details>
+                </section>
+
+                <section class="painel bloco-do-painel">
+                    <h2 class="titulo-bloco-do-painel">Por hora do dia</h2>
+                    <div class="area-do-grafico">
+                        <canvas id="grafico-hora" role="img" aria-label="Receita por hora do dia"></canvas>
+                    </div>
+                    <details class="tabela-do-grafico">
+                        <summary>Ver em tabela</summary>
+                        <table class="tabela-produtos tabela-compacta">
+                            <thead><tr><th scope="col">Hora</th><th scope="col">Pedidos</th><th scope="col">Receita</th></tr></thead>
+                            <tbody>
+                                @foreach (var ponto in Model.PorHora)
+                                {
+                                    <tr><td>@ponto.Rotulo</td><td>@ponto.Pedidos</td><td>R$ @ponto.Receita.ToString("N2")</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </details>
+                </section>
+            </div>
+        }
+
+        <script type="application/json" id="dados-do-painel">
+            @Html.Raw(Json.Serialize(new
+            {
+                serie = Model.Serie,
+                porDiaDaSemana = Model.PorDiaDaSemana,
+                porHora = Model.PorHora
+            }))
+        </script>
+    }
+</main>
+
+@section Scripts {
+    @if (!semVendas)
+    {
+        <script src="~/lib/chart.js/dist/chart.umd.js"></script>
+        <script src="~/js/pages/painel-de-vendas.js" asp-append-version="true"></script>
+    }
+}

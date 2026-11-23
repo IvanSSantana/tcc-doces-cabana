@@ -254,6 +254,16 @@ public class PedidoService : IPedidoService
         return PedidoMapper.ToDetalheDTO(pedido, pagamento);
     }
 
+    public async Task MarcarComoEntregue(Guid pedidoId, Guid usuarioId)
+    {
+        var pedido = await _pedidoRepository.BuscarParaAlterar(pedidoId, usuarioId)
+            ?? throw new KeyNotFoundException("Pedido não encontrado.");
+
+        pedido.MarcarComoEntregue();
+
+        await _unitOfWork.SalvarAlteracoes();
+    }
+
     private async Task EsvaziarSemSalvar(Guid usuarioId)
     {
         var itens = await _itemCarrinhoRepository.BuscarPorUsuario(usuarioId);

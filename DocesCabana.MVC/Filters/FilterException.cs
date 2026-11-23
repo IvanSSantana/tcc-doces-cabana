@@ -42,7 +42,7 @@ public class FilterException : IActionFilter
                 return;
             }
 
-            if (context.Exception is InvalidOperationException && (actionName is "VotarUtil" or "Avaliar"))
+            if (context.Exception is InvalidOperationException && (actionName is "VotarUtil" or "Avaliar" or "MarcarComoEntregue"))
             {
                 var referer = context.HttpContext.Request.Headers.Referer.ToString();
                 context.Result = string.IsNullOrEmpty(referer)

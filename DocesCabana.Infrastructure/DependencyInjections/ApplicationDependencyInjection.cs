@@ -44,6 +44,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<ICarrinhoService, CarrinhoService>();
         services.AddScoped<IEnderecoService, EnderecoService>();
         services.AddScoped<IPedidoService, PedidoService>();
+        services.AddScoped<IPainelDeVendasService, PainelDeVendasService>();
         services.AddScoped<IPromocaoService, PromocaoService>();
         services.AddScoped<ICupomService, CupomService>();
         services.AddScoped<IAgendaDeRetiradaService, AgendaDeRetiradaService>();

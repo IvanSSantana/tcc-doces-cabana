@@ -60,4 +60,19 @@ public class PedidoRepository : Repository<Pedido>, IPedidoRepository
         await _context.Pedidos.AddAsync(pedido);
         await _context.Pagamentos.AddAsync(pagamento);
     }
+
+    public async Task<Pedido?> BuscarParaAlterar(Guid pedidoId, Guid usuarioId) =>
+        await _context.Pedidos
+            .FirstOrDefaultAsync(p => p.PedidoId == pedidoId && p.UsuarioId == usuarioId);
+
+    public async Task<List<Pedido>> ListarReceitaEntre(DateTime inicioUtc, DateTime fimUtc) =>
+        await _context.Pedidos
+            .Where(p => p.Data >= inicioUtc && p.Data < fimUtc
+                && (p.Status == PedidoStatus.Confirmado
+                    || p.Status == PedidoStatus.Enviado
+                    || p.Status == PedidoStatus.Entregue))
+            .Include(p => p.Itens)
+            .ThenInclude(i => i.Produto)
+            .AsNoTracking()
+            .ToListAsync();
 }

@@ -801,4 +801,59 @@ public class PedidoServiceTests
         Assert.Equal(9m, pedidoGravado!.Valor);
         Assert.Equal(1m, pedidoGravado.DescontoDoCupom);
     }
+
+    [Fact]
+    public async Task Dado_CarrinhoValido_Quando_Fechar_Entao_PedidoDeveNascerConfirmado()
+    {
+        var linha = CriarLinha(preco: 9.99m, quantidade: 3);
+        _carrinhoServiceMock.Setup(s => s.ObterDoUsuario(_usuarioId)).ReturnsAsync(CriarCarrinho(linha));
+        PrepararEnderecoValido();
+        PrepararCotacaoValida();
+        _itemCarrinhoRepositoryMock.Setup(r => r.BuscarPorUsuario(_usuarioId)).ReturnsAsync([]);
+        Pedido? criado = null;
+        _pedidoRepositoryMock
+            .Setup(r => r.AdicionarComPagamento(It.IsAny<Pedido>(), It.IsAny<Pagamento>()))
+            .Callback<Pedido, Pagamento>((p, _) => criado = p)
+            .Returns(Task.CompletedTask);
+
+        await _pedidoService.Fechar(_usuarioId, CriarDados(valorDosProdutosExibido: 29.97m));
+
+        Assert.Equal(PedidoStatus.Confirmado, criado!.Status);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoConfirmadoDoUsuario_Quando_MarcarComoEntregue_Entao_DeveFicarEntregueESalvarAlteracoes()
+    {
+        var pedido = CriarPedidoPersistido(DateTime.UtcNow, PedidoStatus.Confirmado);
+        _pedidoRepositoryMock.Setup(r => r.BuscarParaAlterar(pedido.PedidoId, _usuarioId)).ReturnsAsync(pedido);
+
+        await _pedidoService.MarcarComoEntregue(pedido.PedidoId, _usuarioId);
+
+        Assert.Equal(PedidoStatus.Entregue, pedido.Status);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoDeOutroUsuario_Quando_MarcarComoEntregue_Entao_DeveLancarKeyNotFoundException()
+    {
+        _pedidoRepositoryMock
+            .Setup(r => r.BuscarParaAlterar(It.IsAny<Guid>(), _usuarioId))
+            .ReturnsAsync((Pedido?)null);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _pedidoService.MarcarComoEntregue(Guid.NewGuid(), _usuarioId));
+
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoCancelado_Quando_MarcarComoEntregue_Entao_DeveLancarInvalidOperationExceptionSemSalvar()
+    {
+        var pedido = CriarPedidoPersistido(DateTime.UtcNow, PedidoStatus.Confirmado);
+        pedido.Cancelar();
+        _pedidoRepositoryMock.Setup(r => r.BuscarParaAlterar(pedido.PedidoId, _usuarioId)).ReturnsAsync(pedido);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _pedidoService.MarcarComoEntregue(pedido.PedidoId, _usuarioId));
+
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(), Times.Never);
+    }
 }

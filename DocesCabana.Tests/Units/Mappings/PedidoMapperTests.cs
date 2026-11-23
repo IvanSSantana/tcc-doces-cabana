@@ -80,4 +80,21 @@ public class PedidoMapperTests
         Assert.Null(detalhe.DataDaRetirada);
         Assert.Equal("Correios", detalhe.Transportadora);
     }
+
+    [Theory]
+    [InlineData(PedidoStatus.Pendente, true)]
+    [InlineData(PedidoStatus.Confirmado, true)]
+    [InlineData(PedidoStatus.Enviado, true)]
+    [InlineData(PedidoStatus.Entregue, false)]
+    [InlineData(PedidoStatus.Cancelado, false)]
+    public void Dado_PedidoNaSituacao_Quando_ToResumoDTO_Entao_PodeMarcarComoEntregueDeveRefletirASituacao(
+        PedidoStatus situacao, bool esperado)
+    {
+        var pedido = CriarPedidoComPromocao();
+        typeof(Pedido).GetProperty(nameof(Pedido.Status))!.SetValue(pedido, situacao);
+
+        var resumo = PedidoMapper.ToResumoDTO(pedido);
+
+        Assert.Equal(esperado, resumo.PodeMarcarComoEntregue);
+    }
 }

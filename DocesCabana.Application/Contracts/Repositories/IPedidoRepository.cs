@@ -18,4 +18,10 @@ public interface IPedidoRepository : IRepository<Pedido>
     Task<bool> ClienteJaUsouCupom(Guid usuarioId, Guid cupomId);
 
     Task<Dictionary<Guid, int>> ContarUsosPorCupom();
+
+    /// <summary>Pedido rastreado, sem itens, para mudar a situação. Nulo se não for do usuário.</summary>
+    Task<Pedido?> BuscarParaAlterar(Guid pedidoId, Guid usuarioId);
+
+    /// <summary>Pedidos que contam como receita (confirmado, enviado, entregue) com itens e produto, no intervalo UTC [inicio, fim).</summary>
+    Task<List<Pedido>> ListarReceitaEntre(DateTime inicioUtc, DateTime fimUtc);
 }

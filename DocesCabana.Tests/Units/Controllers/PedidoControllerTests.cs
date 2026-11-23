@@ -141,7 +141,7 @@ public class PedidoControllerTests
     {
         var resumos = new List<ResumoDePedidoDTO>
         {
-            new(Guid.NewGuid(), "ABCD1234", DateTime.UtcNow, PedidoStatus.Pendente, 2, 30m)
+            new(Guid.NewGuid(), "ABCD1234", DateTime.UtcNow, PedidoStatus.Confirmado, 2, 30m, true)
         };
         _pedidoServiceMock.Setup(s => s.ListarDoUsuario(_usuarioId)).ReturnsAsync(resumos);
 
@@ -242,5 +242,26 @@ public class PedidoControllerTests
         _pedidoServiceMock.Verify(s => s.MontarPasso(PassoDoFechamento.Pagamento, It.IsAny<CarrinhoDTO>(), _usuarioId,
             It.IsAny<Guid?>(), It.IsAny<int?>(), It.IsAny<string?>(),
             ModalidadeDeEntrega.RetiradaNaLoja, new TimeOnly(14, 0)), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_PedidoValido_Quando_MarcarComoEntregue_Entao_DeveChamarOServicoERedirecionarParaMeus()
+    {
+        var pedidoId = Guid.NewGuid();
+
+        var resultado = await _controller.MarcarComoEntregue(pedidoId);
+
+        _pedidoServiceMock.Verify(s => s.MarcarComoEntregue(pedidoId, _usuarioId), Times.Once);
+        var redirecionamento = Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Equal(nameof(PedidoController.Meus), redirecionamento.ActionName);
+    }
+
+    [Fact]
+    public void Dado_AcaoMarcarComoEntregue_Quando_InspecionarAtributos_Entao_DeveExigirPostEAntiforgery()
+    {
+        var metodo = typeof(PedidoController).GetMethod(nameof(PedidoController.MarcarComoEntregue))!;
+
+        Assert.NotNull(metodo.GetCustomAttributes(typeof(HttpPostAttribute), false).SingleOrDefault());
+        Assert.NotNull(metodo.GetCustomAttributes(typeof(ValidateAntiForgeryTokenAttribute), false).SingleOrDefault());
     }
 }
