@@ -1,26 +1,56 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Domain.Enums
+@using DocesCabana.MVC.Helpers
+@model IReadOnlyList<BannerDoCarrosselDTO>
+
+@{
+    string EnderecoDoDestino(BannerDoCarrosselDTO banner) => banner.TipoDeDestino switch
+    {
+        TipoDeDestinoDoBanner.Categoria => EnderecoDoCatalogo.Montar(Url, banner.ApelidoDaCategoria),
+        TipoDeDestinoDoBanner.Subcategoria => EnderecoDoCatalogo.Montar(Url, banner.ApelidoDaCategoria, [banner.ApelidoDaSubcategoria!]),
+        _ => Url.Action("Detalhes", "Produto", new { area = "", id = banner.ProdutoId })!,
+    };
+
+    var totalDeSlides = Model.Count > 0 ? Model.Count : 3;
+}
+
 <link rel="stylesheet" href="~/css/components/carrossel.css" asp-append-version="true">
 
-<div class="carrossel-container">
-    <button type="button" class="botao botao--icone seta-controle seta-anterior" aria-label="Slide anterior">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-    </button>
-    
-    <button type="button" class="botao botao--icone seta-controle seta-proximo" aria-label="Próximo slide">
-        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-    </button>
+<div class="carrossel-container" role="region" aria-roledescription="carrossel" aria-label="Destaques da loja">
+    @if (totalDeSlides > 1)
+    {
+        <button type="button" class="botao botao--icone seta-controle seta-anterior" aria-label="Slide anterior">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        </button>
+
+        <button type="button" class="botao botao--icone seta-controle seta-proximo" aria-label="Próximo slide">
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+    }
 
     <div class="carrossel">
         <div class="carrossel-slides">
-            <img src="~/images/carrossel_img1.png" class="carrossel-item ativo" alt="Banner 1">
-            <img src="~/images/carrossel_img2.png" class="carrossel-item" alt="Banner 2">
-            <img src="~/images/carrossel_img3.png" class="carrossel-item" alt="Banner 3">
-            <img src="~/images/carrossel_img1.png" class="carrossel-item ativo" alt="Banner 4">
-            <img src="~/images/carrossel_img2.png" class="carrossel-item" alt="Banner 5">
-            <img src="~/images/carrossel_img3.png" class="carrossel-item" alt="Banner 6">
+            @if (Model.Count > 0)
+            {
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    var banner = Model[i];
+                    <a href="@EnderecoDoDestino(banner)" class="carrossel-item @(i == 0 ? "ativo" : "")">
+                        <img src="@banner.ImagemUrl" alt="@banner.TextoAlternativo" loading="@(i == 0 ? "eager" : "lazy")" />
+                    </a>
+                }
+            }
+            else
+            {
+                @* Reserva (spec 038, D14): sem banner vigente cadastrado, as imagens padrão, sem link. *@
+                <img src="~/images/carrossel_img1.png" class="carrossel-item ativo" alt="Doces da Cabana em destaque">
+                <img src="~/images/carrossel_img2.png" class="carrossel-item" alt="Doces da Cabana em destaque" loading="lazy">
+                <img src="~/images/carrossel_img3.png" class="carrossel-item" alt="Doces da Cabana em destaque" loading="lazy">
+            }
         </div>
     </div>
 
     <div class="carrossel-indicadores"></div>
 </div>
 
-<script src="~/js/carrossel.js"></script>
+<script src="~/js/carrossel.js" asp-append-version="true"></script>

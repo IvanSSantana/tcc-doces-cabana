@@ -74,6 +74,59 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.ToTable("Avaliacao", (string)null);
                 });
 
+            modelBuilder.Entity("DocesCabana.Domain.Entities.Banner", b =>
+                {
+                    b.Property<Guid>("BannerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("CategoriaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("DataFim")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("DataInicio")
+                        .HasColumnType("date");
+
+                    b.Property<string>("ImagemUrl")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<short>("Ordem")
+                        .HasColumnType("smallint");
+
+                    b.Property<Guid?>("ProdutoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SubcategoriaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TextoAlternativo")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("BannerId");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("ProdutoId");
+
+                    b.HasIndex("SubcategoriaId");
+
+                    b.HasIndex("Ativo", "DataInicio");
+
+                    b.ToTable("Banner", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Banner_UmDestino", "((\"CategoriaId\" IS NOT NULL)::int + (\"SubcategoriaId\" IS NOT NULL)::int + (\"ProdutoId\" IS NOT NULL)::int) = 1");
+                        });
+                });
+
             modelBuilder.Entity("DocesCabana.Domain.Entities.Categoria", b =>
                 {
                     b.Property<Guid>("CategoriaId")
@@ -852,6 +905,30 @@ namespace DocesCabana.Infrastructure.Migrations
                     b.Navigation("Produto");
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("DocesCabana.Domain.Entities.Banner", b =>
+                {
+                    b.HasOne("DocesCabana.Domain.Entities.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DocesCabana.Domain.Entities.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DocesCabana.Domain.Entities.Subcategoria", "Subcategoria")
+                        .WithMany()
+                        .HasForeignKey("SubcategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("Produto");
+
+                    b.Navigation("Subcategoria");
                 });
 
             modelBuilder.Entity("DocesCabana.Domain.Entities.Cupom", b =>

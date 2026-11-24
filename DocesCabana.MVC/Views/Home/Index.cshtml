@@ -5,7 +5,7 @@
     ViewData["Title"] = "Página Inicial";
 }
 
-<partial name="_Carrossel" />
+<partial name="_Carrossel" model="@(ViewData["Banners"] as IReadOnlyList<BannerDoCarrosselDTO> ?? [])" />
 
 <h2 class="titulo titulo--vitrine">Mais vendidos</h2>
 

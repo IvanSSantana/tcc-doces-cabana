@@ -17,12 +17,14 @@ namespace DocesCabana.Tests.Units.Controllers;
 public class HomeControllerTests
 {
     private readonly Mock<IProdutoService> _produtoServiceMock;
+    private readonly Mock<IBannerService> _bannerServiceMock = new();
     private readonly HomeController _controller;
 
     public HomeControllerTests()
     {
         _produtoServiceMock = new Mock<IProdutoService>();
-        _controller = new HomeController(_produtoServiceMock.Object)
+        _bannerServiceMock.Setup(s => s.ListarVigentesDoCarrossel()).ReturnsAsync([]);
+        _controller = new HomeController(_produtoServiceMock.Object, _bannerServiceMock.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -94,5 +96,23 @@ public class HomeControllerTests
         var viewResult = Assert.IsType<ViewResult>(resultado);
         var model = Assert.IsType<ErrorViewModel>(viewResult.Model);
         Assert.Equal("test-trace-id", model.RequestId);
+    }
+
+    [Fact]
+    public async Task Dado_BannersVigentes_Quando_Index_Entao_DeveEntregarOsBannersParaOCarrossel()
+    {
+        IReadOnlyList<BannerDoCarrosselDTO> banners =
+        [
+            new("https://exemplo.com/banner.png", "Natal", DocesCabana.Domain.Enums.TipoDeDestinoDoBanner.Categoria, "doces", null, null)
+        ];
+        _bannerServiceMock.Setup(s => s.ListarVigentesDoCarrossel()).ReturnsAsync(banners);
+        _produtoServiceMock
+            .Setup(s => s.BuscarDestaquesDaVitrine(VitrineProdutosViewComponent.LimitePadrao, null))
+            .ReturnsAsync([]);
+
+        var resultado = await _controller.Index();
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Same(banners, viewResult.ViewData["Banners"]);
     }
 }

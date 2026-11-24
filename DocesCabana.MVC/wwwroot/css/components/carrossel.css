@@ -28,17 +28,35 @@
 
 .carrossel-item {
     position: absolute;
+    inset: 0;
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
     opacity: 0;
+    visibility: hidden;
     z-index: 1;
-    transition: opacity 600ms var(--curva);
+    transition: opacity 600ms var(--curva), visibility 0s linear 600ms;
 }
 
 .carrossel-item.ativo {
     opacity: 1;
+    visibility: visible;
     z-index: 2;
+    transition: opacity 600ms var(--curva), visibility 0s;
+}
+
+/* Banner com destino (spec 038): o link ocupa o slide inteiro; slide oculto sai da ordem de foco. */
+.carrossel-item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+a.carrossel-item:focus-visible {
+    outline: 3px solid var(--cor-primaria);
+    outline-offset: -3px;
 }
 
 .seta-controle {

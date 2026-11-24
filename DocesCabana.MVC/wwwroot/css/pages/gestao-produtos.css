@@ -426,6 +426,7 @@ a.link-paginacao-gestao--atual:hover {
 
 .detalhe-produto__campos dd {
     margin: 0;
+    white-space: pre-line;
     overflow-wrap: anywhere;
 }
 

@@ -97,11 +97,15 @@ public class CarrinhoService : ICarrinhoService
 
     public async Task<CarrinhoDTO> MontarAvulso(IReadOnlyList<ItemDoCarrinhoDTO> itens)
     {
+        var produtosPorId = itens.Count == 0
+            ? []
+            : (await _produtoRepository.BuscarPorIds(itens.Select(i => i.ProdutoId)))
+                .ToDictionary(p => p.ProdutoId);
+
         var pares = new List<(Produto Produto, short Quantidade)>();
         foreach (var item in itens)
         {
-            var produto = await _produtoRepository.BuscarPorId(item.ProdutoId);
-            if (produto is not null)
+            if (produtosPorId.TryGetValue(item.ProdutoId, out var produto))
                 pares.Add((produto, item.Quantidade));
         }
 

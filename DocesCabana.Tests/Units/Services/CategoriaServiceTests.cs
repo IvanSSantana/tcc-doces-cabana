@@ -1,3 +1,4 @@
+using DocesCabana.Application.Constants;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Services;
 using DocesCabana.Domain.Entities;
@@ -9,13 +10,14 @@ public class CategoriaServiceTests
 {
     private readonly Mock<ICategoriaRepository> _categoriaRepositoryMock;
     private readonly Mock<IProdutoRepository> _produtoRepositoryMock;
+    private readonly CacheFalso _cache = new();
     private readonly CategoriaService _categoriaService;
 
     public CategoriaServiceTests()
     {
         _categoriaRepositoryMock = new Mock<ICategoriaRepository>();
         _produtoRepositoryMock = new Mock<IProdutoRepository>();
-        _categoriaService = new CategoriaService(_categoriaRepositoryMock.Object, _produtoRepositoryMock.Object);
+        _categoriaService = new CategoriaService(_categoriaRepositoryMock.Object, _produtoRepositoryMock.Object, _cache);
     }
 
     [Fact]
@@ -60,6 +62,33 @@ public class CategoriaServiceTests
         var resultado = await _categoriaService.BuscarPorApelido("inexistente");
 
         Assert.Null(resultado);
+    }
+
+    [Fact]
+    public async Task Dado_CategoriasJaListadas_Quando_ListarDeNovo_Entao_NaoDeveConsultarORepositorio()
+    {
+        _categoriaRepositoryMock.Setup(r => r.BuscarTodasComSubcategorias()).ReturnsAsync([new Categoria("Doces")]);
+        _produtoRepositoryMock.Setup(r => r.ContarDisponivelPorSubcategoria()).ReturnsAsync([]);
+
+        await _categoriaService.ListarComSubcategorias();
+        var segunda = await _categoriaService.ListarComSubcategorias();
+
+        Assert.Single(segunda);
+        _categoriaRepositoryMock.Verify(r => r.BuscarTodasComSubcategorias(), Times.Once);
+        _produtoRepositoryMock.Verify(r => r.ContarDisponivelPorSubcategoria(), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_ChaveDeCategoriasRemovida_Quando_Listar_Entao_DeveReconsultarORepositorio()
+    {
+        _categoriaRepositoryMock.Setup(r => r.BuscarTodasComSubcategorias()).ReturnsAsync([new Categoria("Doces")]);
+        _produtoRepositoryMock.Setup(r => r.ContarDisponivelPorSubcategoria()).ReturnsAsync([]);
+
+        await _categoriaService.ListarComSubcategorias();
+        _cache.Remover(ChavesDeCache.CategoriasComSubcategorias);
+        await _categoriaService.ListarComSubcategorias();
+
+        _categoriaRepositoryMock.Verify(r => r.BuscarTodasComSubcategorias(), Times.Exactly(2));
     }
 
     private static void AdicionarSubcategorias(Categoria categoria, params Subcategoria[] subcategorias)

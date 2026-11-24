@@ -62,7 +62,7 @@ public class CarrinhoServiceTests
     public async Task Dado_ProdutoEmPromocao_Quando_MontarAvulso_Entao_LinhaESubtotalDevemSerLiquidos()
     {
         var produto = CriarProduto(preco: 10m);
-        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
+        DisponibilizarProdutos(produto);
         ColocarEmPromocaoDe10PorCento(produto);
 
         var carrinho = await _carrinhoService.MontarAvulso([new ItemDoCarrinhoDTO(produto.ProdutoId, 2)]);
@@ -424,8 +424,7 @@ public class CarrinhoServiceTests
     {
         var produtoUm = CriarProduto(preco: 10m);
         var produtoDois = CriarProduto(preco: 5m);
-        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produtoUm.ProdutoId)).ReturnsAsync(produtoUm);
-        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produtoDois.ProdutoId)).ReturnsAsync(produtoDois);
+        DisponibilizarProdutos(produtoUm, produtoDois);
         var itens = new List<ItemDoCarrinhoDTO> { new(produtoUm.ProdutoId, 2), new(produtoDois.ProdutoId, 3) };
 
         var carrinho = await _carrinhoService.MontarAvulso(itens);
@@ -439,8 +438,7 @@ public class CarrinhoServiceTests
     {
         var produtoDisponivel = CriarProduto(ProdutoStatus.Ativo, preco: 10m);
         var produtoIndisponivel = CriarProduto(ProdutoStatus.ForaDeEstoque, preco: 20m);
-        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produtoDisponivel.ProdutoId)).ReturnsAsync(produtoDisponivel);
-        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produtoIndisponivel.ProdutoId)).ReturnsAsync(produtoIndisponivel);
+        DisponibilizarProdutos(produtoDisponivel, produtoIndisponivel);
         var itens = new List<ItemDoCarrinhoDTO> { new(produtoDisponivel.ProdutoId, 1), new(produtoIndisponivel.ProdutoId, 1) };
 
         var carrinho = await _carrinhoService.MontarAvulso(itens);
@@ -448,6 +446,44 @@ public class CarrinhoServiceTests
         Assert.Equal(10m, carrinho.Subtotal);
         Assert.Equal(2, carrinho.Linhas.Count);
     }
+
+    [Fact]
+    public async Task Dado_CarrinhoAvulsoComTresItens_Quando_MontarAvulso_Entao_DeveBuscarProdutosUmaVez()
+    {
+        var produtoUm = CriarProduto(preco: 1m);
+        var produtoDois = CriarProduto(preco: 2m);
+        var produtoTres = CriarProduto(preco: 3m);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorIds(It.IsAny<IEnumerable<Guid>>()))
+            .ReturnsAsync([produtoTres, produtoUm, produtoDois]);
+        var itens = new List<ItemDoCarrinhoDTO>
+        {
+            new(produtoUm.ProdutoId, 1), new(produtoDois.ProdutoId, 1), new(produtoTres.ProdutoId, 1)
+        };
+
+        var carrinho = await _carrinhoService.MontarAvulso(itens);
+
+        _produtoRepositoryMock.Verify(r => r.BuscarPorIds(It.IsAny<IEnumerable<Guid>>()), Times.Once);
+        _produtoRepositoryMock.Verify(r => r.BuscarPorId(It.IsAny<Guid>()), Times.Never);
+        Assert.Equal(
+            [produtoUm.ProdutoId, produtoDois.ProdutoId, produtoTres.ProdutoId],
+            carrinho.Linhas.Select(l => l.ProdutoId));
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoDaSessaoQueNaoExisteMais_Quando_MontarAvulso_Entao_DeveIgnorarALinha()
+    {
+        var produto = CriarProduto(preco: 4m);
+        DisponibilizarProdutos(produto);
+        var itens = new List<ItemDoCarrinhoDTO> { new(Guid.NewGuid(), 1), new(produto.ProdutoId, 1) };
+
+        var carrinho = await _carrinhoService.MontarAvulso(itens);
+
+        Assert.Equal(produto.ProdutoId, Assert.Single(carrinho.Linhas).ProdutoId);
+    }
+
+    private void DisponibilizarProdutos(params Produto[] produtos) =>
+        _produtoRepositoryMock.Setup(r => r.BuscarPorIds(It.IsAny<IEnumerable<Guid>>()))
+            .ReturnsAsync((IEnumerable<Guid> ids) => produtos.Where(p => ids.Contains(p.ProdutoId)).ToList());
 
     [Fact]
     public async Task Dado_ProdutoJaNoCarrinhoGuardado_Quando_Fundir_Entao_DeveSomarAsQuantidades()

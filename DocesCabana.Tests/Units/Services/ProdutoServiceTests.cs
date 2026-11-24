@@ -1,3 +1,4 @@
+using DocesCabana.Application.Constants;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
@@ -18,6 +19,7 @@ public class ProdutoServiceTests
     private readonly Mock<IFavoritoRepository> _favoritoRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IPromocaoService> _promocaoServiceMock;
+    private readonly CacheFalso _cache = new();
     private readonly ProdutoService _produtoService;
 
     public ProdutoServiceTests()
@@ -30,7 +32,7 @@ public class ProdutoServiceTests
         _promocaoServiceMock.Setup(s => s.CarregarVigentes()).ReturnsAsync(PromocoesVigentes.Nenhuma);
         _produtoService = new ProdutoService(
             _produtoRepositoryMock.Object, _avaliacaoServiceMock.Object, _favoritoRepositoryMock.Object,
-            _promocaoServiceMock.Object, _unitOfWorkMock.Object);
+            _promocaoServiceMock.Object, _unitOfWorkMock.Object, _cache);
     }
 
     private static PromocoesVigentes Percentual10Para(Produto produto) =>
@@ -476,5 +478,55 @@ public class ProdutoServiceTests
 
         await Assert.ThrowsAsync<KeyNotFoundException>(() =>
             _produtoService.Atualizar(new ProdutoDTO { ProdutoId = Guid.NewGuid() }));
+    }
+
+    private static ProdutoDTO DtoValido(Guid produtoId = default) => new()
+    {
+        ProdutoId = produtoId,
+        Nome = "Brigadeiro",
+        Preco = 5m,
+        Status = ProdutoStatus.Ativo,
+        ImagemUrl = "https://imagem.com/brigadeiro.jpg",
+        SubcategoriaId = Guid.NewGuid(),
+        Peso = 0.5m,
+        Altura = 10m,
+        Largura = 15m,
+        Comprimento = 20m
+    };
+
+    private void AssertCacheDaVitrineRemovido()
+    {
+        Assert.Contains(ChavesDeCache.CategoriasComSubcategorias, _cache.ChavesRemovidas);
+        Assert.Contains(ChavesDeCache.BannersVigentes, _cache.ChavesRemovidas);
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoValido_Quando_Cadastrar_Entao_DeveRemoverCategoriasEBannersDoCache()
+    {
+        await _produtoService.Cadastrar(DtoValido());
+
+        AssertCacheDaVitrineRemovido();
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoExistente_Quando_Atualizar_Entao_DeveRemoverCategoriasEBannersDoCache()
+    {
+        var produto = new Produto(Guid.NewGuid(), "Bolo", 10m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
+
+        await _produtoService.Atualizar(DtoValido(produto.ProdutoId));
+
+        AssertCacheDaVitrineRemovido();
+    }
+
+    [Fact]
+    public async Task Dado_ProdutoAtivo_Quando_Inativar_Entao_DeveRemoverCategoriasEBannersDoCache()
+    {
+        var produto = new Produto(Guid.NewGuid(), "Bolo", 10m, "https://imagem.com/bolo.jpg", 0.5m, 10m, 15m, 20m);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorId(produto.ProdutoId)).ReturnsAsync(produto);
+
+        await _produtoService.Inativar(produto.ProdutoId);
+
+        AssertCacheDaVitrineRemovido();
     }
 }

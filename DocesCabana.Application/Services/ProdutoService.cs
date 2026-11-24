@@ -1,3 +1,4 @@
+using DocesCabana.Application.Constants;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
@@ -17,11 +18,14 @@ public class ProdutoService : IProdutoService
     private readonly IFavoritoRepository _favoritoRepository;
     private readonly IPromocaoService _promocaoService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICacheDaAplicacao _cache;
 
     public ProdutoService(
         IProdutoRepository produtoRepository, IAvaliacaoService avaliacaoService,
-        IFavoritoRepository favoritoRepository, IPromocaoService promocaoService, IUnitOfWork unitOfWork)
+        IFavoritoRepository favoritoRepository, IPromocaoService promocaoService, IUnitOfWork unitOfWork,
+        ICacheDaAplicacao cache)
     {
+        _cache = cache;
         _produtoRepository = produtoRepository;
         _avaliacaoService = avaliacaoService;
         _favoritoRepository = favoritoRepository;
@@ -71,7 +75,7 @@ public class ProdutoService : IProdutoService
     {
         var produto = ProdutoMapper.ToEntity(dto);
         await _produtoRepository.Adicionar(produto);
-        await _unitOfWork.SalvarAlteracoes();
+        await SalvarEEsquecerVitrine();
 
         return ProdutoMapper.ToDTO(produto);
     }
@@ -82,7 +86,7 @@ public class ProdutoService : IProdutoService
             ?? throw new KeyNotFoundException($"Produto com ID {produtoId} não encontrado.");
 
         produto.AlterarStatus(ProdutoStatus.Inativo);
-        await _unitOfWork.SalvarAlteracoes();
+        await SalvarEEsquecerVitrine();
     }
 
     public async Task<PaginaDeProdutosDTO> ListarParaGestao(FiltroDeGestaoDeProduto filtro, int pagina)
@@ -120,7 +124,7 @@ public class ProdutoService : IProdutoService
         else
             produto.DesmarcarSemAcucar();
 
-        await _unitOfWork.SalvarAlteracoes();
+        await SalvarEEsquecerVitrine();
 
         return ProdutoMapper.ToDTO(produto);
     }
@@ -143,5 +147,16 @@ public class ProdutoService : IProdutoService
         var promocoes = await _promocaoService.CarregarVigentes();
 
         return ProdutoDetalheMapper.ToDTO(produto, resumoAvaliacoes, paginaAvaliacoes, situacaoDaAvaliacao, promocoes);
+    }
+
+    /// <summary>
+    /// Produto mexe na contagem por subcategoria do menu e no destino dos banners (produto inativo
+    /// tira o banner do carrossel), então os dois caches saem junto com a gravação.
+    /// </summary>
+    private async Task SalvarEEsquecerVitrine()
+    {
+        await _unitOfWork.SalvarAlteracoes();
+        _cache.Remover(ChavesDeCache.CategoriasComSubcategorias);
+        _cache.Remover(ChavesDeCache.BannersVigentes);
     }
 }

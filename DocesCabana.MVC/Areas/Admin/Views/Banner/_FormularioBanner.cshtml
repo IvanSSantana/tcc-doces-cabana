@@ -1,0 +1,152 @@
+@using DocesCabana.Domain.Entities
+@using DocesCabana.Domain.Enums
+@model FormularioDeBannerViewModel
+
+@{
+    var banner = Model.Banner;
+    var acao = Model.EhNovo ? "Cadastro" : "Edicao";
+    var errosGerais = ViewData.ModelState[string.Empty]?.Errors;
+    var erroDaImagem = ViewData.ModelState["imagem"]?.Errors.FirstOrDefault()?.ErrorMessage;
+
+    var destinos = new[]
+    {
+        (TipoDeDestinoDoBanner.Categoria, "Uma categoria"),
+        (TipoDeDestinoDoBanner.Subcategoria, "Uma subcategoria"),
+        (TipoDeDestinoDoBanner.Produto, "Um produto"),
+    };
+}
+
+<form asp-area="Admin" asp-controller="Banner" asp-action="@acao" method="post" enctype="multipart/form-data"
+      class="formulario-autenticacao formulario-promocao painel" data-formulario-banner novalidate>
+    @Html.AntiForgeryToken()
+
+    @if (!Model.EhNovo)
+    {
+        <input type="hidden" asp-for="Banner.BannerId" />
+    }
+
+    <div class="campo-entrada">
+        <label for="imagem">Imagem@(Model.EhNovo ? "" : " (opcional, só para trocar)")</label>
+        @if (!Model.EhNovo && !string.IsNullOrEmpty(banner.ImagemUrl))
+        {
+            <img src="@banner.ImagemUrl" alt="Imagem atual: @banner.TextoAlternativo" class="previa-banner" />
+        }
+        <input type="file" id="imagem" name="imagem" class="campo-texto"
+               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+               aria-describedby="ajuda-imagem-banner" required="@(Model.EhNovo ? "required" : null)" />
+        <small id="ajuda-imagem-banner" class="texto-ajuda">
+            JPG, PNG ou WEBP. Use uma imagem larga, na proporção do carrossel (3,2 por 1 — por exemplo, 1920 × 600 px); as bordas podem ser cortadas em telas menores.
+        </small>
+        @if (erroDaImagem is not null)
+        {
+            <span class="mensagem-erro exibicao-bloco">@erroDaImagem</span>
+        }
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="Banner.TextoAlternativo">Descrição da imagem</label>
+        <input asp-for="Banner.TextoAlternativo" class="campo-texto" maxlength="@Banner.TamanhoMaximoDoTextoAlternativo"
+               placeholder="Ex.: Caixas de brigadeiro decoradas para o Natal" aria-describedby="ajuda-texto-banner" required />
+        <small id="ajuda-texto-banner" class="texto-ajuda">
+            Lida por leitores de tela no lugar da imagem. Descreva o que aparece nela.
+        </small>
+        <span asp-validation-for="Banner.TextoAlternativo" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada">
+        <label asp-for="Banner.Ordem">Ordem no carrossel</label>
+        <input asp-for="Banner.Ordem" type="number" min="0" step="1" class="campo-texto campo-curto"
+               aria-describedby="ajuda-ordem-banner" required />
+        <small id="ajuda-ordem-banner" class="texto-ajuda">Menor aparece primeiro. Empate: o que começou antes vem primeiro.</small>
+        <span asp-validation-for="Banner.Ordem" class="mensagem-erro"></span>
+    </div>
+
+    <div class="linha-dupla">
+        <div class="campo-entrada">
+            <label asp-for="Banner.DataInicio">Começa em</label>
+            <input asp-for="Banner.DataInicio" type="date" asp-format="{0:yyyy-MM-dd}" class="campo-texto" required />
+            <span asp-validation-for="Banner.DataInicio" class="mensagem-erro"></span>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="Banner.DataFim">Termina em (opcional)</label>
+            <input asp-for="Banner.DataFim" type="date" asp-format="{0:yyyy-MM-dd}" class="campo-texto"
+                   aria-describedby="ajuda-fim-banner" />
+            <small id="ajuda-fim-banner" class="texto-ajuda">Vazio: fica no ar até ser desativado.</small>
+            <span asp-validation-for="Banner.DataFim" class="mensagem-erro"></span>
+        </div>
+    </div>
+
+    <fieldset class="grupo-opcoes">
+        <legend>Ao clicar, leva para</legend>
+        <div class="opcoes-em-linha">
+            @foreach (var (tipo, rotulo) in destinos)
+            {
+                <label class="opcao-radio">
+                    <input type="radio" name="Banner.TipoDeDestino" value="@tipo" checked="@(banner.TipoDeDestino == tipo)" data-escolha-destino />
+                    @rotulo
+                </label>
+            }
+        </div>
+        <span asp-validation-for="Banner.TipoDeDestino" class="mensagem-erro"></span>
+    </fieldset>
+
+    <div class="campo-entrada" data-campo-do-destino="@TipoDeDestinoDoBanner.Categoria">
+        <label asp-for="Banner.CategoriaId">Categoria</label>
+        <select asp-for="Banner.CategoriaId" class="campo-texto">
+            <option value="">Selecione...</option>
+            @foreach (var categoria in Model.Categorias.OrderBy(c => c.Nome))
+            {
+                <option value="@categoria.CategoriaId" selected="@(banner.CategoriaId == categoria.CategoriaId)">@categoria.Nome</option>
+            }
+        </select>
+        <span asp-validation-for="Banner.CategoriaId" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada" data-campo-do-destino="@TipoDeDestinoDoBanner.Subcategoria">
+        <label asp-for="Banner.SubcategoriaId">Subcategoria</label>
+        <select asp-for="Banner.SubcategoriaId" class="campo-texto">
+            <option value="">Selecione...</option>
+            @foreach (var categoria in Model.Categorias.OrderBy(c => c.Nome))
+            {
+                <optgroup label="@categoria.Nome">
+                    @foreach (var subcategoria in categoria.Subcategorias.OrderBy(s => s.Nome))
+                    {
+                        <option value="@subcategoria.SubcategoriaId" selected="@(banner.SubcategoriaId == subcategoria.SubcategoriaId)">@subcategoria.Nome</option>
+                    }
+                </optgroup>
+            }
+        </select>
+        <span asp-validation-for="Banner.SubcategoriaId" class="mensagem-erro"></span>
+    </div>
+
+    <div class="campo-entrada" data-campo-do-destino="@TipoDeDestinoDoBanner.Produto">
+        <label asp-for="Banner.ProdutoId">Produto</label>
+        <select asp-for="Banner.ProdutoId" class="campo-texto" aria-describedby="ajuda-produto-banner">
+            <option value="">Selecione...</option>
+            @foreach (var produto in Model.Produtos)
+            {
+                <option value="@produto.ProdutoId" selected="@(banner.ProdutoId == produto.ProdutoId)">@produto.Nome</option>
+            }
+        </select>
+        <small id="ajuda-produto-banner" class="texto-ajuda">
+            Se o produto for inativado, o banner sai do carrossel sozinho.
+        </small>
+        <span asp-validation-for="Banner.ProdutoId" class="mensagem-erro"></span>
+    </div>
+
+    @if (errosGerais != null && errosGerais.Any())
+    {
+        <div class="resumo-erros">
+            @foreach (var erro in errosGerais)
+            {
+                <span class="mensagem-erro exibicao-bloco">@erro.ErrorMessage</span>
+            }
+        </div>
+    }
+
+    <div class="rodape-formulario-promocao">
+        <a asp-area="Admin" asp-controller="Banner" asp-action="Index" class="botao botao--secundario">Cancelar</a>
+        <button type="submit" class="botao botao--primario">@(Model.EhNovo ? "Cadastrar banner" : "Salvar alterações")</button>
+    </div>
+</form>

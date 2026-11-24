@@ -1,0 +1,19 @@
+/* Gestão de banners do carrossel (spec 038). Reaproveita gestao-produtos.css e gestao-promocoes.css. */
+
+.miniatura-banner {
+    width: 128px;
+    aspect-ratio: 3.2 / 1;
+    object-fit: cover;
+    border-radius: var(--raio-pequeno);
+    display: block;
+    background-color: var(--cor-primaria-clara);
+}
+
+.previa-banner {
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 3.2 / 1;
+    object-fit: cover;
+    border-radius: var(--raio-medio);
+    border: 1px solid var(--neutro-borda);
+}

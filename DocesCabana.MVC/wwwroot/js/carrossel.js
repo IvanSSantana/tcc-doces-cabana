@@ -5,7 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const botaoAnterior = document.querySelector('.seta-anterior');
     const botaoProximo = document.querySelector('.seta-proximo');
 
-    if (!slides.length || !containerIndicadores) return;
+    // Um banner só: sem setas (a view já não as desenha), sem pontos e sem troca automática.
+    if (slides.length < 2 || !containerIndicadores) return;
 
     let indiceAtivo = 0;
     const tempoAutoplay = 5000;

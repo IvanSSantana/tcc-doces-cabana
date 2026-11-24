@@ -1,3 +1,4 @@
+using DocesCabana.Application.Constants;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
@@ -16,11 +17,14 @@ public class PromocaoService : IPromocaoService
     private readonly ISubcategoriaRepository _subcategoriaRepository;
     private readonly TimeProvider _relogio;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICacheDaAplicacao _cache;
 
     public PromocaoService(
         IPromocaoRepository promocaoRepository, IProdutoRepository produtoRepository,
-        ISubcategoriaRepository subcategoriaRepository, TimeProvider relogio, IUnitOfWork unitOfWork)
+        ISubcategoriaRepository subcategoriaRepository, TimeProvider relogio, IUnitOfWork unitOfWork,
+        ICacheDaAplicacao cache)
     {
+        _cache = cache;
         _promocaoRepository = promocaoRepository;
         _produtoRepository = produtoRepository;
         _subcategoriaRepository = subcategoriaRepository;
@@ -28,9 +32,19 @@ public class PromocaoService : IPromocaoService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<PromocoesVigentes> CarregarVigentes()
+    /// <summary>
+    /// Lida em quase toda página (vitrine, catálogo, carrinho). A chave é do dia de Brasília,
+    /// então a virada do dia já consulta de novo; escrita de promoção remove a chave de hoje.
+    /// </summary>
+    public Task<PromocoesVigentes> CarregarVigentes()
     {
         var hoje = HorarioDeBrasilia.Hoje(_relogio);
+
+        return _cache.ObterOuCriar(ChavesDeCache.PromocoesVigentes(hoje), () => ConsultarVigentes(hoje), TimeSpan.FromDays(1));
+    }
+
+    private async Task<PromocoesVigentes> ConsultarVigentes(DateOnly hoje)
+    {
 
         var vigentes = (await _promocaoRepository.ListarVigentes(hoje))
             .Where(p => p.EstaVigente(hoje))
@@ -81,7 +95,7 @@ public class PromocaoService : IPromocaoService
             dto.Descricao);
 
         await _promocaoRepository.Adicionar(promocao);
-        await _unitOfWork.SalvarAlteracoes();
+        await SalvarEEsquecerVigentes();
     }
 
     public async Task Atualizar(PromocaoDTO dto)
@@ -95,7 +109,7 @@ public class PromocaoService : IPromocaoService
         promocao.AlterarPeriodo(dto.DataInicio!.Value, dto.DataFim!.Value);
         promocao.AlterarAbrangencia(categoriaId, subcategoriaId, produtos);
 
-        await _unitOfWork.SalvarAlteracoes();
+        await SalvarEEsquecerVigentes();
     }
 
     public async Task Ativar(Guid promocaoId)
@@ -104,7 +118,7 @@ public class PromocaoService : IPromocaoService
 
         promocao.Ativar();
 
-        await _unitOfWork.SalvarAlteracoes();
+        await SalvarEEsquecerVigentes();
     }
 
     public async Task Desativar(Guid promocaoId)
@@ -113,7 +127,13 @@ public class PromocaoService : IPromocaoService
 
         promocao.Desativar();
 
+        await SalvarEEsquecerVigentes();
+    }
+
+    private async Task SalvarEEsquecerVigentes()
+    {
         await _unitOfWork.SalvarAlteracoes();
+        _cache.Remover(ChavesDeCache.PromocoesVigentes(HorarioDeBrasilia.Hoje(_relogio)));
     }
 
     private async Task<Promocao> BuscarObrigatoria(Guid promocaoId) =>

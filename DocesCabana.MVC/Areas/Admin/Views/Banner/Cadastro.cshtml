@@ -1,0 +1,22 @@
+@model FormularioDeBannerViewModel
+@{
+    ViewData["Title"] = "Novo banner";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/pages/gestao-produtos.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/gestao-promocoes.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/gestao-banners.css" asp-append-version="true">
+
+<main class="container-gestao-produtos container-formulario-promocao">
+    <div class="cabecalho-gestao">
+        <h1 class="titulo-gestao">Novo banner</h1>
+        <a asp-area="Admin" asp-controller="Banner" asp-action="Index" class="botao botao--secundario">Voltar</a>
+    </div>
+
+    <partial name="_FormularioBanner" model="Model" />
+</main>
+
+@section Scripts {
+    <script src="~/js/pages/gestao-banners.js" asp-append-version="true"></script>
+}

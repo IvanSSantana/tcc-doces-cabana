@@ -1,0 +1,108 @@
+@using DocesCabana.Application.DTOs
+@using DocesCabana.Application.Enums
+@model IReadOnlyList<ResumoDeBannerDTO>
+@{
+    ViewData["Title"] = "Banners do carrossel";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/pages/gestao-produtos.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/gestao-promocoes.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/gestao-banners.css" asp-append-version="true">
+
+<main class="container-gestao-produtos">
+    <div class="cabecalho-gestao">
+        <h1 class="titulo-gestao">Banners do carrossel</h1>
+        <a asp-area="Admin" asp-controller="Banner" asp-action="Cadastro" class="botao botao--primario">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Novo banner
+        </a>
+    </div>
+
+    @if (TempData["Confirmacao"] is string confirmacao)
+    {
+        <div class="resumo-sucesso" role="status">
+            <span class="mensagem-sucesso exibicao-bloco">@confirmacao</span>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <p class="gestao-vazia">
+            Nenhum banner cadastrado. Enquanto não houver banner vigente, a página inicial mostra as imagens padrão.
+        </p>
+    }
+    else
+    {
+        <div class="painel tabela-rolavel">
+            <table class="tabela-produtos tabela-promocoes tabela-banners">
+                <thead>
+                    <tr>
+                        <th scope="col">Imagem</th>
+                        <th scope="col">Ordem</th>
+                        <th scope="col">Leva para</th>
+                        <th scope="col">Período</th>
+                        <th scope="col">Situação</th>
+                        <th scope="col" class="coluna-acoes"><span class="visualmente-oculto">Ações</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var banner in Model)
+                    {
+                        var (rotuloDaSituacao, classeDaSituacao) = banner.Situacao switch
+                        {
+                            SituacaoDoBanner.Vigente => ("Vigente", "selo-status--ativo"),
+                            SituacaoDoBanner.Agendado => ("Agendado", "selo-status--agendada"),
+                            SituacaoDoBanner.Encerrado => ("Encerrado", "selo-status--inativo"),
+                            _ => ("Desativado", "selo-status--sem-estoque")
+                        };
+
+                        <tr>
+                            <td>
+                                <img src="@banner.ImagemUrl" alt="@banner.TextoAlternativo" class="miniatura-banner" loading="lazy" />
+                            </td>
+                            <td>@banner.Ordem</td>
+                            <td>@banner.Destino</td>
+                            <td class="coluna-periodo">
+                                @banner.DataInicio.ToString("dd/MM/yyyy")
+                                @if (banner.DataFim is { } fim)
+                                {
+                                    <text>a @fim.ToString("dd/MM/yyyy")</text>
+                                }
+                                else
+                                {
+                                    <text>em diante</text>
+                                }
+                            </td>
+                            <td><span class="selo-status @classeDaSituacao">@rotuloDaSituacao</span></td>
+                            <td class="coluna-acoes">
+                                <div class="acoes-produto">
+                                    <a asp-area="Admin" asp-controller="Banner" asp-action="Edicao" asp-route-id="@banner.BannerId"
+                                       class="botao botao--icone botao--pequeno botao-icone" title="Editar" aria-label="Editar banner @banner.TextoAlternativo">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </a>
+                                    <form asp-area="Admin" asp-controller="Banner" asp-action="@(banner.Ativo ? "Desativar" : "Ativar")"
+                                          asp-route-id="@banner.BannerId" method="post">
+                                        @Html.AntiForgeryToken()
+                                        @if (banner.Ativo)
+                                        {
+                                            <button type="submit" class="botao botao--icone botao--pequeno botao-icone" title="Desativar" aria-label="Desativar banner @banner.TextoAlternativo">
+                                                <i class="fa-solid fa-pause" aria-hidden="true"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="botao botao--icone botao--pequeno botao-icone" title="Ativar" aria-label="Ativar banner @banner.TextoAlternativo">
+                                                <i class="fa-solid fa-play" aria-hidden="true"></i>
+                                            </button>
+                                        }
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</main>

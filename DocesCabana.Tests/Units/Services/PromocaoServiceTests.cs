@@ -1,3 +1,4 @@
+using DocesCabana.Application.Constants;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Enums;
@@ -18,6 +19,7 @@ public class PromocaoServiceTests
     private readonly Mock<ISubcategoriaRepository> _subcategoriaRepositoryMock = new();
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
     private readonly Mock<TimeProvider> _relogioMock = new();
+    private readonly CacheFalso _cache = new();
     private readonly PromocaoService _service;
 
     private readonly Categoria _categoria = new("Doces");
@@ -36,7 +38,7 @@ public class PromocaoServiceTests
 
         _service = new PromocaoService(
             _promocaoRepositoryMock.Object, _produtoRepositoryMock.Object,
-            _subcategoriaRepositoryMock.Object, _relogioMock.Object, _unitOfWorkMock.Object);
+            _subcategoriaRepositoryMock.Object, _relogioMock.Object, _unitOfWorkMock.Object, _cache);
     }
 
     private Promocao PorCategoria(DateOnly inicio, DateOnly fim) =>
@@ -258,5 +260,67 @@ public class PromocaoServiceTests
             [SituacaoDaPromocao.Vigente, SituacaoDaPromocao.Agendada, SituacaoDaPromocao.Encerrada, SituacaoDaPromocao.Desativada],
             lista.Select(r => r.Situacao));
         Assert.Equal("-10%", lista[0].RotuloDoDesconto);
+    }
+
+    [Fact]
+    public async Task Dado_VigentesJaCarregadasHoje_Quando_CarregarVigentesDeNovo_Entao_NaoDeveConsultarORepositorio()
+    {
+        _promocaoRepositoryMock.Setup(r => r.ListarVigentes(Hoje)).ReturnsAsync([PorCategoria(Hoje, Hoje)]);
+
+        await _service.CarregarVigentes();
+        await _service.CarregarVigentes();
+
+        _promocaoRepositoryMock.Verify(r => r.ListarVigentes(Hoje), Times.Once);
+        _subcategoriaRepositoryMock.Verify(r => r.BuscarTodos(), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_PromocaoValida_Quando_Cadastrar_Entao_DeveRemoverAsVigentesDoCache()
+    {
+        _produtoRepositoryMock.Setup(r => r.BuscarPorIds(It.IsAny<IEnumerable<Guid>>())).ReturnsAsync([_produto]);
+
+        await _service.Cadastrar(DtoValido());
+
+        Assert.Contains(ChavesDeCache.PromocoesVigentes(Hoje), _cache.ChavesRemovidas);
+    }
+
+    [Fact]
+    public async Task Dado_PromocaoExistente_Quando_Atualizar_Entao_DeveRemoverAsVigentesDoCache()
+    {
+        var promocao = PorCategoria(Hoje, Hoje);
+        _promocaoRepositoryMock.Setup(r => r.BuscarComProdutos(promocao.PromocaoId)).ReturnsAsync(promocao);
+        _produtoRepositoryMock.Setup(r => r.BuscarPorIds(It.IsAny<IEnumerable<Guid>>())).ReturnsAsync([_produto]);
+        var dto = DtoValido();
+        dto.PromocaoId = promocao.PromocaoId;
+
+        await _service.Atualizar(dto);
+
+        Assert.Contains(ChavesDeCache.PromocoesVigentes(Hoje), _cache.ChavesRemovidas);
+    }
+
+    [Fact]
+    public async Task Dado_PromocaoCarregadaEmCache_Quando_Desativar_Entao_ProximaLeituraDeveReconsultar()
+    {
+        var promocao = PorCategoria(Hoje, Hoje);
+        _promocaoRepositoryMock.Setup(r => r.ListarVigentes(Hoje)).ReturnsAsync([promocao]);
+        _promocaoRepositoryMock.Setup(r => r.BuscarPorId(promocao.PromocaoId)).ReturnsAsync(promocao);
+
+        await _service.CarregarVigentes();
+        await _service.Desativar(promocao.PromocaoId);
+        await _service.CarregarVigentes();
+
+        _promocaoRepositoryMock.Verify(r => r.ListarVigentes(Hoje), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task Dado_PromocaoDesativada_Quando_Ativar_Entao_DeveRemoverAsVigentesDoCache()
+    {
+        var promocao = PorCategoria(Hoje, Hoje);
+        promocao.Desativar();
+        _promocaoRepositoryMock.Setup(r => r.BuscarPorId(promocao.PromocaoId)).ReturnsAsync(promocao);
+
+        await _service.Ativar(promocao.PromocaoId);
+
+        Assert.Contains(ChavesDeCache.PromocoesVigentes(Hoje), _cache.ChavesRemovidas);
     }
 }

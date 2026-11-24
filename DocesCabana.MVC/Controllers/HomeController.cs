@@ -10,15 +10,19 @@ namespace DocesCabana.MVC.Controllers;
 public class HomeController : Controller
 {
     private readonly IProdutoService _produtoService;
+    private readonly IBannerService _bannerService;
 
-    public HomeController(IProdutoService produtoService)
+    public HomeController(IProdutoService produtoService, IBannerService bannerService)
     {
         _produtoService = produtoService;
+        _bannerService = bannerService;
     }
 
     public async Task<IActionResult> Index()
     {
         var produtos = await _produtoService.BuscarDestaquesDaVitrine(VitrineProdutosViewComponent.LimitePadrao, UsuarioAtualId);
+        ViewData["Banners"] = await _bannerService.ListarVigentesDoCarrossel();
+
         return View(produtos);
     }
 

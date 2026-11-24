@@ -1,3 +1,4 @@
+using DocesCabana.Application.Constants;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
@@ -8,15 +9,22 @@ namespace DocesCabana.Application.Services;
 public class CategoriaService : ICategoriaService
 {
     private readonly ICategoriaRepository _categoriaRepository;
-    private readonly IProdutoRepository _produtoRepository;
+    private static readonly TimeSpan DuracaoDoCache = TimeSpan.FromMinutes(5);
 
-    public CategoriaService(ICategoriaRepository categoriaRepository, IProdutoRepository produtoRepository)
+    private readonly IProdutoRepository _produtoRepository;
+    private readonly ICacheDaAplicacao _cache;
+
+    public CategoriaService(ICategoriaRepository categoriaRepository, IProdutoRepository produtoRepository, ICacheDaAplicacao cache)
     {
         _categoriaRepository = categoriaRepository;
         _produtoRepository = produtoRepository;
+        _cache = cache;
     }
 
-    public async Task<List<CategoriaDTO>> ListarComSubcategorias()
+    public Task<List<CategoriaDTO>> ListarComSubcategorias() =>
+        _cache.ObterOuCriar(ChavesDeCache.CategoriasComSubcategorias, ConsultarComSubcategorias, DuracaoDoCache);
+
+    private async Task<List<CategoriaDTO>> ConsultarComSubcategorias()
     {
         var categorias = await _categoriaRepository.BuscarTodasComSubcategorias();
         var contagens = await _produtoRepository.ContarDisponivelPorSubcategoria();

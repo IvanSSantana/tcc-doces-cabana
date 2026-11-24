@@ -6,6 +6,7 @@ using DocesCabana.Domain.Contracts;
 using DocesCabana.Infrastructure.Identity.Services;
 using DocesCabana.Infrastructure.Repositories;
 using DocesCabana.Infrastructure.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -19,6 +20,8 @@ public static class ApplicationDependencyInjection
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<FreteSettings>(configuration.GetSection("FreteSettings"));
         services.Configure<SupabaseSettings>(configuration.GetSection("SupabaseSettings"));
+        services.AddMemoryCache();
+        services.AddSingleton<ICacheDaAplicacao, CacheEmMemoria>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
@@ -33,6 +36,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<IPromocaoRepository, PromocaoRepository>();
         services.AddScoped<ICupomRepository, CupomRepository>();
         services.AddScoped<IAgendaDeRetiradaRepository, AgendaDeRetiradaRepository>();
+        services.AddScoped<IBannerRepository, BannerRepository>();
         services.AddScoped<IUsuarioService, UsuarioService>();
         services.AddScoped<IAdministradorService, AdministradorService>();
         services.AddScoped<IProdutoService, ProdutoService>();
@@ -48,6 +52,7 @@ public static class ApplicationDependencyInjection
         services.AddScoped<IPromocaoService, PromocaoService>();
         services.AddScoped<ICupomService, CupomService>();
         services.AddScoped<IAgendaDeRetiradaService, AgendaDeRetiradaService>();
+        services.AddScoped<IBannerService, BannerService>();
         services.AddSingleton(TimeProvider.System);
         services.AddEmailService(configuration);
         services.AddFreteService();
@@ -58,12 +63,16 @@ public static class ApplicationDependencyInjection
 
     public static IServiceCollection AddFreteService(this IServiceCollection services)
     {
-        services.AddHttpClient<IFreteService, FreteServiceMelhorEnvio>((provedor, client) =>
+        services.AddMemoryCache();
+        services.AddHttpClient<FreteServiceMelhorEnvio>((provedor, client) =>
         {
             var settings = provedor.GetRequiredService<IOptions<FreteSettings>>().Value;
             client.BaseAddress = new Uri(settings.UrlBase);
             client.Timeout = TimeSpan.FromSeconds(settings.TimeoutEmSegundos);
         });
+        services.AddScoped<IFreteService>(provedor => new FreteServiceComCache(
+            provedor.GetRequiredService<FreteServiceMelhorEnvio>(),
+            provedor.GetRequiredService<IMemoryCache>()));
 
         return services;
     }

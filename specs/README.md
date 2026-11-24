@@ -47,6 +47,7 @@ O nome da pasta é também o nome da branch. Numeração sequencial, nunca reapr
 | [035](./035-cupons-de-desconto/plan.md) | Cupons de desconto (código no carrinho, frete grátis, mínimo, uso único, categoria; depende da `034`) | Executada (verificação manual pendente) | [plan](./035-cupons-de-desconto/plan.md) |
 | [036](./036-retirada-na-loja/plan.md) | Retirada na loja (no mesmo dia, por faixa de horário; agenda editável pelo admin) | Executada (verificação manual pendente) | [plan](./036-retirada-na-loja/plan.md) |
 | [037](./037-painel-de-vendas/plan.md) | Painel de vendas (receita por dia/semana/mês/ano, mais vendidos, picos; pedido nasce confirmado e cliente marca entregue) | Planejada | [plan](./037-painel-de-vendas/plan.md) |
+| [038](./038-descricao-desempenho-e-banners/plan.md) | Quebra de descrição, desempenho (cache, N+1, banco em `sa-east-1`) e banners do carrossel no admin | Planejada | [plan](./038-descricao-desempenho-e-banners/plan.md) |
 
 > **Ordem executada:** `002` → `003` → `001` → `004` → `005` → `006` → `007` → `008` → `009` → `010` → `011` → `012` → `013` → `014` → `015` → `016` → `017` → `018` → `019` → `021` → `020` → `022` → `023` → `027` → `028`.
 > A `028` fechou o par que a `027` abriu — as duas nasceram do mesmo pedido
