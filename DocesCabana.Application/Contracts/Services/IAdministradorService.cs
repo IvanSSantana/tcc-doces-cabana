@@ -5,7 +5,13 @@ namespace DocesCabana.Application.Contracts.Services;
 
 public interface IAdministradorService
 {
-    Task<List<UsuarioDTO>> ListarAdministradores();
+    Task<List<AdministradorDTO>> ListarAdministradores();
 
     Task<UsuarioDTO> CadastrarAdministrador(CadastroDTO dto);
+
+    Task<bool> EhPrincipal(Guid usuarioId);
+
+    Task Desativar(Guid administradorId, Guid executorId);
+
+    Task Reativar(Guid administradorId, Guid executorId);
 }

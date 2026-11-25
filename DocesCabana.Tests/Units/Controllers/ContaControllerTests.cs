@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using DocesCabana.Application.Constants;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using DocesCabana.MVC.Controllers;
@@ -55,31 +56,43 @@ public class ContaControllerTests
     }
 
     [Fact]
-    public async Task Dado_ModelStateInvalido_Quando_AlterarDados_Entao_NaoDeveChamarOServicoEDeveVoltarComOCpf()
+    public async Task Dado_ModelStateInvalido_Quando_AlterarDados_Entao_NaoDeveChamarOServicoEDeveVoltarComOCpfDigitado()
     {
-        _controller.ModelState.AddModelError("Celular", "Número de telefone inválido.");
-        _usuarioServiceMock.Setup(s => s.BuscarUsuarioPorId(_usuarioId))
-            .ReturnsAsync(new UsuarioDTO { Id = _usuarioId, CPF = "52998224725" });
+        _controller.ModelState.AddModelError("CPF", "CPF inválido.");
 
-        var resultado = await _controller.AlterarDados(new DadosPessoaisDTO { Nome = "X", Celular = "123", DataNascimento = DateTime.UtcNow });
+        var resultado = await _controller.AlterarDados(new DadosPessoaisDTO { Nome = "X", Celular = "123", DataNascimento = DateTime.UtcNow, CPF = "123" });
 
         var view = Assert.IsType<ViewResult>(resultado);
         var dto = Assert.IsType<DadosPessoaisDTO>(view.Model);
-        Assert.Equal("52998224725", dto.CPF);
+        Assert.Equal("123", dto.CPF);
+        _usuarioServiceMock.Verify(s => s.AlterarDadosUsuario(It.IsAny<UsuarioDTO>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_CpfDeOutraConta_Quando_AlterarDados_Entao_DeveRetornarViewComErroNoCpf()
+    {
+        var dto = new DadosPessoaisDTO { Nome = "Nome", Celular = "(14) 98888-8888", DataNascimento = new DateTime(1994, 6, 6), CPF = "52998224725" };
+        _usuarioServiceMock.Setup(s => s.CpfEmUsoPorOutraConta("52998224725", _usuarioId)).ReturnsAsync(true);
+
+        var resultado = await _controller.AlterarDados(dto);
+
+        var view = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal("Index", view.ViewName);
+        Assert.Equal(MensagensCadastro.DadosJaAssociados, _controller.ModelState["CPF"]!.Errors.Single().ErrorMessage);
         _usuarioServiceMock.Verify(s => s.AlterarDadosUsuario(It.IsAny<UsuarioDTO>()), Times.Never);
     }
 
     [Fact]
     public async Task Dado_DadosValidos_Quando_AlterarDados_Entao_DeveChamarOServicoERedirecionar()
     {
-        var dto = new DadosPessoaisDTO { Nome = "Novo Nome", Celular = "(14) 98888-8888", DataNascimento = new DateTime(1994, 6, 6) };
+        var dto = new DadosPessoaisDTO { Nome = "Novo Nome", Celular = "(14) 98888-8888", DataNascimento = new DateTime(1994, 6, 6), CPF = "529.982.247-25" };
         _usuarioServiceMock.Setup(s => s.AlterarDadosUsuario(It.IsAny<UsuarioDTO>()))
             .ReturnsAsync(new UsuarioDTO { Id = _usuarioId });
 
         var resultado = await _controller.AlterarDados(dto);
 
         _usuarioServiceMock.Verify(s => s.AlterarDadosUsuario(It.Is<UsuarioDTO>(
-            u => u.Id == _usuarioId && u.Nome == "Novo Nome" && u.Celular == "(14) 98888-8888")), Times.Once);
+            u => u.Id == _usuarioId && u.Nome == "Novo Nome" && u.Celular == "(14) 98888-8888" && u.CPF == "529.982.247-25")), Times.Once);
         var redirect = Assert.IsType<RedirectToActionResult>(resultado);
         Assert.Equal(nameof(ContaController.Index), redirect.ActionName);
     }
@@ -176,6 +189,34 @@ public class ContaControllerTests
         _enderecoServiceMock.Verify(s => s.Editar(dto, _usuarioId), Times.Once);
         var redirect = Assert.IsType<RedirectToActionResult>(resultado);
         Assert.Equal(nameof(ContaController.Enderecos), redirect.ActionName);
+    }
+
+    [Fact]
+    public async Task Dado_EnderecoRepetido_Quando_NovoEnderecoPost_Entao_DeveVoltarAViewComErroNoNumeroSemCadastrar()
+    {
+        var dto = new EnderecoDTO();
+        _enderecoServiceMock.Setup(s => s.EnderecoJaCadastrado(dto, _usuarioId)).ReturnsAsync(true);
+
+        var resultado = await _controller.NovoEndereco(dto);
+
+        var view = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal("FormularioEndereco", view.ViewName);
+        Assert.Equal(MensagensEndereco.EnderecoRepetido, _controller.ModelState[nameof(EnderecoDTO.Numero)]!.Errors.Single().ErrorMessage);
+        _enderecoServiceMock.Verify(s => s.Cadastrar(It.IsAny<EnderecoDTO>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_EnderecoRepetido_Quando_EditarEnderecoPost_Entao_DeveVoltarAViewComErroNoNumeroSemEditar()
+    {
+        var dto = new EnderecoDTO { EnderecoId = Guid.NewGuid() };
+        _enderecoServiceMock.Setup(s => s.EnderecoJaCadastrado(dto, _usuarioId)).ReturnsAsync(true);
+
+        var resultado = await _controller.EditarEndereco(dto);
+
+        var view = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal("FormularioEndereco", view.ViewName);
+        Assert.True(_controller.ModelState.ContainsKey(nameof(EnderecoDTO.Numero)));
+        _enderecoServiceMock.Verify(s => s.Editar(It.IsAny<EnderecoDTO>(), It.IsAny<Guid>()), Times.Never);
     }
 
     [Fact]

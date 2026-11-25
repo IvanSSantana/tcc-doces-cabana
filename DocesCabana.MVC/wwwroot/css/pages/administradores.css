@@ -73,3 +73,26 @@
 .tabela-administradores tbody tr:hover {
     background-color: var(--neutro-fundo);
 }
+
+/* Situação e ações vêm de gestao-produtos.css (.selo-status, .acoes-produto, .botao-icone), como no cupom. */
+.tabela-administradores .coluna-acoes {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.acoes-produto form {
+    display: contents;
+}
+
+.selo-principal {
+    display: inline-block;
+    margin-left: var(--espaco-2);
+    padding: 0.1rem 0.6rem;
+    border-radius: var(--raio-pilula);
+    background-color: var(--cor-primaria-clara);
+    color: var(--cor-primaria-escura);
+    font-size: 0.75rem;
+    font-weight: 600;
+    vertical-align: middle;
+}

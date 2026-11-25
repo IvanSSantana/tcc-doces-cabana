@@ -168,4 +168,31 @@ public class UsuarioTests
         Assert.Equal("11988888888", usuario.Celular);
         Assert.Equal(new DateTime(1991, 2, 2), usuario.DataNascimento);
     }
+
+    [Fact]
+    public void Dado_CpfComMascara_Quando_AlterarCpf_Entao_DeveGuardarApenasDigitos()
+    {
+        var usuario = new Usuario(_usuarioIdValido, "João Silva", "54839427011", "11987654321", new DateTime(1990, 1, 1));
+
+        usuario.AlterarCpf("529.982.247-25");
+
+        Assert.Equal("52998224725", usuario.CPF);
+    }
+
+    [Fact]
+    public void Dado_CpfInvalido_Quando_AlterarCpf_Entao_DeveLancarArgumentException()
+    {
+        var usuario = new Usuario(_usuarioIdValido, "João Silva", "54839427011", "11987654321", new DateTime(1990, 1, 1));
+
+        Assert.Throws<ArgumentException>(() => usuario.AlterarCpf("11111111111"));
+        Assert.Equal("54839427011", usuario.CPF);
+    }
+
+    [Fact]
+    public void Dado_CpfVazio_Quando_AlterarCpf_Entao_DeveLancarArgumentNullException()
+    {
+        var usuario = new Usuario(_usuarioIdValido, "João Silva", "54839427011", "11987654321", new DateTime(1990, 1, 1));
+
+        Assert.Throws<ArgumentNullException>(() => usuario.AlterarCpf(""));
+    }
 }

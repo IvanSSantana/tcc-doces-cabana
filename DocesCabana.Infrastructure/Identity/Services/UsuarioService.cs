@@ -94,6 +94,12 @@ public class UsuarioService : IUsuarioService
     public async Task<bool> ContaJaExiste(string email, string cpf) =>
         await BuscarPorLogin(email) is not null || await BuscarPorLogin(cpf) is not null;
 
+    public async Task<bool> CpfEmUsoPorOutraConta(string cpf, Guid usuarioId)
+    {
+        var dono = await _usuarioRepository.BuscarPorCpf(CpfHelper.ApenasDigitos(cpf));
+        return dono is not null && dono.UsuarioId != usuarioId;
+    }
+
     public async Task<UsuarioDTO> BuscarUsuarioPorId(Guid usuarioId)
     {
         var conta = await _userManager.FindByIdAsync(usuarioId.ToString());
@@ -143,7 +149,11 @@ public class UsuarioService : IUsuarioService
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com ID {usuarioDto.Id} não encontrado.");
 
+        if (await CpfEmUsoPorOutraConta(usuarioDto.CPF, usuarioDto.Id))
+            throw new InvalidOperationException(MensagensCadastro.DadosJaAssociados);
+
         usuario.AtualizarDados(usuarioDto.Nome, TelefoneHelper.ApenasDigitos(usuarioDto.Celular), usuarioDto.DataNascimento);
+        usuario.AlterarCpf(usuarioDto.CPF);
 
         await _usuarioRepository.Atualizar(usuario);
         await _unitOfWork.SalvarAlteracoes();
@@ -162,7 +172,10 @@ public class UsuarioService : IUsuarioService
         if (resultado.Succeeded)
             return ResultadoDoLogin.Sucesso;
 
-        return resultado.IsLockedOut ? ResultadoDoLogin.Bloqueado : ResultadoDoLogin.Falhou;
+        if (!resultado.IsLockedOut)
+            return ResultadoDoLogin.Falhou;
+
+        return resolvido.Value.Conta.Desativada ? ResultadoDoLogin.Desativado : ResultadoDoLogin.Bloqueado;
     }
 
     public async Task RealizarLogout()

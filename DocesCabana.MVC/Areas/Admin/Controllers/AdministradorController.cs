@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DocesCabana.Application.DTOs.Autenticacao;
 using DocesCabana.Application.Constants;
 using DocesCabana.Domain.Constants;
@@ -24,7 +25,34 @@ public class AdministradorController : Controller
     public async Task<IActionResult> Index()
     {
         var administradores = await _administradorService.ListarAdministradores();
+        ViewData["EhPrincipal"] = await _administradorService.EhPrincipal(UsuarioAtualId);
         return View(administradores);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Desativar(Guid id)
+    {
+        if (!await _administradorService.EhPrincipal(UsuarioAtualId))
+            return Forbid();
+
+        await _administradorService.Desativar(id, UsuarioAtualId);
+
+        TempData["Confirmacao"] = "Administrador desativado.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Reativar(Guid id)
+    {
+        if (!await _administradorService.EhPrincipal(UsuarioAtualId))
+            return Forbid();
+
+        await _administradorService.Reativar(id, UsuarioAtualId);
+
+        TempData["Confirmacao"] = "Administrador reativado.";
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
@@ -51,4 +79,6 @@ public class AdministradorController : Controller
         TempData["Confirmacao"] = "Administrador cadastrado com sucesso!";
         return RedirectToAction(nameof(Index));
     }
+
+    private Guid UsuarioAtualId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }

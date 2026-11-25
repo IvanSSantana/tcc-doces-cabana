@@ -80,13 +80,6 @@
   min-height: 44px;
 }
 
-.cpf-somente-leitura {
-  display: block;
-  padding: 0.75rem 0;
-  color: var(--neutro-texto-suave);
-  font-weight: 600;
-}
-
 .enderecos-vazio {
   color: var(--neutro-texto-suave);
   padding: var(--espaco-12) var(--espaco-4);

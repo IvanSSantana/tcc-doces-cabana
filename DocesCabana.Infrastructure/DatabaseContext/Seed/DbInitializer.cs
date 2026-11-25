@@ -16,7 +16,7 @@ namespace DocesCabana.Infrastructure.DatabaseContext.Seed;
 
 public static class DbInitializer
 {
-    public const string EmailAdministrador = "admin@docescabana.com.br";
+    public const string EmailAdministrador = AdministradorPrincipal.Email;
 
     internal static readonly (string Categoria, string[] Subcategorias)[] Taxonomia =
     [
@@ -55,15 +55,12 @@ public static class DbInitializer
         null,
     ];
 
+    private const string UrlBaseDasImagensDeExemplo =
+        "https://yinybvmspynwsweziwgy.supabase.co/storage/v1/object/public/images/public";
+
+    // 1.png a 10.png no bucket images/public, distribuídas em rodízio entre os produtos.
     private static readonly string[] ImagensDeExemplo =
-    [
-        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7382.JPG",
-        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7412.JPG",
-        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7419.JPG",
-        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7422.JPG",
-        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7423.JPG",
-        "https://mjnlzsucdsxqahabsniy.supabase.co/storage/v1/object/public/images/public/IMG_7427.JPG",
-    ];
+        Enumerable.Range(1, 10).Select(n => $"{UrlBaseDasImagensDeExemplo}/{n}.png").ToArray();
 
     public static void Migrar(IServiceProvider serviceProvider)
     {

@@ -170,6 +170,65 @@ public class UsuarioServiceTests
     }
 
     [Fact]
+    public async Task Dado_NovoCpfLivre_Quando_AlterarDadosUsuario_Entao_DeveGravarOCpfSoComDigitos()
+    {
+        var id = Guid.NewGuid();
+        var (usuario, conta) = CriarParUsuarioConta(id);
+        _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString())).ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(id)).ReturnsAsync(usuario);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorCpf("52998224725")).ReturnsAsync((Usuario?)null);
+
+        var resultado = await _usuarioService.AlterarDadosUsuario(new UsuarioDTO
+        {
+            Id = id, Nome = "Nome", Celular = "(11) 98888-8888", DataNascimento = new DateTime(1995, 5, 5),
+            CPF = "529.982.247-25"
+        });
+
+        Assert.Equal("52998224725", usuario.CPF);
+        Assert.Equal("52998224725", resultado.CPF);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_CpfDeOutraConta_Quando_AlterarDadosUsuario_Entao_DeveLancarInvalidOperationExceptionSemSalvar()
+    {
+        var id = Guid.NewGuid();
+        var (usuario, conta) = CriarParUsuarioConta(id);
+        var (outro, _) = CriarParUsuarioConta(Guid.NewGuid(), "outro@exemplo.com", "52998224725");
+        _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString())).ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(id)).ReturnsAsync(usuario);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorCpf("52998224725")).ReturnsAsync(outro);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _usuarioService.AlterarDadosUsuario(new UsuarioDTO
+        {
+            Id = id, Nome = "Nome", Celular = "(11) 98888-8888", DataNascimento = new DateTime(1995, 5, 5),
+            CPF = "52998224725"
+        }));
+
+        Assert.Equal("54839427011", usuario.CPF);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_ProprioCpf_Quando_CpfEmUsoPorOutraConta_Entao_DeveRetornarFalse()
+    {
+        var id = Guid.NewGuid();
+        var (usuario, _) = CriarParUsuarioConta(id);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorCpf("54839427011")).ReturnsAsync(usuario);
+
+        Assert.False(await _usuarioService.CpfEmUsoPorOutraConta("548.394.270-11", id));
+    }
+
+    [Fact]
+    public async Task Dado_CpfDeOutraConta_Quando_CpfEmUsoPorOutraConta_Entao_DeveRetornarTrue()
+    {
+        var (outro, _) = CriarParUsuarioConta(Guid.NewGuid());
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorCpf("54839427011")).ReturnsAsync(outro);
+
+        Assert.True(await _usuarioService.CpfEmUsoPorOutraConta("54839427011", Guid.NewGuid()));
+    }
+
+    [Fact]
     public async Task Dado_UsuarioInexistente_Quando_AlterarDadosUsuario_Entao_DeveLancarKeyNotFoundException()
     {
         var id = Guid.NewGuid();

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using DocesCabana.Application.Constants;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -37,8 +38,11 @@ public class ContaController : Controller
     public async Task<IActionResult> AlterarDados(DadosPessoaisDTO dto)
     {
         if (!ModelState.IsValid)
+            return View("Index", dto);
+
+        if (await _usuarioService.CpfEmUsoPorOutraConta(dto.CPF!, UsuarioAtualId))
         {
-            dto.CPF = (await _usuarioService.BuscarUsuarioPorId(UsuarioAtualId)).CPF;
+            ModelState.AddModelError(nameof(DadosPessoaisDTO.CPF), MensagensCadastro.DadosJaAssociados);
             return View("Index", dto);
         }
 
@@ -48,6 +52,7 @@ public class ContaController : Controller
             Nome = dto.Nome,
             Celular = dto.Celular,
             DataNascimento = dto.DataNascimento,
+            CPF = dto.CPF!,
         });
 
         return RedirectToAction(nameof(Index));
@@ -70,6 +75,12 @@ public class ContaController : Controller
         if (!ModelState.IsValid)
             return View("FormularioEndereco", dto);
 
+        if (await _enderecoService.EnderecoJaCadastrado(dto, UsuarioAtualId))
+        {
+            ModelState.AddModelError(nameof(EnderecoDTO.Numero), MensagensEndereco.EnderecoRepetido);
+            return View("FormularioEndereco", dto);
+        }
+
         await _enderecoService.Cadastrar(dto, UsuarioAtualId);
 
         return RedirectToAction(nameof(Enderecos));
@@ -88,6 +99,12 @@ public class ContaController : Controller
     {
         if (!ModelState.IsValid)
             return View("FormularioEndereco", dto);
+
+        if (await _enderecoService.EnderecoJaCadastrado(dto, UsuarioAtualId))
+        {
+            ModelState.AddModelError(nameof(EnderecoDTO.Numero), MensagensEndereco.EnderecoRepetido);
+            return View("FormularioEndereco", dto);
+        }
 
         await _enderecoService.Editar(dto, UsuarioAtualId);
 

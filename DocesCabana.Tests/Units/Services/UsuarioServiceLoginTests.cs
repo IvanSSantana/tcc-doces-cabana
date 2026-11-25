@@ -1,6 +1,7 @@
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.Enums;
+using DocesCabana.Domain.Constants;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.Identity;
@@ -167,6 +168,40 @@ public class UsuarioServiceLoginTests
             .ReturnsAsync(conta);
         _usuarioRepositoryMock.Setup(r => r.BuscarPorId(conta.Id))
             .ReturnsAsync(usuario);
+        _signInManagerMock.Setup(s => s.PasswordSignInAsync(email, "senha123", false, true))
+            .ReturnsAsync(SignInResult.LockedOut);
+
+        var resultado = await _usuarioService.RealizarLogin(email, "senha123", false);
+
+        Assert.Equal(ResultadoDoLogin.Bloqueado, resultado);
+    }
+
+    [Fact]
+    public async Task Dado_ContaDesativada_Quando_RealizarLogin_Entao_DeveRetornarDesativado()
+    {
+        var email = "antigo.admin@teste.com";
+        var (usuario, conta) = CriarPar(email);
+        conta.LockoutEnd = AdministradorPrincipal.FimDaDesativacao;
+
+        _userManagerMock.Setup(u => u.FindByEmailAsync(email)).ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(conta.Id)).ReturnsAsync(usuario);
+        _signInManagerMock.Setup(s => s.PasswordSignInAsync(email, "senha123", false, true))
+            .ReturnsAsync(SignInResult.LockedOut);
+
+        var resultado = await _usuarioService.RealizarLogin(email, "senha123", false);
+
+        Assert.Equal(ResultadoDoLogin.Desativado, resultado);
+    }
+
+    [Fact]
+    public async Task Dado_BloqueioTemporario_Quando_RealizarLogin_Entao_DeveRetornarBloqueado()
+    {
+        var email = "errou.senha@teste.com";
+        var (usuario, conta) = CriarPar(email);
+        conta.LockoutEnd = DateTimeOffset.UtcNow.AddMinutes(15);
+
+        _userManagerMock.Setup(u => u.FindByEmailAsync(email)).ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(conta.Id)).ReturnsAsync(usuario);
         _signInManagerMock.Setup(s => s.PasswordSignInAsync(email, "senha123", false, true))
             .ReturnsAsync(SignInResult.LockedOut);
 

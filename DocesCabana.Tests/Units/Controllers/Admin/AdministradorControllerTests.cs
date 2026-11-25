@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
 using DocesCabana.Application.Constants;
@@ -19,6 +20,7 @@ public class AdministradorControllerTests
     private readonly Mock<IAdministradorService> _administradorServiceMock;
     private readonly Mock<IUsuarioService> _usuarioServiceMock;
     private readonly AdministradorController _controller;
+    private readonly Guid _usuarioAtualId = Guid.NewGuid();
 
     public AdministradorControllerTests()
     {
@@ -30,12 +32,13 @@ public class AdministradorControllerTests
     [Fact]
     public async Task Dado_AdministradoresCadastrados_Quando_Index_Entao_DeveRetornarViewComALista()
     {
-        var administradores = new List<UsuarioDTO>
+        var administradores = new List<AdministradorDTO>
         {
             new() { Id = Guid.NewGuid(), Nome = "Admin Um", Email = "admin1@doces.com" }
         };
         _administradorServiceMock.Setup(s => s.ListarAdministradores())
             .ReturnsAsync(administradores);
+        ConfigurarTempData();
 
         var resultado = await _controller.Index();
 
@@ -138,9 +141,91 @@ public class AdministradorControllerTests
         _administradorServiceMock.Verify(s => s.CadastrarAdministrador(It.IsAny<CadastroDTO>()), Times.Never);
     }
 
+    [Fact]
+    public async Task Dado_AdminPrincipal_Quando_Index_Entao_DeveAvisarAViewQueEhPrincipal()
+    {
+        ConfigurarTempData();
+        _administradorServiceMock.Setup(s => s.ListarAdministradores()).ReturnsAsync([]);
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(true);
+
+        var resultado = await _controller.Index();
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(true, viewResult.ViewData["EhPrincipal"]);
+    }
+
+    [Fact]
+    public async Task Dado_ExecutorNaoPrincipal_Quando_Desativar_Entao_DeveRetornarForbidSemChamarOServico()
+    {
+        ConfigurarTempData();
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(false);
+
+        var resultado = await _controller.Desativar(Guid.NewGuid());
+
+        Assert.IsType<ForbidResult>(resultado);
+        _administradorServiceMock.Verify(s => s.Desativar(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_AdminPrincipal_Quando_Desativar_Entao_DeveDesativarERedirecionarComConfirmacao()
+    {
+        ConfigurarTempData();
+        var alvoId = Guid.NewGuid();
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(true);
+
+        var resultado = await _controller.Desativar(alvoId);
+
+        _administradorServiceMock.Verify(s => s.Desativar(alvoId, _usuarioAtualId), Times.Once);
+        var redirect = Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Equal("Index", redirect.ActionName);
+        Assert.Equal("Administrador desativado.", _controller.TempData["Confirmacao"]);
+    }
+
+    [Fact]
+    public async Task Dado_ExecutorNaoPrincipal_Quando_Reativar_Entao_DeveRetornarForbidSemChamarOServico()
+    {
+        ConfigurarTempData();
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(false);
+
+        var resultado = await _controller.Reativar(Guid.NewGuid());
+
+        Assert.IsType<ForbidResult>(resultado);
+        _administradorServiceMock.Verify(s => s.Reativar(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_AdminPrincipal_Quando_Reativar_Entao_DeveReativarERedirecionarComConfirmacao()
+    {
+        ConfigurarTempData();
+        var alvoId = Guid.NewGuid();
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(true);
+
+        var resultado = await _controller.Reativar(alvoId);
+
+        _administradorServiceMock.Verify(s => s.Reativar(alvoId, _usuarioAtualId), Times.Once);
+        var redirect = Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Equal("Index", redirect.ActionName);
+        Assert.Equal("Administrador reativado.", _controller.TempData["Confirmacao"]);
+    }
+
+    [Theory]
+    [InlineData(nameof(AdministradorController.Desativar))]
+    [InlineData(nameof(AdministradorController.Reativar))]
+    public void Dado_AcaoQueMudaEstado_Quando_OlharOsAtributos_Entao_DeveSerPostComAntiforgery(string acao)
+    {
+        var metodo = typeof(AdministradorController).GetMethod(acao)!;
+
+        Assert.NotNull(metodo.GetCustomAttributes(typeof(HttpPostAttribute), false).SingleOrDefault());
+        Assert.NotNull(metodo.GetCustomAttributes(typeof(ValidateAntiForgeryTokenAttribute), false).SingleOrDefault());
+    }
+
     private void ConfigurarTempData()
     {
-        var httpContext = new DefaultHttpContext();
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.NameIdentifier, _usuarioAtualId.ToString())], "TesteAutenticacao"))
+        };
         var tempDataProviderMock = new Mock<ITempDataProvider>();
         tempDataProviderMock.Setup(p => p.LoadTempData(It.IsAny<HttpContext>()))
             .Returns(new Dictionary<string, object>());

@@ -88,6 +88,20 @@ public class AutenticacaoControllerTests
     }
 
     [Fact]
+    public async Task Dado_ContaDesativada_Quando_LoginPost_Entao_DeveAdicionarErroDeContaDesativadaERetornarView()
+    {
+        var dto = new LoginDTO { Login = "antigo@email.com", Senha = "Senha123!" };
+        _usuarioServiceMock.Setup(s => s.RealizarLogin(dto.Login, dto.Senha, false))
+            .ReturnsAsync(ResultadoDoLogin.Desativado);
+
+        var resultado = await _controller.Login(dto);
+
+        var viewResult = Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(dto, viewResult.Model);
+        Assert.Equal("Conta desativada. Procure o administrador da loja.", _controller.ModelState[string.Empty]!.Errors[0].ErrorMessage);
+    }
+
+    [Fact]
     public async Task Dado_CredenciaisInvalidas_Quando_LoginPost_Entao_DeveAdicionarErroERetornarView()
     {
         var dto = new LoginDTO { Login = "teste@email.com", Senha = "Senha123!" };

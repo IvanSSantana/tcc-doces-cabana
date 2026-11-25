@@ -1,10 +1,12 @@
 @using DocesCabana.Application.DTOs
-@model List<UsuarioDTO>
+@model List<AdministradorDTO>
 @{
     ViewData["Title"] = "Administradores";
     Layout = "_Layout";
+    var ehPrincipal = ViewData["EhPrincipal"] is true;
 }
 
+<link rel="stylesheet" href="~/css/pages/gestao-produtos.css" asp-append-version="true">
 <link rel="stylesheet" href="~/css/pages/administradores.css" asp-append-version="true">
 
 <main class="container-administradores">
@@ -34,14 +36,63 @@
                 <tr>
                     <th>Nome</th>
                     <th>E-mail</th>
+                    <th>Situação</th>
+                    @if (ehPrincipal)
+                    {
+                        <th class="coluna-acoes">Ações</th>
+                    }
                 </tr>
             </thead>
             <tbody>
                 @foreach (var administrador in Model)
                 {
                     <tr>
-                        <td>@administrador.Nome</td>
+                        <td>
+                            @administrador.Nome
+                            @if (administrador.Principal)
+                            {
+                                <span class="selo-principal">Principal</span>
+                            }
+                        </td>
                         <td>@administrador.Email</td>
+                        <td>
+                            @if (administrador.Ativo)
+                            {
+                                <span class="selo-status selo-status--ativo">Ativo</span>
+                            }
+                            else
+                            {
+                                <span class="selo-status selo-status--inativo">Desativado</span>
+                            }
+                        </td>
+                        @if (ehPrincipal)
+                        {
+                            <td class="coluna-acoes">
+                                @if (!administrador.Principal)
+                                {
+                                    <div class="acoes-produto">
+                                        <form asp-area="Admin" asp-controller="Administrador"
+                                              asp-action="@(administrador.Ativo ? "Desativar" : "Reativar")"
+                                              asp-route-id="@administrador.Id" method="post"
+                                              onsubmit="return confirm('@(administrador.Ativo ? "Desativar este administrador? Ele não conseguirá mais entrar." : "Reativar este administrador?")');">
+                                            @Html.AntiForgeryToken()
+                                            @if (administrador.Ativo)
+                                            {
+                                                <button type="submit" class="botao botao--icone botao--pequeno botao-icone" title="Desativar" aria-label="Desativar @administrador.Nome">
+                                                    <i class="fa-solid fa-user-slash" aria-hidden="true"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit" class="botao botao--icone botao--pequeno botao-icone" title="Reativar" aria-label="Reativar @administrador.Nome">
+                                                    <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                                                </button>
+                                            }
+                                        </form>
+                                    </div>
+                                }
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>

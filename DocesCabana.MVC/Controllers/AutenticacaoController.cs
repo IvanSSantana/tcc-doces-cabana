@@ -44,6 +44,8 @@ public class AutenticacaoController : Controller
 
         if (resultado == ResultadoDoLogin.Bloqueado)
             ModelState.AddModelError(string.Empty, "Conta bloqueada. Tente novamente mais tarde.");
+        else if (resultado == ResultadoDoLogin.Desativado)
+            ModelState.AddModelError(string.Empty, "Conta desativada. Procure o administrador da loja.");
         else
             ModelState.AddModelError(string.Empty, "E-mail ou senha incorreto(s).");
 

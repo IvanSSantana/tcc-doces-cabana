@@ -10,4 +10,5 @@ public interface IEnderecoService
     Task Editar(EnderecoDTO dto, Guid usuarioId);
     Task Excluir(Guid enderecoId, Guid usuarioId);
     Task TornarPrincipal(Guid enderecoId, Guid usuarioId);
+    Task<bool> EnderecoJaCadastrado(EnderecoDTO dto, Guid usuarioId);
 }

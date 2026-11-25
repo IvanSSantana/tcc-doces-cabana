@@ -42,6 +42,13 @@ public class Usuario
         DataNascimento = dataNascimento;
     }
 
+    public void AlterarCpf(string cpf)
+    {
+        ValidarCPF(cpf);
+
+        CPF = CpfHelper.ApenasDigitos(cpf);
+    }
+
     private void ValidarUsuarioId(Guid usuarioId)
     {
         if (usuarioId == Guid.Empty)

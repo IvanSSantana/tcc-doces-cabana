@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using DocesCabana.Domain.Constants;
 using DocesCabana.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
@@ -7,6 +8,15 @@ namespace DocesCabana.Infrastructure.Identity;
 public class ContaDeAcesso : IdentityUser<Guid>
 {
     public Usuario? Usuario { get; private set; }
+
+    /// <summary>
+    /// Desativada pelo admin principal (spec 039, D4). O bloqueio de 15 minutos por senha errada
+    /// não chega a esta data e não conta.
+    /// </summary>
+    public bool Desativada => LockoutEnd >= AdministradorPrincipal.FimDaDesativacao;
+
+    public bool EhAdministradorPrincipal =>
+        string.Equals(Email, AdministradorPrincipal.Email, StringComparison.OrdinalIgnoreCase);
 
     protected ContaDeAcesso() { }
 

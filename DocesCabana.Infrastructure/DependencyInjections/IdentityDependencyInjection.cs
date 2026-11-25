@@ -24,6 +24,10 @@ public static class IdentityDependencyInjection
         .AddEntityFrameworkStores<DocesCabanaDbContext>()
         .AddDefaultTokenProviders();
 
+        // Admin desativado com sessão aberta perde o acesso em até 1 minuto, não nos 30 do padrão (spec 039, D5).
+        services.Configure<SecurityStampValidatorOptions>(options =>
+            options.ValidationInterval = TimeSpan.FromMinutes(1));
+
         services.ConfigureApplicationCookie(options =>
         {
             options.LoginPath = "/Autenticacao/Login";

@@ -4,5 +4,6 @@ public enum ResultadoDoLogin
 {
     Sucesso,
     Bloqueado,
+    Desativado,
     Falhou
 }

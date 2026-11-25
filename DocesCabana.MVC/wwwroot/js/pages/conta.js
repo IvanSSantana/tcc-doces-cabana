@@ -31,6 +31,20 @@ document.addEventListener("DOMContentLoaded", function () {
         campoCelular.addEventListener("input", (e) => { e.target.value = formatarTelefone(e.target.value); });
     }
 
+    function formatarCpf(valor) {
+        const digitos = valor.replace(/\D/g, "").slice(0, 11);
+        let formatado = digitos.slice(0, 3);
+        if (digitos.length > 3) formatado += "." + digitos.slice(3, 6);
+        if (digitos.length > 6) formatado += "." + digitos.slice(6, 9);
+        if (digitos.length > 9) formatado += "-" + digitos.slice(9, 11);
+        return formatado;
+    }
+
+    const campoCpf = document.querySelector("input[name='CPF']");
+    if (campoCpf) {
+        campoCpf.addEventListener("input", (e) => { e.target.value = formatarCpf(e.target.value); });
+    }
+
     const campoDataNascimento = document.querySelector("input[name='DataNascimento']");
     if (campoDataNascimento) {
         campoDataNascimento.addEventListener("input", (e) => { e.target.value = formatarData(e.target.value); });

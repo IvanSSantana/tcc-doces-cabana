@@ -20,5 +20,12 @@ public class DadosPessoaisDTOValidator : AbstractValidator<DadosPessoaisDTO>
 
         RuleFor(x => x.DataNascimento)
             .NotEmpty().WithMessage("A data de nascimento é obrigatória!");
+
+        RuleFor(x => x.CPF)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty().WithMessage("O CPF é obrigatório!")
+            .MaximumLength(14).WithMessage("O CPF deve ter no máximo 14 caracteres.")
+            .Must(cpf => CpfHelper.FormatoValido(cpf!)).WithMessage("O CPF deve conter 11 dígitos.")
+            .Must(cpf => CpfHelper.CpfValido(cpf!)).WithMessage("CPF inválido.");
     }
 }

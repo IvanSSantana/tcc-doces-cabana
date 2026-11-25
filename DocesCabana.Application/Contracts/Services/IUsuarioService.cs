@@ -8,6 +8,7 @@ public interface IUsuarioService
 {
     Task<UsuarioDTO> CadastrarUsuario(CadastroDTO usuario, string? papel = null);
     Task<bool> ContaJaExiste(string email, string cpf);
+    Task<bool> CpfEmUsoPorOutraConta(string cpf, Guid usuarioId);
     Task<UsuarioDTO> BuscarUsuarioPorId(Guid usuarioId);
     Task<UsuarioDTO?> BuscarPorLogin(string login);
     Task<UsuarioDTO> AlterarDadosUsuario(UsuarioDTO usuarioDto);

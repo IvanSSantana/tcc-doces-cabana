@@ -1,3 +1,4 @@
+using DocesCabana.Application.Constants;
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.DTOs;
 using DocesCabana.Application.Services;
@@ -32,9 +33,9 @@ public class EnderecoServiceTests
         Numero = 123,
     };
 
-    private static Endereco CriarEndereco(Guid usuarioId, DateTime dataCadastro, bool padrao = false)
+    private static Endereco CriarEndereco(Guid usuarioId, DateTime dataCadastro, bool padrao = false, string? complemento = null)
     {
-        var endereco = new Endereco(usuarioId, "São Paulo", "Barra Bonita", "Centro", "17340-000", "Rua das Flores", 123);
+        var endereco = new Endereco(usuarioId, "São Paulo", "Barra Bonita", "Centro", "17340-000", "Rua das Flores", 123, complemento);
         typeof(Endereco).GetProperty(nameof(Endereco.DataCadastro))!.SetValue(endereco, dataCadastro);
         if (padrao) endereco.MarcarComoPadrao();
         return endereco;
@@ -59,8 +60,10 @@ public class EnderecoServiceTests
         var usuarioId = Guid.NewGuid();
         var existente = CriarEndereco(usuarioId, DateTime.UtcNow.AddDays(-1), padrao: true);
         _enderecoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId)).ReturnsAsync([existente]);
+        var segundo = CriarDTO();
+        segundo.Numero = 456;
 
-        await _enderecoService.Cadastrar(CriarDTO(), usuarioId);
+        await _enderecoService.Cadastrar(segundo, usuarioId);
 
         _enderecoRepositoryMock.Verify(r => r.Adicionar(
             It.Is<Endereco>(e => !e.Padrao)), Times.Once);
@@ -145,6 +148,7 @@ public class EnderecoServiceTests
         var usuarioId = Guid.NewGuid();
         var endereco = CriarEndereco(usuarioId, DateTime.UtcNow);
         _enderecoRepositoryMock.Setup(r => r.Buscar(endereco.EnderecoId, usuarioId)).ReturnsAsync(endereco);
+        _enderecoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId)).ReturnsAsync([endereco]);
         var dto = CriarDTO(endereco.EnderecoId);
         dto.Numero = 456;
 
@@ -152,6 +156,107 @@ public class EnderecoServiceTests
 
         Assert.Equal(456, endereco.Numero);
         _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_MesmoCepNumeroEComplemento_Quando_Cadastrar_Entao_DeveLancarInvalidOperationException()
+    {
+        var usuarioId = Guid.NewGuid();
+        var existente = CriarEndereco(usuarioId, DateTime.UtcNow, complemento: "Apto 101");
+        _enderecoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId)).ReturnsAsync([existente]);
+        var dto = CriarDTO();
+        dto.Complemento = "Apto 101";
+
+        var erro = await Assert.ThrowsAsync<InvalidOperationException>(() => _enderecoService.Cadastrar(dto, usuarioId));
+
+        Assert.Equal(MensagensEndereco.EnderecoRepetido, erro.Message);
+        _enderecoRepositoryMock.Verify(r => r.Adicionar(It.IsAny<Endereco>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_OutroEnderecoComMesmoCepNumeroEComplemento_Quando_Editar_Entao_DeveLancarInvalidOperationException()
+    {
+        var usuarioId = Guid.NewGuid();
+        var outro = CriarEndereco(usuarioId, DateTime.UtcNow.AddDays(-1));
+        var editado = CriarEndereco(usuarioId, DateTime.UtcNow);
+        editado.AtualizarDados("São Paulo", "Barra Bonita", "Centro", "17340-000", "Rua das Flores", 456, null);
+        _enderecoRepositoryMock.Setup(r => r.Buscar(editado.EnderecoId, usuarioId)).ReturnsAsync(editado);
+        _enderecoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId)).ReturnsAsync([outro, editado]);
+        var dto = CriarDTO(editado.EnderecoId);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _enderecoService.Editar(dto, usuarioId));
+
+        Assert.Equal(456, editado.Numero);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_EdicaoDoProprioEndereco_Quando_EnderecoJaCadastrado_Entao_DeveRetornarFalse()
+    {
+        var usuarioId = Guid.NewGuid();
+        var endereco = CriarEndereco(usuarioId, DateTime.UtcNow);
+        _enderecoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId)).ReturnsAsync([endereco]);
+
+        var repetido = await _enderecoService.EnderecoJaCadastrado(CriarDTO(endereco.EnderecoId), usuarioId);
+
+        Assert.False(repetido);
+    }
+
+    [Fact]
+    public async Task Dado_CepComMascaraIgualAoExistente_Quando_EnderecoJaCadastrado_Entao_DeveRetornarTrue()
+    {
+        var usuarioId = Guid.NewGuid();
+        _enderecoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId))
+            .ReturnsAsync([CriarEndereco(usuarioId, DateTime.UtcNow)]);
+        var dto = CriarDTO();
+        dto.CEP = "17340000";
+
+        var repetido = await _enderecoService.EnderecoJaCadastrado(dto, usuarioId);
+
+        Assert.True(repetido);
+    }
+
+    [Fact]
+    public async Task Dado_MesmoCepENumeroComComplementoDiferente_Quando_EnderecoJaCadastrado_Entao_DeveRetornarFalse()
+    {
+        var usuarioId = Guid.NewGuid();
+        _enderecoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId))
+            .ReturnsAsync([CriarEndereco(usuarioId, DateTime.UtcNow, complemento: "Apto 101")]);
+        var dto = CriarDTO();
+        dto.Complemento = "Apto 102";
+
+        var repetido = await _enderecoService.EnderecoJaCadastrado(dto, usuarioId);
+
+        Assert.False(repetido);
+    }
+
+    [Fact]
+    public async Task Dado_ComplementoComCaixaEEspacoDiferentes_Quando_EnderecoJaCadastrado_Entao_DeveRetornarTrue()
+    {
+        var usuarioId = Guid.NewGuid();
+        _enderecoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId))
+            .ReturnsAsync([CriarEndereco(usuarioId, DateTime.UtcNow, complemento: "Apto 101")]);
+        var dto = CriarDTO();
+        dto.Complemento = "  APTO 101 ";
+
+        var repetido = await _enderecoService.EnderecoJaCadastrado(dto, usuarioId);
+
+        Assert.True(repetido);
+    }
+
+    [Fact]
+    public async Task Dado_ComplementoNuloEVazio_Quando_EnderecoJaCadastrado_Entao_DeveRetornarTrue()
+    {
+        var usuarioId = Guid.NewGuid();
+        _enderecoRepositoryMock.Setup(r => r.BuscarPorUsuario(usuarioId))
+            .ReturnsAsync([CriarEndereco(usuarioId, DateTime.UtcNow, complemento: null)]);
+        var dto = CriarDTO();
+        dto.Complemento = "   ";
+
+        var repetido = await _enderecoService.EnderecoJaCadastrado(dto, usuarioId);
+
+        Assert.True(repetido);
     }
 
     [Fact]

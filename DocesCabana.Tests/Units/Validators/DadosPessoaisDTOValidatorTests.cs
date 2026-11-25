@@ -9,13 +9,40 @@ public class DadosPessoaisDTOValidatorTests
     private readonly DadosPessoaisDTOValidator _validator = new();
 
     private static DadosPessoaisDTO CriarValido(
-        string? nome = "Cliente Teste", string? celular = "(14) 99999-9999", DateTime? dataNascimento = null) => new()
+        string? nome = "Cliente Teste", string? celular = "(14) 99999-9999", DateTime? dataNascimento = null,
+        string? cpf = "52998224725") => new()
     {
         Nome = nome!,
         Celular = celular!,
         DataNascimento = dataNascimento ?? new DateTime(1994, 6, 6),
-        CPF = "52998224725",
+        CPF = cpf,
     };
+
+    [Fact]
+    public void Dado_CpfComMascaraValido_Quando_Validar_Entao_DeveSerValido()
+    {
+        var resultado = _validator.Validate(CriarValido(cpf: "529.982.247-25"));
+
+        Assert.True(resultado.IsValid);
+    }
+
+    [Fact]
+    public void Dado_CpfInvalido_Quando_Validar_Entao_DeveSerInvalido()
+    {
+        var resultado = _validator.Validate(CriarValido(cpf: "123.456.789-00"));
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "CPF" && e.ErrorMessage == "CPF inválido.");
+    }
+
+    [Fact]
+    public void Dado_CpfVazio_Quando_Validar_Entao_DeveSerInvalido()
+    {
+        var resultado = _validator.Validate(CriarValido(cpf: ""));
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "CPF" && e.ErrorMessage == "O CPF é obrigatório!");
+    }
 
     [Fact]
     public void Dado_DadosPessoaisValidos_Quando_Validar_Entao_DeveSerValido()

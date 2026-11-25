@@ -27,8 +27,9 @@
 
                 <div class="linha-dupla">
                     <div class="campo-entrada">
-                        <label>CPF</label>
-                        <span class="cpf-somente-leitura">@Model.CPF</span>
+                        <label asp-for="CPF">CPF</label>
+                        <input asp-for="CPF" type="text" id="CPF" placeholder="000.000.000-00" class="campo-texto" required />
+                        <span asp-validation-for="CPF" class="mensagem-erro"></span>
                     </div>
 
                     <div class="campo-entrada">
