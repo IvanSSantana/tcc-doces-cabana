@@ -14,4 +14,8 @@ public interface IAdministradorService
     Task Desativar(Guid administradorId, Guid executorId);
 
     Task Reativar(Guid administradorId, Guid executorId);
+
+    Task<UsuarioDTO> BuscarAdministrador(Guid administradorId, Guid executorId);
+
+    Task EditarAdministrador(Guid administradorId, UsuarioDTO dados, Guid executorId);
 }

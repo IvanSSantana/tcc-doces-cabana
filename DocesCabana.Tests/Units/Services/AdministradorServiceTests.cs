@@ -1,5 +1,6 @@
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.Contracts.Repositories;
+using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
 using DocesCabana.Domain.Constants;
 using DocesCabana.Domain.Entities;
@@ -191,6 +192,63 @@ public class AdministradorServiceTests
 
         Assert.True(await _administradorService.EhPrincipal(principal.Id));
         Assert.False(await _administradorService.EhPrincipal(alvo.Id));
+    }
+
+    [Fact]
+    public async Task Dado_PrincipalEAlvoAdmin_Quando_BuscarAdministrador_Entao_DeveDevolverOsDadosDoAlvo()
+    {
+        var (principal, alvo) = PrepararPrincipalEAlvo();
+        var dados = new UsuarioDTO { Id = alvo.Id, Nome = "Alvo", Email = "alvo@doces.com" };
+        _usuarioServiceMock.Setup(s => s.BuscarUsuarioPorId(alvo.Id)).ReturnsAsync(dados);
+
+        var resultado = await _administradorService.BuscarAdministrador(alvo.Id, principal.Id);
+
+        Assert.Same(dados, resultado);
+    }
+
+    [Fact]
+    public async Task Dado_PrincipalEAlvoAdmin_Quando_EditarAdministrador_Entao_DeveAlterarOsDadosDoAlvo()
+    {
+        var (principal, alvo) = PrepararPrincipalEAlvo();
+        var dto = new UsuarioDTO { Id = Guid.NewGuid(), Nome = "Novo Nome", Email = "novo@doces.com" };
+
+        await _administradorService.EditarAdministrador(alvo.Id, dto, principal.Id);
+
+        _usuarioServiceMock.Verify(s => s.AlterarDadosUsuario(It.Is<UsuarioDTO>(
+            u => u.Id == alvo.Id && u.Nome == "Novo Nome" && u.Email == "novo@doces.com")), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_ExecutorNaoPrincipal_Quando_EditarAdministrador_Entao_DeveLancarInvalidOperationExceptionSemAlterar()
+    {
+        var (_, alvo) = PrepararPrincipalEAlvo();
+        var comum = CriarConta("comum@doces.com");
+        _userManagerMock.Setup(u => u.FindByIdAsync(comum.Id.ToString())).ReturnsAsync(comum);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _administradorService.EditarAdministrador(alvo.Id, new UsuarioDTO(), comum.Id));
+
+        _usuarioServiceMock.Verify(s => s.AlterarDadosUsuario(It.IsAny<UsuarioDTO>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_AlvoPrincipal_Quando_EditarAdministrador_Entao_DeveLancarInvalidOperationExceptionSemAlterar()
+    {
+        var (principal, _) = PrepararPrincipalEAlvo();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _administradorService.EditarAdministrador(principal.Id, new UsuarioDTO(), principal.Id));
+
+        _usuarioServiceMock.Verify(s => s.AlterarDadosUsuario(It.IsAny<UsuarioDTO>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_AlvoQueNaoEAdmin_Quando_BuscarAdministrador_Entao_DeveLancarKeyNotFoundException()
+    {
+        var (principal, alvo) = PrepararPrincipalEAlvo();
+        _userManagerMock.Setup(u => u.IsInRoleAsync(alvo, "Administrador")).ReturnsAsync(false);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _administradorService.BuscarAdministrador(alvo.Id, principal.Id));
     }
 
     private (ContaDeAcesso Principal, ContaDeAcesso Alvo) PrepararPrincipalEAlvo()

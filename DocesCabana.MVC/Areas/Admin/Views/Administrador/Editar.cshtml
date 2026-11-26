@@ -1,0 +1,62 @@
+@using DocesCabana.Application.DTOs
+@model DadosPessoaisDTO
+@{
+    ViewData["Title"] = "Editar Administrador";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/pages/autenticacao.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/pages/administradores.css" asp-append-version="true">
+
+<main class="container-autenticacao">
+    <h1 class="titulo-tela">Editar Administrador</h1>
+
+    <form asp-action="Editar" asp-route-id="@ViewContext.RouteData.Values["id"]" method="post" class="formulario-autenticacao">
+        @Html.AntiForgeryToken()
+
+        <div class="campo-entrada">
+            <label asp-for="Nome">Nome Completo</label>
+            <input asp-for="Nome" type="text" placeholder="Digite o nome completo..." class="campo-texto" required />
+            <span asp-validation-for="Nome" class="mensagem-erro"></span>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="Email">E-mail</label>
+            <input asp-for="Email" type="email" placeholder="Digite o e-mail..." class="campo-texto" required />
+            <span asp-validation-for="Email" class="mensagem-erro"></span>
+        </div>
+
+        <div class="linha-dupla">
+            <div class="campo-entrada">
+                <label asp-for="Celular">Número de celular</label>
+                <input asp-for="Celular" type="tel" placeholder="(00) 00000-0000" class="campo-texto" required />
+                <span asp-validation-for="Celular" class="mensagem-erro"></span>
+            </div>
+
+            <div class="campo-entrada">
+                <label asp-for="DataNascimento">Data de Nascimento</label>
+                <input asp-for="DataNascimento" type="text" id="DataNascimento" placeholder="DD/MM/AAAA" class="campo-texto" required />
+                <span asp-validation-for="DataNascimento" class="mensagem-erro"></span>
+            </div>
+        </div>
+
+        <div class="campo-entrada">
+            <label asp-for="CPF">CPF</label>
+            <input asp-for="CPF" type="text" id="CPF" placeholder="000.000.000-00" class="campo-texto" required />
+            <span asp-validation-for="CPF" class="mensagem-erro"></span>
+        </div>
+
+        <div class="container-link">
+            <a asp-action="Index" class="link-navegacao">Voltar para a lista</a>
+        </div>
+
+        <div class="container-botao">
+            <button type="submit" class="botao botao--primario botao-acao">Salvar alterações</button>
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+    <script src="~/js/pages/conta.js" asp-append-version="true"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

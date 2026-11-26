@@ -10,9 +10,10 @@ public class DadosPessoaisDTOValidatorTests
 
     private static DadosPessoaisDTO CriarValido(
         string? nome = "Cliente Teste", string? celular = "(14) 99999-9999", DateTime? dataNascimento = null,
-        string? cpf = "52998224725") => new()
+        string? cpf = "52998224725", string? email = "cliente@teste.com") => new()
     {
         Nome = nome!,
+        Email = email!,
         Celular = celular!,
         DataNascimento = dataNascimento ?? new DateTime(1994, 6, 6),
         CPF = cpf,
@@ -50,6 +51,24 @@ public class DadosPessoaisDTOValidatorTests
         var resultado = _validator.Validate(CriarValido());
 
         Assert.True(resultado.IsValid);
+    }
+
+    [Fact]
+    public void Dado_EmailVazio_Quando_Validar_Entao_DeveSerInvalido()
+    {
+        var resultado = _validator.Validate(CriarValido(email: ""));
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "Email" && e.ErrorMessage == "O e-mail é obrigatório!");
+    }
+
+    [Fact]
+    public void Dado_EmailSemArroba_Quando_Validar_Entao_DeveSerInvalido()
+    {
+        var resultado = _validator.Validate(CriarValido(email: "cliente.teste.com"));
+
+        Assert.False(resultado.IsValid);
+        Assert.Contains(resultado.Errors, e => e.PropertyName == "Email" && e.ErrorMessage == "O e-mail é inválido.");
     }
 
     [Fact]

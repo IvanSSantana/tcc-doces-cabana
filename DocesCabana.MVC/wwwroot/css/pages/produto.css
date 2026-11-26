@@ -32,7 +32,8 @@
 
 .bloco-compra {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0, …): sem isso a coluna cresce até a maior palavra do resumo e vaza da página. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 2.5rem;
   align-items: start;
 }
@@ -55,6 +56,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-width: 0;
 }
 
 .nome-produto {
@@ -78,6 +80,7 @@
   line-height: 1.6;
   max-width: 68ch;
   margin: 0.25rem 0;
+  overflow-wrap: anywhere;
 }
 
 .atalho-ver-mais {

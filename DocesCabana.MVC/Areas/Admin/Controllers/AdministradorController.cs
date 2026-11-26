@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using DocesCabana.Application.DTOs;
 using DocesCabana.Application.DTOs.Autenticacao;
 using DocesCabana.Application.Constants;
 using DocesCabana.Domain.Constants;
@@ -52,6 +53,59 @@ public class AdministradorController : Controller
         await _administradorService.Reativar(id, UsuarioAtualId);
 
         TempData["Confirmacao"] = "Administrador reativado.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Editar(Guid id)
+    {
+        if (!await _administradorService.EhPrincipal(UsuarioAtualId))
+            return Forbid();
+
+        var administrador = await _administradorService.BuscarAdministrador(id, UsuarioAtualId);
+
+        return View(new DadosPessoaisDTO
+        {
+            Nome = administrador.Nome,
+            Email = administrador.Email,
+            Celular = administrador.Celular,
+            DataNascimento = administrador.DataNascimento,
+            CPF = administrador.CPF,
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Editar(Guid id, DadosPessoaisDTO dto)
+    {
+        if (!await _administradorService.EhPrincipal(UsuarioAtualId))
+            return Forbid();
+
+        if (!ModelState.IsValid)
+            return View(dto);
+
+        if (await _usuarioService.CpfEmUsoPorOutraConta(dto.CPF!, id))
+        {
+            ModelState.AddModelError(nameof(DadosPessoaisDTO.CPF), MensagensCadastro.DadosJaAssociados);
+            return View(dto);
+        }
+
+        if (await _usuarioService.EmailEmUsoPorOutraConta(dto.Email.Trim(), id))
+        {
+            ModelState.AddModelError(nameof(DadosPessoaisDTO.Email), MensagensCadastro.DadosJaAssociados);
+            return View(dto);
+        }
+
+        await _administradorService.EditarAdministrador(id, new UsuarioDTO
+        {
+            Nome = dto.Nome,
+            Email = dto.Email.Trim(),
+            Celular = dto.Celular,
+            DataNascimento = dto.DataNascimento,
+            CPF = dto.CPF!,
+        }, UsuarioAtualId);
+
+        TempData["Confirmacao"] = "Administrador atualizado.";
         return RedirectToAction(nameof(Index));
     }
 

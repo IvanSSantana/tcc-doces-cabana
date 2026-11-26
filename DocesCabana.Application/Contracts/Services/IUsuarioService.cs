@@ -9,11 +9,13 @@ public interface IUsuarioService
     Task<UsuarioDTO> CadastrarUsuario(CadastroDTO usuario, string? papel = null);
     Task<bool> ContaJaExiste(string email, string cpf);
     Task<bool> CpfEmUsoPorOutraConta(string cpf, Guid usuarioId);
+    Task<bool> EmailEmUsoPorOutraConta(string email, Guid usuarioId);
     Task<UsuarioDTO> BuscarUsuarioPorId(Guid usuarioId);
     Task<UsuarioDTO?> BuscarPorLogin(string login);
     Task<UsuarioDTO> AlterarDadosUsuario(UsuarioDTO usuarioDto);
     Task<ResultadoDoLogin> RealizarLogin(string login, string senha, bool lembrarMe);
     Task RealizarLogout();
+    Task RenovarSessao(Guid usuarioId);
     Task<string> GerarTokenRedefinicaoSenha(string email);
     Task<bool> SolicitarRedefinicaoSenha(string email, string corpo);
     Task<bool> ConfirmarRedefinicaoSenha(string email, string token, string novaSenha);

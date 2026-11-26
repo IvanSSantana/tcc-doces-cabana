@@ -32,7 +32,7 @@ public class ContaDeAcesso : IdentityUser<Guid>
         @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$",
         RegexOptions.Compiled);
 
-    private void ValidarEmail(string email)
+    internal static void ValidarEmail(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentNullException(nameof(email), "Email é obrigatório!");

@@ -71,6 +71,11 @@
                                 @if (!administrador.Principal)
                                 {
                                     <div class="acoes-produto">
+                                        <a asp-area="Admin" asp-controller="Administrador" asp-action="Editar"
+                                           asp-route-id="@administrador.Id"
+                                           class="botao botao--icone botao--pequeno botao-icone" title="Editar" aria-label="Editar @administrador.Nome">
+                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                        </a>
                                         <form asp-area="Admin" asp-controller="Administrador"
                                               asp-action="@(administrador.Ativo ? "Desativar" : "Reativar")"
                                               asp-route-id="@administrador.Id" method="post"

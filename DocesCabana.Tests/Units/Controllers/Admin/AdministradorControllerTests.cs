@@ -219,6 +219,127 @@ public class AdministradorControllerTests
         Assert.NotNull(metodo.GetCustomAttributes(typeof(ValidateAntiForgeryTokenAttribute), false).SingleOrDefault());
     }
 
+    [Fact]
+    public async Task Dado_ExecutorNaoPrincipal_Quando_EditarGet_Entao_DeveRetornarForbidSemBuscar()
+    {
+        ConfigurarTempData();
+
+        var resultado = await _controller.Editar(Guid.NewGuid());
+
+        Assert.IsType<ForbidResult>(resultado);
+        _administradorServiceMock.Verify(s => s.BuscarAdministrador(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_AdminPrincipal_Quando_EditarGet_Entao_DeveDevolverOFormularioPreenchido()
+    {
+        ConfigurarTempData();
+        var alvoId = Guid.NewGuid();
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(true);
+        _administradorServiceMock.Setup(s => s.BuscarAdministrador(alvoId, _usuarioAtualId)).ReturnsAsync(new UsuarioDTO
+        {
+            Id = alvoId, Nome = "Admin Dois", Email = "admin2@doces.com", Celular = "14999999999",
+            DataNascimento = new DateTime(1990, 1, 1), CPF = "52998224725"
+        });
+
+        var resultado = await _controller.Editar(alvoId);
+
+        var view = Assert.IsType<ViewResult>(resultado);
+        var dto = Assert.IsType<DadosPessoaisDTO>(view.Model);
+        Assert.Equal("Admin Dois", dto.Nome);
+        Assert.Equal("admin2@doces.com", dto.Email);
+        Assert.Equal("52998224725", dto.CPF);
+    }
+
+    [Fact]
+    public async Task Dado_ExecutorNaoPrincipal_Quando_EditarPost_Entao_DeveRetornarForbidSemEditar()
+    {
+        ConfigurarTempData();
+
+        var resultado = await _controller.Editar(Guid.NewGuid(), CriarDadosValidos());
+
+        Assert.IsType<ForbidResult>(resultado);
+        _administradorServiceMock.Verify(s => s.EditarAdministrador(It.IsAny<Guid>(), It.IsAny<UsuarioDTO>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_ModelStateInvalido_Quando_EditarPost_Entao_DeveVoltarAViewSemEditar()
+    {
+        ConfigurarTempData();
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(true);
+        _controller.ModelState.AddModelError("Email", "O e-mail é inválido.");
+        var dto = CriarDadosValidos();
+
+        var resultado = await _controller.Editar(Guid.NewGuid(), dto);
+
+        var view = Assert.IsType<ViewResult>(resultado);
+        Assert.Same(dto, view.Model);
+        _administradorServiceMock.Verify(s => s.EditarAdministrador(It.IsAny<Guid>(), It.IsAny<UsuarioDTO>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_EmailDeOutraConta_Quando_EditarPost_Entao_DeveVoltarComErroNoEmailSemEditar()
+    {
+        ConfigurarTempData();
+        var alvoId = Guid.NewGuid();
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(true);
+        _usuarioServiceMock.Setup(s => s.EmailEmUsoPorOutraConta("admin2@doces.com", alvoId)).ReturnsAsync(true);
+
+        var resultado = await _controller.Editar(alvoId, CriarDadosValidos());
+
+        Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(MensagensCadastro.DadosJaAssociados, _controller.ModelState["Email"]!.Errors.Single().ErrorMessage);
+        _administradorServiceMock.Verify(s => s.EditarAdministrador(It.IsAny<Guid>(), It.IsAny<UsuarioDTO>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_CpfDeOutraConta_Quando_EditarPost_Entao_DeveVoltarComErroNoCpfSemEditar()
+    {
+        ConfigurarTempData();
+        var alvoId = Guid.NewGuid();
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(true);
+        _usuarioServiceMock.Setup(s => s.CpfEmUsoPorOutraConta("529.982.247-25", alvoId)).ReturnsAsync(true);
+
+        var resultado = await _controller.Editar(alvoId, CriarDadosValidos());
+
+        Assert.IsType<ViewResult>(resultado);
+        Assert.Equal(MensagensCadastro.DadosJaAssociados, _controller.ModelState["CPF"]!.Errors.Single().ErrorMessage);
+        _administradorServiceMock.Verify(s => s.EditarAdministrador(It.IsAny<Guid>(), It.IsAny<UsuarioDTO>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_AdminPrincipalEDadosValidos_Quando_EditarPost_Entao_DeveEditarERedirecionarComConfirmacao()
+    {
+        ConfigurarTempData();
+        var alvoId = Guid.NewGuid();
+        _administradorServiceMock.Setup(s => s.EhPrincipal(_usuarioAtualId)).ReturnsAsync(true);
+
+        var resultado = await _controller.Editar(alvoId, CriarDadosValidos());
+
+        _administradorServiceMock.Verify(s => s.EditarAdministrador(alvoId, It.Is<UsuarioDTO>(
+            u => u.Nome == "Admin Dois" && u.Email == "admin2@doces.com" && u.CPF == "529.982.247-25" && u.Celular == "(14) 99999-9999"),
+            _usuarioAtualId), Times.Once);
+        var redirect = Assert.IsType<RedirectToActionResult>(resultado);
+        Assert.Equal("Index", redirect.ActionName);
+        Assert.Equal("Administrador atualizado.", _controller.TempData["Confirmacao"]);
+    }
+
+    [Fact]
+    public void Dado_EditarPost_Quando_OlharOsAtributos_Entao_DeveSerPostComAntiforgery()
+    {
+        var metodo = typeof(AdministradorController).GetMethod(
+            nameof(AdministradorController.Editar), [typeof(Guid), typeof(DadosPessoaisDTO)])!;
+
+        Assert.NotNull(metodo.GetCustomAttributes(typeof(HttpPostAttribute), false).SingleOrDefault());
+        Assert.NotNull(metodo.GetCustomAttributes(typeof(ValidateAntiForgeryTokenAttribute), false).SingleOrDefault());
+    }
+
+    private static DadosPessoaisDTO CriarDadosValidos() => new()
+    {
+        Nome = "Admin Dois", Email = "admin2@doces.com", Celular = "(14) 99999-9999",
+        DataNascimento = new DateTime(1990, 1, 1), CPF = "529.982.247-25"
+    };
+
     private void ConfigurarTempData()
     {
         var httpContext = new DefaultHttpContext

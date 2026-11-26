@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Minha conta";
     ViewData["PaginaAtiva"] = "DadosPessoais";
+    var emailBloqueado = ViewData["EmailBloqueado"] is true;
 }
 
 <link rel="stylesheet" href="~/css/pages/conta.css" asp-append-version="true">
@@ -23,6 +24,20 @@
                     <label asp-for="Nome">Nome completo</label>
                     <input asp-for="Nome" type="text" class="campo-texto" required />
                     <span asp-validation-for="Nome" class="mensagem-erro"></span>
+                </div>
+
+                <div class="campo-entrada">
+                    <label asp-for="Email">E-mail</label>
+                    @if (emailBloqueado)
+                    {
+                        <input asp-for="Email" type="email" class="campo-texto" readonly />
+                        <small class="dica-campo">O e-mail do administrador principal não pode ser alterado.</small>
+                    }
+                    else
+                    {
+                        <input asp-for="Email" type="email" placeholder="Digite o e-mail..." class="campo-texto" required />
+                    }
+                    <span asp-validation-for="Email" class="mensagem-erro"></span>
                 </div>
 
                 <div class="linha-dupla">

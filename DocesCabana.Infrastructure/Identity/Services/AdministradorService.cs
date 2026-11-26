@@ -65,20 +65,34 @@ public class AdministradorService : IAdministradorService
         Garantir(await _userManager.ResetAccessFailedCountAsync(alvo));
     }
 
+    public async Task<UsuarioDTO> BuscarAdministrador(Guid administradorId, Guid executorId)
+    {
+        var alvo = await BuscarAlvoOuFalhar(administradorId, executorId);
+        return await _usuarioService.BuscarUsuarioPorId(alvo.Id);
+    }
+
+    public async Task EditarAdministrador(Guid administradorId, UsuarioDTO dados, Guid executorId)
+    {
+        var alvo = await BuscarAlvoOuFalhar(administradorId, executorId);
+
+        dados.Id = alvo.Id;
+        await _usuarioService.AlterarDadosUsuario(dados);
+    }
+
     /// <summary>
     /// Segunda barreira da autorização (spec 039, D7): o controller já recusa quem não é principal.
     /// </summary>
     private async Task<ContaDeAcesso> BuscarAlvoOuFalhar(Guid administradorId, Guid executorId)
     {
         if (!await EhPrincipal(executorId))
-            throw new InvalidOperationException("Só o administrador principal pode desativar ou reativar administradores.");
+            throw new InvalidOperationException("Só o administrador principal pode gerenciar outros administradores.");
 
         var alvo = await _userManager.FindByIdAsync(administradorId.ToString());
         if (alvo is null || !await _userManager.IsInRoleAsync(alvo, Papeis.Administrador))
             throw new KeyNotFoundException("Administrador não encontrado.");
 
         if (alvo.EhAdministradorPrincipal)
-            throw new InvalidOperationException("O administrador principal não pode ser desativado.");
+            throw new InvalidOperationException("O administrador principal não pode ser desativado nem editado por aqui.");
 
         return alvo;
     }

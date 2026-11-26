@@ -100,6 +100,12 @@ public class UsuarioService : IUsuarioService
         return dono is not null && dono.UsuarioId != usuarioId;
     }
 
+    public async Task<bool> EmailEmUsoPorOutraConta(string email, Guid usuarioId)
+    {
+        var dono = await _userManager.FindByEmailAsync(email);
+        return dono is not null && dono.Id != usuarioId;
+    }
+
     public async Task<UsuarioDTO> BuscarUsuarioPorId(Guid usuarioId)
     {
         var conta = await _userManager.FindByIdAsync(usuarioId.ToString());
@@ -152,13 +158,43 @@ public class UsuarioService : IUsuarioService
         if (await CpfEmUsoPorOutraConta(usuarioDto.CPF, usuarioDto.Id))
             throw new InvalidOperationException(MensagensCadastro.DadosJaAssociados);
 
+        var novoEmail = usuarioDto.Email?.Trim();
+        var trocaEmail = !string.IsNullOrEmpty(novoEmail) &&
+            !string.Equals(novoEmail, conta.Email, StringComparison.OrdinalIgnoreCase);
+
+        if (trocaEmail)
+            await GarantirQuePodeTrocarEmail(conta, novoEmail!);
+
         usuario.AtualizarDados(usuarioDto.Nome, TelefoneHelper.ApenasDigitos(usuarioDto.Celular), usuarioDto.DataNascimento);
         usuario.AlterarCpf(usuarioDto.CPF);
 
         await _usuarioRepository.Atualizar(usuario);
+
+        if (trocaEmail)
+        {
+            // O e-mail também é o login (UserName); os dois mudam juntos.
+            Garantir(await _userManager.SetEmailAsync(conta, novoEmail));
+            Garantir(await _userManager.SetUserNameAsync(conta, novoEmail));
+        }
+
         await _unitOfWork.SalvarAlteracoes();
 
         return UsuarioMapper.ToDTO(usuario, conta);
+    }
+
+    /// <summary>
+    /// Guardas da troca de e-mail, antes de qualquer gravação. O admin principal é reconhecido
+    /// pelo e-mail (spec 039, D1): trocar o dele apagaria quem é o principal.
+    /// </summary>
+    private async Task GarantirQuePodeTrocarEmail(ContaDeAcesso conta, string novoEmail)
+    {
+        if (conta.EhAdministradorPrincipal)
+            throw new InvalidOperationException(MensagensCadastro.EmailDoPrincipalImutavel);
+
+        ContaDeAcesso.ValidarEmail(novoEmail);
+
+        if (await EmailEmUsoPorOutraConta(novoEmail, conta.Id))
+            throw new InvalidOperationException(MensagensCadastro.DadosJaAssociados);
     }
 
     public async Task<ResultadoDoLogin> RealizarLogin(string login, string senha, bool lembrarMe)
@@ -181,6 +217,19 @@ public class UsuarioService : IUsuarioService
     public async Task RealizarLogout()
     {
         await _signInManager.SignOutAsync();
+    }
+
+    /// <summary>
+    /// Trocar o e-mail troca o carimbo de segurança; sem reemitir o cookie, a pessoa cairia da
+    /// sessão na próxima validação (1 minuto).
+    /// </summary>
+    public async Task RenovarSessao(Guid usuarioId)
+    {
+        var conta = await _userManager.FindByIdAsync(usuarioId.ToString());
+        if (conta is null)
+            throw new KeyNotFoundException($"Usuário com ID {usuarioId} não encontrado.");
+
+        await _signInManager.RefreshSignInAsync(conta);
     }
 
     public async Task<string> GerarTokenRedefinicaoSenha(string email)
@@ -231,6 +280,12 @@ public class UsuarioService : IUsuarioService
         if (!resultado.Succeeded)
             return false;
         return true;
+    }
+
+    private static void Garantir(IdentityResult resultado)
+    {
+        if (!resultado.Succeeded)
+            throw new InvalidOperationException(ObterMensagensErro(resultado));
     }
 
     private static string ObterMensagensErro(IdentityResult resultado) =>

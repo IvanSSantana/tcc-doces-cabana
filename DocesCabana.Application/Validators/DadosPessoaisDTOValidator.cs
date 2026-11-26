@@ -12,6 +12,11 @@ public class DadosPessoaisDTOValidator : AbstractValidator<DadosPessoaisDTO>
             .NotEmpty().WithMessage("Nome é obrigatório!")
             .MaximumLength(100).WithMessage("O nome deve ter no máximo 100 caracteres.");
 
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("O e-mail é obrigatório!")
+            .EmailAddress().WithMessage("O e-mail é inválido.")
+            .MaximumLength(100).WithMessage("O e-mail deve ter no máximo 100 caracteres.");
+
         RuleFor(x => x.Celular)
             .NotEmpty().WithMessage("O número de telefone é obrigatório!")
             .MaximumLength(20).WithMessage("O número de telefone deve ter no máximo 20 caracteres.")

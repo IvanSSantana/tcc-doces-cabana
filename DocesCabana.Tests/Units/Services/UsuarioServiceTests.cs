@@ -1,6 +1,7 @@
 using DocesCabana.Application.Contracts.Repositories;
 using DocesCabana.Application.Contracts.Services;
 using DocesCabana.Application.DTOs;
+using DocesCabana.Domain.Constants;
 using DocesCabana.Domain.Contracts;
 using DocesCabana.Domain.Entities;
 using DocesCabana.Infrastructure.Identity;
@@ -227,6 +228,121 @@ public class UsuarioServiceTests
 
         Assert.True(await _usuarioService.CpfEmUsoPorOutraConta("54839427011", Guid.NewGuid()));
     }
+
+    [Fact]
+    public async Task Dado_NovoEmailLivre_Quando_AlterarDadosUsuario_Entao_DeveTrocarEmailELoginDaConta()
+    {
+        var id = Guid.NewGuid();
+        var (usuario, conta) = CriarParUsuarioConta(id);
+        _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString())).ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(id)).ReturnsAsync(usuario);
+        _userManagerMock.Setup(u => u.FindByEmailAsync("novo@exemplo.com")).ReturnsAsync((ContaDeAcesso?)null);
+        _userManagerMock.Setup(u => u.SetEmailAsync(conta, "novo@exemplo.com")).ReturnsAsync(IdentityResult.Success);
+        _userManagerMock.Setup(u => u.SetUserNameAsync(conta, "novo@exemplo.com")).ReturnsAsync(IdentityResult.Success);
+
+        await _usuarioService.AlterarDadosUsuario(CriarAlteracao(id, "novo@exemplo.com"));
+
+        _userManagerMock.Verify(u => u.SetEmailAsync(conta, "novo@exemplo.com"), Times.Once);
+        _userManagerMock.Verify(u => u.SetUserNameAsync(conta, "novo@exemplo.com"), Times.Once);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_MesmoEmailComCaixaDiferente_Quando_AlterarDadosUsuario_Entao_NaoDeveTrocarOEmail()
+    {
+        var id = Guid.NewGuid();
+        var (usuario, conta) = CriarParUsuarioConta(id);
+        _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString())).ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(id)).ReturnsAsync(usuario);
+
+        await _usuarioService.AlterarDadosUsuario(CriarAlteracao(id, "TESTE@exemplo.com"));
+
+        _userManagerMock.Verify(u => u.SetEmailAsync(It.IsAny<ContaDeAcesso>(), It.IsAny<string>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Once);
+    }
+
+    [Fact]
+    public async Task Dado_EmailDeOutraConta_Quando_AlterarDadosUsuario_Entao_DeveLancarInvalidOperationExceptionSemSalvar()
+    {
+        var id = Guid.NewGuid();
+        var (usuario, conta) = CriarParUsuarioConta(id);
+        var (_, outraConta) = CriarParUsuarioConta(Guid.NewGuid(), "outro@exemplo.com", "52998224725");
+        _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString())).ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(id)).ReturnsAsync(usuario);
+        _userManagerMock.Setup(u => u.FindByEmailAsync("outro@exemplo.com")).ReturnsAsync(outraConta);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _usuarioService.AlterarDadosUsuario(CriarAlteracao(id, "outro@exemplo.com")));
+
+        _userManagerMock.Verify(u => u.SetEmailAsync(It.IsAny<ContaDeAcesso>(), It.IsAny<string>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_ContaDoAdminPrincipal_Quando_AlterarDadosUsuarioComOutroEmail_Entao_DeveLancarInvalidOperationExceptionSemSalvar()
+    {
+        var id = Guid.NewGuid();
+        var (usuario, conta) = CriarParUsuarioConta(id, AdministradorPrincipal.Email);
+        _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString())).ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(id)).ReturnsAsync(usuario);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _usuarioService.AlterarDadosUsuario(CriarAlteracao(id, "novo@exemplo.com")));
+
+        _userManagerMock.Verify(u => u.SetEmailAsync(It.IsAny<ContaDeAcesso>(), It.IsAny<string>()), Times.Never);
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_EmailMalFormado_Quando_AlterarDadosUsuario_Entao_DeveLancarArgumentExceptionSemSalvar()
+    {
+        var id = Guid.NewGuid();
+        var (usuario, conta) = CriarParUsuarioConta(id);
+        _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString())).ReturnsAsync(conta);
+        _usuarioRepositoryMock.Setup(r => r.BuscarPorId(id)).ReturnsAsync(usuario);
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _usuarioService.AlterarDadosUsuario(CriarAlteracao(id, "sem-arroba")));
+
+        _unitOfWorkMock.Verify(u => u.SalvarAlteracoes(default), Times.Never);
+    }
+
+    [Fact]
+    public async Task Dado_ProprioEmail_Quando_EmailEmUsoPorOutraConta_Entao_DeveRetornarFalse()
+    {
+        var id = Guid.NewGuid();
+        var (_, conta) = CriarParUsuarioConta(id);
+        _userManagerMock.Setup(u => u.FindByEmailAsync("teste@exemplo.com")).ReturnsAsync(conta);
+
+        Assert.False(await _usuarioService.EmailEmUsoPorOutraConta("teste@exemplo.com", id));
+    }
+
+    [Fact]
+    public async Task Dado_EmailDeOutraConta_Quando_EmailEmUsoPorOutraConta_Entao_DeveRetornarTrue()
+    {
+        var (_, outraConta) = CriarParUsuarioConta(Guid.NewGuid());
+        _userManagerMock.Setup(u => u.FindByEmailAsync("teste@exemplo.com")).ReturnsAsync(outraConta);
+
+        Assert.True(await _usuarioService.EmailEmUsoPorOutraConta("teste@exemplo.com", Guid.NewGuid()));
+    }
+
+    [Fact]
+    public async Task Dado_UsuarioLogado_Quando_RenovarSessao_Entao_DeveReemitirOCookie()
+    {
+        var id = Guid.NewGuid();
+        var (_, conta) = CriarParUsuarioConta(id);
+        _userManagerMock.Setup(u => u.FindByIdAsync(id.ToString())).ReturnsAsync(conta);
+
+        await _usuarioService.RenovarSessao(id);
+
+        _signInManagerMock.Verify(s => s.RefreshSignInAsync(conta), Times.Once);
+    }
+
+    private static UsuarioDTO CriarAlteracao(Guid id, string email) => new()
+    {
+        Id = id, Nome = "Nome", Email = email, Celular = "(11) 98888-8888",
+        DataNascimento = new DateTime(1995, 5, 5), CPF = "54839427011"
+    };
 
     [Fact]
     public async Task Dado_UsuarioInexistente_Quando_AlterarDadosUsuario_Entao_DeveLancarKeyNotFoundException()

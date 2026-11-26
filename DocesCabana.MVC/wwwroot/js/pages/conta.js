@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     "use strict";
 
-    function formatarTelefone(valor) {
+    function formatarCelular(valor) {
         const digitos = valor.replace(/\D/g, "").slice(0, 11);
         let formatado = "";
         if (digitos.length > 0) formatado += "(" + digitos.slice(0, 2);
@@ -28,7 +28,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const campoCelular = document.querySelector("input[name='Celular']");
     if (campoCelular) {
-        campoCelular.addEventListener("input", (e) => { e.target.value = formatarTelefone(e.target.value); });
+        campoCelular.value = formatarCelular(campoCelular.value);
+        campoCelular.addEventListener("input", (e) => { e.target.value = formatarCelular(e.target.value); });
     }
 
     function formatarCpf(valor) {
@@ -42,6 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const campoCpf = document.querySelector("input[name='CPF']");
     if (campoCpf) {
+        campoCpf.value = formatarCpf(campoCpf.value);
         campoCpf.addEventListener("input", (e) => { e.target.value = formatarCpf(e.target.value); });
     }
 
@@ -54,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!campoCep) return;
 
     campoCep.addEventListener("input", (e) => { e.target.value = formatarCep(e.target.value); });
-
+    
     async function buscarPorCep() {
         const digitos = campoCep.value.replace(/\D/g, "");
         if (digitos.length !== 8) return;

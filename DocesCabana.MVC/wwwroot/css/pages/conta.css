@@ -153,3 +153,10 @@
   display: inline;
 }
 
+
+.dica-campo {
+  display: block;
+  color: var(--neutro-texto-suave);
+  font-size: var(--texto-pequeno);
+  line-height: 1.4;
+}
