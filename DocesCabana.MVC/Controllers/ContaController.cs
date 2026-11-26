@@ -56,7 +56,7 @@ public class ContaController : Controller
         if (ehPrincipal)
         {
             var atual = await _usuarioService.BuscarUsuarioPorId(UsuarioAtualId);
-            if (!string.Equals(atual.Email, dto.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(atual.Email, dto.Email.Trim(), StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError(nameof(DadosPessoaisDTO.Email), MensagensCadastro.EmailDoPrincipalImutavel);
                 return View("Index", dto);

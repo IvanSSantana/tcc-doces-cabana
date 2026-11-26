@@ -144,6 +144,14 @@
   width: 100%;
 }
 
+.bloco-institucional__imagem img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--raio-pequeno);
+}
+
 .bloco-institucional--invertido .bloco-institucional__conteudo {
   grid-column: 1;
 }
