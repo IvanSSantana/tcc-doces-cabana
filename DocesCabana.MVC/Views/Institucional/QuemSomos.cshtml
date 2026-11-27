@@ -7,9 +7,9 @@
 
     var blocos = new[]
     {
-        new BlocoInstitucionalViewModel("Missão", loremIpsum, "Fachada da Doce Cabana, com varanda de madeira e mesas ao ar livre", Invertido: false, Imagem: "sobre_nos2.jpg"),
-        new BlocoInstitucionalViewModel("Propósito", loremIpsum, "Prateleiras com potes de doces caseiros a granel", Invertido: true, Imagem: "sobre_nos3.jpg"),
-        new BlocoInstitucionalViewModel("Visão", loremIpsum, "Espaço reservado para foto da Visão", Invertido: false),
+        new BlocoInstitucionalViewModel("Missão", loremIpsum, "Fachada da Doce Cabana, com varanda de madeira e mesas ao ar livre", Invertido: false, Imagem: "sobre_nos1.jpg"),
+        new BlocoInstitucionalViewModel("Propósito", loremIpsum, "Prateleiras com potes de doces caseiros a granel", Invertido: true, Imagem: "sobre_nos2.jpg"),
+        new BlocoInstitucionalViewModel("Visão", loremIpsum, "Espaço reservado para foto da Visão", Invertido: false, Imagem: "sobre_nos3.png"),
     };
 }
 
@@ -17,7 +17,7 @@
 
 <main class="pagina-institucional pagina-institucional--quem-somos">
     <div class="faixa-destaque">
-        <div class="faixa-destaque__imagem imagem-reservada" role="img" aria-label="Espaço reservado para foto de destaque da loja"></div>
+        <img class="faixa-destaque__imagem" src="~/images/sobre_nos0.jpg" alt="Fachada da Doce Cabana, com varanda de madeira, luminárias de palha e mesas ao ar livre" asp-append-version="true" />
         <div class="faixa-destaque__conteudo">
             <p class="faixa-destaque__frase">
                 Revivendo os sabores da nossa <span class="palavra-manuscrita">infância</span>.

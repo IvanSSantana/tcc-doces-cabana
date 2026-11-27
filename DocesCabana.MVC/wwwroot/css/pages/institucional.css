@@ -1,4 +1,3 @@
-
 .pagina-institucional {
   color: var(--cor-tinta);
   font-family: var(--fonte-principal);
@@ -82,12 +81,28 @@
 .faixa-destaque {
   position: relative;
   width: 100%;
-  margin-top: 2rem;
 }
 
 .faixa-destaque__imagem {
+  display: block;
   width: 100%;
   height: clamp(260px, 32vw, 460px);
+  object-fit: cover;
+  object-position: center 60%;
+}
+
+/* Clareia o lado esquerdo da foto para a frase continuar legível */
+.faixa-destaque::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(253, 251, 248, 0.92) 0%,
+    rgba(253, 251, 248, 0.75) 15%,
+    rgba(253, 251, 248, 0) 55%
+  );
+  pointer-events: none;
 }
 
 .faixa-destaque__conteudo {
